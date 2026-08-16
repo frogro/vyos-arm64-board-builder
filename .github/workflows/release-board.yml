@@ -52,6 +52,9 @@ jobs:
           sudo apt-get install -y \
             gcc-aarch64-linux-gnu \
             binutils-aarch64-linux-gnu \
+            curl \
+            gnupg2 \
+            patch \
             bc \
             bison \
             flex \

@@ -41,21 +41,11 @@ find_reference_config() {
     fi
 
     #
-    # Some Armbian board families use a different LINUXFAMILY/config name.
-    # Try exact matching configs that reference the board family's family file.
+    # Never guess a reference config.  Using an unrelated Armbian
+    # kernel configuration would silently generate a bogus hardware
+    # delta.  Boards whose BOARDFAMILY differs from their kernel
+    # LINUXFAMILY will be resolved explicitly by the generic resolver.
     #
-    while IFS= read -r candidate; do
-        [[ -f "$candidate" ]] || continue
-        printf '%s\n' "$candidate"
-        return 0
-    done < <(
-        find "${armbian_dir}/config/kernel" \
-            -maxdepth 1 \
-            -type f \
-            -name "linux-*-${branch}.config" \
-            | sort
-    )
-
     return 1
 }
 
@@ -118,8 +108,16 @@ main() {
     [[ -n "$kernel_version" ]] ||
         die "Unable to determine VyOS kernel version"
 
+    #
+    # Prepare the exact upstream kernel version used by VyOS and apply
+    # the official VyOS kernel patch set before doing any board-specific
+    # Kconfig derivation. VyOS patches may themselves introduce Kconfig
+    # symbols, so this must happen first.
+    #
+    vyos_kernel_prepare "${kernel_version}"
+
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
-        die "VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
+        die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
     fi
 
     reference_config="$(find_reference_config "$board_file" "$branch" || true)"
