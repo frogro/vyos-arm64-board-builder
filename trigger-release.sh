@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BUILD_REPO="${BUILD_REPO:-frogro/vyos-arm64-board-builder}"
-WORKFLOW="${WORKFLOW:-release-board.yml}"
+WORKFLOW="${WORKFLOW:-test-bootchain.yml}"
 WORKFLOW_REF="${WORKFLOW_REF:-main}"
 
 ARMBIAN_REF="${ARMBIAN_REF:-main}"
@@ -404,10 +404,7 @@ main() {
         --repo "$BUILD_REPO" \
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
-        -f branch="$branch" \
-        -f armbian_ref="$ARMBIAN_COMMIT" \
-        -f vyos_branch="$VYOS_BRANCH" \
-        -f publish=true
+        -f branch="$branch"
 
     echo
     echo "Build dispatched."
