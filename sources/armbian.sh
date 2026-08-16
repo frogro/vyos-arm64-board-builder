@@ -9,21 +9,54 @@ armbian_source_dir() {
 
 armbian_fetch() {
     local dir
+    local ref
+
     dir="$(armbian_source_dir)"
+    ref="${ARMBIAN_REF:-${ARMBIAN_BRANCH:-main}}"
 
     if [[ -d "${dir}/.git" ]]; then
         info "Updating Armbian build framework..."
-        git -C "${dir}" fetch --depth=1 origin "${ARMBIAN_BRANCH}"
-        git -C "${dir}" reset --hard FETCH_HEAD
     else
         info "Cloning Armbian build framework..."
         rm -rf "${dir}"
+
         git clone \
-            --depth=1 \
-            --branch "${ARMBIAN_BRANCH}" \
+            --no-checkout \
+            --filter=blob:none \
             "${ARMBIAN_REPO}" \
             "${dir}"
     fi
+
+    info "Resolving Armbian reference: ${ref}"
+
+    #
+    # Works for branch names, tags and explicit commit IDs.
+    #
+    if git -C "${dir}" fetch \
+        --depth=1 \
+        origin "${ref}" 2>/dev/null; then
+
+        git -C "${dir}" reset --hard FETCH_HEAD
+    else
+        #
+        # Some servers do not allow a raw SHA as a normal refspec.
+        # Fetch the normal branch history and resolve the requested
+        # commit from there.
+        #
+        git -C "${dir}" fetch \
+            --depth=100 \
+            origin "${ARMBIAN_BRANCH:-main}"
+
+        git -C "${dir}" cat-file -e "${ref}^{commit}" 2>/dev/null ||
+            die "Unable to resolve Armbian reference: ${ref}"
+
+        git -C "${dir}" reset --hard "${ref}"
+    fi
+
+    local resolved
+    resolved="$(git -C "${dir}" rev-parse HEAD)"
+
+    info "Armbian resolved commit: ${resolved}"
 }
 
 armbian_find_board_file() {
