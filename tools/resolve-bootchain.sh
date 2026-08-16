@@ -10,166 +10,146 @@ BRANCH="${2:-current}"
 BOARD_CONF="$ARMBIAN/config/boards/${BOARD}.conf"
 
 [[ -f "$BOARD_CONF" ]] || {
-    echo "ERROR: Armbian board definition not found: $BOARD_CONF" >&2
+    echo "ERROR: board definition not found: $BOARD_CONF" >&2
     exit 1
 }
 
-get_var()
-{
-    local name="$1"
+get_var() {
+    local file="$1"
+    local name="$2"
 
     sed -n \
-        "s/^[[:space:]]*\(declare[[:space:]]\+-g[[:space:]]\+\)\?${name}=[\"']\?\([^\"'#]*\).*/\2/p" \
-        "$BOARD_CONF" |
+        "s/^[[:space:]]*\\(declare[[:space:]]\\+-g[[:space:]]\\+\\)\\?${name}=[\"']\\?\\([^\"'#]*\\).*/\\2/p" \
+        "$file" |
         head -n1 |
         sed 's/[[:space:]]*$//'
 }
 
-BOARD_NAME="$(get_var BOARD_NAME)"
-BOARD_VENDOR="$(get_var BOARD_VENDOR)"
-BOARDFAMILY="$(get_var BOARDFAMILY)"
-BOOTCONFIG="$(get_var BOOTCONFIG)"
-BOOT_FDT_FILE="$(get_var BOOT_FDT_FILE)"
-BOOT_SCENARIO="$(get_var BOOT_SCENARIO)"
-BOOT_SOC="$(get_var BOOT_SOC)"
-IMAGE_PARTITION_TABLE="$(get_var IMAGE_PARTITION_TABLE)"
+BOARD_NAME="$(get_var "$BOARD_CONF" BOARD_NAME)"
+BOARD_VENDOR="$(get_var "$BOARD_CONF" BOARD_VENDOR)"
+BOARDFAMILY="$(get_var "$BOARD_CONF" BOARDFAMILY)"
+BOOTCONFIG="$(get_var "$BOARD_CONF" BOOTCONFIG)"
+BOOT_FDT_FILE="$(get_var "$BOARD_CONF" BOOT_FDT_FILE)"
+BOOT_SCENARIO="$(get_var "$BOARD_CONF" BOOT_SCENARIO)"
+IMAGE_PARTITION_TABLE="$(get_var "$BOARD_CONF" IMAGE_PARTITION_TABLE)"
 
-OUT="$ROOT/work/build/$BOARD/boot"
-ARTIFACTS="$OUT/artifacts"
+FAMILY_FILE="$ARMBIAN/config/sources/families/${BOARDFAMILY}.conf"
 
-rm -rf "$OUT"
-mkdir -p "$ARTIFACTS"
+if [[ ! -f "$FAMILY_FILE" ]]; then
+    echo "ERROR: family file not found: $FAMILY_FILE" >&2
+    exit 1
+fi
 
-BOOT_BACKEND=""
-REQUIRES_UBOOT=no
-REQUIRES_ATF=no
-REQUIRES_DDR_BLOB=no
+COMMON_INCLUDE="$ARMBIAN/config/sources/families/include/rockchip64_common.inc"
 
-UBOOT_SOURCE=""
-UBOOT_BRANCH=""
+BOOT_SOC="$(
+    expr "${BOOTCONFIG}" : '.*\(rk[[:digit:]]\+.*\)_.*' || true
+)"
+
+BOOT_SCENARIO_EFFECTIVE="$BOOT_SCENARIO"
 DDR_BLOB=""
 BL31_BLOB=""
+UBOOT_SOURCE=""
+UBOOT_REF=""
 
-BOOTLOADER_IMAGE_1=""
-BOOTLOADER_OFFSET_1=""
-BOOTLOADER_IMAGE_2=""
-BOOTLOADER_OFFSET_2=""
+case "$BOARDFAMILY" in
+    rockchip-rk3588|rockchip64)
+        [[ -f "$COMMON_INCLUDE" ]] || {
+            echo "ERROR: Rockchip common include missing" >&2
+            exit 1
+        }
 
-case "${BOARDFAMILY}:${BRANCH}" in
+        if [[ -z "$BOOT_SCENARIO_EFFECTIVE" ]]; then
+            BOOT_SCENARIO_EFFECTIVE="spl-blobs"
+        fi
 
-    rockchip-rk3588:current)
+        if [[ "$BOOT_SOC" == "rk3588" ]]; then
+            DDR_BLOB="$(
+                sed -n \
+                    's/.*DDR_BLOB="${DDR_BLOB:-"\([^"]*\)".*/\1/p' \
+                    "$COMMON_INCLUDE" |
+                    grep 'rk3588_' |
+                    head -1
+            )"
+
+            BL31_BLOB="$(
+                sed -n \
+                    's/.*BL31_BLOB="${BL31_BLOB:-"\([^"]*\)".*/\1/p' \
+                    "$COMMON_INCLUDE" |
+                    grep 'rk3588_' |
+                    head -1
+            )"
+        fi
 
         #
-        # Armbian rockchip-rk3588 current:
+        # Resolve U-Boot defaults from the selected board family only.
         #
-        #   BOOTSOURCE = Radxa U-Boot
-        #   BOOT_SCENARIO = spl-blobs
-        #
-        # Result:
-        #   idbloader.img @ sector 64
-        #   u-boot.itb    @ sector 16384
-        #
-        # dd uses its default 512-byte block size here.
-        #
+        UBOOT_SOURCE="$(
+            sed -n                 -e 's/^[[:space:]]*BOOTSOURCE=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTSOURCE=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
+                head -1
+        )"
 
-        BOOT_BACKEND="rockchip-idb-itb"
-        BOOT_SCENARIO="${BOOT_SCENARIO:-spl-blobs}"
-        BOOT_SOC="${BOOT_SOC:-rk3588}"
+        UBOOT_REF="$(
+            sed -n                 -e 's/^[[:space:]]*BOOTBRANCH=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTBRANCH=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
+                head -1
+        )"
 
-        UBOOT_SOURCE="https://github.com/radxa/u-boot.git"
-        UBOOT_BRANCH="branch:next-dev-v2024.10"
+        UBOOT_PATCHDIR="$(
+            sed -n                 -e 's/^[[:space:]]*BOOTPATCHDIR=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTPATCHDIR=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
+                head -1
+        )"
 
-        DDR_BLOB="rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.20_20250926.bin"
-        BL31_BLOB="rk35/rk3588_bl31_v1.48.elf"
-
-        BOOTLOADER_IMAGE_1="idbloader.img"
-        BOOTLOADER_OFFSET_1=32768
-
-        BOOTLOADER_IMAGE_2="u-boot.itb"
-        BOOTLOADER_OFFSET_2=8388608
-
-        REQUIRES_UBOOT=yes
-        REQUIRES_ATF=yes
-        REQUIRES_DDR_BLOB=yes
         ;;
 
     *)
-        echo "ERROR: unsupported bootchain: ${BOARDFAMILY}/${BRANCH}" >&2
+        echo "ERROR: unsupported family resolver: $BOARDFAMILY" >&2
         exit 1
         ;;
 esac
 
-MANIFEST="$OUT/boot-manifest.env"
+case "$BOOT_SCENARIO_EFFECTIVE" in
+    spl-blobs)
+        BOOT_LAYOUT="rockchip-idb-itb"
+        ARTIFACT_1="idbloader.img"
+        OFFSET_1=32768
+        ARTIFACT_2="u-boot.itb"
+        OFFSET_2=8388608
+        ;;
+    *)
+        echo "ERROR: unsupported boot scenario: $BOOT_SCENARIO_EFFECTIVE" >&2
+        exit 1
+        ;;
+esac
 
-cat > "$MANIFEST" <<EOF_MANIFEST
-# Generated by tools/resolve-bootchain.sh
-# Do not edit manually.
+OUT="$ROOT/work/build/$BOARD/boot"
+mkdir -p "$OUT"
 
+cat > "$OUT/boot-manifest.env" <<EOF_MANIFEST
 BOARD=$BOARD
 BOARD_NAME=$BOARD_NAME
 BOARD_VENDOR=$BOARD_VENDOR
 BOARD_FAMILY=$BOARDFAMILY
 BRANCH=$BRANCH
 
-BOOT_BACKEND=$BOOT_BACKEND
-BOOT_SCENARIO=$BOOT_SCENARIO
-BOOT_SOC=$BOOT_SOC
-PARTITION_TABLE=${IMAGE_PARTITION_TABLE:-gpt}
-
 BOOTCONFIG=$BOOTCONFIG
 BOOT_FDT_FILE=$BOOT_FDT_FILE
+BOOT_SOC=$BOOT_SOC
+BOOT_SCENARIO=$BOOT_SCENARIO_EFFECTIVE
+BOOT_LAYOUT=$BOOT_LAYOUT
+
+PARTITION_TABLE=${IMAGE_PARTITION_TABLE:-gpt}
 
 UBOOT_SOURCE=$UBOOT_SOURCE
-UBOOT_BRANCH=$UBOOT_BRANCH
+UBOOT_REF=$UBOOT_REF
+UBOOT_PATCHDIR=$UBOOT_PATCHDIR
 
 DDR_BLOB=$DDR_BLOB
 BL31_BLOB=$BL31_BLOB
 
-BOOTLOADER_IMAGE_1=$BOOTLOADER_IMAGE_1
-BOOTLOADER_OFFSET_1=$BOOTLOADER_OFFSET_1
-
-BOOTLOADER_IMAGE_2=$BOOTLOADER_IMAGE_2
-BOOTLOADER_OFFSET_2=$BOOTLOADER_OFFSET_2
-
-REQUIRES_UBOOT=$REQUIRES_UBOOT
-REQUIRES_ATF=$REQUIRES_ATF
-REQUIRES_DDR_BLOB=$REQUIRES_DDR_BLOB
+ARTIFACT_1=$ARTIFACT_1
+OFFSET_1=$OFFSET_1
+ARTIFACT_2=$ARTIFACT_2
+OFFSET_2=$OFFSET_2
 EOF_MANIFEST
 
-cat > "$OUT/boot-manifest.txt" <<EOF_TEXT
-Board:              $BOARD_NAME
-Vendor:             $BOARD_VENDOR
-Family:             $BOARDFAMILY
-Branch:             $BRANCH
-
-Backend:            $BOOT_BACKEND
-Scenario:           $BOOT_SCENARIO
-SoC:                $BOOT_SOC
-Partition table:    ${IMAGE_PARTITION_TABLE:-gpt}
-
-U-Boot config:      $BOOTCONFIG
-U-Boot source:      $UBOOT_SOURCE
-U-Boot branch:      $UBOOT_BRANCH
-
-DDR blob:           $DDR_BLOB
-BL31 blob:          $BL31_BLOB
-
-Artifact 1:         $BOOTLOADER_IMAGE_1
-Offset 1:           $BOOTLOADER_OFFSET_1 bytes
-
-Artifact 2:         $BOOTLOADER_IMAGE_2
-Offset 2:           $BOOTLOADER_OFFSET_2 bytes
-
-DTB:                $BOOT_FDT_FILE
-
-Needs U-Boot:       $REQUIRES_UBOOT
-Needs ATF/BL31:     $REQUIRES_ATF
-Needs DDR blob:     $REQUIRES_DDR_BLOB
-EOF_TEXT
-
-echo "Bootchain resolved:"
-echo
-cat "$OUT/boot-manifest.txt"
-echo
-echo "Manifest:"
-echo "  $MANIFEST"
+cat "$OUT/boot-manifest.env"

@@ -1,0 +1,97 @@
+name: Test ARM64 bootchain
+
+on:
+  workflow_dispatch:
+    inputs:
+      board:
+        description: "Armbian board identifier"
+        required: true
+        default: "rock-5b"
+        type: string
+
+      branch:
+        description: "Armbian hardware branch"
+        required: true
+        default: "current"
+        type: string
+
+jobs:
+  bootchain:
+    runs-on: ubuntu-24.04
+
+    env:
+      BOARD: ${{ inputs.board }}
+      HW_BRANCH: ${{ inputs.branch }}
+      ARMBIAN_REF: main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install basic dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            docker.io \
+            dpkg-dev \
+            coreutils \
+            findutils
+
+      - name: Prepare Armbian source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p cache
+
+          git clone \
+            --depth=1 \
+            https://github.com/armbian/build.git \
+            cache/armbian-build
+
+      - name: Build bootchain
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          chmod +x \
+            tools/resolve-bootchain.sh \
+            tools/build-bootchain.sh
+
+          ./tools/build-bootchain.sh \
+            "${BOARD}" \
+            "${HW_BRANCH}"
+
+      - name: Validate bootchain result
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "===== BOOTCHAIN TREE ====="
+
+          find "work/build/${BOARD}/boot" \
+            -maxdepth 3 \
+            -type f \
+            -printf '%p %s bytes\n' \
+            | sort
+
+          test -s \
+            "work/build/${BOARD}/boot/artifacts/idbloader.img"
+
+          test -s \
+            "work/build/${BOARD}/boot/artifacts/u-boot.itb"
+
+          echo
+          echo "Bootchain validation successful."
+
+      - name: Upload bootchain artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootchain-${{ inputs.board }}-${{ inputs.branch }}
+          path: |
+            work/build/${{ inputs.board }}/boot/artifacts/**
+            work/build/${{ inputs.board }}/boot/metadata/**
+            work/build/${{ inputs.board }}/boot/boot-manifest.env
+            work/build/${{ inputs.board }}/boot/package/**
+          if-no-files-found: error
