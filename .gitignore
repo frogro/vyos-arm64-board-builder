@@ -1,0 +1,10 @@
+cache/
+work/
+out/
+
+*.img
+*.img.xz
+*.iso
+*.deb
+*.log
+*.tmp
