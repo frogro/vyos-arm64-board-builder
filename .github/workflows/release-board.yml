@@ -1,0 +1,145 @@
+name: Build VyOS ARM64 board
+
+on:
+  workflow_dispatch:
+    inputs:
+      board:
+        description: "Armbian board identifier"
+        required: true
+        default: "rock-5b"
+        type: string
+
+      branch:
+        description: "Hardware reference branch"
+        required: true
+        default: "current"
+        type: choice
+        options:
+          - current
+          - edge
+
+      vyos_branch:
+        description: "VyOS branch"
+        required: true
+        default: "rolling"
+        type: string
+
+      publish:
+        description: "Publish GitHub Release if final image exists"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    env:
+      BOARD: ${{ inputs.board }}
+      HW_BRANCH: ${{ inputs.branch }}
+      VYOS_BRANCH: ${{ inputs.vyos_branch }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu \
+            bc \
+            bison \
+            flex \
+            build-essential \
+            libssl-dev \
+            libelf-dev \
+            libncurses-dev \
+            device-tree-compiler \
+            python3 \
+            python3-pip \
+            rsync \
+            kmod \
+            cpio \
+            xz-utils \
+            zstd \
+            squashfs-tools \
+            dosfstools \
+            e2fsprogs \
+            gdisk \
+            parted
+
+      - name: Run board builder
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Show produced files
+        if: always()
+        run: |
+          echo "===== WORK TREE ====="
+          find "work/build/${BOARD}" \
+            -maxdepth 5 \
+            -type f \
+            -printf '%p %s bytes\n' \
+            2>/dev/null | sort || true
+
+      - name: Upload intermediate artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-${{ inputs.board }}-${{ inputs.branch }}
+          path: |
+            work/build/${{ inputs.board }}/artifacts/**
+            work/build/${{ inputs.board }}/config/**
+            work/build/${{ inputs.board }}/boot/**
+          if-no-files-found: warn
+
+      - name: Detect final image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="$(
+            find "work/build/${BOARD}" \
+              -maxdepth 3 \
+              -type f \
+              -name '*.img' \
+              -print \
+              -quit
+          )"
+
+          if [[ -n "$IMAGE" ]]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "path=$IMAGE" >> "$GITHUB_OUTPUT"
+            echo "Found image: $IMAGE"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No final .img yet."
+          fi
+
+      - name: Compress image
+        if: steps.image.outputs.found == 'true'
+        run: |
+          xz -T0 -9 -k "${{ steps.image.outputs.path }}"
+
+      - name: Publish release
+        if: |
+          inputs.publish == true &&
+          steps.image.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IMAGE="${{ steps.image.outputs.path }}"
+          VERSION="$(date -u +'%Y%m%d-%H%M')"
+          TAG="${BOARD}-${VERSION}"
+
+          gh release create "$TAG" \
+            "${IMAGE}.xz" \
+            --title "VyOS ARM64 ${BOARD} ${VERSION}" \
+            --notes "VyOS ARM64 board image for ${BOARD}, hardware reference ${HW_BRANCH}."
