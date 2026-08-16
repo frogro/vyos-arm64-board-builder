@@ -43,6 +43,8 @@ find_configs_for_source() {
     local obj
     local makefile
     local escaped_obj
+    local parent_obj
+    local escaped_parent
 
     dir="$(dirname "$src")"
     obj="$(basename "$src" .c).o"
@@ -51,15 +53,9 @@ find_configs_for_source() {
     [[ -f "$makefile" ]] || return 0
 
     #
-    # Match the actual object as a Makefile token.
+    # 1. Direct object mapping:
     #
-    # Examples:
-    #
-    # obj-$(CONFIG_USB_EHCI_HCD_PLATFORM) += ehci-platform.o
-    # obj-$(CONFIG_MMC_DW_ROCKCHIP)       += dw_mmc-rockchip.o
-    #
-    # Do NOT walk parent Makefiles here. Parent directory selectors
-    # are framework/dependency information and are handled by Kconfig.
+    # obj-$(CONFIG_FOO) += foo.o
     #
     escaped_obj="$(
         printf '%s\n' "$obj" |
@@ -71,7 +67,49 @@ find_configs_for_source() {
         "$makefile" 2>/dev/null |
         grep -oE 'CONFIG_[A-Za-z0-9_]+' ||
         true
+
+    #
+    # 2. One level of composite Kbuild objects:
+    #
+    # macb-y := macb_main.o
+    # obj-$(CONFIG_MACB) += macb.o
+    #
+    # Also covers common forms such as:
+    #
+    # foo-objs += foo_core.o
+    # foo-y    += foo_core.o
+    #
+    while IFS= read -r parent_obj; do
+        [[ -n "$parent_obj" ]] || continue
+
+        escaped_parent="$(
+            printf '%s\n' "${parent_obj}.o" |
+            sed 's/[][\/.^$*+?(){}|]/\\&/g'
+        )"
+
+        grep -E \
+            "(^|[[:space:]])${escaped_parent}([[:space:]]|$)" \
+            "$makefile" 2>/dev/null |
+            grep -oE 'CONFIG_[A-Za-z0-9_]+' ||
+            true
+
+    done < <(
+        awk -v obj="$obj" '
+            /^[A-Za-z0-9_.-]+-(y|objs)[[:space:]]*[:+]?=/ {
+                lhs=$1
+                sub(/-(y|objs)$/, "", lhs)
+
+                for (i=1; i<=NF; i++) {
+                    if ($i == obj) {
+                        print lhs
+                        break
+                    }
+                }
+            }
+        ' "$makefile"
+    )
 }
+
 #
 # Escape regex metacharacters in a DT compatible string.
 #

@@ -182,14 +182,22 @@ def run_merge(kernel, vyos_config, fragment, output_config):
             check=True,
         )
 
+        #
+        # Always run Kbuild out-of-tree.
+        #
+        # The kernel source cache must remain pristine because the same
+        # source tree is reused for multiple boards.
+        #
         subprocess.run(
             [
                 "make",
+                "-C",
+                str(kernel),
+                f"O={tmpdir}",
                 "ARCH=arm64",
-                f"KCONFIG_CONFIG={temp_config}",
                 "olddefconfig",
             ],
-            cwd=kernel,
+            env=env,
             check=True,
         )
 
@@ -198,6 +206,57 @@ def run_merge(kernel, vyos_config, fragment, output_config):
             encoding="utf-8"
         )
 
+
+def run_kconfig_closure(kernel, vyos_config, raw_fragment, out):
+    closure_tool = (
+        Path(__file__).resolve().parent
+        / "kconfig-closure.py"
+    )
+
+    closure_dir = out / "kconfig-closure"
+
+    if closure_dir.exists():
+        import shutil
+        shutil.rmtree(closure_dir)
+
+    subprocess.run(
+        [
+            str(closure_tool),
+            "--kernel",
+            str(kernel),
+            "--base-config",
+            str(vyos_config),
+            "--requested",
+            str(raw_fragment),
+            "--output",
+            str(closure_dir),
+        ],
+        check=True,
+    )
+
+    unresolved = closure_dir / "unresolved.txt"
+
+    if unresolved.exists() and unresolved.stat().st_size:
+        text = unresolved.read_text(
+            encoding="utf-8"
+        )
+
+        raise SystemExit(
+            "Unresolved Kconfig dependencies:\n"
+            + text
+        )
+
+    resolved = (
+        closure_dir
+        / "resolved-fragment.config"
+    )
+
+    if not resolved.is_file():
+        raise SystemExit(
+            f"Kconfig closure produced no fragment: {resolved}"
+        )
+
+    return resolved
 
 def scan_kconfig_symbols(kernel):
     config_re = re.compile(
@@ -210,9 +269,17 @@ def scan_kconfig_symbols(kernel):
     defs = {}
     reverse_select = {}
 
-    for path in Path(kernel).rglob("Kconfig*"):
+    kernel_path = Path(kernel)
+
+    for path in kernel_path.rglob("Kconfig*"):
         if not path.is_file():
             continue
+
+        rel = path.relative_to(kernel_path)
+
+        if len(rel.parts) >= 2 and rel.parts[0] == "arch":
+            if rel.parts[1] == "arm":
+                continue
 
         try:
             lines = path.read_text(
@@ -376,6 +443,14 @@ def main():
 
     driver_symbols = load_driver_symbols(driver_map)
 
+    #
+    # Current VyOS state is needed not only for final validation but
+    # also for runtime hardware policy.  Active DTB hardware whose
+    # driver is already y/m is preserved; an unavailable driver must
+    # be added to the board fragment.
+    #
+    vyos_values = read_config(vyos_config)
+
     kconfig_defs, reverse_select = scan_kconfig_symbols(
         kernel
     )
@@ -406,11 +481,51 @@ def main():
         "y"
     )
 
+    runtime_mode = policy.get(
+        "RUNTIME_MODE",
+        "preserve"
+    )
+
     for symbol in sorted(driver_symbols):
         classes = classify_symbol(symbol)
 
+        #
+        # Hardware required to reach a requested root filesystem must
+        # be built into the kernel.
+        #
         if classes & required_classes:
             selected[symbol] = boot_mode
+            continue
+
+        #
+        # All remaining symbols still came from active DTB nodes.
+        #
+        # "preserve" means:
+        #
+        #   VyOS y  -> leave untouched
+        #   VyOS m  -> leave untouched
+        #   VyOS n  -> enable, because otherwise active board
+        #              hardware would have no driver at all
+        #
+        # We currently promote missing runtime hardware to y.  This
+        # gives kconfig-closure.py a deterministic dependency target
+        # and is safe for platform infrastructure such as clocks and
+        # pinctrl.  Later we can add tristate-aware m preservation
+        # without changing the DTB selection model.
+        #
+        if runtime_mode == "preserve":
+            current = vyos_values.get(symbol, "n")
+
+            if current == "n":
+                selected[symbol] = "y"
+
+        elif runtime_mode in ("y", "m"):
+            selected[symbol] = runtime_mode
+
+        else:
+            raise SystemExit(
+                f"Unknown RUNTIME_MODE: {runtime_mode}"
+            )
 
     #
     # Add small generic infrastructure symbols where a boot class
@@ -428,8 +543,22 @@ def main():
     if "usb-phy" in required_classes:
         selected["CONFIG_TYPEC"] = boot_mode
 
+    raw_fragment = out / "generated-board.raw.config"
+    write_fragment(raw_fragment, selected)
+
+    resolved_fragment = run_kconfig_closure(
+        kernel=kernel,
+        vyos_config=vyos_config,
+        raw_fragment=raw_fragment,
+        out=out,
+    )
+
     fragment = out / "generated-board.config"
-    write_fragment(fragment, selected)
+
+    fragment.write_text(
+        resolved_fragment.read_text(encoding="utf-8"),
+        encoding="utf-8"
+    )
 
     final_config = out / "generated-final.config"
 

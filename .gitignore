@@ -8,3 +8,5 @@ out/
 *.deb
 *.log
 *.tmp
+__pycache__/
+*.pyc
