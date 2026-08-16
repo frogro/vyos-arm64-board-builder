@@ -197,22 +197,15 @@ def scan_kconfig(kernel):
     # with an empty inherited context.  Contexts then flow through all
     # source edges until a fixed point is reached.
     #
-    all_files = {
-        path.relative_to(kernel_path).as_posix()
-        for path in kernel_path.rglob("Kconfig*")
-        if path.is_file()
-    }
-
-    sourced_files = {
-        target
-        for _, target, _ in source_edges
-    }
-
-    roots = all_files - sourced_files
-
+    #
+    # Kconfig has one real entry point: the top-level Kconfig.
+    #
+    # Treating every apparently unsourced Kconfig file as an
+    # independent root creates false empty contexts and can erase
+    # inherited conditions from the real source graph.
+    #
     source_if_context = {
-        root: [tuple()]
-        for root in roots
+        "Kconfig": [tuple()]
     }
 
     changed = True
@@ -826,7 +819,11 @@ def main():
                 original_symbol
             ]
 
-            if value != "y":
+            #
+            # Both built-in and module requests require their Kconfig
+            # dependency closure to be resolved.
+            #
+            if value not in ("y", "m"):
                 continue
 
             frontend = resolve_frontend(

@@ -72,6 +72,16 @@ run_test \
     'CONFIG_SPI=y' \
     'CONFIG_SPI_MASTER=y'
 
+run_test \
+    rga-module-closure \
+    'CONFIG_VIDEO_ROCKCHIP_RGA=m' \
+    'CONFIG_MEDIA_SUPPORT=y' \
+    'CONFIG_MEDIA_PLATFORM_SUPPORT=y' \
+    'CONFIG_MEDIA_PLATFORM_DRIVERS=y' \
+    'CONFIG_V4L_MEM2MEM_DRIVERS=y' \
+    'CONFIG_VIDEO_DEV=y' \
+    'CONFIG_VIDEO_ROCKCHIP_RGA=m'
+
 echo
 echo "All Kconfig closure tests passed."
 
