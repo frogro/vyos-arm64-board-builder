@@ -33,10 +33,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             git \
-            docker.io \
             dpkg-dev \
             coreutils \
             findutils
+
+      - name: Verify Docker
+        run: |
+          docker --version
+          docker info
 
       - name: Prepare Armbian source
         shell: bash
