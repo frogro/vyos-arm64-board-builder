@@ -400,6 +400,7 @@ def main():
 
     parser.add_argument("--kernel", required=True)
     parser.add_argument("--vyos-config", required=True)
+    parser.add_argument("--reference-config")
     parser.add_argument("--driver-map", required=True)
     parser.add_argument("--boot-profile", required=True)
     parser.add_argument("--policy", required=True)
@@ -450,6 +451,13 @@ def main():
     # be added to the board fragment.
     #
     vyos_values = read_config(vyos_config)
+
+    reference_values = {}
+
+    if args.reference_config:
+        reference_values = read_config(
+            Path(args.reference_config)
+        )
 
     kconfig_defs, reverse_select = scan_kconfig_symbols(
         kernel
@@ -516,8 +524,32 @@ def main():
         if runtime_mode == "preserve":
             current = vyos_values.get(symbol, "n")
 
+            #
+            # Existing VyOS y/m values are already usable and are
+            # therefore left untouched.
+            #
             if current == "n":
-                selected[symbol] = "y"
+                reference = reference_values.get(
+                    symbol,
+                    "n"
+                )
+
+                #
+                # For runtime-only hardware preserve the tristate
+                # chosen by the known-good reference kernel.
+                #
+                # Boot-critical drivers never reach this block:
+                # they were already promoted to boot_mode above.
+                #
+                if reference in ("y", "m"):
+                    selected[symbol] = reference
+
+                #
+                # Backward compatibility for callers without a
+                # reference config: retain the previous behaviour.
+                #
+                elif not args.reference_config:
+                    selected[symbol] = "y"
 
         elif runtime_mode in ("y", "m"):
             selected[symbol] = runtime_mode

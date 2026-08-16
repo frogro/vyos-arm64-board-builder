@@ -64,5 +64,14 @@ run_test \
     'CONFIG_PCIE_ROCKCHIP_DW=y' \
     'CONFIG_PCIE_ROCKCHIP_DW_HOST=y'
 
+run_test \
+    mtd-spinand-source-context \
+    'CONFIG_MTD_SPI_NAND=y' \
+    'CONFIG_MTD=y' \
+    'CONFIG_MTD_SPI_NAND=y' \
+    'CONFIG_SPI=y' \
+    'CONFIG_SPI_MASTER=y'
+
 echo
 echo "All Kconfig closure tests passed."
+

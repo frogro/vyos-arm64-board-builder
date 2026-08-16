@@ -121,6 +121,18 @@ regex_escape() {
 while IFS= read -r compat; do
     [[ -n "$compat" ]] || continue
 
+    #
+    # Structural DT compatibles describe bus topology rather than a
+    # unique hardware driver.  "simple-bus" in particular occurs in
+    # multiple unrelated platform drivers (generic OF, i.MX, TI), so
+    # mapping it to every matching CONFIG would create false positives.
+    #
+    case "$compat" in
+        simple-bus)
+            continue
+            ;;
+    esac
+
     escaped="$(regex_escape "$compat")"
     found="no"
 

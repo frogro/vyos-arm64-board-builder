@@ -38,6 +38,22 @@ ENDMENU_RE = re.compile(
     r'^endmenu(?:\s*#.*)?$'
 )
 
+COMMENT_RE = re.compile(
+    r'^comment\s+"'
+)
+
+CHOICE_RE = re.compile(
+    r'^choice(?:\s+.*)?$'
+)
+
+ENDCHOICE_RE = re.compile(
+    r'^endchoice(?:\s*#.*)?$'
+)
+
+SOURCE_RE = re.compile(
+    r'^(?:source|rsource|osource|orsource)\s+'
+)
+
 PROMPT_RE = re.compile(
     r'^\s*(?:bool|tristate|string|int|hex)\s+"'
 )
@@ -78,6 +94,157 @@ def scan_kconfig(kernel):
 
     kernel_path = Path(kernel)
 
+    #
+    # Kconfig source files inherit structural "if" conditions from the
+    # point at which they are sourced.  Since this scanner parses files
+    # individually, collect those source-site conditions first and apply
+    # them when parsing the sourced file.
+    #
+    #
+    # Build the Kconfig source graph first.
+    #
+    # An edge records the local structural if-context around a source:
+    #
+    #   parent --[local ifs]--> child
+    #
+    # These conditions must be propagated transitively.  Example:
+    #
+    #   drivers/mtd/Kconfig
+    #       if MTD
+    #           source "drivers/mtd/nand/Kconfig"
+    #
+    #   drivers/mtd/nand/Kconfig
+    #           source "drivers/mtd/nand/spi/Kconfig"
+    #
+    # CONFIG symbols in nand/spi/Kconfig therefore inherit MTD even
+    # though their immediate source statement has no local "if MTD".
+    #
+    source_edges = []
+
+    for parent in kernel_path.rglob("Kconfig*"):
+        if not parent.is_file():
+            continue
+
+        rel_parent = parent.relative_to(kernel_path)
+
+        if (
+            len(rel_parent.parts) >= 2
+            and rel_parent.parts[0] == "arch"
+            and rel_parent.parts[1] == "arm"
+        ):
+            continue
+
+        try:
+            parent_lines = parent.read_text(
+                encoding="utf-8",
+                errors="ignore"
+            ).splitlines()
+        except OSError:
+            continue
+
+        local_if_stack = []
+
+        for parent_line in parent_lines:
+            m = IF_RE.match(parent_line)
+
+            if m:
+                local_if_stack.append(m.group(1))
+                continue
+
+            if ENDIF_RE.match(parent_line):
+                if local_if_stack:
+                    local_if_stack.pop()
+                continue
+
+            m = re.match(
+                r'^source\s+"([^"]+)"\s*$',
+                parent_line
+            )
+
+            if not m:
+                continue
+
+            source_name = m.group(1)
+
+            #
+            # Variable-expanded source paths cannot be resolved here
+            # without evaluating the complete Kconfig environment.
+            #
+            if "$" in source_name:
+                continue
+
+            target = kernel_path / source_name
+
+            try:
+                target_rel = (
+                    target.resolve()
+                    .relative_to(kernel_path.resolve())
+                    .as_posix()
+                )
+            except (OSError, ValueError):
+                continue
+
+            source_edges.append(
+                (
+                    rel_parent.as_posix(),
+                    target_rel,
+                    tuple(local_if_stack),
+                )
+            )
+
+    #
+    # Determine roots of the resolvable source graph.  A root starts
+    # with an empty inherited context.  Contexts then flow through all
+    # source edges until a fixed point is reached.
+    #
+    all_files = {
+        path.relative_to(kernel_path).as_posix()
+        for path in kernel_path.rglob("Kconfig*")
+        if path.is_file()
+    }
+
+    sourced_files = {
+        target
+        for _, target, _ in source_edges
+    }
+
+    roots = all_files - sourced_files
+
+    source_if_context = {
+        root: [tuple()]
+        for root in roots
+    }
+
+    changed = True
+
+    while changed:
+        changed = False
+
+        for parent, target, local_context in source_edges:
+            parent_contexts = source_if_context.get(
+                parent,
+                []
+            )
+
+            if not parent_contexts:
+                continue
+
+            for parent_context in parent_contexts:
+                combined = tuple(
+                    dict.fromkeys(
+                        parent_context + local_context
+                    )
+                )
+
+                contexts = source_if_context.setdefault(
+                    target,
+                    []
+                )
+
+                if combined not in contexts:
+                    contexts.append(combined)
+                    changed = True
+
     for path in kernel_path.rglob("Kconfig*"):
         if not path.is_file():
             continue
@@ -102,10 +269,41 @@ def scan_kconfig(kernel):
         except OSError:
             continue
 
-        if_stack = []
+        inherited_if_contexts = source_if_context.get(
+            rel.as_posix(),
+            []
+        )
+
+        #
+        # Most Kconfig files have one structural source site.  If the
+        # same file is sourced from multiple contexts, keep only
+        # conditions common to every source site; adding a condition
+        # which applies at only one source site would over-constrain the
+        # symbol.
+        #
+        inherited_ifs = []
+
+        if inherited_if_contexts:
+            inherited_ifs = list(inherited_if_contexts[0])
+
+            for context in inherited_if_contexts[1:]:
+                inherited_ifs = [
+                    expr
+                    for expr in inherited_ifs
+                    if expr in context
+                ]
+
+        if_stack = list(inherited_ifs)
         menu_stack = []
         current = None
-        current_menu = None
+
+        #
+        # True only directly after a "menu" statement while parsing
+        # properties belonging to that menu header.  This prevents a
+        # later "comment ... / depends on ..." from being mistaken for
+        # a dependency of the surrounding menu.
+        #
+        menu_header_open = False
 
         for lineno, line in enumerate(lines, 1):
             stripped = line.strip()
@@ -124,35 +322,51 @@ def scan_kconfig(kernel):
 
             if MENU_RE.match(line):
                 menu_stack.append([])
-                current_menu = menu_stack[-1]
                 current = None
+                menu_header_open = True
                 continue
 
             if ENDMENU_RE.match(line):
                 if menu_stack:
                     menu_stack.pop()
 
-                current_menu = (
-                    menu_stack[-1]
-                    if menu_stack
-                    else None
-                )
-
                 current = None
+                menu_header_open = False
                 continue
 
             #
-            # A depends-on line directly inside a menu belongs to the
-            # complete menu subtree, not to the previous config.
+            # Only dependencies in the menu header itself apply to
+            # every entry in that menu.
             #
             m = DEPENDS_RE.match(line)
 
-            if m and current is None and current_menu is not None:
-                current_menu.append(m.group(1))
+            if (
+                m
+                and current is None
+                and menu_stack
+                and menu_header_open
+            ):
+                menu_stack[-1].append(m.group(1))
+                continue
+
+            #
+            # comment/choice/source start independent Kconfig entries.
+            # Their own "depends on" expressions must never leak into
+            # the surrounding menu.
+            #
+            if (
+                COMMENT_RE.match(line)
+                or CHOICE_RE.match(line)
+                or ENDCHOICE_RE.match(line)
+                or SOURCE_RE.match(line)
+            ):
+                current = None
+                menu_header_open = False
                 continue
 
             m = CONFIG_RE.match(line)
             if m:
+                menu_header_open = False
                 symbol = m.group(1)
 
                 current = defs.setdefault(
