@@ -1,0 +1,92 @@
+name: Test VyOS ARM64 raw image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  vyos-arm64-raw:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout board builder
+        uses: actions/checkout@v4
+
+      - name: Verify Docker
+        run: |
+          docker --version
+          docker info
+
+      - name: Checkout official VyOS build
+        run: |
+          git clone \
+            --depth=1 \
+            --branch rolling \
+            https://github.com/vyos/vyos-build.git \
+            cache/vyos-build
+
+      - name: Pull official VyOS build container
+        run: |
+          docker pull vyos/vyos-build:rolling
+
+      - name: Build official VyOS ARM64 raw image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker run --rm --privileged \
+            -v "$PWD/cache/vyos-build:/vyos" \
+            -v "$PWD/profiles/vyos-flavors:/vyos-custom-flavors:ro" \
+            -w /vyos \
+            vyos/vyos-build:rolling \
+            sudo env \
+              VYOS_BUILD_FLAVORS_DIR=/vyos-custom-flavors \
+              ./build-vyos-image \
+                --architecture arm64 \
+                arm64-raw
+
+      - name: Show generated images
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "===== VYOS BUILD OUTPUT ====="
+
+          find cache/vyos-build \
+            -maxdepth 3 \
+            -type f \
+            \( -name '*.raw' -o -name '*.img' -o -name '*.iso' -o -name '*.xz' \) \
+            -printf '%p %s bytes\n' \
+            | sort
+
+      - name: Locate raw image
+        id: raw
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="$(
+            find cache/vyos-build \
+              -maxdepth 3 \
+              -type f \
+              -name '*.raw' \
+              -print \
+              | head -1
+          )"
+
+          if [[ -z "$IMAGE" ]]; then
+            echo "ERROR: no VyOS ARM64 raw image produced"
+            exit 1
+          fi
+
+          echo "path=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "VyOS ARM64 raw image: $IMAGE"
+          ls -lh "$IMAGE"
+
+      - name: Upload VyOS ARM64 raw image
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-arm64-raw
+          path: ${{ steps.raw.outputs.path }}
+          if-no-files-found: error
+          compression-level: 1
