@@ -25,6 +25,12 @@ jobs:
             https://github.com/vyos/vyos-build.git \
             cache/vyos-build
 
+      - name: Enable ARM64 binfmt
+        run: |
+          docker run --privileged --rm             tonistiigi/binfmt             --install arm64
+
+          docker run --rm             --platform linux/arm64             alpine             uname -m
+
       - name: Pull official VyOS build container
         run: |
           docker pull vyos/vyos-build:rolling
