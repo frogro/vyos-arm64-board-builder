@@ -147,6 +147,9 @@ jobs:
               "$RAW" \
               "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
+          sudo chown "$(id -u):$(id -g)" \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
       - name: Show final image layout
         run: |
           sudo fdisk -l \
