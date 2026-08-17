@@ -112,18 +112,6 @@ jobs:
             -type f \
             -printf '%p %s bytes\n'
 
-      - name: Build board-specific official VyOS kernel
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          chmod +x build.sh
-          ./build.sh
-
-          echo
-          echo "===== KERNEL RELEASE ====="
-          cat "work/build/${BOARD}/artifacts/kernel.release"
-
       - name: Build Armbian-derived board bootchain
         shell: bash
         run: |
@@ -137,6 +125,18 @@ jobs:
             "${BOARD}" \
             "${HW_BRANCH}" \
             "${BOOT_BRANCH}"
+
+      - name: Build board-specific official VyOS kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          chmod +x build.sh
+          ./build.sh
+
+          echo
+          echo "===== KERNEL RELEASE ====="
+          cat "work/build/${BOARD}/artifacts/kernel.release"
 
       - name: Assemble board image
         shell: bash
