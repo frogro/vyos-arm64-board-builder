@@ -35,6 +35,30 @@ jobs:
         run: |
           docker pull vyos/vyos-build:rolling
 
+      - name: Configure build swap
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "===== MEMORY BEFORE SWAP ====="
+          free -h
+
+          sudo swapoff -a || true
+          sudo rm -f /swapfile
+
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+          echo
+          echo "===== MEMORY AFTER SWAP ====="
+          free -h
+
+          echo
+          echo "===== ACTIVE SWAP ====="
+          swapon --show
+
       - name: Build official VyOS ARM64 raw image
         shell: bash
         run: |
