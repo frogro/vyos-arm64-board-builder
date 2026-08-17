@@ -12,6 +12,7 @@ VYOS_BRANCH="${VYOS_BRANCH:-rolling}"
 
 RAW_RUN_ID="${RAW_RUN_ID:-32008814114}"
 PUBLISH_RELEASE="${PUBLISH_RELEASE:-true}"
+BOOT_BRANCH="${BOOT_BRANCH:-auto}"
 
 CACHE_ROOT="${XDG_CACHE_HOME:-$HOME/.cache}/vyos-arm64-board-builder"
 ARMBIAN_CACHE="${CACHE_ROOT}/armbian-build"
@@ -408,6 +409,7 @@ main() {
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
         -f branch="$branch" \
+        -f boot_branch="$BOOT_BRANCH" \
         -f raw_run_id="$RAW_RUN_ID" \
         -f publish_release="$PUBLISH_RELEASE"
 

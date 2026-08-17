@@ -15,6 +15,12 @@ on:
         default: "current"
         type: string
 
+      boot_branch:
+        description: "U-Boot reference branch (auto, edge, current, vendor)"
+        required: true
+        default: "auto"
+        type: string
+
       raw_run_id:
         description: "Successful VyOS ARM64 raw workflow run"
         required: true
@@ -39,6 +45,7 @@ jobs:
     env:
       BOARD: ${{ inputs.board }}
       HW_BRANCH: ${{ inputs.branch }}
+      BOOT_BRANCH: ${{ inputs.boot_branch }}
       VYOS_BRANCH: rolling
       ARMBIAN_REF: main
       JOBS: 4
@@ -128,7 +135,8 @@ jobs:
 
           ./tools/build-bootchain.sh \
             "${BOARD}" \
-            "${HW_BRANCH}"
+            "${HW_BRANCH}" \
+            "${BOOT_BRANCH}"
 
       - name: Assemble board image
         shell: bash

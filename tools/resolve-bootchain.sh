@@ -4,8 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ARMBIAN="${ARMBIAN:-$ROOT/cache/armbian-build}"
 
-BOARD="${1:?Usage: $0 <board> [branch]}"
-BRANCH="${2:-current}"
+BOARD="${1:?Usage: $0 <board> [hardware-branch] [boot-branch]}"
+HW_BRANCH="${2:-current}"
+BOOT_BRANCH="${3:-$HW_BRANCH}"
 
 BOARD_CONF="$ARMBIAN/config/boards/${BOARD}.conf"
 
@@ -129,7 +130,9 @@ mkdir -p "$OUT"
     printf 'BOARD_NAME=%q\n' "$BOARD_NAME"
     printf 'BOARD_VENDOR=%q\n' "$BOARD_VENDOR"
     printf 'BOARD_FAMILY=%q\n' "$BOARDFAMILY"
-    printf 'BRANCH=%q\n' "$BRANCH"
+    printf 'BRANCH=%q\n' "$HW_BRANCH"
+    printf 'HW_BRANCH=%q\n' "$HW_BRANCH"
+    printf 'BOOT_BRANCH=%q\n' "$BOOT_BRANCH"
     printf '\n'
 
     printf 'BOOTCONFIG=%q\n' "$BOOTCONFIG"

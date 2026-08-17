@@ -4,8 +4,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ARMBIAN="${ARMBIAN:-$ROOT/cache/armbian-build}"
 
-BOARD="${1:?Usage: $0 <board> [branch]}"
-BRANCH="${2:-current}"
+BOARD="${1:?Usage: $0 <board> [hardware-branch] [boot-branch]}"
+HW_BRANCH="${2:-current}"
+BOOT_BRANCH_REQUESTED="${3:-auto}"
+
+BOOT_BRANCH="$(
+    "$ROOT/tools/select-uboot-branch.sh"         "$BOARD"         "$BOOT_BRANCH_REQUESTED"
+)"
 
 OUT="$ROOT/work/build/$BOARD/boot"
 PACKAGE_OUT="$OUT/package"
@@ -21,7 +26,7 @@ mkdir -p \
 #
 # Resolve/refresh the normalized manifest first.
 #
-"$ROOT/tools/resolve-bootchain.sh" "$BOARD" "$BRANCH"
+"$ROOT/tools/resolve-bootchain.sh"     "$BOARD"     "$HW_BRANCH"     "$BOOT_BRANCH"
 
 [[ -x "$ARMBIAN/compile.sh" ]] || {
     echo "ERROR: Armbian compile.sh not found: $ARMBIAN/compile.sh" >&2
@@ -36,7 +41,7 @@ echo "===== BUILDING ARMBIAN U-BOOT ARTIFACT ====="
 
     ./compile.sh \
         BOARD="$BOARD" \
-        BRANCH="$BRANCH" \
+        BRANCH="$BOOT_BRANCH" \
         uboot
 )
 
@@ -47,7 +52,7 @@ DEB="$(
     find "$ARMBIAN/output/debs" \
         -maxdepth 1 \
         -type f \
-        -name "linux-u-boot-${BOARD}-${BRANCH}_*.deb" \
+        -name "linux-u-boot-${BOARD}-${BOOT_BRANCH}_*.deb" \
         -printf '%T@ %p\n' \
         2>/dev/null |
         sort -nr |
@@ -56,7 +61,7 @@ DEB="$(
 )"
 
 [[ -n "$DEB" && -f "$DEB" ]] || {
-    echo "ERROR: U-Boot package not found for ${BOARD}/${BRANCH}" >&2
+    echo "ERROR: U-Boot package not found for ${BOARD}/${BOOT_BRANCH}" >&2
     exit 1
 }
 
@@ -74,7 +79,7 @@ UBOOT_BIN_DIR="$(
     find "$EXTRACT_OUT/usr/lib" \
         -maxdepth 1 \
         -type d \
-        -name "linux-u-boot-${BRANCH}-${BOARD}" \
+        -name "linux-u-boot-${BOOT_BRANCH}-${BOARD}" \
         -print \
         -quit
 )"
@@ -109,6 +114,26 @@ META_MAIN="$UBOOT_BIN_DIR/u-boot-metadata.sh"
 #
 # shellcheck disable=SC1090
 source "$META_MAIN"
+
+#
+# Armbian's generated package metadata is authoritative.
+# Board/family hooks have already run at this point.
+#
+MANIFEST="$OUT/boot-manifest.env"
+
+{
+    printf '\n'
+    printf 'UBOOT_BUILD_BRANCH=%q\n' "$BOOT_BRANCH"
+    printf 'UBOOT_VERSION=%q\n' "${UBOOT_VERSION:-unknown}"
+    printf 'UBOOT_ARTIFACT_VERSION=%q\n' "${UBOOT_ARTIFACT_VERSION:-unknown}"
+    printf 'UBOOT_GIT_SOURCE=%q\n' "${UBOOT_GIT_SOURCE:-unknown}"
+    printf 'UBOOT_GIT_REVISION=%q\n' "${UBOOT_GIT_REVISION:-unknown}"
+    printf 'UBOOT_GIT_BRANCH=%q\n' "${UBOOT_GIT_BRANCH:-unknown}"
+    printf 'UBOOT_GIT_PATCHDIR=%q\n' "${UBOOT_GIT_PATCHDIR:-unknown}"
+    printf 'UBOOT_PARTITION_TYPE=%q\n' "${UBOOT_PARTITION_TYPE:-unknown}"
+    printf 'UBOOT_KERNEL_DTB=%q\n' "${UBOOT_KERNEL_DTB:-unknown}"
+    printf 'UBOOT_KERNEL_SERIALCON=%q\n' "${UBOOT_KERNEL_SERIALCON:-unknown}"
+} >> "$MANIFEST"
 
 #
 # Armbian metadata stores UBOOT_BIN_DIR as the final installed
@@ -209,7 +234,8 @@ fi
 echo
 echo "===== BOOTCHAIN SUMMARY ====="
 echo "Board:              $BOARD"
-echo "Branch:             $BRANCH"
+echo "Hardware branch:    $HW_BRANCH"
+echo "U-Boot branch:      $BOOT_BRANCH"
 echo "Package:            $(basename "$DEB")"
 echo "Artifact version:   ${UBOOT_ARTIFACT_VERSION:-unknown}"
 echo "U-Boot version:     ${UBOOT_VERSION:-unknown}"
