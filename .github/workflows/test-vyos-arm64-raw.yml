@@ -25,6 +25,16 @@ jobs:
             https://github.com/vyos/vyos-build.git \
             cache/vyos-build
 
+      - name: Apply ARM64 VyOS raw image patch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 tools/patch-vyos-arm64-raw.py
+
+          echo "===== PATCHED RAW IMAGE GRUB PATH ====="
+          grep -nA25 -B5             'ARM64 target detected'             cache/vyos-build/scripts/image-build/raw_image.py
+
       - name: Enable ARM64 binfmt
         run: |
           docker run --privileged --rm             tonistiigi/binfmt             --install arm64
