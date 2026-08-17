@@ -1,0 +1,136 @@
+name: Inspect VyOS ARM64 raw image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download successful ARM64 raw artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p work/raw-artifact
+
+          gh run download 32008814114 \
+            --repo frogro/vyos-arm64-board-builder \
+            --name vyos-arm64-raw \
+            --dir work/raw-artifact
+
+          echo "===== DOWNLOADED ====="
+          find work/raw-artifact -type f -printf '%p %s bytes\n'
+
+      - name: Inspect raw image layout
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RAW="$(
+            find work/raw-artifact \
+              -type f \
+              -name '*.raw' \
+              -print \
+              -quit
+          )"
+
+          [[ -n "$RAW" ]] || {
+            echo "ERROR: raw image not found"
+            exit 1
+          }
+
+          echo "RAW=$RAW"
+
+          echo
+          echo "===== FILE ====="
+          file "$RAW"
+
+          echo
+          echo "===== PARTITION TABLE ====="
+          sudo fdisk -l "$RAW"
+
+          echo
+          echo "===== PARTED ====="
+          sudo parted -s "$RAW" unit s print
+
+          LOOP="$(
+            sudo losetup \
+              --find \
+              --show \
+              --partscan \
+              "$RAW"
+          )"
+
+          echo
+          echo "LOOP=$LOOP"
+
+          cleanup() {
+            sudo umount /mnt/vyos-p1 2>/dev/null || true
+            sudo umount /mnt/vyos-p2 2>/dev/null || true
+            sudo umount /mnt/vyos-p3 2>/dev/null || true
+            sudo losetup -d "$LOOP" 2>/dev/null || true
+          }
+
+          trap cleanup EXIT
+
+          sudo udevadm settle
+
+          echo
+          echo "===== BLOCK DEVICES ====="
+          lsblk -o NAME,SIZE,FSTYPE,LABEL,UUID,PARTUUID,MOUNTPOINTS "$LOOP"
+
+          for n in 1 2 3; do
+            DEV="${LOOP}p${n}"
+            MNT="/mnt/vyos-p${n}"
+
+            [[ -b "$DEV" ]] || continue
+
+            sudo mkdir -p "$MNT"
+
+            echo
+            echo "========================================"
+            echo "PARTITION $n: $DEV"
+            echo "========================================"
+
+            sudo blkid "$DEV" || true
+
+            if sudo mount -o ro "$DEV" "$MNT" 2>/dev/null; then
+              echo
+              echo "===== TOP LEVEL ====="
+              sudo find "$MNT" \
+                -maxdepth 2 \
+                -printf '%M %u %g %s %p\n' \
+                2>/dev/null | head -300
+
+              echo
+              echo "===== BOOT-RELATED FILES ====="
+              sudo find "$MNT" \
+                -maxdepth 5 \
+                -type f \
+                \( \
+                  -name 'vmlinuz*' -o \
+                  -name 'Image' -o \
+                  -name 'initrd*' -o \
+                  -name '*.dtb' -o \
+                  -name '*.squashfs' -o \
+                  -name 'grub.cfg' -o \
+                  -name 'version.json' \
+                \) \
+                -printf '%p %s bytes\n' \
+                2>/dev/null | sort
+
+              sudo umount "$MNT"
+            else
+              echo "Partition $n not directly mountable"
+            fi
+          done
