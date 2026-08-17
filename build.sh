@@ -325,6 +325,20 @@ main() {
 
     cp "${final_config}" "${kbuild_out}/.config"
 
+    #
+    # Match the kernel release/ABI name used by official VyOS images.
+    # The upstream VyOS defconfig leaves LOCALVERSION empty because the
+    # package build adds the VyOS suffix externally. Our direct kernel
+    # build must do that explicitly.
+    #
+    "${kernel_source}/scripts/config" \
+        --file "${kbuild_out}/.config" \
+        --set-str LOCALVERSION "-vyos"
+
+    "${kernel_source}/scripts/config" \
+        --file "${kbuild_out}/.config" \
+        --disable LOCALVERSION_AUTO
+
     make \
         -C "${kernel_source}" \
         O="${kbuild_out}" \
@@ -376,8 +390,23 @@ main() {
     cp "${final_dtb}" \
         "${artifacts}/dtb/${dtb}"
 
-    cp "${final_config}" \
+    cp "${kbuild_out}/.config" \
         "${artifacts}/kernel.config"
+
+    local kernel_release
+    kernel_release="$(
+        make -s \
+            -C "${kernel_source}" \
+            O="${kbuild_out}" \
+            ARCH=arm64 \
+            CROSS_COMPILE="${cross}" \
+            kernelrelease
+    )"
+
+    [[ -n "${kernel_release}" ]] ||
+        die "Unable to determine final kernel release"
+
+    printf '%s\n' "${kernel_release}" > "${artifacts}/kernel.release"
 
     if [[ -f "${kbuild_out}/System.map" ]]; then
         cp "${kbuild_out}/System.map" \
@@ -392,6 +421,7 @@ main() {
     echo "DTB:            ${artifacts}/dtb/${dtb}"
     echo "Modules:        ${modules_out}/lib/modules"
     echo "Kernel config:  ${artifacts}/kernel.config"
+    echo "Kernel release: ${kernel_release}"
     echo
     info "VyOS ARM64 board kernel build completed successfully."
 }

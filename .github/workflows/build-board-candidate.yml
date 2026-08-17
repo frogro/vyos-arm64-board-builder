@@ -1,0 +1,180 @@
+name: Build VyOS ARM64 board candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      board:
+        description: "Armbian board identifier"
+        required: true
+        default: "rock-5b"
+        type: string
+
+      branch:
+        description: "Armbian hardware branch"
+        required: true
+        default: "current"
+        type: string
+
+      raw_run_id:
+        description: "Successful VyOS ARM64 raw workflow run"
+        required: true
+        default: "32008814114"
+        type: string
+
+jobs:
+  board-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+
+    permissions:
+      actions: read
+      contents: read
+
+    env:
+      BOARD: ${{ inputs.board }}
+      HW_BRANCH: ${{ inputs.branch }}
+      VYOS_BRANCH: rolling
+      ARMBIAN_REF: main
+      JOBS: 4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu \
+            bc \
+            bison \
+            flex \
+            build-essential \
+            libssl-dev \
+            libelf-dev \
+            libncurses-dev \
+            device-tree-compiler \
+            python3 \
+            rsync \
+            kmod \
+            curl \
+            gnupg2 \
+            patch \
+            xz-utils \
+            squashfs-tools \
+            dosfstools \
+            e2fsprogs \
+            gdisk \
+            parted \
+            dpkg-dev \
+            coreutils \
+            findutils
+
+      - name: Configure build swap
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: Download successful VyOS ARM64 raw image
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p work/raw-artifact
+
+          gh run download "${{ inputs.raw_run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name vyos-arm64-raw \
+            --dir work/raw-artifact
+
+          find work/raw-artifact \
+            -type f \
+            -printf '%p %s bytes\n'
+
+      - name: Build board-specific official VyOS kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          chmod +x build.sh
+          ./build.sh
+
+          echo
+          echo "===== KERNEL RELEASE ====="
+          cat "work/build/${BOARD}/artifacts/kernel.release"
+
+      - name: Build Armbian-derived board bootchain
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          chmod +x \
+            tools/resolve-bootchain.sh \
+            tools/build-bootchain.sh
+
+          ./tools/build-bootchain.sh \
+            "${BOARD}" \
+            "${HW_BRANCH}"
+
+      - name: Assemble board image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RAW="$(
+            find work/raw-artifact \
+              -type f \
+              -name '*.raw' \
+              -print \
+              -quit
+          )"
+
+          [[ -n "$RAW" ]]
+
+          sudo \
+            BOOT_GAP_MIB=32 \
+            ./tools/assemble-board-image.sh \
+              "${BOARD}" \
+              "${HW_BRANCH}" \
+              "$RAW" \
+              "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+      - name: Show final image layout
+        run: |
+          sudo fdisk -l \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+          ls -lh \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+      - name: Compress board image
+        run: |
+          xz \
+            -T0 \
+            -3 \
+            -f \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+          sha256sum \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz" \
+            > "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256"
+
+      - name: Upload board candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-${{ inputs.board }}-${{ inputs.branch }}-candidate
+          path: |
+            work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz
+            work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz.sha256
+            work/build/${{ inputs.board }}/artifacts/kernel.release
+            work/build/${{ inputs.board }}/boot/boot-manifest.env
+          if-no-files-found: error
+          compression-level: 0
