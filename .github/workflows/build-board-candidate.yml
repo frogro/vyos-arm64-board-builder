@@ -21,6 +21,12 @@ on:
         default: "32008814114"
         type: string
 
+      publish_release:
+        description: "Publish successful build as GitHub Latest Release"
+        required: true
+        default: true
+        type: boolean
+
 jobs:
   board-image:
     runs-on: ubuntu-24.04
@@ -28,7 +34,7 @@ jobs:
 
     permissions:
       actions: read
-      contents: read
+      contents: write
 
     env:
       BOARD: ${{ inputs.board }}
@@ -181,3 +187,25 @@ jobs:
             work/build/${{ inputs.board }}/boot/boot-manifest.env
           if-no-files-found: error
           compression-level: 0
+
+      - name: Publish GitHub release
+        if: ${{ inputs.publish_release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ./tools/create-release-notes.sh             "${BOARD}"             "work/build/${BOARD}"
+
+          # shellcheck disable=SC1090
+          source "work/build/${BOARD}/boot/boot-manifest.env"
+
+          DATE="$(date -u +%Y.%m.%d)"
+          SHORT_BOARD="${BOARD#radxa-}"
+          TAG="${DATE}-${SHORT_BOARD}-test-${GITHUB_RUN_NUMBER}"
+
+          echo "Release tag: $TAG"
+          echo "Release board: $BOARD_NAME"
+
+          gh release create "$TAG"             --repo "${GITHUB_REPOSITORY}"             --target "${GITHUB_SHA}"             --title "VyOS ARM64 ${BOARD_NAME} test image"             --notes-file "work/build/${BOARD}/RELEASE_NOTES.md"             --latest             "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz"             "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256"             "work/build/${BOARD}/artifacts/kernel.release"             "work/build/${BOARD}/boot/boot-manifest.env"
