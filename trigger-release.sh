@@ -2,13 +2,16 @@
 set -euo pipefail
 
 BUILD_REPO="${BUILD_REPO:-frogro/vyos-arm64-board-builder}"
-WORKFLOW="${WORKFLOW:-test-bootchain.yml}"
+WORKFLOW="${WORKFLOW:-build-board-candidate.yml}"
 WORKFLOW_REF="${WORKFLOW_REF:-main}"
 
 ARMBIAN_REF="${ARMBIAN_REF:-main}"
 ARMBIAN_REMOTE="${ARMBIAN_REMOTE:-https://github.com/armbian/build.git}"
 
 VYOS_BRANCH="${VYOS_BRANCH:-rolling}"
+
+RAW_RUN_ID="${RAW_RUN_ID:-32008814114}"
+PUBLISH_RELEASE="${PUBLISH_RELEASE:-true}"
 
 CACHE_ROOT="${XDG_CACHE_HOME:-$HOME/.cache}/vyos-arm64-board-builder"
 ARMBIAN_CACHE="${CACHE_ROOT}/armbian-build"
@@ -404,7 +407,9 @@ main() {
         --repo "$BUILD_REPO" \
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
-        -f branch="$branch"
+        -f branch="$branch" \
+        -f raw_run_id="$RAW_RUN_ID" \
+        -f publish_release="$PUBLISH_RELEASE"
 
     echo
     echo "Build dispatched."
