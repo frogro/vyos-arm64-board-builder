@@ -124,32 +124,37 @@ esac
 OUT="$ROOT/work/build/$BOARD/boot"
 mkdir -p "$OUT"
 
-cat > "$OUT/boot-manifest.env" <<EOF_MANIFEST
-BOARD=$BOARD
-BOARD_NAME=$BOARD_NAME
-BOARD_VENDOR=$BOARD_VENDOR
-BOARD_FAMILY=$BOARDFAMILY
-BRANCH=$BRANCH
+{
+    printf 'BOARD=%q\n' "$BOARD"
+    printf 'BOARD_NAME=%q\n' "$BOARD_NAME"
+    printf 'BOARD_VENDOR=%q\n' "$BOARD_VENDOR"
+    printf 'BOARD_FAMILY=%q\n' "$BOARDFAMILY"
+    printf 'BRANCH=%q\n' "$BRANCH"
+    printf '\n'
 
-BOOTCONFIG=$BOOTCONFIG
-BOOT_FDT_FILE=$BOOT_FDT_FILE
-BOOT_SOC=$BOOT_SOC
-BOOT_SCENARIO=$BOOT_SCENARIO_EFFECTIVE
-BOOT_LAYOUT=$BOOT_LAYOUT
+    printf 'BOOTCONFIG=%q\n' "$BOOTCONFIG"
+    printf 'BOOT_FDT_FILE=%q\n' "$BOOT_FDT_FILE"
+    printf 'BOOT_SOC=%q\n' "$BOOT_SOC"
+    printf 'BOOT_SCENARIO=%q\n' "$BOOT_SCENARIO_EFFECTIVE"
+    printf 'BOOT_LAYOUT=%q\n' "$BOOT_LAYOUT"
+    printf '\n'
 
-PARTITION_TABLE=${IMAGE_PARTITION_TABLE:-gpt}
+    printf 'PARTITION_TABLE=%q\n' "${IMAGE_PARTITION_TABLE:-gpt}"
+    printf '\n'
 
-UBOOT_SOURCE=$UBOOT_SOURCE
-UBOOT_REF=$UBOOT_REF
-UBOOT_PATCHDIR=$UBOOT_PATCHDIR
+    printf 'UBOOT_SOURCE=%q\n' "$UBOOT_SOURCE"
+    printf 'UBOOT_REF=%q\n' "$UBOOT_REF"
+    printf 'UBOOT_PATCHDIR=%q\n' "$UBOOT_PATCHDIR"
+    printf '\n'
 
-DDR_BLOB=$DDR_BLOB
-BL31_BLOB=$BL31_BLOB
+    printf 'DDR_BLOB=%q\n' "$DDR_BLOB"
+    printf 'BL31_BLOB=%q\n' "$BL31_BLOB"
+    printf '\n'
 
-ARTIFACT_1=$ARTIFACT_1
-OFFSET_1=$OFFSET_1
-ARTIFACT_2=$ARTIFACT_2
-OFFSET_2=$OFFSET_2
-EOF_MANIFEST
+    printf 'ARTIFACT_1=%q\n' "$ARTIFACT_1"
+    printf 'OFFSET_1=%q\n' "$OFFSET_1"
+    printf 'ARTIFACT_2=%q\n' "$ARTIFACT_2"
+    printf 'OFFSET_2=%q\n' "$OFFSET_2"
+} > "$OUT/boot-manifest.env"
 
 cat "$OUT/boot-manifest.env"
