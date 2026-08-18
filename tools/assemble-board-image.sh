@@ -8,15 +8,18 @@ BRANCH="${2:?Usage: $0 <board> <branch> <vyos.raw> [output.img]}"
 RAW="${3:?Usage: $0 <board> <branch> <vyos.raw> [output.img]}"
 OUTPUT="${4:-$ROOT/work/build/$BOARD/vyos-${BOARD}.img}"
 
-BOOT="$ROOT/work/build/$BOARD/boot"
-BOOT_ARTIFACTS="$BOOT/artifacts"
-BOOT_METADATA="$BOOT/metadata"
 KERNEL_ARTIFACTS="$ROOT/work/build/$BOARD/artifacts"
 MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
+BOOT="$ROOT/work/build/$BOARD/boot"
+MANIFEST="$BOOT/boot-manifest.env"
 
-BOOT_GAP_MIB="${BOOT_GAP_MIB:-32}"
+EDK2_IMAGE="${EDK2_IMAGE:-}"
+
 SECTOR_SIZE=512
-ALIGN_SECTORS=2048
+FIRMWARE_SKIP_SECTORS=64
+FIRMWARE_PART_START=2048
+FIRMWARE_PART_SECTORS=16384
+FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
 
 die()
 {
@@ -32,6 +35,7 @@ need()
 
 for cmd in \
     losetup \
+    udevadm \
     sgdisk \
     blkid \
     blockdev \
@@ -39,14 +43,31 @@ for cmd in \
     unsquashfs \
     mksquashfs \
     depmod \
+    lsinitramfs \
     python3 \
-    dd
+    dd \
+    mount \
+    umount \
+    mountpoint \
+    fsck.vfat \
+    e2fsck \
+    sha256sum \
+    strings \
+    stat \
+    cmp \
+    chroot \
+    truncate \
+    find \
+    grep
 do
     need "$cmd"
 done
 
 [[ $EUID -eq 0 ]] ||
     die "assemble-board-image.sh must run as root"
+
+[[ "$(uname -m)" == "aarch64" ]] ||
+    die "final VyOS initramfs generation currently requires a native ARM64 runner"
 
 [[ -f "$RAW" ]] ||
     die "VyOS raw image not found: $RAW"
@@ -57,21 +78,20 @@ done
 [[ -s "$KERNEL_ARTIFACTS/kernel.release" ]] ||
     die "kernel.release missing"
 
+[[ -s "$KERNEL_ARTIFACTS/kernel.config" ]] ||
+    die "final kernel.config missing"
+
+[[ -s "$KERNEL_ARTIFACTS/System.map" ]] ||
+    die "final System.map missing"
+
 [[ -d "$MODULES_ROOT/lib/modules" ]] ||
     die "board kernel modules missing"
 
-PLATFORM_INSTALL="$BOOT_METADATA/platform_install.sh"
-
-[[ -f "$PLATFORM_INSTALL" ]] ||
-    die "Armbian platform_install.sh missing"
-
-[[ -d "$BOOT_ARTIFACTS" ]] ||
-    die "bootchain artifacts missing"
-
-MANIFEST="$BOOT/boot-manifest.env"
-
 [[ -f "$MANIFEST" ]] ||
     die "boot manifest missing"
+
+[[ -n "$EDK2_IMAGE" && -f "$EDK2_IMAGE" ]] ||
+    die "EDK2_IMAGE must point to the board firmware image"
 
 # shellcheck disable=SC1090
 source "$MANIFEST"
@@ -87,12 +107,13 @@ DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 KERNEL_RELEASE="$(cat "$KERNEL_ARTIFACTS/kernel.release")"
 
 echo "===== ASSEMBLY INPUT ====="
-echo "Board:          $BOARD"
-echo "Branch:         $BRANCH"
-echo "VyOS RAW:       $RAW"
-echo "Kernel release: $KERNEL_RELEASE"
-echo "DTB:            $BOOT_FDT_FILE"
-echo "Boot gap:       ${BOOT_GAP_MIB} MiB"
+echo "Board:             $BOARD"
+echo "Branch:            $BRANCH"
+echo "VyOS RAW:          $RAW"
+echo "Kernel release:    $KERNEL_RELEASE"
+echo "DTB:               $BOOT_FDT_FILE"
+echo "Firmware provider: ${FIRMWARE_PROVIDER:-edk2-rk3588}"
+echo "EDK2 image:        $EDK2_IMAGE"
 echo
 
 mkdir -p "$(dirname "$OUTPUT")"
@@ -107,9 +128,25 @@ mkdir -p "$SRC_MNT" "$DST_MNT"
 SRC_LOOP=""
 DST_LOOP=""
 
+unmount_chroot()
+{
+    mountpoint -q "$SQUASH_ROOT/run" &&
+        umount "$SQUASH_ROOT/run" || true
+    mountpoint -q "$SQUASH_ROOT/sys" &&
+        umount "$SQUASH_ROOT/sys" || true
+    mountpoint -q "$SQUASH_ROOT/proc" &&
+        umount "$SQUASH_ROOT/proc" || true
+    mountpoint -q "$SQUASH_ROOT/dev/pts" &&
+        umount "$SQUASH_ROOT/dev/pts" || true
+    mountpoint -q "$SQUASH_ROOT/dev" &&
+        umount "$SQUASH_ROOT/dev" || true
+}
+
 cleanup()
 {
     set +e
+
+    unmount_chroot
 
     mountpoint -q "$DST_MNT/boot/efi" &&
         umount "$DST_MNT/boot/efi"
@@ -132,6 +169,7 @@ SRC_LOOP="$(
     losetup \
         --find \
         --show \
+        --read-only \
         --partscan \
         "$RAW"
 )"
@@ -164,45 +202,63 @@ done
 
 EFI_SECTORS="$(blockdev --getsz "$EFI_SRC")"
 ROOT_SECTORS="$(blockdev --getsz "$ROOT_SRC")"
+RAW_BYTES="$(stat -c '%s' "$RAW")"
+RAW_SECTORS=$((RAW_BYTES / SECTOR_SIZE))
 
-BOOT_GAP_SECTORS="$((BOOT_GAP_MIB * 1024 * 1024 / SECTOR_SIZE))"
+EFI_START=$((FIRMWARE_PART_END + 1))
+EFI_END=$((EFI_START + EFI_SECTORS - 1))
+ROOT_START=$((EFI_END + 1))
+ROOT_END=$((ROOT_START + ROOT_SECTORS - 1))
 
-align_up()
-{
-    local value="$1"
-    local align="$2"
+(( ROOT_END + 34 < RAW_SECTORS )) ||
+    die "VyOS filesystems do not fit in the EDK2 three-partition layout"
 
-    echo $(( ((value + align - 1) / align) * align ))
-}
+EDK2_BYTES="$(stat -c '%s' "$EDK2_IMAGE")"
+EDK2_SECTORS=$(((EDK2_BYTES + SECTOR_SIZE - 1) / SECTOR_SIZE))
 
-EFI_START="$(align_up "$BOOT_GAP_SECTORS" "$ALIGN_SECTORS")"
-EFI_END="$((EFI_START + EFI_SECTORS - 1))"
-
-ROOT_START="$(align_up $((EFI_END + 1)) "$ALIGN_SECTORS")"
-ROOT_END="$((ROOT_START + ROOT_SECTORS - 1))"
-
-TOTAL_SECTORS="$((ROOT_END + ALIGN_SECTORS + 34))"
-TOTAL_BYTES="$((TOTAL_SECTORS * SECTOR_SIZE))"
+(( EDK2_SECTORS <= EFI_START )) ||
+    die "EDK2 firmware image overlaps the EFI partition"
 
 rm -f "$OUTPUT"
-truncate -s "$TOTAL_BYTES" "$OUTPUT"
+truncate -s "$RAW_BYTES" "$OUTPUT"
 
 sgdisk --zap-all "$OUTPUT"
 sgdisk --clear "$OUTPUT"
 
 sgdisk \
-    --new=1:${EFI_START}:${EFI_END} \
-    --typecode=1:ef00 \
-    --change-name=1:EFI \
+    --new=1:${FIRMWARE_PART_START}:${FIRMWARE_PART_END} \
+    --typecode=1:8300 \
+    --change-name=1:uboot \
     "$OUTPUT"
 
 sgdisk \
-    --new=2:${ROOT_START}:${ROOT_END} \
-    --typecode=2:8300 \
-    --change-name=2:persistence \
+    --new=2:${EFI_START}:${EFI_END} \
+    --typecode=2:ef00 \
+    --change-name=2:EFI \
     "$OUTPUT"
 
+sgdisk \
+    --new=3:${ROOT_START}:${ROOT_END} \
+    --typecode=3:8300 \
+    --change-name=3:persistence \
+    "$OUTPUT"
+
+echo
+echo "===== TARGET GPT ====="
 sgdisk --print "$OUTPUT"
+
+echo
+echo "===== INSTALLING EDK2 FIRMWARE ====="
+echo "Preserving GPT sectors 0..63 and copying firmware from sector 64 onward"
+
+dd \
+    if="$EDK2_IMAGE" \
+    of="$OUTPUT" \
+    bs="$SECTOR_SIZE" \
+    skip="$FIRMWARE_SKIP_SECTORS" \
+    seek="$FIRMWARE_SKIP_SECTORS" \
+    conv=notrunc,fsync \
+    status=progress
 
 DST_LOOP="$(
     losetup \
@@ -214,8 +270,12 @@ DST_LOOP="$(
 
 udevadm settle
 
-EFI_DST="${DST_LOOP}p1"
-ROOT_DST="${DST_LOOP}p2"
+FIRMWARE_DST="${DST_LOOP}p1"
+EFI_DST="${DST_LOOP}p2"
+ROOT_DST="${DST_LOOP}p3"
+
+[[ -b "$FIRMWARE_DST" ]] ||
+    die "target firmware partition missing"
 
 [[ -b "$EFI_DST" ]] ||
     die "target EFI partition missing"
@@ -287,13 +347,19 @@ MODULE_SOURCE="$MODULES_ROOT/lib/modules/$KERNEL_RELEASE"
     die "module tree missing: $MODULE_SOURCE"
 
 echo
-echo "===== INSTALLING BOARD KERNEL ====="
+echo "===== INSTALLING BOARD KERNEL + METADATA ====="
 
 cp "$KERNEL_ARTIFACTS/Image" \
     "$VERSION_DIR/vmlinuz"
 
 cp "$KERNEL_ARTIFACTS/Image" \
     "$VERSION_DIR/vmlinuz-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/kernel.config" \
+    "$VERSION_DIR/config-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/System.map" \
+    "$VERSION_DIR/System.map-$KERNEL_RELEASE"
 
 DTB_TARGET="$VERSION_DIR/dtb/$BOOT_FDT_FILE"
 
@@ -321,18 +387,99 @@ unsquashfs \
     -d "$SQUASH_ROOT" \
     "$SQUASH"
 
-rm -rf "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE"
+SQUASH_MODULE_DIR="$SQUASH_ROOT/usr/lib/modules/$KERNEL_RELEASE"
 
-mkdir -p "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE"
+rm -rf "$SQUASH_MODULE_DIR"
+mkdir -p "$SQUASH_MODULE_DIR"
 
 rsync \
     -aHAX \
+    --numeric-ids \
     "$MODULE_SOURCE/" \
-    "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE/"
+    "$SQUASH_MODULE_DIR/"
 
 depmod \
     -b "$SQUASH_ROOT" \
     "$KERNEL_RELEASE"
+
+echo
+echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
+
+[[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||
+    die "VyOS root filesystem does not provide update-initramfs"
+
+mkdir -p \
+    "$SQUASH_ROOT/boot" \
+    "$SQUASH_ROOT/dev" \
+    "$SQUASH_ROOT/dev/pts" \
+    "$SQUASH_ROOT/proc" \
+    "$SQUASH_ROOT/sys" \
+    "$SQUASH_ROOT/run"
+
+cp "$KERNEL_ARTIFACTS/kernel.config" \
+    "$SQUASH_ROOT/boot/config-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/System.map" \
+    "$SQUASH_ROOT/boot/System.map-$KERNEL_RELEASE"
+
+mount --bind /dev "$SQUASH_ROOT/dev"
+mount --bind /dev/pts "$SQUASH_ROOT/dev/pts"
+mount -t proc proc "$SQUASH_ROOT/proc"
+mount -t sysfs sysfs "$SQUASH_ROOT/sys"
+mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
+
+chroot "$SQUASH_ROOT" /bin/bash -c "
+    set -e
+    export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+    depmod '$KERNEL_RELEASE'
+    rm -f \
+        '/boot/initrd.img-$KERNEL_RELEASE' \
+        /boot/initrd.img
+    update-initramfs -c -k '$KERNEL_RELEASE'
+    test -s '/boot/initrd.img-$KERNEL_RELEASE'
+"
+
+INITRD_BUILT="$SQUASH_ROOT/boot/initrd.img-$KERNEL_RELEASE"
+
+[[ -s "$INITRD_BUILT" ]] ||
+    die "matching initramfs was not generated"
+
+cp "$INITRD_BUILT" \
+    "$VERSION_DIR/initrd.img"
+
+cp "$INITRD_BUILT" \
+    "$VERSION_DIR/initrd.img-$KERNEL_RELEASE"
+
+echo
+echo "===== INITRAMFS VALIDATION ====="
+
+ls -lh \
+    "$VERSION_DIR/initrd.img" \
+    "$VERSION_DIR/initrd.img-$KERNEL_RELEASE"
+
+lsinitramfs "$VERSION_DIR/initrd.img" \
+    > "$WORK/initrd.list"
+
+grep -q "usr/lib/modules/$KERNEL_RELEASE/" \
+    "$WORK/initrd.list" ||
+    die "initramfs does not contain modules for $KERNEL_RELEASE"
+
+for required in loop ext4 overlay squashfs; do
+    grep -Eq "/${required}\.ko(\.(xz|zst|gz))?$" \
+        "$WORK/initrd.list" ||
+        die "initramfs missing live-root module: $required"
+done
+
+unmount_chroot
+
+# These files were only staged inside the chroot so update-initramfs could
+# build against the final kernel. The persistent /boot copies above are the
+# authoritative VyOS system-image files.
+rm -f \
+    "$SQUASH_ROOT/boot/initrd.img" \
+    "$SQUASH_ROOT/boot/initrd.img-$KERNEL_RELEASE" \
+    "$SQUASH_ROOT/boot/config-$KERNEL_RELEASE" \
+    "$SQUASH_ROOT/boot/System.map-$KERNEL_RELEASE"
 
 NEW_SQUASH="$WORK/new.squashfs"
 
@@ -391,8 +538,39 @@ if dtb_line not in text:
 
 cfg.write_text(text)
 
-print(f"Added GRUB devicetree: /boot/{version}/dtb/{dtb}")
+print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
+
+echo
+echo "===== RELEASE PAYLOAD VALIDATION ====="
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/kernel.config" \
+    "$VERSION_DIR/config-$KERNEL_RELEASE" ||
+    die "installed /boot kernel config does not match the built kernel"
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/System.map" \
+    "$VERSION_DIR/System.map-$KERNEL_RELEASE" ||
+    die "installed /boot System.map does not match the built kernel"
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/Image" \
+    "$VERSION_DIR/vmlinuz" ||
+    die "installed kernel does not match build artifact"
+
+cmp -s \
+    "$DTB" \
+    "$DTB_TARGET" ||
+    die "installed DTB does not match build artifact"
+
+GRUB_CORE="$DST_MNT/boot/grub/arm64-efi/core.efi"
+
+if [[ -f "$GRUB_CORE" ]]; then
+    strings "$GRUB_CORE" > "$WORK/grub-core.strings"
+    grep -Fq '(,gpt3)/boot/grub' "$WORK/grub-core.strings" ||
+        die "VyOS GRUB core does not target persistence on GPT partition 3"
+fi
 
 sync
 
@@ -404,21 +582,6 @@ DST_LOOP=""
 
 losetup -d "$SRC_LOOP"
 SRC_LOOP=""
-
-echo
-echo "===== INSTALLING ARMBIAN-DERIVED BOARD BOOTCHAIN ====="
-
-# shellcheck disable=SC1090
-source "$PLATFORM_INSTALL"
-
-declare -F write_uboot_platform >/dev/null ||
-    die "write_uboot_platform() not supplied by Armbian package"
-
-write_uboot_platform \
-    "$BOOT_ARTIFACTS" \
-    "$OUTPUT"
-
-sync
 
 echo
 echo "===== FINAL IMAGE VALIDATION ====="
@@ -436,14 +599,18 @@ CHECK_LOOP="$(
 
 udevadm settle
 
-fsck.vfat -n "${CHECK_LOOP}p1"
-e2fsck -fn "${CHECK_LOOP}p2"
+[[ "$(blockdev --getsz "${CHECK_LOOP}p1")" -eq "$FIRMWARE_PART_SECTORS" ]] ||
+    die "firmware partition size mismatch"
+
+fsck.vfat -n "${CHECK_LOOP}p2"
+e2fsck -fn "${CHECK_LOOP}p3"
 
 losetup -d "$CHECK_LOOP"
 
 echo
 echo "===== FINAL IMAGE ====="
 ls -lh "$OUTPUT"
+sha256sum "$OUTPUT"
 
 echo
 echo "Board image assembled successfully:"

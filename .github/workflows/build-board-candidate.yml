@@ -10,13 +10,13 @@ on:
         type: string
 
       branch:
-        description: "Armbian hardware branch"
+        description: "Armbian hardware reference branch"
         required: true
         default: "current"
         type: string
 
       boot_branch:
-        description: "U-Boot reference branch (auto, edge, current, vendor)"
+        description: "Reserved for later boot-provider refactor"
         required: true
         default: "auto"
         type: string
@@ -35,7 +35,7 @@ on:
 
 jobs:
   board-image:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 240
 
     permissions:
@@ -54,17 +54,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show initial disk space
+        run: df -h
+
+      - name: Free runner disk space
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
+          sudo rm -rf /usr/share/dotnet 2>/dev/null || true
+          sudo rm -rf /opt/ghc 2>/dev/null || true
+          sudo rm -rf /opt/hostedtoolcache 2>/dev/null || true
+          df -h
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
 
           sudo apt-get install -y \
-            gcc-aarch64-linux-gnu \
-            binutils-aarch64-linux-gnu \
             bc \
             bison \
             flex \
             build-essential \
+            binutils \
             libssl-dev \
             libelf-dev \
             libncurses-dev \
@@ -76,24 +87,116 @@ jobs:
             gnupg2 \
             patch \
             xz-utils \
+            zstd \
             squashfs-tools \
             dosfstools \
             e2fsprogs \
             gdisk \
             parted \
             dpkg-dev \
+            initramfs-tools-core \
             coreutils \
             findutils
 
-      - name: Configure build swap
+          uname -a
+          dpkg --print-architecture
+          df -h
+
+      - name: Build board-specific official VyOS kernel
+        shell: bash
         run: |
-          sudo swapoff -a || true
-          sudo rm -f /swapfile
-          sudo fallocate -l 8G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          free -h
+          set -euo pipefail
+
+          chmod +x build.sh
+          ./build.sh
+
+          echo
+          echo "===== KERNEL RELEASE ====="
+          cat "work/build/${BOARD}/artifacts/kernel.release"
+
+          echo
+          echo "===== FINAL KERNEL CONFIG ====="
+          grep -E \
+            'CONFIG_(MFD_RK8XX_SPI|REGULATOR_RK808|PINCTRL_RK805|MMC_BLOCK|MMC_DW_ROCKCHIP|MMC_SDHCI_OF_DWCMSHC|PL330_DMA)=' \
+            "work/build/${BOARD}/artifacts/kernel.config" \
+            | sort
+
+          df -h
+
+      - name: Prepare ROCK 5B EDK2 firmware provider
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case "${BOARD}" in
+            rock-5b)
+              ;;
+            *)
+              echo "ERROR: this release test currently enables only the proven ROCK 5B EDK2 path" >&2
+              exit 1
+              ;;
+          esac
+
+          chmod +x tools/resolve-bootchain.sh
+
+          # Keep the existing Armbian board metadata resolver for this ROCK test.
+          # Boot-provider/branch abstraction is intentionally deferred to the
+          # later provider refactor.
+          ./tools/resolve-bootchain.sh \
+            "${BOARD}" \
+            "${HW_BRANCH}" \
+            "${HW_BRANCH}"
+
+          EDK2_DIR="work/build/${BOARD}/boot/edk2"
+          EDK2_ASSET="rock-5b_UEFI_Release_v1.1.img"
+          EDK2_URL="https://github.com/edk2-porting/edk2-rk3588/releases/download/v1.1/${EDK2_ASSET}"
+
+          mkdir -p "${EDK2_DIR}"
+
+          curl \
+            --fail \
+            --location \
+            --retry 3 \
+            --output "${EDK2_DIR}/${EDK2_ASSET}" \
+            "${EDK2_URL}"
+
+          test -s "${EDK2_DIR}/${EDK2_ASSET}"
+
+          {
+            printf '\n'
+            printf 'FIRMWARE_PROVIDER=%q\n' 'edk2-rk3588'
+            printf 'FIRMWARE_VARIANT=%q\n' 'rock-5b'
+            printf 'EDK2_RELEASE=%q\n' 'v1.1'
+            printf 'EDK2_ASSET=%q\n' "${EDK2_ASSET}"
+          } >> "work/build/${BOARD}/boot/boot-manifest.env"
+
+          echo
+          echo "===== EDK2 ====="
+          ls -lh "${EDK2_DIR}/${EDK2_ASSET}"
+          sha256sum "${EDK2_DIR}/${EDK2_ASSET}"
+
+          echo
+          echo "===== BOOT MANIFEST ====="
+          cat "work/build/${BOARD}/boot/boot-manifest.env"
+
+      - name: Remove kernel build intermediates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find "work/build/${BOARD}" \
+            -mindepth 1 \
+            -maxdepth 1 \
+            ! -name artifacts \
+            ! -name modules \
+            ! -name boot \
+            -exec rm -rf {} +
+
+          rm -rf cache/linux-vyos
+          rm -rf cache/vyos-build
+          rm -rf cache/armbian-build
+
+          df -h
 
       - name: Download successful VyOS ARM64 raw image
         env:
@@ -112,33 +215,9 @@ jobs:
             -type f \
             -printf '%p %s bytes\n'
 
-      - name: Build board-specific official VyOS kernel
-        shell: bash
-        run: |
-          set -euo pipefail
+          df -h
 
-          chmod +x build.sh
-          ./build.sh
-
-          echo
-          echo "===== KERNEL RELEASE ====="
-          cat "work/build/${BOARD}/artifacts/kernel.release"
-
-      - name: Build Armbian-derived board bootchain
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          chmod +x \
-            tools/resolve-bootchain.sh \
-            tools/build-bootchain.sh
-
-          ./tools/build-bootchain.sh \
-            "${BOARD}" \
-            "${HW_BRANCH}" \
-            "${BOOT_BRANCH}"
-
-      - name: Assemble board image
+      - name: Assemble EDK2 VyOS board image
         shell: bash
         run: |
           set -euo pipefail
@@ -153,8 +232,11 @@ jobs:
 
           [[ -n "$RAW" ]]
 
+          EDK2_IMAGE="work/build/${BOARD}/boot/edk2/rock-5b_UEFI_Release_v1.1.img"
+          test -s "${EDK2_IMAGE}"
+
           sudo \
-            BOOT_GAP_MIB=32 \
+            EDK2_IMAGE="${EDK2_IMAGE}" \
             ./tools/assemble-board-image.sh \
               "${BOARD}" \
               "${HW_BRANCH}" \
@@ -164,13 +246,25 @@ jobs:
           sudo chown "$(id -u):$(id -g)" \
             "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
-      - name: Show final image layout
-        run: |
-          sudo fdisk -l \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+          df -h
 
-          ls -lh \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+      - name: Show final image layout
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+          sudo fdisk -l "$IMAGE"
+          sudo sgdisk -v "$IMAGE"
+          ls -lh "$IMAGE"
+          sha256sum "$IMAGE"
+
+      - name: Release raw workspace before compression
+        shell: bash
+        run: |
+          rm -rf work/raw-artifact
+          df -h
 
       - name: Compress board image
         run: |
@@ -192,6 +286,7 @@ jobs:
             work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz
             work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz.sha256
             work/build/${{ inputs.board }}/artifacts/kernel.release
+            work/build/${{ inputs.board }}/artifacts/kernel.config
             work/build/${{ inputs.board }}/boot/boot-manifest.env
           if-no-files-found: error
           compression-level: 0
@@ -204,7 +299,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          ./tools/create-release-notes.sh             "${BOARD}"             "work/build/${BOARD}"
+          ./tools/create-release-notes.sh \
+            "${BOARD}" \
+            "work/build/${BOARD}"
 
           # shellcheck disable=SC1090
           source "work/build/${BOARD}/boot/boot-manifest.env"
@@ -216,4 +313,14 @@ jobs:
           echo "Release tag: $TAG"
           echo "Release board: $BOARD_NAME"
 
-          gh release create "$TAG"             --repo "${GITHUB_REPOSITORY}"             --target "${GITHUB_SHA}"             --title "VyOS ARM64 ${BOARD_NAME} test image"             --notes-file "work/build/${BOARD}/RELEASE_NOTES.md"             --latest             "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz"             "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256"             "work/build/${BOARD}/artifacts/kernel.release"             "work/build/${BOARD}/boot/boot-manifest.env"
+          gh release create "$TAG" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "VyOS ARM64 ${BOARD_NAME} EDK2 test image" \
+            --notes-file "work/build/${BOARD}/RELEASE_NOTES.md" \
+            --latest \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz" \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256" \
+            "work/build/${BOARD}/artifacts/kernel.release" \
+            "work/build/${BOARD}/artifacts/kernel.config" \
+            "work/build/${BOARD}/boot/boot-manifest.env"
