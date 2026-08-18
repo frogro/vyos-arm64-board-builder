@@ -246,15 +246,21 @@ main() {
     info "Extracting active DT nodes..."
 
     local nodes_json="${dtb_out}/active-nodes.json"
+    local supplier_graph="${dtb_out}/supplier-graph.json"
 
     python3 "${ROOT_DIR}/tools/dtb-active-nodes.py" \
         --dtb "${built_dtb}" \
-        --output "${nodes_json}"
+        --output "${nodes_json}" \
+        --graph-output "${supplier_graph}"
 
     [[ -s "${nodes_json}" ]] ||
         die "Active DT node extraction produced no output"
 
+    [[ -s "${supplier_graph}" ]] ||
+        die "DT supplier graph extraction produced no output"
+
     info "Active nodes written: ${nodes_json}"
+    info "Supplier graph written: ${supplier_graph}"
 
     echo
     info "Extracting active DT compatibles..."
@@ -309,14 +315,89 @@ main() {
         "${mfd_map}" |
         sort -u > "${hardware_map}"
 
+    #
+    # Resolve the concrete DT controller nodes which can reach the
+    # requested boot media.  The discovery uses DT properties and
+    # Linux driver metadata rather than board-specific addresses.
+    #
+    local boot_dep_out="${ROOT_DIR}/work/build/${board}/boot-deps"
+    local boot_roots_out="${boot_dep_out}/roots"
+    local boot_closure_out="${boot_dep_out}/closure"
+    local mfd_services_out="${boot_dep_out}/mfd-services"
+    local boot_symbols_out="${boot_dep_out}/symbols"
+
+    rm -rf "${boot_dep_out}"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-roots.py" \
+        --dtb "${built_dtb}" \
+        --graph "${supplier_graph}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        --boot-media "${boot_media}" \
+        --output-dir "${boot_roots_out}"
+
+    local boot_roots_file="${boot_roots_out}/boot-roots.txt"
+
+    [[ -s "${boot_roots_file}" ]] ||
+        die "No DT boot roots discovered for requested media: ${boot_media}"
+
+    local boot_root_args=()
+    local boot_root
+
+    while IFS= read -r boot_root; do
+        [[ -n "${boot_root}" ]] || continue
+        boot_root_args+=(--root-node "${boot_root}")
+    done < "${boot_roots_file}"
+
+    (( ${#boot_root_args[@]} > 0 )) ||
+        die "Boot root argument list is empty"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-closure.py" \
+        --kernel "${kernel_source}" \
+        --graph "${supplier_graph}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        "${boot_root_args[@]}" \
+        --output-dir "${boot_closure_out}"
+
+    local boot_final="${boot_closure_out}/final"
+
+    [[ -s "${boot_final}/supplier-closure.json" ]] ||
+        die "Boot supplier closure missing"
+
+    [[ -s "${boot_final}/driver-context.json" ]] ||
+        die "Boot driver context missing"
+
+    python3 "${ROOT_DIR}/tools/dtb-mfd-services.py" \
+        --closure "${boot_final}/supplier-closure.json" \
+        --driver-context "${boot_final}/driver-context.json" \
+        --mfd-map "${mfd_map}" \
+        --output-dir "${mfd_services_out}"
+
+    [[ -s "${mfd_services_out}/mfd-service-context.json" ]] ||
+        die "MFD boot service context missing"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-symbols.py" \
+        --driver-context "${boot_final}/driver-context.json" \
+        --mfd-services "${mfd_services_out}/mfd-service-context.json" \
+        --output-dir "${boot_symbols_out}"
+
+    local boot_symbols="${boot_symbols_out}/boot-critical-symbols.txt"
+
+    [[ -s "${boot_symbols}" ]] ||
+        die "Boot-critical symbol derivation produced no symbols"
+
     echo
     echo "===== HARDWARE DERIVATION SUMMARY ====="
     echo "Board:          ${board}"
     echo "DTB:            ${built_dtb}"
     echo "Active nodes:   ${nodes_json}"
+    echo "Supplier graph: ${supplier_graph}"
     echo "DT driver map:  ${map_out}/compatible-config-map.tsv"
     echo "MFD child map:  ${mfd_map}"
     echo "Hardware map:   ${hardware_map}"
+    echo "Boot roots:     ${boot_roots_file}"
+    echo "Boot closure:   ${boot_final}"
+    echo "MFD services:   ${mfd_services_out}"
+    echo "Boot symbols:   ${boot_symbols}"
     echo "Reference cfg:  ${reference_config}"
 
     echo
@@ -332,6 +413,7 @@ main() {
         --vyos-config "${vyos_config}" \
         --reference-config "${reference_config}" \
         --driver-map "${hardware_map}" \
+        --boot-critical-symbols "${boot_symbols}" \
         --boot-profile "${ROOT_DIR}/profiles/boot-media.conf" \
         --policy "${ROOT_DIR}/profiles/kernel-policy.conf" \
         --boot-media "${boot_media}" \
