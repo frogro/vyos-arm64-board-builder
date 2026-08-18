@@ -141,6 +141,30 @@ def load_driver_symbols(path):
     return symbols
 
 
+def read_symbol_list(path):
+    symbols = set()
+
+    with open(path, encoding="utf-8") as f:
+        for lineno, line in enumerate(f, 1):
+            line = line.strip()
+
+            if not line or line.startswith("#"):
+                continue
+
+            if not re.fullmatch(
+                r"CONFIG_[A-Za-z0-9_]+",
+                line
+            ):
+                raise SystemExit(
+                    f"Invalid CONFIG symbol in {path}:"
+                    f"{lineno}: {line}"
+                )
+
+            symbols.add(line)
+
+    return symbols
+
+
 def write_fragment(path, values):
     lines = []
 
@@ -413,6 +437,7 @@ def main():
     parser.add_argument("--vyos-config", required=True)
     parser.add_argument("--reference-config")
     parser.add_argument("--driver-map", required=True)
+    parser.add_argument("--boot-critical-symbols")
     parser.add_argument("--boot-profile", required=True)
     parser.add_argument("--policy", required=True)
     parser.add_argument("--boot-media", required=True)
@@ -455,6 +480,13 @@ def main():
 
     driver_symbols = load_driver_symbols(driver_map)
 
+    explicit_boot_symbols = set()
+
+    if args.boot_critical_symbols:
+        explicit_boot_symbols = read_symbol_list(
+            Path(args.boot_critical_symbols)
+        )
+
     #
     # Current VyOS state is needed not only for final validation but
     # also for runtime hardware policy.  Active DTB hardware whose
@@ -486,6 +518,23 @@ def main():
         )
 
     driver_symbols = resolved_driver_symbols
+
+    #
+    # Apply the same visible-Kconfig frontend resolution to explicit
+    # boot-critical symbols as to normal DT-derived driver symbols.
+    #
+    resolved_boot_symbols = set()
+
+    for symbol in explicit_boot_symbols:
+        resolved_boot_symbols.add(
+            resolve_visible_frontend(
+                symbol,
+                kconfig_defs,
+                reverse_select
+            )
+        )
+
+    explicit_boot_symbols = resolved_boot_symbols
 
     selected = {}
 
@@ -586,6 +635,16 @@ def main():
     if "usb-phy" in required_classes:
         selected["CONFIG_TYPEC"] = boot_mode
 
+    #
+    # The DT supplier graph provides explicit proof that these
+    # symbols are required on the path to the selected boot medium.
+    #
+    # Apply them after runtime-policy processing so RUNTIME_MODE
+    # cannot preserve a boot dependency as a module.
+    #
+    for symbol in sorted(explicit_boot_symbols):
+        selected[symbol] = boot_mode
+
     raw_fragment = out / "generated-board.raw.config"
     write_fragment(raw_fragment, selected)
 
@@ -647,6 +706,7 @@ def main():
     print(f"Boot media:       {','.join(requested_media)}")
     print(f"Required classes: {','.join(sorted(required_classes))}")
     print(f"Driver symbols:   {len(driver_symbols)}")
+    print(f"Explicit boot:    {len(explicit_boot_symbols)}")
     print(f"Selected symbols: {len(selected)}")
     print(f"Validation OK:    {ok}")
     print(f"Validation FAIL:  {bad}")
