@@ -287,9 +287,14 @@ main() {
     local mfd_map="${map_out}/mfd-child-config-map.tsv"
     local hardware_map="${map_out}/hardware-config-map.tsv"
 
-    python3 "${ROOT_DIR}/tools/mfd-child-drivers.py"         --kernel "${kernel_source}"         --driver-map "${map_out}/compatible-config-map.tsv"         --output "${mfd_map}"
+    python3 "${ROOT_DIR}/tools/mfd-child-drivers.py" \
+        --kernel "${kernel_source}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        --output "${mfd_map}"
 
-    cat         "${map_out}/compatible-config-map.tsv"         "${mfd_map}" |
+    cat \
+        "${map_out}/compatible-config-map.tsv" \
+        "${mfd_map}" |
         sort -u > "${hardware_map}"
 
     echo
@@ -405,40 +410,22 @@ main() {
         CROSS_COMPILE="${cross}" \
         -j"${jobs}" \
         Image \
+        Image.gz \
         modules \
         "${dtb}"
 
     local image="${kbuild_out}/arch/arm64/boot/Image"
+    local image_gz="${kbuild_out}/arch/arm64/boot/Image.gz"
     local final_dtb="${kbuild_out}/arch/arm64/boot/dts/${dtb}"
 
     [[ -s "${image}" ]] ||
         die "Kernel Image was not generated"
 
+    [[ -s "${image_gz}" ]] ||
+        die "Compressed kernel Image.gz was not generated"
+
     [[ -s "${final_dtb}" ]] ||
         die "Final board DTB was not generated"
-
-    echo
-    info "Installing kernel modules..."
-
-    make \
-        -C "${kernel_source}" \
-        O="${kbuild_out}" \
-        ARCH=arm64 \
-        CROSS_COMPILE="${cross}" \
-        INSTALL_MOD_PATH="${modules_out}" \
-        modules_install
-
-    cp "${image}" \
-        "${artifacts}/Image"
-
-    mkdir -p \
-        "${artifacts}/dtb/$(dirname "${dtb}")"
-
-    cp "${final_dtb}" \
-        "${artifacts}/dtb/${dtb}"
-
-    cp "${kbuild_out}/.config" \
-        "${artifacts}/kernel.config"
 
     local kernel_release
     kernel_release="$(
@@ -453,6 +440,54 @@ main() {
     [[ -n "${kernel_release}" ]] ||
         die "Unable to determine final kernel release"
 
+    echo
+    info "Installing stripped kernel modules..."
+
+    make \
+        -C "${kernel_source}" \
+        O="${kbuild_out}" \
+        ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
+        INSTALL_MOD_PATH="${modules_out}" \
+        INSTALL_MOD_STRIP=1 \
+        modules_install
+
+    local installed_modules="${modules_out}/lib/modules/${kernel_release}"
+
+    [[ -d "${installed_modules}" ]] ||
+        die "Installed kernel module tree missing: ${installed_modules}"
+
+    #
+    # modules_install creates development-only source/build links.
+    # They do not belong in the VyOS runtime filesystem.
+    #
+    rm -f \
+        "${installed_modules}/build" \
+        "${installed_modules}/source"
+
+    #
+    # Generate dependency indexes from exactly the module tree which
+    # will later be inserted into the VyOS root filesystem/initramfs.
+    #
+    depmod \
+        -b "${modules_out}" \
+        "${kernel_release}"
+
+    cp "${image}" \
+        "${artifacts}/Image"
+
+    cp "${image_gz}" \
+        "${artifacts}/Image.gz"
+
+    mkdir -p \
+        "${artifacts}/dtb/$(dirname "${dtb}")"
+
+    cp "${final_dtb}" \
+        "${artifacts}/dtb/${dtb}"
+
+    cp "${kbuild_out}/.config" \
+        "${artifacts}/kernel.config"
+
     printf '%s\n' "${kernel_release}" > "${artifacts}/kernel.release"
 
     if [[ -f "${kbuild_out}/System.map" ]]; then
@@ -465,6 +500,7 @@ main() {
     echo "Board:          ${board}"
     echo "Kernel:         ${kernel_version}"
     echo "Image:          ${artifacts}/Image"
+    echo "Image.gz:       ${artifacts}/Image.gz"
     echo "DTB:            ${artifacts}/dtb/${dtb}"
     echo "Modules:        ${modules_out}/lib/modules"
     echo "Kernel config:  ${artifacts}/kernel.config"
