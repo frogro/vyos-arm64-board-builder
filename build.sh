@@ -479,7 +479,7 @@ main() {
     #
     "${kernel_source}/scripts/config" \
         --file "${kbuild_out}/.config" \
-        --set-str LOCALVERSION "-vyos"
+        --set-str LOCALVERSION ""
 
     "${kernel_source}/scripts/config" \
         --file "${kbuild_out}/.config" \
@@ -535,6 +535,12 @@ main() {
 
     [[ -n "${kernel_release}" ]] ||
         die "Unable to determine final kernel release"
+
+    local expected_kernel_release
+    expected_kernel_release="${kernel_version}${kernel_localversion}"
+
+    [[ "${kernel_release}" == "${expected_kernel_release}" ]] ||
+        die "Kernel release mismatch: generated=${kernel_release}, expected=${expected_kernel_release}"
 
     echo
     info "Installing stripped kernel modules..."
