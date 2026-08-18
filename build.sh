@@ -66,6 +66,18 @@ main() {
     local vyos_branch="${VYOS_BRANCH:-rolling}"
 
     #
+    # Match the official VyOS kernel build. The VyOS defconfig keeps
+    # CONFIG_LOCALVERSION empty; the kernel flavor suffix is supplied
+    # to Kbuild through LOCALVERSION.
+    #
+    local kernel_flavor="${KERNEL_FLAVOR:-vyos}"
+    local kernel_localversion="${KERNEL_LOCALVERSION:-}"
+
+    if [[ -z "${kernel_localversion}" ]]; then
+        kernel_localversion="-${kernel_flavor}"
+    fi
+
+    #
     # Requested boot-media capabilities are a build input, not
     # board-specific generator logic. A board/profile/provider may
     # override this later without changing the Kconfig engine.
@@ -408,6 +420,7 @@ main() {
         O="${kbuild_out}" \
         ARCH=arm64 \
         CROSS_COMPILE="${cross}" \
+        LOCALVERSION="${kernel_localversion}" \
         -j"${jobs}" \
         Image \
         Image.gz \
@@ -434,6 +447,7 @@ main() {
             O="${kbuild_out}" \
             ARCH=arm64 \
             CROSS_COMPILE="${cross}" \
+            LOCALVERSION="${kernel_localversion}" \
             kernelrelease
     )"
 
@@ -448,6 +462,7 @@ main() {
         O="${kbuild_out}" \
         ARCH=arm64 \
         CROSS_COMPILE="${cross}" \
+        LOCALVERSION="${kernel_localversion}" \
         INSTALL_MOD_PATH="${modules_out}" \
         INSTALL_MOD_STRIP=1 \
         modules_install
