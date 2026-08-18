@@ -170,6 +170,17 @@ def run_merge(kernel, vyos_config, fragment, output_config):
         env["ARCH"] = "arm64"
         env["KCONFIG_CONFIG"] = str(temp_config)
 
+        #
+        # Kconfig compiler capability tests must use the same ARM64
+        # toolchain as the final kernel build. This is generic for all
+        # ARM64 boards and contains no board-specific assumptions.
+        #
+        if __import__("platform").machine() != "aarch64":
+            env.setdefault(
+                "CROSS_COMPILE",
+                "aarch64-linux-gnu-"
+            )
+
         subprocess.run(
             [
                 str(kernel / "scripts/kconfig/merge_config.sh"),

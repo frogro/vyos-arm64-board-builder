@@ -37,6 +37,76 @@ vyos_arm64_config() {
     printf '%s\n' "${config}"
 }
 
+vyos_arm64_complete_config() {
+    local kernel_source="$1"
+    local output="$2"
+
+    local dir
+    local config_dir
+    local base
+    local outdir
+    local cross=""
+
+    dir="$(vyos_source_dir)"
+    config_dir="${dir}/scripts/package-build/linux-kernel/config"
+    base="${config_dir}/arm64/vyos_defconfig"
+    outdir="$(dirname "${output}")/kconfig"
+
+    [[ -f "${base}" ]] ||
+        die "VyOS ARM64 base config not found: ${base}"
+
+    if [[ "$(uname -m)" != "aarch64" ]]; then
+        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
+
+        command -v "${cross}gcc" >/dev/null 2>&1 ||
+            die "ARM64 cross compiler not found: ${cross}gcc"
+    fi
+
+    local -a fragments=()
+
+    mapfile -t fragments < <(
+        find "${config_dir}" \
+            -maxdepth 1 \
+            -type f \
+            -name '*.config' \
+            -print |
+        sort
+    )
+
+    [[ "${#fragments[@]}" -gt 0 ]] ||
+        die "No common VyOS kernel config fragments found"
+
+    rm -rf "${outdir}"
+    mkdir -p "${outdir}" "$(dirname "${output}")"
+
+    info "Generating complete official VyOS ARM64 kernel baseline..."
+
+    (
+        cd "${kernel_source}"
+
+        ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
+        scripts/kconfig/merge_config.sh \
+            -O "${outdir}" \
+            "${base}" \
+            "${fragments[@]}"
+    )
+
+    make -s \
+        -C "${kernel_source}" \
+        O="${outdir}" \
+        ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
+        olddefconfig
+
+    [[ -s "${outdir}/.config" ]] ||
+        die "Complete VyOS ARM64 kernel config was not generated"
+
+    cp "${outdir}/.config" "${output}"
+
+    info "Complete VyOS ARM64 baseline: ${output}"
+}
+
 vyos_kernel_version() {
     local dir
     dir="$(vyos_source_dir)"
@@ -90,8 +160,19 @@ vyos_kernel_prepare() {
     command -v curl >/dev/null 2>&1 ||
         die "curl is required"
 
-    command -v gpg2 >/dev/null 2>&1 ||
-        die "gpg2 is required"
+    #
+    # GnuPG is installed as either "gpg" or "gpg2" depending on the
+    # distribution. Do not make the build host distribution-specific.
+    #
+    local gpg_cmd=""
+
+    if command -v gpg2 >/dev/null 2>&1; then
+        gpg_cmd="gpg2"
+    elif command -v gpg >/dev/null 2>&1; then
+        gpg_cmd="gpg"
+    else
+        die "GnuPG is required (gpg or gpg2)"
+    fi
 
     command -v xz >/dev/null 2>&1 ||
         die "xz is required"
@@ -115,14 +196,14 @@ vyos_kernel_prepare() {
 
     info "Importing kernel.org signing keys..."
 
-    gpg2 --locate-keys \
+    "${gpg_cmd}" --locate-keys \
         torvalds@kernel.org \
         gregkh@kernel.org
 
     info "Verifying Linux ${version} source signature..."
 
     xz -cd "${archive}" |
-        gpg2 --verify "${signature}" -
+        "${gpg_cmd}" --verify "${signature}" -
 
     info "Extracting Linux ${version}..."
 

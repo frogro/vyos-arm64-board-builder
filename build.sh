@@ -65,6 +65,13 @@ main() {
     local branch="${HW_BRANCH:-${BRANCH:-current}}"
     local vyos_branch="${VYOS_BRANCH:-rolling}"
 
+    #
+    # Requested boot-media capabilities are a build input, not
+    # board-specific generator logic. A board/profile/provider may
+    # override this later without changing the Kconfig engine.
+    #
+    local boot_media="${BOOT_MEDIA:-sd,emmc,nvme,usb}"
+
     local board_file
     local board_name
     local family
@@ -120,6 +127,28 @@ main() {
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
     fi
 
+    #
+    # Reproduce the complete official VyOS ARM64 kernel configuration:
+    #
+    #   arm64/vyos_defconfig
+    #       +
+    #   all common config/*.config fragments
+    #
+    # This is architecture-wide and intentionally contains no
+    # board-specific policy. The hardware delta is derived afterwards
+    # from DTB + reference kernel metadata.
+    #
+    local vyos_baseline_dir="${ROOT_DIR}/work/build/${board}/vyos-baseline"
+    local vyos_complete_config="${vyos_baseline_dir}/vyos-complete.config"
+
+    mkdir -p "${vyos_baseline_dir}"
+
+    vyos_arm64_complete_config \
+        "${kernel_source}" \
+        "${vyos_complete_config}"
+
+    vyos_config="${vyos_complete_config}"
+
     reference_config="$(find_reference_config "$board_file" "$branch" || true)"
 
     echo
@@ -149,6 +178,20 @@ main() {
 
     info "Board metadata resolution successful."
 
+    #
+    # Resolve the ARM64 toolchain once and use it for every Kconfig and
+    # Kbuild phase. Compiler capability tests are part of Kconfig and
+    # must not depend on the architecture of the build host.
+    #
+    local cross=""
+
+    if [[ "$(uname -m)" != "aarch64" ]]; then
+        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
+
+        command -v "${cross}gcc" >/dev/null 2>&1 ||
+            die "ARM64 cross compiler not found: ${cross}gcc"
+    fi
+
     echo
     info "Building VyOS DTB..."
 
@@ -166,6 +209,7 @@ main() {
         -C "${kernel_source}" \
         O="${kbuild_out}" \
         ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
         olddefconfig
 
     info "Building board DTB from VyOS kernel source..."
@@ -174,6 +218,7 @@ main() {
         -C "${kernel_source}" \
         O="${kbuild_out}" \
         ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
         "${dtb}"
 
     local built_dtb="${kbuild_out}/arch/arm64/boot/dts/${dtb}"
@@ -253,7 +298,7 @@ main() {
         --driver-map "${map_out}/compatible-config-map.tsv" \
         --boot-profile "${ROOT_DIR}/profiles/boot-media.conf" \
         --policy "${ROOT_DIR}/profiles/kernel-policy.conf" \
-        --boot-media sd,emmc,nvme,usb \
+        --boot-media "${boot_media}" \
         --output-dir "${config_out}"
 
     [[ -f "${config_out}/generated-board.config" ]] ||
@@ -306,23 +351,6 @@ main() {
     # DTB for hardware discovery. Replace its config now with the fully
     # resolved board-specific VyOS config.
     #
-    #
-    # Native ARM64 runners need no cross prefix. x86_64 builders use
-    # the standard Debian/Ubuntu AArch64 GNU toolchain.
-    #
-    # IMPORTANT: Kconfig must use the exact same toolchain as the
-    # subsequent kernel build. Compiler capability tests influence
-    # ARM64 Kconfig symbols (MTE, BTI, etc.).
-    #
-    local cross=""
-
-    if [[ "$(uname -m)" != "aarch64" ]]; then
-        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
-
-        command -v "${cross}gcc" >/dev/null 2>&1 ||
-            die "ARM64 cross compiler not found: ${cross}gcc"
-    fi
-
     cp "${final_config}" "${kbuild_out}/.config"
 
     #
