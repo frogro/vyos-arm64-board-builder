@@ -275,12 +275,31 @@ main() {
     [[ -f "${map_out}/compatible-config-map.tsv" ]] ||
         die "Driver mapping did not produce compatible-config-map.tsv"
 
+    #
+    # Device Tree compatibles describe devices instantiated directly
+    # from DT. MFD parents can additionally create platform children
+    # which have no independent DT compatible.
+    #
+    # Resolve those children from the active parent driver's variant
+    # path and Linux MFD/Kbuild metadata. This is generic and contains
+    # no board-specific or RK806-specific policy.
+    #
+    local mfd_map="${map_out}/mfd-child-config-map.tsv"
+    local hardware_map="${map_out}/hardware-config-map.tsv"
+
+    python3 "${ROOT_DIR}/tools/mfd-child-drivers.py"         --kernel "${kernel_source}"         --driver-map "${map_out}/compatible-config-map.tsv"         --output "${mfd_map}"
+
+    cat         "${map_out}/compatible-config-map.tsv"         "${mfd_map}" |
+        sort -u > "${hardware_map}"
+
     echo
     echo "===== HARDWARE DERIVATION SUMMARY ====="
     echo "Board:          ${board}"
     echo "DTB:            ${built_dtb}"
     echo "Active nodes:   ${nodes_json}"
-    echo "Driver map:     ${map_out}/compatible-config-map.tsv"
+    echo "DT driver map:  ${map_out}/compatible-config-map.tsv"
+    echo "MFD child map:  ${mfd_map}"
+    echo "Hardware map:   ${hardware_map}"
     echo "Reference cfg:  ${reference_config}"
 
     echo
@@ -295,7 +314,7 @@ main() {
         --kernel "${kernel_source}" \
         --vyos-config "${vyos_config}" \
         --reference-config "${reference_config}" \
-        --driver-map "${map_out}/compatible-config-map.tsv" \
+        --driver-map "${hardware_map}" \
         --boot-profile "${ROOT_DIR}/profiles/boot-media.conf" \
         --policy "${ROOT_DIR}/profiles/kernel-policy.conf" \
         --boot-media "${boot_media}" \
