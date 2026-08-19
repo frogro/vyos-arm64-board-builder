@@ -120,7 +120,12 @@ def rows_for_node(node, mapping):
 
 
 def looks_like_mmc(path, node):
-    if "/mmc@" in path:
+    # Match the node itself, not an MMC controller anywhere in its ancestry.
+    # A child such as mmc@1100000/wifi@1 is an SDIO function, not another
+    # removable SD-card controller and must never become a storage boot root.
+    node_name = path.rstrip("/").rsplit("/", 1)[-1]
+
+    if node_name.startswith(("mmc@", "sdhci@")):
         return True
 
     return any(

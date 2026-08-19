@@ -64,9 +64,36 @@ def main():
     )
 
     if driver_unresolved:
+        details = []
+
+        for item in driver_context.get(
+            "unresolved",
+            [],
+        ):
+            path = item.get(
+                "path",
+                "<unknown-path>",
+            )
+
+            reason = item.get(
+                "reason",
+                "unknown-reason",
+            )
+
+            details.append(
+                f"  - {path}: {reason}"
+            )
+
+        suffix = (
+            "\n" + "\n".join(details)
+            if details
+            else ""
+        )
+
         raise SystemExit(
             "ERROR: driver context still contains "
             f"{driver_unresolved} unresolved node(s)"
+            f"{suffix}"
         )
 
     if mfd_unresolved:
