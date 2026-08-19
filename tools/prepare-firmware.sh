@@ -8,6 +8,10 @@ HW_BRANCH="${2:-current}"
 BOOT_BRANCH_REQUESTED="${3:-auto}"
 PROVIDER_REQUESTED="${4:-auto}"
 
+if [[ "$PROVIDER_REQUESTED" == "auto" && -n "${FIRMWARE_PROVIDER_OVERRIDE:-}" ]]; then
+    PROVIDER_REQUESTED="$FIRMWARE_PROVIDER_OVERRIDE"
+fi
+
 BOOT="$ROOT/work/build/$BOARD/boot"
 mkdir -p "$BOOT"
 
@@ -121,7 +125,10 @@ source "$LAYOUT"
         FIRMWARE_PART_START \
         FIRMWARE_PART_SECTORS \
         FIRMWARE_SKIP_SECTORS \
-        EFI_START_SECTOR
+        EFI_START_SECTOR \
+        FIRMWARE_PART_TYPE \
+        FIRMWARE_PART_NAME \
+        OUTPUT_EXTRA_SECTORS
     do
         if [[ -n "${!name:-}" ]]; then
             printf '%s=%q\n' \

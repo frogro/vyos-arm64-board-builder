@@ -113,6 +113,8 @@ FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
     die "firmware layout is not contiguous with EFI start"
 
 INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
+FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
+VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
 
 [[ -x "$INSTALL_PROVIDER" ]] ||
     die "firmware provider installer missing: $INSTALL_PROVIDER"
@@ -142,8 +144,9 @@ WORK="$(mktemp -d)"
 SRC_MNT="$WORK/src"
 DST_MNT="$WORK/dst"
 SQUASH_ROOT="$WORK/squash-root"
+FIRMWARE_MNT="$WORK/firmware"
 
-mkdir -p "$SRC_MNT" "$DST_MNT"
+mkdir -p "$SRC_MNT" "$DST_MNT" "$FIRMWARE_MNT"
 
 SRC_LOOP=""
 DST_LOOP=""
@@ -167,6 +170,9 @@ cleanup()
     set +e
 
     unmount_chroot
+
+    mountpoint -q "$FIRMWARE_MNT" &&
+        umount "$FIRMWARE_MNT"
 
     mountpoint -q "$DST_MNT/boot/efi" &&
         umount "$DST_MNT/boot/efi"
@@ -224,25 +230,32 @@ EFI_SECTORS="$(blockdev --getsz "$EFI_SRC")"
 ROOT_SECTORS="$(blockdev --getsz "$ROOT_SRC")"
 RAW_BYTES="$(stat -c '%s' "$RAW")"
 RAW_SECTORS=$((RAW_BYTES / SECTOR_SIZE))
+OUTPUT_EXTRA_SECTORS="${OUTPUT_EXTRA_SECTORS:-0}"
+
+[[ "$OUTPUT_EXTRA_SECTORS" =~ ^[0-9]+$ ]] ||
+    die "OUTPUT_EXTRA_SECTORS must be an integer"
+
+OUTPUT_SECTORS=$((RAW_SECTORS + OUTPUT_EXTRA_SECTORS))
+OUTPUT_BYTES=$((OUTPUT_SECTORS * SECTOR_SIZE))
 
 EFI_START="$EFI_START_SECTOR"
 EFI_END=$((EFI_START + EFI_SECTORS - 1))
 ROOT_START=$((EFI_END + 1))
 ROOT_END=$((ROOT_START + ROOT_SECTORS - 1))
 
-(( ROOT_END + 34 < RAW_SECTORS )) ||
+(( ROOT_END + 34 < OUTPUT_SECTORS )) ||
     die "VyOS filesystems do not fit in the provider-defined layout"
 
 rm -f "$OUTPUT"
-truncate -s "$RAW_BYTES" "$OUTPUT"
+truncate -s "$OUTPUT_BYTES" "$OUTPUT"
 
 sgdisk --zap-all "$OUTPUT"
 sgdisk --clear "$OUTPUT"
 
 sgdisk \
     --new=1:${FIRMWARE_PART_START}:${FIRMWARE_PART_END} \
-    --typecode=1:8300 \
-    --change-name=1:uboot \
+    --typecode=1:${FIRMWARE_PART_TYPE:-8300} \
+    --change-name=1:${FIRMWARE_PART_NAME:-uboot} \
     "$OUTPUT"
 
 sgdisk \
@@ -553,6 +566,23 @@ cfg.write_text(text)
 print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
 
+if [[ -x "$FINALIZE_PROVIDER" ]]; then
+    echo
+    echo "===== FINALIZING FIRMWARE FILESYSTEM ====="
+
+    mount "$FIRMWARE_DST" "$FIRMWARE_MNT"
+
+    "$FINALIZE_PROVIDER" \
+        "$BOARD" \
+        "$FIRMWARE_MNT" \
+        "$VERSION_DIR" \
+        "$KERNEL_ARTIFACTS" \
+        "$GRUB_VERSION_CFG"
+
+    sync
+    umount "$FIRMWARE_MNT"
+fi
+
 echo
 echo "===== RELEASE PAYLOAD VALIDATION ====="
 
@@ -613,6 +643,13 @@ udevadm settle
 
 [[ "$(blockdev --getsz "${CHECK_LOOP}p1")" -eq "$FIRMWARE_PART_SECTORS" ]] ||
     die "firmware partition size mismatch"
+
+if [[ -x "$VALIDATE_PROVIDER" ]]; then
+    "$VALIDATE_PROVIDER" \
+        "$BOARD" \
+        "${CHECK_LOOP}p1" \
+        "$KERNEL_ARTIFACTS"
+fi
 
 fsck.vfat -n "${CHECK_LOOP}p2"
 e2fsck -fn "${CHECK_LOOP}p3"

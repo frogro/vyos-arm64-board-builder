@@ -45,7 +45,9 @@ main() {
     print_banner
 
     local board="${BOARD:-}"
-    local branch="${HW_BRANCH:-${BRANCH:-current}}"
+    local branch=""
+    local hardware_reference="${HW_REFERENCE:-${HW_BRANCH:-${BRANCH:-auto}}}"
+    local armbian_board=""
     local vyos_branch="${VYOS_BRANCH:-rolling}"
 
     #
@@ -78,6 +80,8 @@ main() {
     local vyos_config
     local kernel_version
     local kernel_source
+    local selection_dir
+    local selection_env
 
     armbian_fetch
     vyos_fetch
@@ -86,16 +90,53 @@ main() {
         board="$(select_board)"
     fi
 
-    info "Validating board '${board}' against Armbian..."
+    kernel_version="$(
+        vyos_kernel_version |
+        grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
+        head -1
+    )"
 
-    if ! board_file="$(armbian_validate_board "$board")"; then
+    [[ -n "$kernel_version" ]] ||
+        die "Unable to determine VyOS kernel version"
+
+    selection_dir="${ROOT_DIR}/work/build/${board}/selection"
+    selection_env="${selection_dir}/selected-reference.env"
+    mkdir -p "${selection_dir}"
+
+    info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
+
+    python3 "${ROOT_DIR}/tools/select_hardware_reference.py" \
+        --root "${ROOT_DIR}" \
+        --armbian "$(armbian_source_dir)" \
+        --board "${board}" \
+        --vyos-kernel "${kernel_version}${kernel_localversion}" \
+        --hardware-reference "${hardware_reference}" \
+        --output "${selection_env}"
+
+    [[ -s "${selection_env}" ]] ||
+        die "Hardware-reference selection was not generated"
+
+    # shellcheck disable=SC1090
+    source "${selection_env}"
+
+    if [[ -n "${BOARD_MODEL_PROFILE:-}" &&
+          "${BOARD_MODEL_PROFILE}" != /* ]]; then
+        BOARD_MODEL_PROFILE="${ROOT_DIR}/${BOARD_MODEL_PROFILE}"
+    fi
+
+    armbian_board="${ARMBIAN_BOARD}"
+    branch="${HW_BRANCH}"
+
+    info "Validating Armbian BOARD '${armbian_board}' for '${board}'..."
+
+    if ! board_file="$(armbian_validate_board "$armbian_board")"; then
         echo
-        warn "Board '${board}' was not found in the current Armbian board database."
+        warn "Board '${armbian_board}' was not found in the current Armbian board database."
         echo
         echo "Some available boards:"
         armbian_list_boards | head -30
         echo
-        die "Unknown Armbian board identifier: ${board}"
+        die "Unknown Armbian board identifier: ${armbian_board}"
     fi
 
     #
@@ -109,7 +150,7 @@ main() {
     effective_config_env="${effective_config_dir}/config.env"
 
     "${ROOT_DIR}/tools/resolve-armbian-effective-config.sh" \
-        "${board}" \
+        "${armbian_board}" \
         "${branch}" \
         "${effective_config_dir}"
 
@@ -119,21 +160,12 @@ main() {
     # shellcheck disable=SC1090
     source "${effective_config_env}"
 
-    board_name="${BOARD_NAME:-}"
+    board_name="${BOARD_NAME_OVERRIDE:-${BOARD_NAME:-}}"
     family="${BOARDFAMILY:-}"
     linuxfamily="${LINUXFAMILY:-${BOARDFAMILY:-}}"
-    dtb="${BOOT_FDT_FILE:-}"
+    dtb="${BOOT_FDT_FILE_OVERRIDE:-${BOOT_FDT_FILE:-}}"
 
     vyos_config="$(vyos_arm64_config)"
-
-    kernel_version="$(
-        vyos_kernel_version |
-        grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
-        head -1
-    )"
-
-    [[ -n "$kernel_version" ]] ||
-        die "Unable to determine VyOS kernel version"
 
     #
     # Prepare the exact upstream kernel version used by VyOS and apply
@@ -173,10 +205,12 @@ main() {
 
     echo
     info "Board:          ${board}"
+    info "Armbian BOARD:  ${armbian_board}"
     info "Board name:     ${board_name:-unknown}"
     info "Board family:   ${family:-unknown}"
     info "Linux family:   ${linuxfamily:-unknown}"
     info "HW branch:      ${branch}"
+    info "HW selection:   ${HW_SELECTION_MODE}"
     info "Board DTB:      ${dtb:-unknown}"
     info "VyOS branch:    ${vyos_branch}"
     info "VyOS kernel:    ${kernel_version}"
@@ -449,6 +483,16 @@ main() {
         echo "===== UNRESOLVED KCONFIG DEPENDENCIES ====="
         cat "${config_out}/kconfig-closure/unresolved.txt"
         die "Unresolved Kconfig dependencies remain"
+    fi
+
+    if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
+        info "Validating promoted board-model requirements..."
+
+        python3 "${ROOT_DIR}/tools/validate_model_requirements.py" \
+            --root "${ROOT_DIR}" \
+            --model "${BOARD_MODEL_PROFILE}" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --dtb-root "${kbuild_out}/arch/arm64/boot/dts"
     fi
 
     echo

@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BOARD="${1:?Usage: $0 <board> [requested-boot-branch] [hardware-branch]}"
 REQUESTED="${2:-auto}"
 HW_BRANCH="${3:-current}"
+EFFECTIVE_BOARD="${ARMBIAN_BOARD:-$BOARD}"
 
 OUT="$ROOT/work/build/$BOARD/armbian-branch-selection"
 ENVFILE="$OUT/config.env"
@@ -14,8 +15,8 @@ ENVFILE="$OUT/config.env"
 # Use Armbian's evaluated board configuration as the only source of
 # truth. Do not statically parse config/boards/*.conf here.
 #
-"$ROOT/tools/resolve-armbian-effective-config.sh" \
-    "$BOARD" \
+    "$ROOT/tools/resolve-armbian-effective-config.sh" \
+    "$EFFECTIVE_BOARD" \
     "$HW_BRANCH" \
     "$OUT" \
     >/dev/null

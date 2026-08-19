@@ -1,6 +1,12 @@
 name: Build VyOS ARM64 board candidate
 
 on:
+  # Creating a deliberately named test branch is the non-interactive CI entry
+  # point. Ordinary pushes to development branches never publish images.
+  push:
+    branches:
+      - "pi5-test-*"
+
   workflow_dispatch:
     inputs:
       board:
@@ -9,14 +15,8 @@ on:
         default: "rock-5b"
         type: string
 
-      branch:
-        description: "Armbian hardware reference branch"
-        required: true
-        default: "current"
-        type: string
-
-      boot_branch:
-        description: "Bootloader reference branch or auto"
+      hardware_reference:
+        description: "Developer override (normal builds use auto)"
         required: true
         default: "auto"
         type: string
@@ -49,11 +49,12 @@ jobs:
       contents: write
 
     env:
-      BOARD: ${{ inputs.board }}
-      HW_BRANCH: ${{ inputs.branch }}
-      BOOT_BRANCH: ${{ inputs.boot_branch }}
+      BOARD: ${{ inputs.board || 'raspberry-pi-5' }}
+      HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
+      BOOT_BRANCH: auto
       VYOS_BRANCH: rolling
-      ARMBIAN_REF: ${{ inputs.armbian_ref }}
+      ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
+      RAW_RUN_ID: ${{ inputs.raw_run_id || '32008814114' }}
       JOBS: 4
 
     steps:
@@ -112,12 +113,33 @@ jobs:
           df -h
 
       - name: Build board-specific official VyOS kernel
+        id: kernel
         shell: bash
         run: |
           set -euo pipefail
 
           chmod +x build.sh
           ./build.sh
+
+          # The builder resolved these values from the real VyOS kernel.
+          # Export them for the provider and image-assembly stages.
+          source "work/build/${BOARD}/selection/selected-reference.env"
+          for name in \
+            ARMBIAN_BOARD \
+            BOARD_MODEL \
+            BOARD_NAME_OVERRIDE \
+            BOARD_SOC_OVERRIDE \
+            BOOT_FDT_FILE_OVERRIDE \
+            FIRMWARE_PROVIDER_OVERRIDE \
+            HW_BRANCH \
+            HW_SELECTION_MODE \
+            VYOS_KERNEL_VERSION \
+            VYOS_KERNEL_MAJOR_MINOR \
+            REFERENCE_KERNEL_MAJOR_MINOR
+          do
+            printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
+          done
+          echo "hw_branch=${HW_BRANCH}" >> "$GITHUB_OUTPUT"
 
           echo
           echo "===== KERNEL RELEASE ====="
@@ -193,6 +215,7 @@ jobs:
             ! -name artifacts \
             ! -name modules \
             ! -name boot \
+            ! -name selection \
             -exec rm -rf {} +
 
           sudo rm -rf cache/linux-vyos
@@ -209,7 +232,7 @@ jobs:
 
           mkdir -p work/raw-artifact
 
-          gh run download "${{ inputs.raw_run_id }}" \
+          gh run download "${RAW_RUN_ID}" \
             --repo "${{ github.repository }}" \
             --name vyos-arm64-raw \
             --dir work/raw-artifact
@@ -281,18 +304,19 @@ jobs:
       - name: Upload board candidate
         uses: actions/upload-artifact@v4
         with:
-          name: vyos-${{ inputs.board }}-${{ inputs.branch }}-candidate
+          name: vyos-${{ env.BOARD }}-${{ steps.kernel.outputs.hw_branch }}-candidate
           path: |
-            work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz
-            work/build/${{ inputs.board }}/vyos-${{ inputs.board }}-candidate.img.xz.sha256
-            work/build/${{ inputs.board }}/artifacts/kernel.release
-            work/build/${{ inputs.board }}/artifacts/kernel.config
-            work/build/${{ inputs.board }}/boot/boot-manifest.env
+            work/build/${{ env.BOARD }}/vyos-${{ env.BOARD }}-candidate.img.xz
+            work/build/${{ env.BOARD }}/vyos-${{ env.BOARD }}-candidate.img.xz.sha256
+            work/build/${{ env.BOARD }}/artifacts/kernel.release
+            work/build/${{ env.BOARD }}/artifacts/kernel.config
+            work/build/${{ env.BOARD }}/boot/boot-manifest.env
+            work/build/${{ env.BOARD }}/selection/selected-reference.env
           if-no-files-found: error
           compression-level: 0
 
       - name: Publish GitHub release
-        if: ${{ inputs.publish_release }}
+        if: ${{ github.event_name == 'push' || inputs.publish_release }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash

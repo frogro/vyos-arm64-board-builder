@@ -35,7 +35,7 @@ need() {
         die "required command not found: $1"
 }
 
-for cmd in git gh grep sed sort awk mktemp; do
+for cmd in git gh grep sed sort awk mktemp python3; do
     need "$cmd"
 done
 
@@ -171,6 +171,29 @@ discover_boards() {
 
     sort -u -o "$out" "$out"
 
+    python3 - "$SCRIPT_ROOT/profiles/board-models" >> "$out" <<'PY_MODELS'
+import json
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+if root.is_dir():
+    for path in sorted(root.glob("*.json")):
+        model = json.loads(path.read_text(encoding="utf-8"))
+        print(
+            "\t".join(
+                (
+                    model["model"],
+                    model["name"],
+                    "model",
+                    "auto",
+                )
+            )
+        )
+PY_MODELS
+
+    sort -u -o "$out" "$out"
+
     [[ -s "$out" ]] ||
         die "no usable Armbian boards found"
 }
@@ -258,77 +281,6 @@ pick_board() {
     done
 }
 
-pick_branch() {
-    local targets="$1"
-    local default=""
-    local -a branches=()
-    local item
-    local i
-    local choice
-
-    IFS=',' read -r -a branches <<< "$targets"
-
-    for item in "${branches[@]}"; do
-        if [[ "$item" == "current" ]]; then
-            default="current"
-            break
-        fi
-    done
-
-    if [[ -z "$default" ]]; then
-        default="${branches[0]}"
-    fi
-
-    if [[ "${#branches[@]}" -eq 1 ]]; then
-        printf '%s\n' "${branches[0]}"
-        return
-    fi
-
-    echo >&2
-    echo "Available Armbian hardware reference branches:" >&2
-
-    i=1
-
-    for item in "${branches[@]}"; do
-        printf '  %d) %s' "$i" "$item" >&2
-
-        if [[ "$item" == "$default" ]]; then
-            printf ' [default]' >&2
-        fi
-
-        printf '\n' >&2
-
-        ((i++))
-    done
-
-    while true; do
-        read -r -p \
-            "Select branch [$default]: " \
-            choice
-
-        if [[ -z "$choice" ]]; then
-            printf '%s\n' "$default"
-            return
-        fi
-
-        if [[ "$choice" =~ ^[0-9]+$ ]] &&
-           (( choice >= 1 && choice <= ${#branches[@]} ))
-        then
-            printf '%s\n' \
-                "${branches[$((choice - 1))]}"
-
-            return
-        fi
-
-        for item in "${branches[@]}"; do
-            if [[ "$choice" == "$item" ]]; then
-                printf '%s\n' "$item"
-                return
-            fi
-        done
-    done
-}
-
 main() {
     sync_armbian_metadata
 
@@ -337,8 +289,7 @@ main() {
     local line
     local board_name
     local status
-    local targets
-    local branch
+    local hardware_reference="${HW_REFERENCE:-auto}"
     local ans
 
     board_list="$(mktemp)"
@@ -380,20 +331,16 @@ main() {
             awk -F '\t' '{print $3}'
     )"
 
-    targets="$(
-        printf '%s\n' "$line" |
-            awk -F '\t' '{print $4}'
-    )"
-
-    branch="$(pick_branch "$targets")"
-
     echo
     echo "Selected VyOS ARM64 build"
     echo "-------------------------"
     echo "Board           : $board"
     echo "Board name      : $board_name"
     echo "Armbian status  : $status"
-    echo "HW reference    : $branch"
+    echo "HW reference    : automatic from VyOS kernel"
+    if [[ "$hardware_reference" != "auto" ]]; then
+        echo "Developer mode  : forced $hardware_reference"
+    fi
     echo "Armbian commit  : $ARMBIAN_COMMIT"
     echo "VyOS branch     : $VYOS_BRANCH"
     echo
@@ -417,8 +364,7 @@ main() {
         --repo "$BUILD_REPO" \
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
-        -f branch="$branch" \
-        -f boot_branch="$BOOT_BRANCH" \
+        -f hardware_reference="$hardware_reference" \
         -f armbian_ref="$ARMBIAN_COMMIT" \
         -f raw_run_id="$RAW_RUN_ID" \
         -f publish_release="$PUBLISH_RELEASE"

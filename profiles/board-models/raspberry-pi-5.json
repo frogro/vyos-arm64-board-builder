@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "model": "raspberry-pi-5",
+  "name": "Raspberry Pi 5",
+  "armbian_board": "rpi4b",
+  "architecture": "arm64",
+  "soc": "bcm2712",
+  "device_tree": {
+    "boot_fdt_file": "broadcom/bcm2712-rpi-5-b.dtb"
+  },
+  "boot": {
+    "provider": "raspberrypi-native",
+    "handoff": "config.txt-direct-kernel",
+    "uboot": false
+  },
+  "requirements": {
+    "hardware_config": "tests/fixtures/raspberry-pi-5/expected-hardware.config",
+    "system_image_sync": true
+  }
+}

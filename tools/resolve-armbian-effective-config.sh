@@ -34,8 +34,10 @@ echo "Armbian commit: $ARMBIAN_COMMIT"
 if ! (
     cd "$ARMBIAN"
 
+    ALLOW_ROOT=yes \
     CONFIG_DEFS_ONLY=yes \
     ANSI_COLOR=none \
+    USE_TMPFS=no \
     ./compile.sh \
         "BOARD=$BOARD" \
         "BRANCH=$BRANCH" \
@@ -159,8 +161,17 @@ keys = [
     "LINUXFAMILY",
     "BRANCH",
     "KERNEL_TARGET",
+    "ARCH",
+    "KERNELSOURCE",
+    "KERNELBRANCH",
+    "KERNELPATCHDIR",
+    "LINUXCONFIG",
+    "KERNEL_MAJOR_MINOR",
 
     "BOOT_FDT_FILE",
+    "GRUB_FDT_FILE",
+    "OVERLAY_DIR",
+    "ARMBIAN_WILL_BUILD_UBOOT",
     "BOOTCONFIG",
     "BOOTSOURCE",
     "BOOTBRANCH",
@@ -171,6 +182,10 @@ keys = [
 
     "IMAGE_PARTITION_TABLE",
     "OFFSET",
+    "BOOTSIZE",
+    "UEFISIZE",
+    "UEFI_FS_LABEL",
+    "UEFI_MOUNT_POINT",
 ]
 
 resolved = {
@@ -210,7 +225,6 @@ for required in [
     "BOARDFAMILY",
     "LINUXFAMILY",
     "KERNEL_TARGET",
-    "BOOT_FDT_FILE",
 ]:
     if not resolved[required]:
         raise SystemExit(
@@ -243,7 +257,16 @@ for key in [
     "LINUXFAMILY",
     "BRANCH",
     "KERNEL_TARGET",
+    "ARCH",
+    "KERNELSOURCE",
+    "KERNELBRANCH",
+    "KERNELPATCHDIR",
+    "LINUXCONFIG",
+    "KERNEL_MAJOR_MINOR",
     "BOOT_FDT_FILE",
+    "GRUB_FDT_FILE",
+    "OVERLAY_DIR",
+    "ARMBIAN_WILL_BUILD_UBOOT",
     "BOOTCONFIG",
     "BOOTSOURCE",
     "BOOTBRANCH",
@@ -253,6 +276,10 @@ for key in [
     "BOOT_SCENARIO",
     "IMAGE_PARTITION_TABLE",
     "OFFSET",
+    "BOOTSIZE",
+    "UEFISIZE",
+    "UEFI_FS_LABEL",
+    "UEFI_MOUNT_POINT",
     "ARMBIAN_COMMIT",
 ]:
     print(f"{key}={resolved[key]}")

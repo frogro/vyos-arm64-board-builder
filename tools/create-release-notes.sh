@@ -37,6 +37,25 @@ FIRMWARE_PART_START="${FIRMWARE_PART_START:-unknown}"
 FIRMWARE_PART_SECTORS="${FIRMWARE_PART_SECTORS:-unknown}"
 EFI_START_SECTOR="${EFI_START_SECTOR:-unknown}"
 
+if [[ "$FIRMWARE_PROVIDER" == "raspberrypi-native" ]]; then
+    BOOT_APPROACH="Raspberry Pi EEPROM/Boot ROM, native Raspberry Pi firmware on GPT1, config.txt, the board kernel and its matching initramfs. The original VyOS EFI/GRUB filesystem remains present on GPT2 but is not the default Pi boot path."
+    LAYOUT_DESCRIPTION="- GPT1 is a 512 MiB FAT32 \`RPICFG\` partition containing pinned Raspberry Pi firmware plus the matching kernel, initramfs and BCM2712 Device Tree
+- GPT2 is the unchanged official VyOS EFI filesystem
+- GPT3 is the unchanged VyOS persistence/system-image filesystem"
+    UPDATE_STATUS="Because native Raspberry Pi firmware boots the kernel from FAT rather than through GRUB, a future \`add system image\` operation also requires synchronization of the selected board kernel, initramfs and DTB to \`RPICFG\`. That update path is not yet validated by this experimental image and must not be assumed to work until the board-specific synchronization gate is implemented and hardware-tested."
+    PROVIDER_VALIDATION="- [x] Raspberry Pi firmware-partition filesystem validation
+- [x] \`config.txt\`, \`cmdline.txt\`, kernel, initramfs and BCM2712 DTB validation
+- [x] FAT kernel equality with the built kernel artifact"
+else
+    BOOT_APPROACH="The provider-specific firmware hands off to the unchanged official VyOS EFI/GRUB path."
+    LAYOUT_DESCRIPTION="- GPT1 firmware/reserved area starts at sector \`${FIRMWARE_PART_START}\`
+- GPT1 length: \`${FIRMWARE_PART_SECTORS}\` sectors
+- GPT2 contains the original VyOS EFI filesystem
+- GPT3 contains VyOS persistence/system-image data"
+    UPDATE_STATUS="VyOS EFI/GRUB remains intact and the persistence partition stays GPT3 so the embedded GRUB prefix continues to resolve \`(,gpt3)/boot/grub\`. The normal VyOS system-image update mechanism still requires real-hardware validation for this board."
+    PROVIDER_VALIDATION="- [x] Provider-defined firmware integration"
+fi
+
 cat > "$OUT" <<EOF_NOTES
 # VyOS ARM64 ${BOARD_NAME} test image
 
@@ -69,6 +88,8 @@ The image was created in these stages:
 - SoC / boot SoC: \`${BOOT_SOC:-unknown}\`
 - Device tree: \`${BOOT_FDT_FILE}\`
 - Hardware reference branch: \`${HW_BRANCH}\`
+- Hardware reference selection: \`${HW_SELECTION_MODE:-unknown}\`
+- VyOS/reference kernel line: \`${VYOS_KERNEL_MAJOR_MINOR:-unknown}\` / \`${REFERENCE_KERNEL_MAJOR_MINOR:-unknown}\`
 - Boot reference branch: \`${BOOT_BRANCH}\`
 - Kernel: \`${KERNEL_RELEASE}\`
 - Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
@@ -84,14 +105,11 @@ The image was created in these stages:
 
 ## Image layout
 
-The firmware provider owns the board-specific raw boot area.
+${BOOT_APPROACH}
 
-- GPT1 firmware/reserved area starts at sector \`${FIRMWARE_PART_START}\`
-- GPT1 length: \`${FIRMWARE_PART_SECTORS}\` sectors
-- GPT2 EFI starts at sector \`${EFI_START_SECTOR}\`
-- GPT3 contains VyOS persistence/system-image data
+${LAYOUT_DESCRIPTION}
 
-VyOS EFI/GRUB remains intact and the persistence partition stays GPT3 so the embedded GRUB prefix continues to resolve \`(,gpt3)/boot/grub\`.
+${UPDATE_STATUS}
 
 ## Kernel and initramfs consistency
 
@@ -112,7 +130,7 @@ Automated build validation:
 - [x] Kernel modules build
 - [x] Matching initramfs rebuild
 - [x] Final kernel config installation
-- [x] Firmware-provider integration
+${PROVIDER_VALIDATION}
 - [x] Provider-defined three-partition GPT assembly
 - [x] GRUB GPT3 prefix validation
 - [x] GPT validation
