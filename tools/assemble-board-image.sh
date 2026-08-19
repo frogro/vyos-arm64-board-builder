@@ -577,7 +577,8 @@ if [[ -x "$FINALIZE_PROVIDER" ]]; then
         "$FIRMWARE_MNT" \
         "$VERSION_DIR" \
         "$KERNEL_ARTIFACTS" \
-        "$GRUB_VERSION_CFG"
+        "$GRUB_VERSION_CFG" \
+        "$MANIFEST"
 
     sync
     umount "$FIRMWARE_MNT"

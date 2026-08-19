@@ -25,20 +25,24 @@ EOF_GRUB
 
 printf 'kernel-payload\n' > "$WORK/artifacts/Image"
 printf 'initrd-payload\n' > "$WORK/version/initrd.img"
-printf 'dtb-payload\n' > "$WORK/artifacts/dtb/broadcom/bcm2712-rpi-5-b.dtb"
+printf 'dtb-payload\n' > "$WORK/artifacts/dtb/broadcom/bcm2712-rpi-5-b-test.dtb"
 
-BOOT_FDT_FILE=broadcom/bcm2712-rpi-5-b.dtb \
-    "$ROOT/tools/firmware-providers/raspberrypi-native/finalize.sh" \
-        raspberry-pi-5 \
-        "$WORK/firmware" \
-        "$WORK/version" \
-        "$WORK/artifacts" \
-        "$WORK/grub-version.cfg"
+cat > "$WORK/boot-manifest.env" <<'EOF_MANIFEST'
+BOOT_FDT_FILE=broadcom/bcm2712-rpi-5-b-test.dtb
+EOF_MANIFEST
+
+"$ROOT/tools/firmware-providers/raspberrypi-native/finalize.sh" \
+    raspberry-pi-5 \
+    "$WORK/firmware" \
+    "$WORK/version" \
+    "$WORK/artifacts" \
+    "$WORK/grub-version.cfg" \
+    "$WORK/boot-manifest.env"
 
 grep -Eq '^\[all\]$' "$WORK/firmware/config.txt"
 grep -Eq '^kernel=vmlinuz$' "$WORK/firmware/config.txt"
 grep -Eq '^initramfs initrd\.img followkernel$' "$WORK/firmware/config.txt"
-grep -Eq '^device_tree=bcm2712-rpi-5-b\.dtb$' "$WORK/firmware/config.txt"
+grep -Eq '^device_tree=bcm2712-rpi-5-b-test\.dtb$' "$WORK/firmware/config.txt"
 grep -Eq '(^| )boot=live( |$)' "$WORK/firmware/cmdline.txt"
 grep -Eq '(^| )vyos-union=/boot/2026\.08\.19-test( |$)' "$WORK/firmware/cmdline.txt"
 grep -Eq '(^| )console=ttyAMA10,115200( |$)' "$WORK/firmware/cmdline.txt"
