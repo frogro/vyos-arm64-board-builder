@@ -80,13 +80,38 @@ jobs:
             -printf '%p %s bytes\n' \
             | sort
 
-          test -s \
-            "work/build/${BOARD}/boot/artifacts/idbloader.img"
+          BOOT="work/build/${BOARD}/boot"
 
-          test -s \
-            "work/build/${BOARD}/boot/artifacts/u-boot.itb"
+          test -s "${BOOT}/boot-manifest.env"
+          test -s "${BOOT}/metadata/u-boot-metadata.sh"
+          test -s "${BOOT}/metadata/platform_install.sh"
+
+          ARTIFACT="$(
+            find "${BOOT}/artifacts" \
+              -maxdepth 1 \
+              -type f \
+              -print \
+              -quit
+          )"
+
+          [[ -n "${ARTIFACT}" ]]
+          test -s "${ARTIFACT}"
+
+          PACKAGE="$(
+            find "${BOOT}/package" \
+              -maxdepth 1 \
+              -type f \
+              -name '*.deb' \
+              -print \
+              -quit
+          )"
+
+          [[ -n "${PACKAGE}" ]]
+          test -s "${PACKAGE}"
 
           echo
+          echo "Validated artifact: $(basename "${ARTIFACT}")"
+          echo "Validated package:  $(basename "${PACKAGE}")"
           echo "Bootchain validation successful."
 
       - name: Upload bootchain artifacts

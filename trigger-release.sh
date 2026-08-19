@@ -3,7 +3,15 @@ set -euo pipefail
 
 BUILD_REPO="${BUILD_REPO:-frogro/vyos-arm64-board-builder}"
 WORKFLOW="${WORKFLOW:-build-board-candidate.yml}"
-WORKFLOW_REF="${WORKFLOW_REF:-main}"
+
+SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+DEFAULT_WORKFLOW_REF="$(
+    git -C "$SCRIPT_ROOT"         symbolic-ref --quiet --short HEAD         2>/dev/null ||
+    printf '%s\n' main
+)"
+
+WORKFLOW_REF="${WORKFLOW_REF:-$DEFAULT_WORKFLOW_REF}"
 
 ARMBIAN_REF="${ARMBIAN_REF:-main}"
 ARMBIAN_REMOTE="${ARMBIAN_REMOTE:-https://github.com/armbian/build.git}"
@@ -347,6 +355,7 @@ main() {
     echo "Armbian use     : hardware reference only"
     echo "Armbian ref     : ${ARMBIAN_REF}"
     echo "Armbian commit  : ${ARMBIAN_COMMIT}"
+    echo "Workflow ref    : ${WORKFLOW_REF}"
     echo
 
     board="$(pick_board "$board_list")"
@@ -410,6 +419,7 @@ main() {
         -f board="$board" \
         -f branch="$branch" \
         -f boot_branch="$BOOT_BRANCH" \
+        -f armbian_ref="$ARMBIAN_COMMIT" \
         -f raw_run_id="$RAW_RUN_ID" \
         -f publish_release="$PUBLISH_RELEASE"
 

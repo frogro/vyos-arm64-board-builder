@@ -21,6 +21,12 @@ on:
         default: "auto"
         type: string
 
+      armbian_ref:
+        description: "Exact Armbian build branch, tag or commit"
+        required: true
+        default: "main"
+        type: string
+
       raw_run_id:
         description: "Successful VyOS ARM64 raw workflow run"
         required: true
@@ -47,7 +53,7 @@ jobs:
       HW_BRANCH: ${{ inputs.branch }}
       BOOT_BRANCH: ${{ inputs.boot_branch }}
       VYOS_BRANCH: rolling
-      ARMBIAN_REF: main
+      ARMBIAN_REF: ${{ inputs.armbian_ref }}
       JOBS: 4
 
     steps:
