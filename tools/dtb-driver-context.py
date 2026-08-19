@@ -6,6 +6,8 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+from linux_early_of_declarations import declarations_in_text
+
 
 DEVICE_BUS_PATTERNS = {
     "spi": (
@@ -208,9 +210,19 @@ class SourceInspector:
                 tables.get(name, set())
             )
 
+        early_compatibles = {
+            compatible
+            for compatible, _macro in declarations_in_text(text)
+        }
+
+        compatibles.update(
+            early_compatibles
+        )
+
         result = {
             "tables": tables,
             "references": references,
+            "early_compatibles": early_compatibles,
             "compatibles": compatibles,
         }
 

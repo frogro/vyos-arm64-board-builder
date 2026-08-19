@@ -61,6 +61,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Test DT boot-driver discovery
+        run: |
+          python3 tests/test-dtb-boot-roots.py
+          python3 tests/test-early-of-declarations.py
+
       - name: Show initial disk space
         run: df -h
 
