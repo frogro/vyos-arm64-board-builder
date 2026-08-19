@@ -182,6 +182,29 @@ def write_fragment(path, values):
     )
 
 
+def validation_state(symbol, want, got, strict_symbols):
+    """Classify Kconfig's final value for one requested symbol.
+
+    Boot-critical symbols and their dependency closure must retain the exact
+    requested value.  Runtime-only hardware may be normalized between module
+    and built-in by Kconfig as long as the driver remains available.
+    """
+
+    if want == got:
+        return "OK"
+
+    if symbol in strict_symbols:
+        return "FAIL"
+
+    if want == "y" and got == "m":
+        return "OK-MODULE"
+
+    if want == "m" and got == "y":
+        return "OK-BUILTIN"
+
+    return "FAIL"
+
+
 def run_merge(kernel, vyos_config, fragment, output_config):
     kernel = Path(kernel)
 
@@ -242,13 +265,19 @@ def run_merge(kernel, vyos_config, fragment, output_config):
         )
 
 
-def run_kconfig_closure(kernel, vyos_config, raw_fragment, out):
+def run_kconfig_closure(
+    kernel,
+    vyos_config,
+    raw_fragment,
+    out,
+    directory="kconfig-closure",
+):
     closure_tool = (
         Path(__file__).resolve().parent
         / "kconfig-closure.py"
     )
 
-    closure_dir = out / "kconfig-closure"
+    closure_dir = out / directory
 
     if closure_dir.exists():
         import shutil
@@ -537,12 +566,14 @@ def main():
     explicit_boot_symbols = resolved_boot_symbols
 
     selected = {}
+    strict_roots = set()
 
     for symbol in sorted(endpoint_symbols):
         selected[symbol] = policy.get(
             "BOOT_CRITICAL_MODE",
             "y"
         )
+        strict_roots.add(symbol)
 
     boot_mode = policy.get(
         "BOOT_CRITICAL_MODE",
@@ -563,6 +594,7 @@ def main():
         #
         if classes & required_classes:
             selected[symbol] = boot_mode
+            strict_roots.add(symbol)
             continue
 
         #
@@ -631,9 +663,11 @@ def main():
             "CONFIG_MMC_SDHCI_PLTFM",
         ]:
             selected[symbol] = boot_mode
+            strict_roots.add(symbol)
 
     if "usb-phy" in required_classes:
         selected["CONFIG_TYPEC"] = boot_mode
+        strict_roots.add("CONFIG_TYPEC")
 
     #
     # The DT supplier graph provides explicit proof that these
@@ -644,9 +678,42 @@ def main():
     #
     for symbol in sorted(explicit_boot_symbols):
         selected[symbol] = boot_mode
+        strict_roots.add(symbol)
 
     raw_fragment = out / "generated-board.raw.config"
     write_fragment(raw_fragment, selected)
+
+    #
+    # Resolve the boot-only dependency closure separately.  This preserves
+    # provenance: a y -> m normalization is safe for runtime Bluetooth/Wi-Fi
+    # support, but remains fatal anywhere on the path to the root filesystem.
+    #
+    strict_raw_fragment = (
+        out /
+        "generated-board.strict.raw.config"
+    )
+
+    write_fragment(
+        strict_raw_fragment,
+        {
+            symbol: selected[symbol]
+            for symbol in sorted(strict_roots)
+        },
+    )
+
+    strict_resolved_fragment = run_kconfig_closure(
+        kernel=kernel,
+        vyos_config=vyos_config,
+        raw_fragment=strict_raw_fragment,
+        out=out,
+        directory="strict-kconfig-closure",
+    )
+
+    strict_symbols = set(
+        read_config(
+            strict_resolved_fragment
+        )
+    )
 
     resolved_fragment = run_kconfig_closure(
         kernel=kernel,
@@ -677,21 +744,29 @@ def main():
     report = []
 
     ok = 0
+    adjusted = 0
     bad = 0
 
     for symbol in sorted(requested):
         want = requested[symbol]
         got = final.get(symbol, "n")
 
-        state = "OK" if want == got else "FAIL"
+        state = validation_state(
+            symbol,
+            want,
+            got,
+            strict_symbols,
+        )
 
         if state == "OK":
             ok += 1
+        elif state.startswith("OK-"):
+            adjusted += 1
         else:
             bad += 1
 
         report.append(
-            f"{state:5} {symbol:45} requested={want:3} final={got}"
+            f"{state:10} {symbol:45} requested={want:3} final={got}"
         )
 
     report_path = out / "validation.txt"
@@ -708,7 +783,9 @@ def main():
     print(f"Driver symbols:   {len(driver_symbols)}")
     print(f"Explicit boot:    {len(explicit_boot_symbols)}")
     print(f"Selected symbols: {len(selected)}")
+    print(f"Strict symbols:   {len(strict_symbols)}")
     print(f"Validation OK:    {ok}")
+    print(f"Adjusted y/m:     {adjusted}")
     print(f"Validation FAIL:  {bad}")
     print()
     print(f"Fragment:   {fragment}")
