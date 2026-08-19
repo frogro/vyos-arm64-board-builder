@@ -119,6 +119,9 @@ jobs:
           dpkg --print-architecture
           df -h
 
+      - name: Test Raspberry Pi firmware provider
+        run: bash tests/test-raspberrypi-provider.sh
+
       - name: Build board-specific official VyOS kernel
         id: kernel
         shell: bash

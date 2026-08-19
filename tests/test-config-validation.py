@@ -141,6 +141,42 @@ config RUNTIME_DRIVER
                     "FAIL",
                 )
 
+    def test_model_runtime_requirement_uses_reference_module(self) -> None:
+        selected = {}
+
+        GENERATE_BOARD_CONFIG.add_model_runtime_requirements(
+            selected,
+            {"CONFIG_DRM_VC4": "y"},
+            {"CONFIG_DRM_VC4": "n"},
+            {"CONFIG_DRM_VC4": "m"},
+        )
+
+        self.assertEqual({"CONFIG_DRM_VC4": "m"}, selected)
+
+    def test_model_runtime_requirement_preserves_existing_driver(self) -> None:
+        selected = {}
+
+        GENERATE_BOARD_CONFIG.add_model_runtime_requirements(
+            selected,
+            {"CONFIG_DRM_V3D": "m"},
+            {"CONFIG_DRM_V3D": "y"},
+            {},
+        )
+
+        self.assertEqual({}, selected)
+
+    def test_model_runtime_requirement_uses_profile_without_reference(self) -> None:
+        selected = {}
+
+        GENERATE_BOARD_CONFIG.add_model_runtime_requirements(
+            selected,
+            {"CONFIG_DRM_V3D": "m"},
+            {"CONFIG_DRM_V3D": "n"},
+            {},
+        )
+
+        self.assertEqual({"CONFIG_DRM_V3D": "m"}, selected)
+
 
 if __name__ == "__main__":
     unittest.main()

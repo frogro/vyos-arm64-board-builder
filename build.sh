@@ -124,6 +124,11 @@ main() {
         BOARD_MODEL_PROFILE="${ROOT_DIR}/${BOARD_MODEL_PROFILE}"
     fi
 
+    if [[ -n "${BOARD_MODEL_HARDWARE_CONFIG:-}" &&
+          "${BOARD_MODEL_HARDWARE_CONFIG}" != /* ]]; then
+        BOARD_MODEL_HARDWARE_CONFIG="${ROOT_DIR}/${BOARD_MODEL_HARDWARE_CONFIG}"
+    fi
+
     armbian_board="${ARMBIAN_BOARD}"
     branch="${HW_BRANCH}"
 
@@ -451,16 +456,26 @@ main() {
     rm -rf "${config_out}"
     mkdir -p "${config_out}"
 
-    python3 "${ROOT_DIR}/tools/generate-board-config.py" \
-        --kernel "${kernel_source}" \
-        --vyos-config "${vyos_config}" \
-        --reference-config "${reference_config}" \
-        --driver-map "${hardware_map}" \
-        --boot-critical-symbols "${boot_symbols}" \
-        --boot-profile "${ROOT_DIR}/profiles/boot-media.conf" \
-        --policy "${ROOT_DIR}/profiles/kernel-policy.conf" \
-        --boot-media "${boot_media}" \
+    local config_args=(
+        --kernel "${kernel_source}"
+        --vyos-config "${vyos_config}"
+        --reference-config "${reference_config}"
+        --driver-map "${hardware_map}"
+        --boot-critical-symbols "${boot_symbols}"
+        --boot-profile "${ROOT_DIR}/profiles/boot-media.conf"
+        --policy "${ROOT_DIR}/profiles/kernel-policy.conf"
+        --boot-media "${boot_media}"
         --output-dir "${config_out}"
+    )
+
+    if [[ -n "${BOARD_MODEL_HARDWARE_CONFIG:-}" ]]; then
+        config_args+=(
+            --model-required-config "${BOARD_MODEL_HARDWARE_CONFIG}"
+        )
+    fi
+
+    python3 "${ROOT_DIR}/tools/generate-board-config.py" \
+        "${config_args[@]}"
 
     [[ -f "${config_out}/generated-board.config" ]] ||
         die "Board config generation failed"

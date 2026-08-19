@@ -457,6 +457,29 @@ def resolve_visible_frontend(symbol, defs, reverse_select):
 
     return symbol
 
+
+def add_model_runtime_requirements(
+    selected,
+    requirements,
+    vyos_values,
+    reference_values,
+):
+    """Promote model-declared runtime hardware into the board fragment."""
+
+    for symbol, expected in sorted(requirements.items()):
+        current = vyos_values.get(symbol, "n")
+
+        if expected in ("y", "m"):
+            if current in ("y", "m"):
+                continue
+
+            reference = reference_values.get(symbol, "n")
+            selected[symbol] = (
+                reference if reference in ("y", "m") else expected
+            )
+        elif current != expected:
+            selected[symbol] = expected
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a boot-oriented board Kconfig fragment"
@@ -465,6 +488,7 @@ def main():
     parser.add_argument("--kernel", required=True)
     parser.add_argument("--vyos-config", required=True)
     parser.add_argument("--reference-config")
+    parser.add_argument("--model-required-config")
     parser.add_argument("--driver-map", required=True)
     parser.add_argument("--boot-critical-symbols")
     parser.add_argument("--boot-profile", required=True)
@@ -516,6 +540,13 @@ def main():
             Path(args.boot_critical_symbols)
         )
 
+    model_required_values = {}
+
+    if args.model_required_config:
+        model_required_values = read_config(
+            Path(args.model_required_config)
+        )
+
     #
     # Current VyOS state is needed not only for final validation but
     # also for runtime hardware policy.  Active DTB hardware whose
@@ -564,6 +595,16 @@ def main():
         )
 
     explicit_boot_symbols = resolved_boot_symbols
+
+    resolved_model_requirements = {}
+
+    for symbol, value in model_required_values.items():
+        resolved = resolve_visible_frontend(
+            symbol,
+            kconfig_defs,
+            reverse_select
+        )
+        resolved_model_requirements[resolved] = value
 
     selected = {}
     strict_roots = set()
@@ -650,6 +691,20 @@ def main():
             raise SystemExit(
                 f"Unknown RUNTIME_MODE: {runtime_mode}"
             )
+
+    #
+    # A model profile may require hardware that is not discoverable from
+    # active DT nodes alone (for example display/render drivers). Treat these
+    # as runtime-availability requirements: preserve an existing VyOS y/m,
+    # otherwise prefer the known-good reference tristate and finally the
+    # model's requested value.
+    #
+    add_model_runtime_requirements(
+        selected,
+        resolved_model_requirements,
+        vyos_values,
+        reference_values,
+    )
 
     #
     # Add small generic infrastructure symbols where a boot class

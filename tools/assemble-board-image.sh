@@ -113,6 +113,7 @@ FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
     die "firmware layout is not contiguous with EFI start"
 
 INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
+ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
 FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
 
@@ -426,6 +427,17 @@ rsync \
 depmod \
     -b "$SQUASH_ROOT" \
     "$KERNEL_RELEASE"
+
+if [[ -x "$ROOTFS_PROVIDER" ]]; then
+    echo
+    echo "===== FINALIZING BOARD ROOT FILESYSTEM ====="
+
+    "$ROOTFS_PROVIDER" \
+        "$BOARD" \
+        "$SQUASH_ROOT" \
+        "$BOOT" \
+        "$MANIFEST"
+fi
 
 echo
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="

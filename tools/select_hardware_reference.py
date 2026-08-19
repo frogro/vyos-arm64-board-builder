@@ -197,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         selected = choose(candidates, args.vyos_kernel, args.hardware_reference)
         device_tree = model.get("device_tree", {}) if model else {}
         boot = model.get("boot", {}) if model else {}
+        requirements = model.get("requirements", {}) if model else {}
         output = {
             "REQUESTED_BOARD": args.board,
             "ARMBIAN_BOARD": armbian_board,
@@ -217,6 +218,9 @@ def main(argv: list[str] | None = None) -> int:
                 str(Path(model["_path"]).resolve().relative_to(args.root.resolve()))
                 if model
                 else ""
+            ),
+            "BOARD_MODEL_HARDWARE_CONFIG": requirements.get(
+                "hardware_config", ""
             ),
         }
         write_env(args.output, output)
