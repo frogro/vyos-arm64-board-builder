@@ -195,9 +195,9 @@ jobs:
             ! -name boot \
             -exec rm -rf {} +
 
-          rm -rf cache/linux-vyos
-          rm -rf cache/vyos-build
-          rm -rf cache/armbian-build
+          sudo rm -rf cache/linux-vyos
+          sudo rm -rf cache/vyos-build
+          sudo rm -rf cache/armbian-build
 
           df -h
 
