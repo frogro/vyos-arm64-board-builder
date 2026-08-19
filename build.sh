@@ -569,12 +569,22 @@ main() {
         "${installed_modules}/source"
 
     #
-    # Generate dependency indexes from exactly the module tree which
-    # will later be inserted into the VyOS root filesystem/initramfs.
+    # Restore the complete stock VyOS ARM64 module baseline.
     #
-    depmod \
-        -b "${modules_out}" \
-        "${kernel_release}"
+    # These are VyOS out-of-tree modules, not board-specific hardware
+    # drivers. Build them against the final board kernel so MODVERSIONS,
+    # signing and compression exactly match this kernel.
+    #
+    info "Building stock VyOS out-of-tree kernel modules..."
+
+    "${ROOT_DIR}/tools/build-vyos-oot-modules.sh" \
+        --vyos-tree "${ROOT_DIR}/cache/vyos-build" \
+        --kernel-build "${kbuild_out}" \
+        --modules-root "${modules_out}" \
+        --kernel-release "${kernel_release}" \
+        --localversion "${kernel_localversion}" \
+        --cross-compile "${cross}" \
+        --work-dir "${ROOT_DIR}/work/build/${board}/vyos-oot-modules"
 
     cp "${image}" \
         "${artifacts}/Image"

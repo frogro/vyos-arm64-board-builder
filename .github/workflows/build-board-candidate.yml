@@ -79,6 +79,9 @@ jobs:
             libssl-dev \
             libelf-dev \
             libncurses-dev \
+            libxtables-dev \
+            iptables \
+            pkg-config \
             device-tree-compiler \
             python3 \
             rsync \
