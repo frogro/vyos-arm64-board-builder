@@ -39,6 +39,7 @@ HW_BOARD_FAMILY="${BOARDFAMILY:-}"
 HW_LINUX_FAMILY="${LINUXFAMILY:-}"
 HW_DTB="${BOOT_FDT_FILE:-}"
 HW_PARTITION_TABLE="${IMAGE_PARTITION_TABLE:-gpt}"
+HW_IMAGE_OFFSET_MIB="${OFFSET:-}"
 HW_ARMBIAN_COMMIT="${ARMBIAN_COMMIT:-}"
 
 #
@@ -73,6 +74,7 @@ UBOOT_REF="${BOOTBRANCH:-}"
 UBOOT_PATCHDIR="${BOOTPATCHDIR:-}"
 UBOOT_DIR="${BOOTDIR:-}"
 
+BOOT_IMAGE_OFFSET_MIB="${OFFSET:-}"
 BOOT_ARMBIAN_COMMIT="${ARMBIAN_COMMIT:-}"
 
 #
@@ -109,6 +111,11 @@ BOOT_ARMBIAN_COMMIT="${ARMBIAN_COMMIT:-}"
     exit 1
 }
 
+[[ "$BOOT_IMAGE_OFFSET_MIB" =~ ^[0-9]+$ ]] || {
+    echo "ERROR: effective Armbian OFFSET is not an integer MiB value: ${BOOT_IMAGE_OFFSET_MIB:-unset}" >&2
+    exit 1
+}
+
 MANIFEST="$OUT/boot-manifest.env"
 
 {
@@ -140,6 +147,8 @@ MANIFEST="$OUT/boot-manifest.env"
     printf '\n'
 
     printf 'PARTITION_TABLE=%q\n' "$HW_PARTITION_TABLE"
+    printf 'HW_ARMBIAN_OFFSET_MIB=%q\n' "$HW_IMAGE_OFFSET_MIB"
+    printf 'ARMBIAN_OFFSET_MIB=%q\n' "$BOOT_IMAGE_OFFSET_MIB"
 
     printf '\n'
 

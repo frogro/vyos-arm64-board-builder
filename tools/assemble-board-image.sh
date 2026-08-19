@@ -13,13 +13,7 @@ MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
 BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
 
-EDK2_IMAGE="${EDK2_IMAGE:-}"
-
 SECTOR_SIZE=512
-FIRMWARE_SKIP_SECTORS=64
-FIRMWARE_PART_START=2048
-FIRMWARE_PART_SECTORS=16384
-FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
 
 die()
 {
@@ -90,14 +84,38 @@ done
 [[ -f "$MANIFEST" ]] ||
     die "boot manifest missing"
 
-[[ -n "$EDK2_IMAGE" && -f "$EDK2_IMAGE" ]] ||
-    die "EDK2_IMAGE must point to the board firmware image"
-
 # shellcheck disable=SC1090
 source "$MANIFEST"
 
 [[ -n "${BOOT_FDT_FILE:-}" ]] ||
     die "BOOT_FDT_FILE missing from boot manifest"
+
+[[ -n "${FIRMWARE_PROVIDER:-}" ]] ||
+    die "FIRMWARE_PROVIDER missing from boot manifest"
+
+[[ -n "${FIRMWARE_LAYOUT_MODE:-}" ]] ||
+    die "FIRMWARE_LAYOUT_MODE missing from boot manifest"
+
+[[ "${PARTITION_TABLE:-gpt}" == "gpt" ]] ||
+    die "current VyOS board-image assembler requires GPT"
+
+for value_name in     FIRMWARE_PART_START     FIRMWARE_PART_SECTORS     EFI_START_SECTOR
+do
+    value="${!value_name:-}"
+
+    [[ "$value" =~ ^[0-9]+$ ]] ||
+        die "$value_name must be an integer sector count"
+done
+
+FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
+
+(( FIRMWARE_PART_END + 1 == EFI_START_SECTOR )) ||
+    die "firmware layout is not contiguous with EFI start"
+
+INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
+
+[[ -x "$INSTALL_PROVIDER" ]] ||
+    die "firmware provider installer missing: $INSTALL_PROVIDER"
 
 DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 
@@ -112,8 +130,10 @@ echo "Branch:            $BRANCH"
 echo "VyOS RAW:          $RAW"
 echo "Kernel release:    $KERNEL_RELEASE"
 echo "DTB:               $BOOT_FDT_FILE"
-echo "Firmware provider: ${FIRMWARE_PROVIDER:-edk2-rk3588}"
-echo "EDK2 image:        $EDK2_IMAGE"
+echo "Firmware provider: $FIRMWARE_PROVIDER"
+echo "Firmware layout:   $FIRMWARE_LAYOUT_MODE"
+echo "Firmware GPT1:     ${FIRMWARE_PART_START}-${FIRMWARE_PART_END}"
+echo "EFI start sector:  $EFI_START_SECTOR"
 echo
 
 mkdir -p "$(dirname "$OUTPUT")"
@@ -205,19 +225,13 @@ ROOT_SECTORS="$(blockdev --getsz "$ROOT_SRC")"
 RAW_BYTES="$(stat -c '%s' "$RAW")"
 RAW_SECTORS=$((RAW_BYTES / SECTOR_SIZE))
 
-EFI_START=$((FIRMWARE_PART_END + 1))
+EFI_START="$EFI_START_SECTOR"
 EFI_END=$((EFI_START + EFI_SECTORS - 1))
 ROOT_START=$((EFI_END + 1))
 ROOT_END=$((ROOT_START + ROOT_SECTORS - 1))
 
 (( ROOT_END + 34 < RAW_SECTORS )) ||
-    die "VyOS filesystems do not fit in the EDK2 three-partition layout"
-
-EDK2_BYTES="$(stat -c '%s' "$EDK2_IMAGE")"
-EDK2_SECTORS=$(((EDK2_BYTES + SECTOR_SIZE - 1) / SECTOR_SIZE))
-
-(( EDK2_SECTORS <= EFI_START )) ||
-    die "EDK2 firmware image overlaps the EFI partition"
+    die "VyOS filesystems do not fit in the provider-defined layout"
 
 rm -f "$OUTPUT"
 truncate -s "$RAW_BYTES" "$OUTPUT"
@@ -248,17 +262,15 @@ echo "===== TARGET GPT ====="
 sgdisk --print "$OUTPUT"
 
 echo
-echo "===== INSTALLING EDK2 FIRMWARE ====="
-echo "Preserving GPT sectors 0..63 and copying firmware from sector 64 onward"
+echo "===== INSTALLING FIRMWARE PROVIDER ====="
+echo "Provider: $FIRMWARE_PROVIDER"
 
-dd \
-    if="$EDK2_IMAGE" \
-    of="$OUTPUT" \
-    bs="$SECTOR_SIZE" \
-    skip="$FIRMWARE_SKIP_SECTORS" \
-    seek="$FIRMWARE_SKIP_SECTORS" \
-    conv=notrunc,fsync \
-    status=progress
+"$INSTALL_PROVIDER" \
+    "$BOARD" \
+    "$OUTPUT" \
+    "$BOOT" \
+    "$EFI_START" \
+    "$EFI_SECTORS"
 
 DST_LOOP="$(
     losetup \

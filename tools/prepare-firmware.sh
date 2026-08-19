@@ -81,12 +81,20 @@ MANIFEST="$BOOT/boot-manifest.env"
 }
 
 #
-# Provider owns its layout contract.
+# Provider owns its layout contract. The common boot manifest is
+# sourced first so a provider may derive layout from evaluated
+# Armbian metadata such as OFFSET.
 #
+# shellcheck disable=SC1090
+source "$MANIFEST"
+
 # shellcheck disable=SC1090
 source "$LAYOUT"
 
 : "${FIRMWARE_LAYOUT_MODE:?provider did not define FIRMWARE_LAYOUT_MODE}"
+: "${FIRMWARE_PART_START:?provider did not define FIRMWARE_PART_START}"
+: "${FIRMWARE_PART_SECTORS:?provider did not define FIRMWARE_PART_SECTORS}"
+: "${EFI_START_SECTOR:?provider did not define EFI_START_SECTOR}"
 
 {
     printf '\n'
@@ -112,7 +120,8 @@ source "$LAYOUT"
     for name in \
         FIRMWARE_PART_START \
         FIRMWARE_PART_SECTORS \
-        FIRMWARE_SKIP_SECTORS
+        FIRMWARE_SKIP_SECTORS \
+        EFI_START_SECTOR
     do
         if [[ -n "${!name:-}" ]]; then
             printf '%s=%q\n' \

@@ -170,6 +170,7 @@ keys = [
     "BOOT_SCENARIO",
 
     "IMAGE_PARTITION_TABLE",
+    "OFFSET",
 ]
 
 resolved = {
@@ -251,6 +252,7 @@ for key in [
     "BOOT_SOC",
     "BOOT_SCENARIO",
     "IMAGE_PARTITION_TABLE",
+    "OFFSET",
     "ARMBIAN_COMMIT",
 ]:
     print(f"{key}={resolved[key]}")
