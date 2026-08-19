@@ -66,6 +66,7 @@ jobs:
           python3 tests/test-dtb-boot-roots.py
           python3 tests/test-early-of-declarations.py
           python3 tests/test-config-validation.py
+          python3 tests/test-model-requirements.py
 
       - name: Show initial disk space
         run: df -h

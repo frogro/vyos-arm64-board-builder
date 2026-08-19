@@ -39,8 +39,11 @@ A model profile can add the concrete DTB and mandatory Kconfig fixture that a
 multi-model Armbian profile cannot provide. The Pi 5 profile maps
 `raspberry-pi-5` to Armbian `rpi4b`, selects
 `broadcom/bcm2712-rpi-5-b.dtb`, rejects U-Boot and requires the
-`raspberrypi-native` boot provider. The builder verifies the generated kernel
-config and DTB against this profile before image assembly.
+`raspberrypi-native` boot provider. The generic config validator requires the
+boot-critical dependency closure to remain built-in and permits runtime
+hardware as either built-in or modules. The model check then verifies that its
+mandatory hardware remains available and that the concrete DTB exists before
+image assembly.
 
 ## Requires real hardware
 

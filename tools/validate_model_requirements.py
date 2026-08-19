@@ -11,15 +11,41 @@ import sys
 
 
 CONFIG_RE = re.compile(r"^(CONFIG_[A-Za-z0-9_]+)=(.*)$")
+NOT_SET_RE = re.compile(r"^# (CONFIG_[A-Za-z0-9_]+) is not set$")
 
 
 def read_config(path: Path) -> dict[str, str]:
     result: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
-        match = CONFIG_RE.fullmatch(line.strip())
+        stripped = line.strip()
+        match = CONFIG_RE.fullmatch(stripped)
         if match:
             result[match.group(1)] = match.group(2)
+            continue
+        match = NOT_SET_RE.fullmatch(stripped)
+        if match:
+            result[match.group(1)] = "n"
     return result
+
+
+def requirement_satisfied(expected: str, actual: str) -> bool:
+    """Check model availability after generic boot/runtime validation.
+
+    The generic board-config validator has already required every boot-critical
+    symbol to retain its exact value.  A promoted model fixture therefore only
+    has to assert that its remaining hardware is available, either built-in or
+    as a module.  Non-tristate values remain exact requirements.
+    """
+
+    if expected in ("y", "m"):
+        return actual in ("y", "m")
+    return actual == expected
+
+
+def requirement_failure(name: str, expected: str, actual: str) -> str:
+    if expected in ("y", "m"):
+        return f"{name}: expected available (y/m), got {actual}"
+    return f"{name}: expected {expected}, got {actual}"
 
 
 def main() -> int:
@@ -44,11 +70,13 @@ def main() -> int:
         actual = read_config(args.kernel_config)
         if not expected:
             raise ValueError(f"model hardware fixture is empty: {fixture}")
-        failures = [
-            f"{name}: expected {value}, got {actual.get(name, 'missing')}"
-            for name, value in sorted(expected.items())
-            if actual.get(name) != value
-        ]
+        failures = []
+        for name, value in sorted(expected.items()):
+            actual_value = actual.get(name, "n")
+            if not requirement_satisfied(value, actual_value):
+                failures.append(
+                    requirement_failure(name, value, actual_value)
+                )
         dtb_relative = model.get("device_tree", {}).get("boot_fdt_file")
         if not isinstance(dtb_relative, str) or not dtb_relative.endswith(".dtb"):
             raise ValueError("model has no valid device_tree.boot_fdt_file")
