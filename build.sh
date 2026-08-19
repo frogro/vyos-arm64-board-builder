@@ -8,32 +8,17 @@ source "${ROOT_DIR}/sources/armbian.sh"
 source "${ROOT_DIR}/sources/armbian-resolver.sh"
 source "${ROOT_DIR}/sources/vyos.sh"
 
-extract_board_var() {
-    local file="$1"
-    local var="$2"
-
-    grep -m1 -E \
-        "(^|[[:space:]])(declare[[:space:]]+-g[[:space:]]+)?${var}=" \
-        "$file" \
-        2>/dev/null |
-        sed -E \
-            "s/.*${var}=[\"']?([^\"']+)[\"']?.*/\1/" ||
-        true
-}
-
 find_reference_config() {
-    local board_file="$1"
+    local linuxfamily="$1"
     local branch="$2"
     local armbian_dir
-    local family
     local candidate
 
     armbian_dir="$(armbian_source_dir)"
-    family="$(extract_board_var "$board_file" BOARDFAMILY)"
 
-    [[ -n "$family" ]] || return 1
+    [[ -n "$linuxfamily" ]] || return 1
 
-    candidate="${armbian_dir}/config/kernel/linux-${family}-${branch}.config"
+    candidate="${armbian_dir}/config/kernel/linux-${linuxfamily}-${branch}.config"
 
     if [[ -f "$candidate" ]]; then
         printf '%s\n' "$candidate"
@@ -41,10 +26,8 @@ find_reference_config() {
     fi
 
     #
-    # Never guess a reference config.  Using an unrelated Armbian
-    # kernel configuration would silently generate a bogus hardware
-    # delta.  Boards whose BOARDFAMILY differs from their kernel
-    # LINUXFAMILY will be resolved explicitly by the generic resolver.
+    # Never guess a reference config. The effective Armbian
+    # LINUXFAMILY + BRANCH combination is authoritative.
     #
     return 1
 }
@@ -87,7 +70,10 @@ main() {
     local board_file
     local board_name
     local family
+    local linuxfamily
     local dtb
+    local effective_config_dir
+    local effective_config_env
     local reference_config
     local vyos_config
     local kernel_version
@@ -112,9 +98,31 @@ main() {
         die "Unknown Armbian board identifier: ${board}"
     fi
 
-    board_name="$(extract_board_var "$board_file" BOARD_NAME)"
-    family="$(extract_board_var "$board_file" BOARDFAMILY)"
-    dtb="$(extract_board_var "$board_file" BOOT_FDT_FILE)"
+    #
+    # Resolve the effective Armbian BOARD + BRANCH configuration.
+    #
+    # Do not statically parse config/boards/*.conf here. Armbian
+    # board/family hooks may override DTB, LINUXFAMILY, U-Boot source,
+    # defconfig and other values depending on BRANCH.
+    #
+    effective_config_dir="${ROOT_DIR}/work/build/${board}/armbian-effective"
+    effective_config_env="${effective_config_dir}/config.env"
+
+    "${ROOT_DIR}/tools/resolve-armbian-effective-config.sh" \
+        "${board}" \
+        "${branch}" \
+        "${effective_config_dir}"
+
+    [[ -s "${effective_config_env}" ]] ||
+        die "Effective Armbian configuration was not generated"
+
+    # shellcheck disable=SC1090
+    source "${effective_config_env}"
+
+    board_name="${BOARD_NAME:-}"
+    family="${BOARDFAMILY:-}"
+    linuxfamily="${LINUXFAMILY:-${BOARDFAMILY:-}}"
+    dtb="${BOOT_FDT_FILE:-}"
 
     vyos_config="$(vyos_arm64_config)"
 
@@ -161,12 +169,13 @@ main() {
 
     vyos_config="${vyos_complete_config}"
 
-    reference_config="$(find_reference_config "$board_file" "$branch" || true)"
+    reference_config="$(find_reference_config "$linuxfamily" "$branch" || true)"
 
     echo
     info "Board:          ${board}"
     info "Board name:     ${board_name:-unknown}"
     info "Board family:   ${family:-unknown}"
+    info "Linux family:   ${linuxfamily:-unknown}"
     info "HW branch:      ${branch}"
     info "Board DTB:      ${dtb:-unknown}"
     info "VyOS branch:    ${vyos_branch}"
@@ -183,7 +192,7 @@ main() {
     echo
 
     [[ -n "$dtb" ]] ||
-        die "BOOT_FDT_FILE not found in Armbian board definition"
+        die "BOOT_FDT_FILE missing from effective Armbian configuration"
 
     [[ -n "$reference_config" ]] ||
         die "Unable to resolve Armbian reference kernel config"

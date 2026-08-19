@@ -2,47 +2,47 @@
 
 armbian_resolve_board() {
     local board="$1"
-    local branch="${2:-edge}"
+    local branch="${2:-current}"
 
     local armbian_dir
-    local board_file
-    local family
-    local dtb
+    local out
+    local envfile
     local kernel_config
 
     armbian_dir="$(armbian_source_dir)"
+    out="${ROOT_DIR}/work/build/${board}/armbian-effective"
+    envfile="${out}/config.env"
 
-    board_file="$(armbian_find_board_file "${board}")"
+    "${ROOT_DIR}/tools/resolve-armbian-effective-config.sh" \
+        "${board}" \
+        "${branch}" \
+        "${out}"
 
-    [[ -n "${board_file}" ]] || {
-        die "Unable to resolve Armbian board: ${board}"
+    [[ -s "${envfile}" ]] || {
+        die "Effective Armbian configuration missing: ${envfile}"
     }
 
-    family="$(
-        grep -E '^[[:space:]]*(declare -g )?BOARDFAMILY=' "${board_file}" |
-        head -1 |
-        sed -E 's/.*BOARDFAMILY=["'"'"']?([^"'"'"']+)["'"'"']?.*/\1/'
-    )"
+    # shellcheck disable=SC1090
+    source "${envfile}"
 
-    dtb="$(
-        grep -E '^[[:space:]]*BOOT_FDT_FILE=' "${board_file}" |
-        head -1 |
-        sed -E 's/.*BOOT_FDT_FILE=["'"'"']?([^"'"'"']+)["'"'"']?.*/\1/'
-    )"
+    kernel_config="${armbian_dir}/config/kernel/linux-${LINUXFAMILY}-${branch}.config"
 
-    case "${family}:${branch}" in
-        rockchip-rk3588:edge)
-            kernel_config="${armbian_dir}/config/kernel/linux-rockchip64-edge.config"
-            ;;
-        *)
-            kernel_config=""
-            ;;
-    esac
+    if [[ ! -f "${kernel_config}" ]]; then
+        kernel_config=""
+    fi
 
-    echo "BOARD=${board}"
-    echo "BRANCH=${branch}"
-    echo "BOARDFAMILY=${family}"
-    echo "BOARD_FILE=${board_file}"
-    echo "DTB=${dtb}"
-    echo "KERNEL_CONFIG=${kernel_config}"
+    printf 'BOARD=%s\n' "${BOARD}"
+    printf 'BRANCH=%s\n' "${BRANCH}"
+    printf 'BOARD_NAME=%s\n' "${BOARD_NAME}"
+    printf 'BOARD_VENDOR=%s\n' "${BOARD_VENDOR}"
+    printf 'BOARDFAMILY=%s\n' "${BOARDFAMILY}"
+    printf 'LINUXFAMILY=%s\n' "${LINUXFAMILY}"
+    printf 'BOARD_FILE=%s\n' "$(armbian_find_board_file "${board}")"
+    printf 'DTB=%s\n' "${BOOT_FDT_FILE}"
+    printf 'BOOTCONFIG=%s\n' "${BOOTCONFIG}"
+    printf 'BOOTSOURCE=%s\n' "${BOOTSOURCE}"
+    printf 'BOOTBRANCH=%s\n' "${BOOTBRANCH}"
+    printf 'BOOTPATCHDIR=%s\n' "${BOOTPATCHDIR}"
+    printf 'KERNEL_CONFIG=%s\n' "${kernel_config}"
+    printf 'ARMBIAN_COMMIT=%s\n' "${ARMBIAN_COMMIT}"
 }
