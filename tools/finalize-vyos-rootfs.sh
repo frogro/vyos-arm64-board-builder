@@ -14,28 +14,12 @@ PAYLOAD="$ROOT/tools/common-firstboot"
     exit 1
 }
 
-PASSWD_FILE="$ROOTFS/etc/passwd"
-
-[[ -r "$PASSWD_FILE" ]] || {
-    echo "ERROR: VyOS passwd database is missing: $PASSWD_FILE" >&2
-    exit 1
-}
-
-VYOS_UID="$(awk -F: '$1 == "vyos" { print $3; exit }' "$PASSWD_FILE")"
-VYOS_GID="$(awk -F: '$1 == "vyos" { print $4; exit }' "$PASSWD_FILE")"
-
-[[ "$VYOS_UID" =~ ^[0-9]+$ && "$VYOS_GID" =~ ^[0-9]+$ ]] || {
-    echo "ERROR: unable to resolve the vyos user in $PASSWD_FILE" >&2
-    exit 1
-}
-
-HOME_DIR="$ROOTFS/home/vyos"
+STAGE_DIR="$ROOTFS/usr/local/share/vyos-arm64-firstboot"
 SBIN_DIR="$ROOTFS/usr/local/sbin"
 UNIT_DIR="$ROOTFS/etc/systemd/system"
 WANTS_DIR="$UNIT_DIR/timers.target.wants"
 
-install -d -m 0755 -o "$VYOS_UID" -g "$VYOS_GID" "$HOME_DIR"
-install -d -m 0755 "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
+install -d -m 0755 "$STAGE_DIR" "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
 
 for script in \
     ap-dhcp-wan-setup.sh \
@@ -43,12 +27,9 @@ for script in \
     modem-connect.sh \
     set-locales.sh
 do
-    install \
-        -m 0755 \
-        -o "$VYOS_UID" \
-        -g "$VYOS_GID" \
+    install -m 0755 \
         "$PAYLOAD/$script" \
-        "$HOME_DIR/$script"
+        "$STAGE_DIR/$script"
 done
 
 install \
