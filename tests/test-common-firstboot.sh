@@ -6,12 +6,9 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 ROOTFS="$WORK/rootfs"
-mkdir -p "$ROOTFS/etc"
+mkdir -p "$ROOTFS"
 
-printf 'vyos:x:%s:%s:VyOS user:/home/vyos:/bin/vbash\n' \
-    "$(id -u)" \
-    "$(id -g)" \
-    > "$ROOTFS/etc/passwd"
+STAGE="$ROOTFS/usr/local/share/vyos-arm64-firstboot"
 
 bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$ROOTFS"
 
@@ -21,7 +18,7 @@ for script in \
     modem-connect.sh \
     set-locales.sh
 do
-    test -x "$ROOTFS/home/vyos/$script"
+    test -x "$STAGE/$script"
 done
 
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
@@ -30,17 +27,17 @@ test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.timer"
 test -L "$ROOTFS/etc/systemd/system/timers.target.wants/vyos-arm64-dhcp-wan-firstboot.timer"
 
 grep -Fq 'SSID="${SSID:-VyOS-AP}"' \
-    "$ROOTFS/home/vyos/ap-dhcp-wan-setup.sh"
+    "$STAGE/ap-dhcp-wan-setup.sh"
 grep -Fq 'PASSPHRASE="${PASSPHRASE:-vyosvyos}"' \
-    "$ROOTFS/home/vyos/ap-dhcp-wan-setup.sh"
+    "$STAGE/ap-dhcp-wan-setup.sh"
 grep -Fq '/config/vyos-ap-interface.conf' \
-    "$ROOTFS/home/vyos/ap-dhcp-wan-setup.sh"
+    "$STAGE/ap-dhcp-wan-setup.sh"
 grep -Fq '/config/vyos-ap-interface.conf' \
-    "$ROOTFS/home/vyos/modem-connect.sh"
+    "$STAGE/modem-connect.sh"
 
 if grep -RqiE \
     'frogro/vyos-build-pi5|set system update-check|UPDATE_CHECK_URL|Photobooth|PHOTOBOOTH' \
-    "$ROOTFS/home/vyos" \
+    "$STAGE" \
     "$ROOTFS/usr/local/sbin" \
     "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot."*
 then
