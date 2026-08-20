@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Keep the test hermetic when the workflow has already exported resolver
+# inputs for the real board build.  Every value used below must come from
+# the test itself and its mocked GitHub CLI.
+unset BUILD_REPO
+unset GITHUB_REPOSITORY
+unset RAW_WORKFLOW
+unset RAW_RUN_ID
+unset RAW_ARTIFACT_NAME
+unset GH_BIN
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
