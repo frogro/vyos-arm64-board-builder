@@ -143,3 +143,36 @@ NOTICE
         *) printf 'no\n' ;;
     esac
 }
+
+select_kvm_over_ip() {
+    local requested="${KVM_OVER_IP:-}"
+
+    if [[ -n "$requested" ]]; then
+        case "${requested,,}" in
+            1|true|yes|y|on|enabled) printf 'yes\n'; return 0 ;;
+            0|false|no|n|off|disabled) printf 'no\n'; return 0 ;;
+            *) die "Invalid KVM_OVER_IP value: $requested" ;;
+        esac
+    fi
+
+    if [[ ! -t 0 ]]; then
+        printf 'no\n'
+        return 0
+    fi
+
+    cat >&2 <<'NOTICE'
+
+Optional KVM-over-IP Preparation
+--------------------------------
+This profile enables generic USB UVC capture and USB HID gadget kernel
+capabilities and adds persistent readiness tooling. It does not install or
+start a video streamer. HID gadget operation additionally requires a board
+USB port and controller capable of USB device/OTG mode.
+NOTICE
+
+    read -r -p 'Prepare this image for KVM-over-IP? [y/N] ' requested
+    case "${requested,,}" in
+        y|yes) printf 'yes\n' ;;
+        *) printf 'no\n' ;;
+    esac
+}

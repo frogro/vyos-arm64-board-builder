@@ -27,6 +27,7 @@ source "$MANIFEST"
 EXTENDED_NETWORK="no"
 TAILSCALE_SUBNET_ROUTER="no"
 BUILD_PROFILE="base"
+KVM_OVER_IP="no"
 
 if [[ -f "$NETWORK_SELECTION" ]]; then
     # shellcheck disable=SC1090
@@ -125,6 +126,7 @@ The image was created in these stages:
 - Build profile: \`${BUILD_PROFILE}\`
 - Extended Network drivers and firmware: \`${EXTENDED_NETWORK}\`
 - Tailscale subnet-router preparation: \`${TAILSCALE_SUBNET_ROUTER}\`
+- KVM-over-IP preparation: \`${KVM_OVER_IP}\`
 - Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
 - Firmware provider: \`${FIRMWARE_PROVIDER}\`
 - Firmware variant: \`${FIRMWARE_VARIANT:-n/a}\`
@@ -189,6 +191,11 @@ This is an experimental test image.
 The firmware provider, kernel hardware delta and boot metadata are selected from the board configuration rather than being hard-coded into the generic image assembler. Real-hardware validation is still required for this exact generated image.
 
 When Extended Network is enabled, the image contains the curated optional runtime modules which the selected Linux Kconfig can satisfy as modules. Exact enabled/skipped symbols and installed/missing firmware files are published beside the image in \`extended-network-report.txt\` and the network firmware manifest. Board-required drivers remain independent of this option.
+
+When KVM-over-IP preparation is enabled, the image contains generic USB UVC
+capture and USB HID gadget kernel capabilities plus a read-only runtime audit.
+No streamer is installed or started, no firewall port is opened, and HID
+operation remains conditional on a device/OTG-capable USB controller.
 EOF_NOTES
 
 echo "$OUT"

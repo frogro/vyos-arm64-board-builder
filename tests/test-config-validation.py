@@ -177,6 +177,28 @@ config RUNTIME_DRIVER
 
         self.assertEqual({"CONFIG_DRM_V3D": "m"}, selected)
 
+    def test_feature_requirement_adds_missing_module(self) -> None:
+        selected = {}
+        GENERATE_BOARD_CONFIG.add_feature_requirements(
+            selected,
+            {"CONFIG_USB_VIDEO_CLASS": "m"},
+            {"CONFIG_USB_VIDEO_CLASS": "n"},
+            {"USB_VIDEO_CLASS": {"prompt": True}},
+            {},
+        )
+        self.assertEqual({"CONFIG_USB_VIDEO_CLASS": "m"}, selected)
+
+    def test_feature_requirement_does_not_downgrade_builtin(self) -> None:
+        selected = {}
+        GENERATE_BOARD_CONFIG.add_feature_requirements(
+            selected,
+            {"CONFIG_VIDEO_DEV": "m"},
+            {"CONFIG_VIDEO_DEV": "y"},
+            {"VIDEO_DEV": {"prompt": True}},
+            {},
+        )
+        self.assertEqual({}, selected)
+
 
 if __name__ == "__main__":
     unittest.main()

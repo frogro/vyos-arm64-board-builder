@@ -19,6 +19,7 @@ assert data["profile"] == "base"
 assert data["features"] == {
     "extended_network": False,
     "tailscale_subnet_router": False,
+    "kvm_over_ip": False,
 }
 PY
 
@@ -35,6 +36,7 @@ test -x "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 test ! -e "$ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
 test ! -e "$ROOTFS/usr/local/sbin/tailscale"
+test ! -e "$ROOTFS/usr/local/sbin/vyos-arm64-kvm-readiness"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.service"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.timer"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-grow-persistence.service"
@@ -60,6 +62,19 @@ then
     echo "ERROR: mismatched build profile was accepted" >&2
     exit 1
 fi
+
+KVM_ROOTFS="$WORK/kvm-rootfs"
+mkdir -p "$KVM_ROOTFS"
+bash "$ROOT/tools/finalize-vyos-rootfs.sh" \
+    test-board "$KVM_ROOTFS" no no kvm yes
+test -x "$KVM_ROOTFS/usr/local/sbin/vyos-arm64-kvm-readiness"
+test -d "$KVM_ROOTFS/config/kvm-over-ip"
+python3 - "$KVM_ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+assert data["profile"] == "kvm"
+assert data["features"]["kvm_over_ip"] is True
+PY
 
 test -x "$TAILSCALE_ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
 test -x "$TAILSCALE_ROOTFS/usr/local/sbin/tailscale"

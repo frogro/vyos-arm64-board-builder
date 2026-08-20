@@ -51,6 +51,7 @@ main() {
     local vyos_branch="${VYOS_BRANCH:-rolling}"
     local extended_network=""
     local tailscale_subnet_router=""
+    local kvm_over_ip=""
 
     #
     # Match the official VyOS kernel build. The VyOS defconfig keeps
@@ -98,6 +99,7 @@ main() {
     #
     extended_network="$(select_extended_network)"
     tailscale_subnet_router="$(select_tailscale_subnet_router)"
+    kvm_over_ip="$(select_kvm_over_ip)"
 
     kernel_version="$(
         vyos_kernel_version |
@@ -121,6 +123,7 @@ main() {
     python3 "${ROOT_DIR}/tools/feature-profile.py" \
         --extended-network "${extended_network}" \
         --tailscale-subnet-router "${tailscale_subnet_router}" \
+        --kvm-over-ip "${kvm_over_ip}" \
         --output-env "${selection_dir}/feature-profiles.env" \
         --output-json "${selection_dir}/feature-profile.json"
 
@@ -245,6 +248,7 @@ main() {
     info "Extended net:   ${extended_network}"
     info "Tailscale:      ${tailscale_subnet_router}"
     info "Build profile:  ${BUILD_PROFILE}"
+    info "KVM-over-IP:    ${kvm_over_ip}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -501,6 +505,12 @@ main() {
         )
     fi
 
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        config_args+=(
+            --feature-required-config "${ROOT_DIR}/profiles/kvm-over-ip.config"
+        )
+    fi
+
     python3 "${ROOT_DIR}/tools/generate-board-config.py" \
         "${config_args[@]}"
 
@@ -563,6 +573,18 @@ main() {
         rm -rf "${tailscale_ready_out}"
     fi
 
+    local kvm_ready_out="${config_out}/kvm-over-ip-ready"
+
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --requirements "${ROOT_DIR}/profiles/kvm-over-ip-ready.config" \
+            --output-dir "${kvm_ready_out}" \
+            --report-name kvm-over-ip-ready
+    else
+        rm -rf "${kvm_ready_out}"
+    fi
+
     if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
         info "Validating promoted board-model requirements..."
 
@@ -582,6 +604,11 @@ main() {
         echo "Tailscale ready: ${tailscale_ready_out}/tailscale-ready.txt"
     else
         echo "Tailscale ready: disabled"
+    fi
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        echo "KVM ready:       ${kvm_ready_out}/kvm-over-ip-ready.txt"
+    else
+        echo "KVM ready:       disabled"
     fi
     echo
     echo "Validation FAIL: 0"
@@ -780,6 +807,7 @@ main() {
     echo "Extended net:   ${extended_network}"
     echo "Tailscale:      ${tailscale_subnet_router}"
     echo "Build profile:  ${BUILD_PROFILE}"
+    echo "KVM-over-IP:    ${kvm_over_ip}"
     echo "Network report: ${artifacts}/network-firmware/extended-network-report.txt"
     echo
     info "VyOS ARM64 board kernel build completed successfully."

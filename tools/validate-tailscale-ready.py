@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate generic kernel capabilities for a Tailscale subnet router."""
+"""Validate declarative generic kernel capability requirements."""
 
 from __future__ import annotations
 
@@ -56,6 +56,7 @@ def main() -> None:
     parser.add_argument("--kernel-config", type=Path, required=True)
     parser.add_argument("--requirements", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--report-name", default="tailscale-ready")
     args = parser.parse_args()
 
     report = validate(
@@ -63,7 +64,7 @@ def main() -> None:
         read_requirements(args.requirements),
     )
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "tailscale-ready.json").write_text(
+    (args.output_dir / f"{args.report_name}.json").write_text(
         json.dumps({"schema": 1, "checks": report}, indent=2) + "\n"
     )
     lines = [
@@ -71,12 +72,12 @@ def main() -> None:
         f"({item['requirement']})"
         for item in report
     ]
-    (args.output_dir / "tailscale-ready.txt").write_text("\n".join(lines) + "\n")
+    (args.output_dir / f"{args.report_name}.txt").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 
     failures = [item for item in report if item["status"] == "FAIL"]
     if failures:
-        raise SystemExit("Tailscale readiness validation failed")
+        raise SystemExit(f"{args.report_name} validation failed")
 
 
 if __name__ == "__main__":

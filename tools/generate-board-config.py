@@ -480,6 +480,29 @@ def add_model_runtime_requirements(
         elif current != expected:
             selected[symbol] = expected
 
+
+def add_feature_requirements(
+    selected,
+    requirements,
+    vyos_values,
+    kconfig_defs,
+    reverse_select,
+):
+    """Add opt-in feature capabilities without downgrading built-ins."""
+
+    for symbol, value in requirements.items():
+        resolved = resolve_visible_frontend(
+            symbol,
+            kconfig_defs,
+            reverse_select,
+        )
+        current = vyos_values.get(resolved, "n")
+
+        if value == "y" and current != "y":
+            selected[resolved] = "y"
+        elif value == "m" and current == "n":
+            selected[resolved] = "m"
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a boot-oriented board Kconfig fragment"
@@ -489,6 +512,7 @@ def main():
     parser.add_argument("--vyos-config", required=True)
     parser.add_argument("--reference-config")
     parser.add_argument("--model-required-config")
+    parser.add_argument("--feature-required-config", action="append", default=[])
     parser.add_argument("--driver-map", required=True)
     parser.add_argument("--boot-critical-symbols")
     parser.add_argument("--boot-profile", required=True)
@@ -546,6 +570,17 @@ def main():
         model_required_values = read_config(
             Path(args.model_required_config)
         )
+
+    feature_required_values = {}
+    for config_path in args.feature_required_config:
+        for symbol, value in read_config(Path(config_path)).items():
+            previous = feature_required_values.get(symbol)
+            if previous is not None and previous != value:
+                raise SystemExit(
+                    f"Conflicting feature requirement for {symbol}: "
+                    f"{previous} versus {value}"
+                )
+            feature_required_values[symbol] = value
 
     #
     # Current VyOS state is needed not only for final validation but
@@ -704,6 +739,14 @@ def main():
         resolved_model_requirements,
         vyos_values,
         reference_values,
+    )
+
+    add_feature_requirements(
+        selected,
+        feature_required_values,
+        vyos_values,
+        kconfig_defs,
+        reverse_select,
     )
 
     #

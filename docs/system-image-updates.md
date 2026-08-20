@@ -29,6 +29,11 @@ The profile is derived from the selected build features and is never arbitrary:
 - `network`: Extended Network selected;
 - `tailscale`: Tailscale subnet-router preparation selected;
 - `network-tailscale`: both features selected.
+- `kvm`: KVM-over-IP preparation selected.
+
+Feature names are appended in the stable order `network`, `tailscale`, `kvm`,
+so combined profiles include names such as `network-kvm` and
+`network-tailscale-kvm`.
 
 The same profile is recorded in the running root filesystem, release metadata
 and ISO manifest. This makes mismatches visible and keeps future feature

@@ -51,6 +51,7 @@ source "$MANIFEST"
 BUILD_PROFILE="base"
 EXTENDED_NETWORK="no"
 TAILSCALE_SUBNET_ROUTER="no"
+KVM_OVER_IP="no"
 if [[ -f "$FEATURE_ENV" ]]; then
     # shellcheck disable=SC1090
     source "$FEATURE_ENV"
@@ -178,12 +179,13 @@ python3 - \
     "$BUILD_PROFILE" \
     "$EXTENDED_NETWORK" \
     "$TAILSCALE_SUBNET_ROUTER" \
+    "$KVM_OVER_IP" \
     "${COMPATIBLE[@]}" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, *compatible = sys.argv[1:]
+output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, kvm, *compatible = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 2,
     "architecture": "arm64",
@@ -198,6 +200,7 @@ Path(output).write_text(json.dumps({
     "features": {
         "extended_network": extended_network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
+        "kvm_over_ip": kvm == "yes",
     },
 }, indent=2) + "\n")
 PY

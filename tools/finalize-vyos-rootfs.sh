@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USAGE="Usage: $0 <board> <rootfs> [tailscale yes|no] [network yes|no] [profile]"
+USAGE="Usage: $0 <board> <rootfs> [tailscale yes|no] [network yes|no] [profile] [kvm yes|no]"
 
 BOARD="${1:?$USAGE}"
 ROOTFS="${2:?$USAGE}"
 TAILSCALE_SUBNET_ROUTER="${3:-no}"
 EXTENDED_NETWORK="${4:-no}"
 BUILD_PROFILE="${5:-base}"
+KVM_OVER_IP="${6:-no}"
 
 case "${TAILSCALE_SUBNET_ROUTER,,}" in
     1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
@@ -16,6 +17,12 @@ case "${TAILSCALE_SUBNET_ROUTER,,}" in
         echo "ERROR: invalid Tailscale profile value: $TAILSCALE_SUBNET_ROUTER" >&2
         exit 1
         ;;
+esac
+
+case "${KVM_OVER_IP,,}" in
+    1|true|yes|y|on|enabled) KVM_OVER_IP=yes ;;
+    0|false|no|n|off|disabled) KVM_OVER_IP=no ;;
+    *) echo "ERROR: invalid KVM-over-IP value: $KVM_OVER_IP" >&2; exit 1 ;;
 esac
 
 case "${EXTENDED_NETWORK,,}" in
@@ -32,11 +39,15 @@ esac
     exit 1
 }
 
-case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}" in
-    no:no) EXPECTED_PROFILE=base ;;
-    yes:no) EXPECTED_PROFILE=network ;;
-    no:yes) EXPECTED_PROFILE=tailscale ;;
-    yes:yes) EXPECTED_PROFILE=network-tailscale ;;
+case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}:${KVM_OVER_IP}" in
+    no:no:no) EXPECTED_PROFILE=base ;;
+    yes:no:no) EXPECTED_PROFILE=network ;;
+    no:yes:no) EXPECTED_PROFILE=tailscale ;;
+    yes:yes:no) EXPECTED_PROFILE=network-tailscale ;;
+    no:no:yes) EXPECTED_PROFILE=kvm ;;
+    yes:no:yes) EXPECTED_PROFILE=network-kvm ;;
+    no:yes:yes) EXPECTED_PROFILE=tailscale-kvm ;;
+    yes:yes:yes) EXPECTED_PROFILE=network-tailscale-kvm ;;
 esac
 
 [[ "$BUILD_PROFILE" == "$EXPECTED_PROFILE" ]] || {
@@ -62,12 +73,12 @@ install -d -m 0755 "$STAGE_DIR" "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
 PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
-    "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" <<'PY'
+    "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale = sys.argv[1:]
+output, board, profile, network, tailscale, kvm = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 1,
     "architecture": "arm64",
@@ -76,6 +87,7 @@ Path(output).write_text(json.dumps({
     "features": {
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
+        "kvm_over_ip": kvm == "yes",
     },
 }, indent=2) + "\n")
 PY
@@ -112,6 +124,13 @@ if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
     install -m 0755 \
         "$PAYLOAD/tailscale-wrapper.sh" \
         "$SBIN_DIR/tailscale"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    install -m 0755 \
+        "$PAYLOAD/kvm-over-ip-readiness.sh" \
+        "$SBIN_DIR/vyos-arm64-kvm-readiness"
+    install -d -m 0750 "$ROOTFS/config/kvm-over-ip"
 fi
 
 for unit in \

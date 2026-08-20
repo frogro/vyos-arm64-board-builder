@@ -33,6 +33,12 @@ on:
         default: false
         type: boolean
 
+      kvm_over_ip:
+        description: "Prepare USB UVC capture and optional HID gadget support"
+        required: true
+        default: false
+        type: boolean
+
       armbian_ref:
         description: "Exact Armbian build branch, tag or commit"
         required: true
@@ -65,6 +71,7 @@ jobs:
       HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
       EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
       TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
+      KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       BOOT_BRANCH: auto
       VYOS_BRANCH: rolling
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
@@ -88,9 +95,11 @@ jobs:
           python3 tests/test-extended-network-profile.py
           python3 tests/test-release-identity.py
           python3 tests/test-feature-profile.py
+          python3 tests/test-kvm-profile.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
           bash tests/test-tailscale-selection.sh
+          bash tests/test-kvm-selection.sh
           bash tests/test-extended-network-resolver.sh
           bash tests/test-network-firmware.sh
 

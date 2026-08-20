@@ -16,10 +16,14 @@ SPEC.loader.exec_module(MODULE)
 class FeatureProfileTests(unittest.TestCase):
     def test_profile_matrix(self):
         cases = {
-            (False, False): "base",
-            (True, False): "network",
-            (False, True): "tailscale",
-            (True, True): "network-tailscale",
+            (False, False, False): "base",
+            (True, False, False): "network",
+            (False, True, False): "tailscale",
+            (True, True, False): "network-tailscale",
+            (False, False, True): "kvm",
+            (True, False, True): "network-kvm",
+            (False, True, True): "tailscale-kvm",
+            (True, True, True): "network-tailscale-kvm",
         }
         for flags, expected in cases.items():
             with self.subTest(flags=flags):
@@ -42,15 +46,16 @@ class FeatureProfileTests(unittest.TestCase):
                     str(ROOT / "tools/feature-profile.py"),
                     "--extended-network", "yes",
                     "--tailscale-subnet-router", "no",
+                    "--kvm-over-ip", "yes",
                     "--output-env", str(env_path),
                     "--output-json", str(json_path),
                 ],
                 check=True,
             )
-            self.assertIn("BUILD_PROFILE=network\n", env_path.read_text())
+            self.assertIn("BUILD_PROFILE=network-kvm\n", env_path.read_text())
             self.assertEqual(
                 json.loads(json_path.read_text())["profile"],
-                "network",
+                "network-kvm",
             )
 
 
