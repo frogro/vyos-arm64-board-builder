@@ -55,6 +55,17 @@ chroot "$CHROOT" env DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libjpeg62-turbo-dev \
     pkg-config
 
+JPEG_STATIC="/usr/lib/aarch64-linux-gnu/libjpeg.a"
+[[ -s "$CHROOT$JPEG_STATIC" ]] ||
+    die "static libjpeg archive missing: $JPEG_STATIC"
+
+# VyOS intentionally does not ship libjpeg.so.62. Link only libjpeg-turbo
+# statically so the profile remains self-contained without importing a
+# foreign shared-library stack into the VyOS root filesystem.
+chroot "$CHROOT" sed -i \
+    "s|-ljpeg|${JPEG_STATIC}|g" \
+    /build/ustreamer/src/Makefile
+
 chroot "$CHROOT" make -C /build/ustreamer -j"${JOBS:-4}" \
     WITH_GPIO=0 \
     WITH_JANUS=0 \
@@ -67,9 +78,16 @@ for binary in ustreamer ustreamer-dump; do
         die "built binary missing: $binary"
     install -m 0755 "$CHROOT/build/ustreamer/$binary" "$ARTIFACTS/$binary"
     chroot "$CHROOT" ldd "/build/ustreamer/$binary" > "$ARTIFACTS/$binary.ldd.txt"
+
+    if readelf -d "$ARTIFACTS/$binary" | grep 'NEEDED.*libjpeg' >/dev/null; then
+        die "$binary still has a dynamic libjpeg dependency"
+    fi
 done
 
 install -m 0644 "$SOURCE/LICENSE" "$ARTIFACTS/LICENSE"
+install -m 0644 \
+    "$CHROOT/usr/share/doc/libjpeg62-turbo/copyright" \
+    "$ARTIFACTS/LICENSE.libjpeg-turbo"
 git -C "$SOURCE" archive \
     --format=tar.gz \
     --prefix="ustreamer-${USTREAMER_TAG}/" \
@@ -84,6 +102,10 @@ MAX_GLIBC="$(
     tail -1
 )"
 
+LIBJPEG_TURBO_VERSION="$(
+    chroot "$CHROOT" dpkg-query -W -f='${Version}' libjpeg62-turbo-dev
+)"
+
 [[ -n "$MAX_GLIBC" ]] || die "unable to derive required GLIBC version"
 dpkg --compare-versions "$MAX_GLIBC" le 2.36 ||
     die "built binary requires GLIBC_$MAX_GLIBC, newer than VyOS GLIBC_2.36"
@@ -93,6 +115,8 @@ USTREAMER_TAG=$USTREAMER_TAG
 USTREAMER_COMMIT=$USTREAMER_COMMIT
 USTREAMER_BUILD_DISTRIBUTION=debian-bookworm
 USTREAMER_MAX_GLIBC=$MAX_GLIBC
+USTREAMER_LIBJPEG_LINKAGE=static
+USTREAMER_LIBJPEG_TURBO_VERSION=$LIBJPEG_TURBO_VERSION
 EOF
 
 (
@@ -101,6 +125,7 @@ EOF
         ustreamer \
         ustreamer-dump \
         LICENSE \
+        LICENSE.libjpeg-turbo \
         "ustreamer-${USTREAMER_TAG}-source.tar.gz" \
         > SHA256SUMS
 )

@@ -19,6 +19,11 @@ that its required glibc symbol level does not exceed VyOS' glibc 2.36. Release
 artifacts include checksums, the GPL license and a source archive generated
 from that exact commit.
 
+Stock VyOS does not provide `libjpeg.so.62`, so libjpeg-turbo is linked
+statically into the µStreamer executables. The exact Debian package version
+and its license are recorded with the build artifacts. Other runtime libraries
+continue to come from the VyOS userspace.
+
 Do not install Debian Trixie's `ustreamer` package into the current VyOS
 userspace. It upgrades glibc and replaces libevent packages used by core VyOS
 components.

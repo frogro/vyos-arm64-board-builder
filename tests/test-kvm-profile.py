@@ -38,6 +38,9 @@ class KvmProfileTests(unittest.TestCase):
         self.assertIn("23dd2f9e66f945eaf8d9273e4cc4f5b7c47da711", text)
         self.assertIn("bookworm", text)
         self.assertIn("MAX_GLIBC", text)
+        self.assertIn("libjpeg.a", text)
+        self.assertIn("NEEDED.*libjpeg", text)
+        self.assertIn("USTREAMER_LIBJPEG_LINKAGE=static", text)
         self.assertNotIn("trixie", text.lower())
 
     def test_installer_places_profile_scoped_payload(self):
@@ -53,9 +56,15 @@ class KvmProfileTests(unittest.TestCase):
                 path.write_text("#!/bin/sh\nexit 0\n")
                 path.chmod(0o755)
             (artifacts / "LICENSE").write_text("GPL-3.0\n")
+            (artifacts / "LICENSE.libjpeg-turbo").write_text("IJG/BSD\n")
             (artifacts / "build.env").write_text("USTREAMER_TAG=v6.56\n")
             checksums = []
-            for name in ("ustreamer", "ustreamer-dump", "LICENSE"):
+            for name in (
+                "ustreamer",
+                "ustreamer-dump",
+                "LICENSE",
+                "LICENSE.libjpeg-turbo",
+            ):
                 digest = hashlib.sha256((artifacts / name).read_bytes()).hexdigest()
                 checksums.append(f"{digest}  {name}")
             (artifacts / "SHA256SUMS").write_text("\n".join(checksums) + "\n")
@@ -65,6 +74,9 @@ class KvmProfileTests(unittest.TestCase):
                 check=True,
             )
             self.assertTrue((rootfs / "usr/local/bin/ustreamer").is_file())
+            self.assertTrue(
+                (rootfs / "usr/share/doc/ustreamer/LICENSE.libjpeg-turbo").is_file()
+            )
             self.assertTrue(
                 (rootfs / "usr/share/vyos-arm64-board-builder/ustreamer-build.env").is_file()
             )

@@ -496,6 +496,7 @@ jobs:
               "work/build/${BOARD}/artifacts/ustreamer/build.env"
               "work/build/${BOARD}/artifacts/ustreamer/SHA256SUMS"
               "work/build/${BOARD}/artifacts/ustreamer/LICENSE"
+              "work/build/${BOARD}/artifacts/ustreamer/LICENSE.libjpeg-turbo"
               "work/build/${BOARD}/artifacts/ustreamer/ustreamer-v6.56-source.tar.gz"
             )
           fi
