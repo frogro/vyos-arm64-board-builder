@@ -1,0 +1,66 @@
+# Optional Extended Network runtime drivers.
+#
+# These requests are best effort and are only evaluated when
+# EXTENDED_NETWORK=yes. Existing VyOS y/m values are preserved. A symbol
+# which is unavailable, cannot satisfy its dependencies, or cannot remain a
+# module is reported as skipped and never fails the board build.
+
+# Wi-Fi: Realtek PCIe
+CONFIG_RTW88_8822BE=m
+CONFIG_RTW88_8822CE=m
+CONFIG_RTW88_8821CE=m
+CONFIG_RTW88_8814AE=m
+CONFIG_RTW89_8851BE=m
+CONFIG_RTW89_8852AE=m
+CONFIG_RTW89_8852BE=m
+CONFIG_RTW89_8852BTE=m
+CONFIG_RTW89_8852CE=m
+CONFIG_RTW89_8922AE=m
+
+# Wi-Fi: Realtek USB (only variants present in the selected Linux tree win)
+CONFIG_RTW88_8822BU=m
+CONFIG_RTW88_8822CU=m
+CONFIG_RTW88_8723DU=m
+CONFIG_RTW88_8821CU=m
+CONFIG_RTW88_8821AU=m
+CONFIG_RTW88_8812AU=m
+CONFIG_RTW88_8814AU=m
+CONFIG_RTW89_8851BU=m
+CONFIG_RTW89_8852BU=m
+
+# Wi-Fi: MediaTek
+CONFIG_MT7921E=m
+CONFIG_MT7921U=m
+CONFIG_MT7925E=m
+CONFIG_MT7925U=m
+CONFIG_MT7996E=m
+
+# Wi-Fi: Qualcomm/Atheros
+CONFIG_ATH11K_PCI=m
+CONFIG_ATH12K_PCI=m
+
+# Wi-Fi: Intel and NXP/Marvell
+CONFIG_IWLWIFI=m
+CONFIG_IWLMVM=m
+CONFIG_MWIFIEX_SDIO=m
+CONFIG_MWIFIEX_PCIE=m
+CONFIG_MWIFIEX_USB=m
+
+# WWAN: Qualcomm MHI host-side PCIe/M.2 modems
+CONFIG_MHI_BUS=m
+CONFIG_MHI_BUS_PCI_GENERIC=m
+CONFIG_MHI_NET=m
+CONFIG_MHI_WWAN_CTRL=m
+CONFIG_MHI_WWAN_MBIM=m
+CONFIG_QRTR=m
+CONFIG_QRTR_MHI=m
+
+# Ethernet: Intel PCIe
+CONFIG_IXGBE=m
+CONFIG_IXGBEVF=m
+CONFIG_I40E=m
+CONFIG_I40EVF=m
+CONFIG_ICE=m
+
+# Ethernet: Aquantia USB
+CONFIG_USB_NET_AQC111=m

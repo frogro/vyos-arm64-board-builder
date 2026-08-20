@@ -45,3 +45,60 @@ select_board() {
 
     printf '%s\n' "${board}"
 }
+
+select_extended_network() {
+    local requested="${EXTENDED_NETWORK:-}"
+
+    if [[ -n "$requested" ]]; then
+        case "${requested,,}" in
+            1|true|yes|y|on|enabled)
+                printf 'yes\n'
+                return 0
+                ;;
+            0|false|no|n|off|disabled)
+                printf 'no\n'
+                return 0
+                ;;
+            *)
+                die "Invalid EXTENDED_NETWORK value: $requested"
+                ;;
+        esac
+    fi
+
+    # Non-interactive builds must be deterministic and must never block.
+    if [[ ! -t 0 ]]; then
+        printf 'no\n'
+        return 0
+    fi
+
+    cat >&2 <<'NOTICE'
+
+Optional Extended Network Support
+---------------------------------
+This option adds a broad, curated set of WWAN, Wi-Fi and Ethernet
+drivers and firmware that are not enabled by stock VyOS. Most of these
+components will not be relevant to any single system. Enabling the bundle
+increases image size; drivers loaded for detected hardware use additional
+memory, and every additional driver or firmware component increases the
+system's attack surface.
+
+This is a convenience-oriented profile. Industrial and security-sensitive
+deployments should instead use a selective driver and firmware set.
+
+Review the maintained list before enabling it:
+https://github.com/frogro/vyos-arm64-board-builder/blob/generic-board-image-pipeline/docs/extended-network-drivers.md
+NOTICE
+
+    read -r -p \
+        'Include common additional network drivers and firmware? [y/N] ' \
+        requested
+
+    case "${requested,,}" in
+        y|yes)
+            printf 'yes\n'
+            ;;
+        *)
+            printf 'no\n'
+            ;;
+    esac
+}

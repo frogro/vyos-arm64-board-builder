@@ -12,6 +12,7 @@ KERNEL_ARTIFACTS="$ROOT/work/build/$BOARD/artifacts"
 MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
 BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
+NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 
 SECTOR_SIZE=512
 
@@ -435,6 +436,14 @@ rsync \
 depmod \
     -b "$SQUASH_ROOT" \
     "$KERNEL_RELEASE"
+
+echo
+echo "===== INSTALLING NETWORK FIRMWARE CLOSURE ====="
+
+bash "$ROOT/tools/install-network-firmware.sh" \
+    "$BOARD" \
+    "$SQUASH_ROOT" \
+    "$NETWORK_ARTIFACTS"
 
 if [[ -x "$ROOTFS_PROVIDER" ]]; then
     echo

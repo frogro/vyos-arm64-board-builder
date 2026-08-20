@@ -6,6 +6,7 @@ ROOT="${2:-work/build/$BOARD}"
 
 MANIFEST="$ROOT/boot/boot-manifest.env"
 KERNEL_FILE="$ROOT/artifacts/kernel.release"
+NETWORK_SELECTION="$ROOT/selection/extended-network.env"
 OUT="$ROOT/RELEASE_NOTES.md"
 
 [[ -f "$MANIFEST" ]] || {
@@ -20,6 +21,13 @@ OUT="$ROOT/RELEASE_NOTES.md"
 
 # shellcheck disable=SC1090
 source "$MANIFEST"
+
+EXTENDED_NETWORK="no"
+
+if [[ -f "$NETWORK_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$NETWORK_SELECTION"
+fi
 
 KERNEL_RELEASE="$(cat "$KERNEL_FILE")"
 
@@ -92,6 +100,7 @@ The image was created in these stages:
 - VyOS/reference kernel line: \`${VYOS_KERNEL_MAJOR_MINOR:-unknown}\` / \`${REFERENCE_KERNEL_MAJOR_MINOR:-unknown}\`
 - Boot reference branch: \`${BOOT_BRANCH}\`
 - Kernel: \`${KERNEL_RELEASE}\`
+- Extended Network drivers and firmware: \`${EXTENDED_NETWORK}\`
 - Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
 - Firmware provider: \`${FIRMWARE_PROVIDER}\`
 - Firmware variant: \`${FIRMWARE_VARIANT:-n/a}\`
@@ -130,6 +139,7 @@ Automated build validation:
 - [x] Kernel modules build
 - [x] Matching initramfs rebuild
 - [x] Final kernel config installation
+- [x] Network firmware closure/report generation
 ${PROVIDER_VALIDATION}
 - [x] Provider-defined three-partition GPT assembly
 - [x] GRUB GPT3 prefix validation
@@ -146,6 +156,8 @@ ${PROVIDER_VALIDATION}
 This is an experimental test image.
 
 The firmware provider, kernel hardware delta and boot metadata are selected from the board configuration rather than being hard-coded into the generic image assembler. Real-hardware validation is still required for this exact generated image.
+
+When Extended Network is enabled, the image contains the curated optional runtime modules which the selected Linux Kconfig can satisfy as modules. Exact enabled/skipped symbols and installed/missing firmware files are published beside the image in \`extended-network-report.txt\` and the network firmware manifest. Board-required drivers remain independent of this option.
 EOF_NOTES
 
 echo "$OUT"

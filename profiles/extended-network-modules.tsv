@@ -1,0 +1,43 @@
+# category<TAB>symbol<TAB>module<TAB>hardware family
+wifi-pcie	CONFIG_RTW88_8822BE	rtw88_8822be	Realtek RTL8822BE
+wifi-pcie	CONFIG_RTW88_8822CE	rtw88_8822ce	Realtek RTL8822CE
+wifi-pcie	CONFIG_RTW88_8821CE	rtw88_8821ce	Realtek RTL8821CE
+wifi-pcie	CONFIG_RTW88_8814AE	rtw88_8814ae	Realtek RTL8814AE
+wifi-pcie	CONFIG_RTW89_8851BE	rtw89_8851be	Realtek RTL8851BE
+wifi-pcie	CONFIG_RTW89_8852AE	rtw89_8852ae	Realtek RTL8852AE
+wifi-pcie	CONFIG_RTW89_8852BE	rtw89_8852be	Realtek RTL8852BE
+wifi-pcie	CONFIG_RTW89_8852BTE	rtw89_8852bte	Realtek RTL8852BTE
+wifi-pcie	CONFIG_RTW89_8852CE	rtw89_8852ce	Realtek RTL8852CE
+wifi-pcie	CONFIG_RTW89_8922AE	rtw89_8922ae	Realtek RTL8922AE
+wifi-usb	CONFIG_RTW88_8822BU	rtw88_8822bu	Realtek RTL8822BU
+wifi-usb	CONFIG_RTW88_8822CU	rtw88_8822cu	Realtek RTL8822CU
+wifi-usb	CONFIG_RTW88_8723DU	rtw88_8723du	Realtek RTL8723DU
+wifi-usb	CONFIG_RTW88_8821CU	rtw88_8821cu	Realtek RTL8821CU
+wifi-usb	CONFIG_RTW88_8821AU	rtw88_8821au	Realtek RTL8821AU
+wifi-usb	CONFIG_RTW88_8812AU	rtw88_8812au	Realtek RTL8812AU
+wifi-usb	CONFIG_RTW88_8814AU	rtw88_8814au	Realtek RTL8814AU
+wifi-usb	CONFIG_RTW89_8851BU	rtw89_8851bu	Realtek RTL8851BU
+wifi-usb	CONFIG_RTW89_8852BU	rtw89_8852bu	Realtek RTL8852BU
+wifi-pcie	CONFIG_MT7921E	mt7921e	MediaTek MT7921/MT7922
+wifi-usb	CONFIG_MT7921U	mt7921u	MediaTek MT7921/MT7922 USB
+wifi-pcie	CONFIG_MT7925E	mt7925e	MediaTek MT7925
+wifi-usb	CONFIG_MT7925U	mt7925u	MediaTek MT7925 USB
+wifi-pcie	CONFIG_MT7996E	mt7996e	MediaTek MT7996
+wifi-pcie	CONFIG_ATH11K_PCI	ath11k_pci	Qualcomm/Atheros 802.11ax
+wifi-pcie	CONFIG_ATH12K_PCI	ath12k_pci	Qualcomm/Atheros 802.11be
+wifi-pcie	CONFIG_IWLWIFI	iwlwifi	Intel Wi-Fi
+wifi-pcie	CONFIG_IWLMVM	iwlmvm	Intel MVM Wi-Fi
+wifi-sdio	CONFIG_MWIFIEX_SDIO	mwifiex_sdio	NXP/Marvell SDIO Wi-Fi
+wifi-pcie	CONFIG_MWIFIEX_PCIE	mwifiex_pcie	NXP/Marvell PCIe Wi-Fi
+wifi-usb	CONFIG_MWIFIEX_USB	mwifiex_usb	NXP/Marvell USB Wi-Fi
+wwan-pcie	CONFIG_MHI_BUS_PCI_GENERIC	mhi_pci_generic	Qualcomm MHI PCIe host
+wwan-pcie	CONFIG_MHI_NET	mhi_net	MHI network core
+wwan-pcie	CONFIG_MHI_WWAN_CTRL	mhi_wwan_ctrl	MHI WWAN control
+wwan-pcie	CONFIG_MHI_WWAN_MBIM	mhi_wwan_mbim	MHI WWAN MBIM
+wwan-pcie	CONFIG_QRTR_MHI	qrtr_mhi	Qualcomm QRTR over MHI
+ethernet-pcie	CONFIG_IXGBE	ixgbe	Intel 10 Gigabit Ethernet
+ethernet-pcie	CONFIG_IXGBEVF	ixgbevf	Intel 10 Gigabit Ethernet VF
+ethernet-pcie	CONFIG_I40E	i40e	Intel 700 Series Ethernet
+ethernet-pcie	CONFIG_I40EVF	i40evf	Intel 700 Series Ethernet VF
+ethernet-pcie	CONFIG_ICE	ice	Intel E800 Series Ethernet
+ethernet-usb	CONFIG_USB_NET_AQC111	aqc111	Aquantia USB 2.5/5GbE

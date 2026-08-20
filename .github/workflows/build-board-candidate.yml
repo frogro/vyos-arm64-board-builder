@@ -21,6 +21,12 @@ on:
         default: "auto"
         type: string
 
+      extended_network:
+        description: "Include curated additional Wi-Fi/Ethernet/WWAN support"
+        required: true
+        default: false
+        type: boolean
+
       armbian_ref:
         description: "Exact Armbian build branch, tag or commit"
         required: true
@@ -51,6 +57,7 @@ jobs:
     env:
       BOARD: ${{ inputs.board || 'raspberry-pi-5' }}
       HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
+      EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
       BOOT_BRANCH: auto
       VYOS_BRANCH: rolling
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
@@ -69,6 +76,10 @@ jobs:
           python3 tests/test-model-requirements.py
           python3 tests/test-grub-console-default.py
           bash tests/test-common-firstboot.sh
+          python3 tests/test-extended-network-profile.py
+          bash tests/test-extended-network-selection.sh
+          bash tests/test-extended-network-resolver.sh
+          bash tests/test-network-firmware.sh
 
       - name: Show initial disk space
         run: df -h
@@ -233,6 +244,7 @@ jobs:
           sudo rm -rf cache/linux-vyos
           sudo rm -rf cache/vyos-build
           sudo rm -rf cache/armbian-build
+          sudo rm -rf cache/linux-firmware
 
           df -h
 
@@ -322,8 +334,11 @@ jobs:
             work/build/${{ env.BOARD }}/vyos-${{ env.BOARD }}-candidate.img.xz.sha256
             work/build/${{ env.BOARD }}/artifacts/kernel.release
             work/build/${{ env.BOARD }}/artifacts/kernel.config
+            work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
+            work/build/${{ env.BOARD }}/artifacts/network-firmware/*.txt
             work/build/${{ env.BOARD }}/boot/boot-manifest.env
             work/build/${{ env.BOARD }}/selection/selected-reference.env
+            work/build/${{ env.BOARD }}/selection/extended-network.env
           if-no-files-found: error
           compression-level: 0
 
@@ -358,4 +373,9 @@ jobs:
             "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256" \
             "work/build/${BOARD}/artifacts/kernel.release" \
             "work/build/${BOARD}/artifacts/kernel.config" \
+            "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt" \
+            "work/build/${BOARD}/artifacts/network-firmware/network-firmware-manifest.json" \
+            "work/build/${BOARD}/artifacts/network-firmware/required-firmware.txt" \
+            "work/build/${BOARD}/artifacts/network-firmware/installed-firmware.txt" \
+            "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt" \
             "work/build/${BOARD}/boot/boot-manifest.env"

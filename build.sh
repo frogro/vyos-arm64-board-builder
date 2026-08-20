@@ -49,6 +49,7 @@ main() {
     local hardware_reference="${HW_REFERENCE:-${HW_BRANCH:-${BRANCH:-auto}}}"
     local armbian_board=""
     local vyos_branch="${VYOS_BRANCH:-rolling}"
+    local extended_network=""
 
     #
     # Match the official VyOS kernel build. The VyOS defconfig keeps
@@ -90,6 +91,12 @@ main() {
         board="$(select_board)"
     fi
 
+    #
+    # This is a build-time capability choice. It deliberately does not try
+    # to detect network hardware on the GitHub runner/build host.
+    #
+    extended_network="$(select_extended_network)"
+
     kernel_version="$(
         vyos_kernel_version |
         grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
@@ -102,6 +109,12 @@ main() {
     selection_dir="${ROOT_DIR}/work/build/${board}/selection"
     selection_env="${selection_dir}/selected-reference.env"
     mkdir -p "${selection_dir}"
+
+    {
+        printf 'EXTENDED_NETWORK=%q\n' "${extended_network}"
+        printf 'EXTENDED_NETWORK_PROFILE=%q\n' \
+            'profiles/extended-network-drivers.txt'
+    } > "${selection_dir}/extended-network.env"
 
     info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
 
@@ -218,6 +231,7 @@ main() {
     info "HW selection:   ${HW_SELECTION_MODE}"
     info "Board DTB:      ${dtb:-unknown}"
     info "VyOS branch:    ${vyos_branch}"
+    info "Extended net:   ${extended_network}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -500,6 +514,31 @@ main() {
         die "Unresolved Kconfig dependencies remain"
     fi
 
+    #
+    # Optional network drivers are a separate, fail-soft runtime layer.
+    # They are resolved after the strict board/boot configuration so they
+    # can never weaken a boot-critical requirement or make a board build
+    # fail merely because one optional symbol is unavailable.
+    #
+    local extended_config_out="${config_out}/extended-network"
+
+    python3 "${ROOT_DIR}/tools/resolve-extended-network-config.py" \
+        --kernel "${kernel_source}" \
+        --base-config "${config_out}/generated-final.config" \
+        --profile "${ROOT_DIR}/profiles/extended-network-drivers.txt" \
+        --output-dir "${extended_config_out}" \
+        --enabled "${extended_network}"
+
+    [[ -s "${extended_config_out}/generated-final.config" ]] ||
+        die "Extended Network resolver produced no final config"
+
+    [[ -s "${extended_config_out}/extended-network-report.json" ]] ||
+        die "Extended Network resolver produced no report"
+
+    cp \
+        "${extended_config_out}/generated-final.config" \
+        "${config_out}/generated-final.config"
+
     if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
         info "Validating promoted board-model requirements..."
 
@@ -654,6 +693,29 @@ main() {
         --cross-compile "${cross}" \
         --work-dir "${ROOT_DIR}/work/build/${board}/vyos-oot-modules"
 
+    #
+    # Firmware is derived from the modules that actually survived Kconfig
+    # and Kbuild. The source revision is read from VyOS' own linux-firmware
+    # package pin. Missing optional/runtime firmware is reported but does
+    # not turn into a boot failure.
+    #
+    info "Staging network firmware from the VyOS-pinned source..."
+
+    python3 "${ROOT_DIR}/tools/stage-network-firmware.py" \
+        --vyos-tree "${ROOT_DIR}/cache/vyos-build" \
+        --modules-root "${modules_out}" \
+        --kernel-release "${kernel_release}" \
+        --resolver-report \
+            "${extended_config_out}/extended-network-report.json" \
+        --module-catalog \
+            "${ROOT_DIR}/profiles/extended-network-modules.tsv" \
+        --baseline-modules \
+            "${ROOT_DIR}/profiles/baseline-network-modules.txt" \
+        --supplements \
+            "${ROOT_DIR}/profiles/extended-network-firmware-supplements.txt" \
+        --cache-dir "${ROOT_DIR}/cache/linux-firmware" \
+        --output-dir "${artifacts}/network-firmware"
+
     cp "${image}" \
         "${artifacts}/Image"
 
@@ -686,6 +748,8 @@ main() {
     echo "Modules:        ${modules_out}/lib/modules"
     echo "Kernel config:  ${artifacts}/kernel.config"
     echo "Kernel release: ${kernel_release}"
+    echo "Extended net:   ${extended_network}"
+    echo "Network report: ${artifacts}/network-firmware/extended-network-report.txt"
     echo
     info "VyOS ARM64 board kernel build completed successfully."
 }
