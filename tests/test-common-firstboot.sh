@@ -23,11 +23,22 @@ done
 
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
+test -x "$ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
+test -x "$ROOTFS/usr/local/sbin/tailscale"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.service"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.timer"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-grow-persistence.service"
+test -f "$ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
 test -L "$ROOTFS/etc/systemd/system/timers.target.wants/vyos-arm64-dhcp-wan-firstboot.timer"
 test -L "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-grow-persistence.service"
+test -L "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-tailscaled.service"
+
+grep -Fq 'ConditionFileIsExecutable=/config/tailscale/bin/tailscaled' \
+    "$ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
+grep -Fq -- '--state=/config/tailscale/state/tailscaled.state' \
+    "$ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
+grep -Fq 'Read-only runtime audit' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
 
 grep -Fq '/usr/lib/live/mount/persistence' \
     "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
@@ -56,6 +67,16 @@ if grep -RqiE \
     "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot."*
 then
     echo "ERROR: board-specific branding or update channel remains" >&2
+    exit 1
+fi
+
+if grep -qiE \
+    'authkey|192\.168\.|10\.3\.|--advertise-routes' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness" \
+    "$ROOTFS/usr/local/sbin/tailscale" \
+    "$ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
+then
+    echo "ERROR: Tailscale preparation contains identity or route policy" >&2
     exit 1
 fi
 

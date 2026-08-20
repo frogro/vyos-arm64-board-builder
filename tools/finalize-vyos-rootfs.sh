@@ -45,6 +45,16 @@ install \
     "$PAYLOAD/grow-persistence.sh" \
     "$SBIN_DIR/vyos-arm64-grow-persistence.sh"
 
+install \
+    -m 0755 \
+    "$PAYLOAD/tailscale-readiness.sh" \
+    "$SBIN_DIR/vyos-arm64-tailscale-readiness"
+
+install \
+    -m 0755 \
+    "$PAYLOAD/tailscale-wrapper.sh" \
+    "$SBIN_DIR/tailscale"
+
 for unit in \
     vyos-arm64-dhcp-wan-firstboot.service \
     vyos-arm64-dhcp-wan-firstboot.timer
@@ -56,6 +66,10 @@ install -m 0644 \
     "$PAYLOAD/vyos-arm64-grow-persistence.service" \
     "$UNIT_DIR/vyos-arm64-grow-persistence.service"
 
+install -m 0644 \
+    "$PAYLOAD/vyos-arm64-tailscaled.service" \
+    "$UNIT_DIR/vyos-arm64-tailscaled.service"
+
 ln -sfn \
     ../vyos-arm64-dhcp-wan-firstboot.timer \
     "$WANTS_DIR/vyos-arm64-dhcp-wan-firstboot.timer"
@@ -63,5 +77,9 @@ ln -sfn \
 ln -sfn \
     ../vyos-arm64-grow-persistence.service \
     "$MULTI_USER_WANTS_DIR/vyos-arm64-grow-persistence.service"
+
+ln -sfn \
+    ../vyos-arm64-tailscaled.service \
+    "$MULTI_USER_WANTS_DIR/vyos-arm64-tailscaled.service"
 
 echo "Installed common first-boot DHCP/SSH helpers for $BOARD"

@@ -539,6 +539,13 @@ main() {
         "${extended_config_out}/generated-final.config" \
         "${config_out}/generated-final.config"
 
+    local tailscale_ready_out="${config_out}/tailscale-ready"
+
+    python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+        --kernel-config "${config_out}/generated-final.config" \
+        --requirements "${ROOT_DIR}/profiles/tailscale-ready.config" \
+        --output-dir "${tailscale_ready_out}"
+
     if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
         info "Validating promoted board-model requirements..."
 
@@ -554,6 +561,7 @@ main() {
     echo "Board fragment: ${config_out}/generated-board.config"
     echo "Final config:    ${config_out}/generated-final.config"
     echo "Validation:      ${config_out}/validation.txt"
+    echo "Tailscale ready: ${tailscale_ready_out}/tailscale-ready.txt"
     echo
     echo "Validation FAIL: 0"
     echo "Kconfig unresolved: 0"
