@@ -147,6 +147,7 @@ jobs:
             gdisk \
             parted \
             dpkg-dev \
+            debootstrap \
             initramfs-tools-core \
             coreutils \
             findutils
@@ -207,6 +208,19 @@ jobs:
             || true
 
           df -h
+
+      - name: Build profile-scoped ustreamer
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "work/build/${BOARD}/selection/feature-profiles.env"
+
+          if [[ "$KVM_OVER_IP" == "yes" ]]; then
+            sudo --preserve-env=JOBS \
+              ./tools/build-ustreamer.sh "${BOARD}"
+          else
+            echo "KVM-over-IP profile disabled; skipping ustreamer build"
+          fi
 
       - name: Prepare firmware provider
         shell: bash
@@ -402,6 +416,7 @@ jobs:
             work/build/${{ env.BOARD }}/artifacts/kernel.config
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.txt
+            work/build/${{ env.BOARD }}/artifacts/ustreamer/*
             work/build/${{ env.BOARD }}/boot/boot-manifest.env
             work/build/${{ env.BOARD }}/selection/selected-reference.env
             work/build/${{ env.BOARD }}/selection/extended-network.env
@@ -437,24 +452,39 @@ jobs:
             exit 1
           fi
 
+          release_assets=(
+            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz"
+            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz.sha256"
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso"
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256"
+            "work/build/${BOARD}/release.env"
+            "work/build/${BOARD}/board-manifest.json"
+            "work/build/${BOARD}/artifacts/kernel.release"
+            "work/build/${BOARD}/artifacts/kernel.config"
+            "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt"
+            "work/build/${BOARD}/artifacts/network-firmware/network-firmware-manifest.json"
+            "work/build/${BOARD}/artifacts/network-firmware/required-firmware.txt"
+            "work/build/${BOARD}/artifacts/network-firmware/installed-firmware.txt"
+            "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt"
+            "work/build/${BOARD}/boot/boot-manifest.env"
+            "work/build/${BOARD}/selection/feature-profile.json"
+          )
+
+          if [[ -d "work/build/${BOARD}/artifacts/ustreamer" ]]; then
+            release_assets+=(
+              "work/build/${BOARD}/artifacts/ustreamer/ustreamer"
+              "work/build/${BOARD}/artifacts/ustreamer/ustreamer-dump"
+              "work/build/${BOARD}/artifacts/ustreamer/build.env"
+              "work/build/${BOARD}/artifacts/ustreamer/SHA256SUMS"
+              "work/build/${BOARD}/artifacts/ustreamer/LICENSE"
+              "work/build/${BOARD}/artifacts/ustreamer/ustreamer-v6.56-source.tar.gz"
+            )
+          fi
+
           gh release create "$RELEASE_TAG" \
             --repo "${GITHUB_REPOSITORY}" \
             --target "${GITHUB_SHA}" \
             --title "VyOS ${VYOS_VERSION} for ${BOARD_NAME}" \
             --notes-file "work/build/${BOARD}/RELEASE_NOTES.md" \
             --latest \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz" \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz.sha256" \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso" \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256" \
-            "work/build/${BOARD}/release.env" \
-            "work/build/${BOARD}/board-manifest.json" \
-            "work/build/${BOARD}/artifacts/kernel.release" \
-            "work/build/${BOARD}/artifacts/kernel.config" \
-            "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt" \
-            "work/build/${BOARD}/artifacts/network-firmware/network-firmware-manifest.json" \
-            "work/build/${BOARD}/artifacts/network-firmware/required-firmware.txt" \
-            "work/build/${BOARD}/artifacts/network-firmware/installed-firmware.txt" \
-            "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt" \
-            "work/build/${BOARD}/boot/boot-manifest.env" \
-            "work/build/${BOARD}/selection/feature-profile.json"
+            "${release_assets[@]}"

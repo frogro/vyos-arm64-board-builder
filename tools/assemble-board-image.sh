@@ -13,6 +13,7 @@ MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
 BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
+USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 
@@ -485,6 +486,14 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$EXTENDED_NETWORK" \
     "$BUILD_PROFILE" \
     "$KVM_OVER_IP"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING PROFILE-SCOPED USTREAMER ====="
+    bash "$ROOT/tools/install-ustreamer.sh" \
+        "$SQUASH_ROOT" \
+        "$USTREAMER_ARTIFACTS"
+fi
 
 echo
 echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="

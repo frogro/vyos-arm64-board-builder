@@ -193,9 +193,10 @@ The firmware provider, kernel hardware delta and boot metadata are selected from
 When Extended Network is enabled, the image contains the curated optional runtime modules which the selected Linux Kconfig can satisfy as modules. Exact enabled/skipped symbols and installed/missing firmware files are published beside the image in \`extended-network-report.txt\` and the network firmware manifest. Board-required drivers remain independent of this option.
 
 When KVM-over-IP preparation is enabled, the image contains generic USB UVC
-capture and USB HID gadget kernel capabilities plus a read-only runtime audit.
-No streamer is installed or started, no firewall port is opened, and HID
-operation remains conditional on a device/OTG-capable USB controller.
+capture and USB HID gadget kernel capabilities, a Bookworm-built µStreamer
+binary and a read-only runtime audit. No streamer is started, no firewall port
+is opened, and HID operation remains conditional on a device/OTG-capable USB
+controller.
 EOF_NOTES
 
 echo "$OUT"

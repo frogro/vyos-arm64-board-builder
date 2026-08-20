@@ -1,8 +1,9 @@
 # Optional KVM-over-IP preparation
 
 The KVM-over-IP build profile is opt-in. It prepares generic Linux support
-for USB UVC video capture and USB HID gadget operation without installing or
-starting a streaming application.
+for USB UVC video capture and USB HID gadget operation. When selected,
+µStreamer is reproducibly built in a Debian Bookworm ARM64 environment and
+installed in the image, but it is not started automatically.
 
 It does not expose a capture device, create a keyboard/mouse gadget, change
 the VyOS firewall or enable a listening service. Runtime state belongs under
@@ -13,7 +14,11 @@ Run `sudo vyos-arm64-kvm-readiness` after connecting the hardware. A detected
 emulation additionally require a USB port wired to a device/OTG-capable USB
 device controller; this cannot be guaranteed generically for every SBC.
 
+The build pins µStreamer `v6.56` to its exact upstream commit and validates
+that its required glibc symbol level does not exceed VyOS' glibc 2.36. Release
+artifacts include checksums, the GPL license and a source archive generated
+from that exact commit.
+
 Do not install Debian Trixie's `ustreamer` package into the current VyOS
 userspace. It upgrades glibc and replaces libevent packages used by core VyOS
-components. A compatible, reproducibly built ustreamer payload will be added
-separately after its build and runtime dependencies are validated.
+components.

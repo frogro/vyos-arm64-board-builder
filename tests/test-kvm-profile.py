@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import hashlib
+import subprocess
+import tempfile
 import unittest
 
 
@@ -28,6 +31,43 @@ class KvmProfileTests(unittest.TestCase):
             if line.startswith("CONFIG_"):
                 symbol = line.split("=", 1)[0]
                 self.assertIn(symbol + "=", requested)
+
+    def test_ustreamer_build_is_pinned_and_bookworm_scoped(self):
+        text = (ROOT / "tools/build-ustreamer.sh").read_text()
+        self.assertIn("USTREAMER_TAG=\"${USTREAMER_TAG:-v6.56}\"", text)
+        self.assertIn("23dd2f9e66f945eaf8d9273e4cc4f5b7c47da711", text)
+        self.assertIn("bookworm", text)
+        self.assertIn("MAX_GLIBC", text)
+        self.assertNotIn("trixie", text.lower())
+
+    def test_installer_places_profile_scoped_payload(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            artifacts = root / "artifacts"
+            rootfs = root / "rootfs"
+            artifacts.mkdir()
+            rootfs.mkdir()
+
+            for name in ("ustreamer", "ustreamer-dump"):
+                path = artifacts / name
+                path.write_text("#!/bin/sh\nexit 0\n")
+                path.chmod(0o755)
+            (artifacts / "LICENSE").write_text("GPL-3.0\n")
+            (artifacts / "build.env").write_text("USTREAMER_TAG=v6.56\n")
+            checksums = []
+            for name in ("ustreamer", "ustreamer-dump", "LICENSE"):
+                digest = hashlib.sha256((artifacts / name).read_bytes()).hexdigest()
+                checksums.append(f"{digest}  {name}")
+            (artifacts / "SHA256SUMS").write_text("\n".join(checksums) + "\n")
+
+            subprocess.run(
+                [str(ROOT / "tools/install-ustreamer.sh"), str(rootfs), str(artifacts)],
+                check=True,
+            )
+            self.assertTrue((rootfs / "usr/local/bin/ustreamer").is_file())
+            self.assertTrue(
+                (rootfs / "usr/share/vyos-arm64-board-builder/ustreamer-build.env").is_file()
+            )
 
 
 if __name__ == "__main__":

@@ -38,10 +38,11 @@ else
     printf 'WARN  no active USB device controller; capture-only mode remains possible\n'
 fi
 
-if [[ -x /config/kvm-over-ip/bin/ustreamer ]]; then
-    printf 'INFO  persistent ustreamer binary is installed\n'
+if [[ -x /usr/local/bin/ustreamer ]]; then
+    printf 'PASS  profile-scoped ustreamer binary is installed\n'
 else
-    printf 'INFO  persistent ustreamer binary is not installed (expected initially)\n'
+    printf 'FAIL  profile-scoped ustreamer binary is missing\n'
+    failed=1
 fi
 
 exit "$failed"
