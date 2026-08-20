@@ -77,6 +77,8 @@ jobs:
           python3 tests/test-grub-console-default.py
           bash tests/test-common-firstboot.sh
           python3 tests/test-extended-network-profile.py
+          python3 tests/test-release-identity.py
+          python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
           bash tests/test-extended-network-resolver.sh
           bash tests/test-network-firmware.sh
@@ -119,6 +121,7 @@ jobs:
             xz-utils \
             zstd \
             squashfs-tools \
+            xorriso \
             dosfstools \
             e2fsprogs \
             gdisk \
@@ -295,6 +298,37 @@ jobs:
 
           df -h
 
+      - name: Create VyOS system-image update ISO
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          chmod +x \
+            tools/create-system-image-iso.sh \
+            tools/release-identity.py
+
+          sudo \
+            ./tools/create-system-image-iso.sh \
+              "${BOARD}" \
+              "work/build/${BOARD}/vyos-${BOARD}-candidate.img" \
+              "work/build/${BOARD}"
+
+          sudo chown -R "$(id -u):$(id -g)" \
+            "work/build/${BOARD}"
+
+          cat "work/build/${BOARD}/release.env" >> "$GITHUB_ENV"
+
+          # shellcheck disable=SC1090
+          source "work/build/${BOARD}/release.env"
+
+          echo "Release tag:      ${RELEASE_TAG}"
+          echo "Release basename: ${RELEASE_BASENAME}"
+          echo "Update provider:  ${UPDATE_PROVIDER}"
+
+          ls -lh \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso" \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256"
+
       - name: Show final image layout
         shell: bash
         run: |
@@ -314,24 +348,35 @@ jobs:
           df -h
 
       - name: Compress board image
+        shell: bash
         run: |
+          set -euo pipefail
+
           xz \
             -T0 \
             -3 \
-            -f \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+            -c \
+            "work/build/${BOARD}/vyos-${BOARD}-candidate.img" \
+            > "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz"
 
-          sha256sum \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz" \
-            > "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256"
+          rm -f "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+
+          (
+            cd "work/build/${BOARD}"
+            sha256sum "${RELEASE_BASENAME}.img.xz" \
+              > "${RELEASE_BASENAME}.img.xz.sha256"
+          )
 
       - name: Upload board candidate
         uses: actions/upload-artifact@v4
         with:
           name: vyos-${{ env.BOARD }}-${{ steps.kernel.outputs.hw_branch }}-candidate
           path: |
-            work/build/${{ env.BOARD }}/vyos-${{ env.BOARD }}-candidate.img.xz
-            work/build/${{ env.BOARD }}/vyos-${{ env.BOARD }}-candidate.img.xz.sha256
+            work/build/${{ env.BOARD }}/vyos-*.img.xz
+            work/build/${{ env.BOARD }}/vyos-*.img.xz.sha256
+            work/build/${{ env.BOARD }}/vyos-*.iso
+            work/build/${{ env.BOARD }}/vyos-*.iso.sha256
+            work/build/${{ env.BOARD }}/release.env
             work/build/${{ env.BOARD }}/artifacts/kernel.release
             work/build/${{ env.BOARD }}/artifacts/kernel.config
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
@@ -357,20 +402,29 @@ jobs:
           # shellcheck disable=SC1090
           source "work/build/${BOARD}/boot/boot-manifest.env"
 
-          DATE="$(date -u +%Y.%m.%d)"
-          TAG="${DATE}-${BOARD}-test-${GITHUB_RUN_NUMBER}"
+          # shellcheck disable=SC1090
+          source "work/build/${BOARD}/release.env"
 
-          echo "Release tag: $TAG"
+          echo "Release tag: $RELEASE_TAG"
           echo "Release board: $BOARD_NAME"
 
-          gh release create "$TAG" \
+          if gh release view "$RELEASE_TAG" \
+              --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "ERROR: release tag already exists: $RELEASE_TAG" >&2
+            exit 1
+          fi
+
+          gh release create "$RELEASE_TAG" \
             --repo "${GITHUB_REPOSITORY}" \
             --target "${GITHUB_SHA}" \
-            --title "VyOS ARM64 ${BOARD_NAME} test image" \
+            --title "VyOS ${VYOS_VERSION} for ${BOARD_NAME}" \
             --notes-file "work/build/${BOARD}/RELEASE_NOTES.md" \
             --latest \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz" \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img.xz.sha256" \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz" \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz.sha256" \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso" \
+            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256" \
+            "work/build/${BOARD}/release.env" \
             "work/build/${BOARD}/artifacts/kernel.release" \
             "work/build/${BOARD}/artifacts/kernel.config" \
             "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt" \

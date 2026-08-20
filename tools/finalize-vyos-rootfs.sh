@@ -21,6 +21,9 @@ WANTS_DIR="$UNIT_DIR/timers.target.wants"
 
 install -d -m 0755 "$STAGE_DIR" "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
 
+MULTI_USER_WANTS_DIR="$UNIT_DIR/multi-user.target.wants"
+install -d -m 0755 "$MULTI_USER_WANTS_DIR"
+
 for script in \
     ap-dhcp-wan-setup.sh \
     dhcp-wan-ssh-setup.sh \
@@ -37,6 +40,11 @@ install \
     "$PAYLOAD/vyos-arm64-dhcp-wan-firstboot-wrapper.sh" \
     "$SBIN_DIR/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
 
+install \
+    -m 0755 \
+    "$PAYLOAD/grow-persistence.sh" \
+    "$SBIN_DIR/vyos-arm64-grow-persistence.sh"
+
 for unit in \
     vyos-arm64-dhcp-wan-firstboot.service \
     vyos-arm64-dhcp-wan-firstboot.timer
@@ -44,8 +52,16 @@ do
     install -m 0644 "$PAYLOAD/$unit" "$UNIT_DIR/$unit"
 done
 
+install -m 0644 \
+    "$PAYLOAD/vyos-arm64-grow-persistence.service" \
+    "$UNIT_DIR/vyos-arm64-grow-persistence.service"
+
 ln -sfn \
     ../vyos-arm64-dhcp-wan-firstboot.timer \
     "$WANTS_DIR/vyos-arm64-dhcp-wan-firstboot.timer"
+
+ln -sfn \
+    ../vyos-arm64-grow-persistence.service \
+    "$MULTI_USER_WANTS_DIR/vyos-arm64-grow-persistence.service"
 
 echo "Installed common first-boot DHCP/SSH helpers for $BOARD"

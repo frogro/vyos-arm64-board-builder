@@ -7,6 +7,7 @@ ROOT="${2:-work/build/$BOARD}"
 MANIFEST="$ROOT/boot/boot-manifest.env"
 KERNEL_FILE="$ROOT/artifacts/kernel.release"
 NETWORK_SELECTION="$ROOT/selection/extended-network.env"
+RELEASE_ENV="$ROOT/release.env"
 OUT="$ROOT/RELEASE_NOTES.md"
 
 [[ -f "$MANIFEST" ]] || {
@@ -29,6 +30,11 @@ if [[ -f "$NETWORK_SELECTION" ]]; then
     source "$NETWORK_SELECTION"
 fi
 
+if [[ -f "$RELEASE_ENV" ]]; then
+    # shellcheck disable=SC1090
+    source "$RELEASE_ENV"
+fi
+
 KERNEL_RELEASE="$(cat "$KERNEL_FILE")"
 
 FIRMWARE_PROVIDER="${FIRMWARE_PROVIDER:-unknown}"
@@ -36,6 +42,9 @@ FIRMWARE_VARIANT="${FIRMWARE_VARIANT:-}"
 FIRMWARE_RELEASE="${FIRMWARE_RELEASE:-}"
 FIRMWARE_ASSET="${FIRMWARE_ASSET:-}"
 FIRMWARE_LAYOUT_MODE="${FIRMWARE_LAYOUT_MODE:-unknown}"
+VYOS_VERSION="${VYOS_VERSION:-unknown}"
+RELEASE_BASENAME="${RELEASE_BASENAME:-vyos-${BOARD}}"
+UPDATE_PROVIDER="${UPDATE_PROVIDER:-unknown}"
 
 UBOOT_SOURCE="${UBOOT_SOURCE:-}"
 UBOOT_REF="${UBOOT_REF:-}"
@@ -50,7 +59,7 @@ if [[ "$FIRMWARE_PROVIDER" == "raspberrypi-native" ]]; then
     LAYOUT_DESCRIPTION="- GPT1 is a 512 MiB FAT32 \`RPICFG\` partition containing pinned Raspberry Pi firmware plus the matching kernel, initramfs and BCM2712 Device Tree
 - GPT2 is the unchanged official VyOS EFI filesystem
 - GPT3 is the unchanged VyOS persistence/system-image filesystem"
-    UPDATE_STATUS="Because native Raspberry Pi firmware boots the kernel from FAT rather than through GRUB, a future \`add system image\` operation also requires synchronization of the selected board kernel, initramfs and DTB to \`RPICFG\`. That update path is not yet validated by this experimental image and must not be assumed to work until the board-specific synchronization gate is implemented and hardware-tested."
+    UPDATE_STATUS="The release includes a VyOS system-image ISO, but native Raspberry Pi firmware boots the kernel from FAT rather than through GRUB. An \`add system image\` operation therefore also requires synchronization of the selected board kernel, initramfs and DTB to \`RPICFG\`. Do not use the ISO on this provider until that synchronization gate is implemented and hardware-tested."
     PROVIDER_VALIDATION="- [x] Raspberry Pi firmware-partition filesystem validation
 - [x] \`config.txt\`, \`cmdline.txt\`, kernel, initramfs and BCM2712 DTB validation
 - [x] FAT kernel equality with the built kernel artifact"
@@ -60,14 +69,18 @@ else
 - GPT1 length: \`${FIRMWARE_PART_SECTORS}\` sectors
 - GPT2 contains the original VyOS EFI filesystem
 - GPT3 contains VyOS persistence/system-image data"
-    UPDATE_STATUS="VyOS EFI/GRUB remains intact and the persistence partition stays GPT3 so the embedded GRUB prefix continues to resolve \`(,gpt3)/boot/grub\`. The normal VyOS system-image update mechanism still requires real-hardware validation for this board."
+    if [[ "$UPDATE_PROVIDER" == "efi-firmware-dtb" ]]; then
+        UPDATE_STATUS="VyOS EFI/GRUB remains intact and persistence stays GPT3. The release includes an ISO for the standard \`add system image\` workflow. This provider supplies the live Device Tree through firmware; the path has been validated on ROCK 5B hardware and still requires validation for every other exact board/provider combination."
+    else
+        UPDATE_STATUS="The release includes a VyOS system-image ISO. This provider requires a per-version DTB/GRUB synchronization gate after \`add system image\`; do not treat the ISO as production-ready until that gate and this exact board have been hardware-tested."
+    fi
     PROVIDER_VALIDATION="- [x] Provider-defined firmware integration"
 fi
 
 cat > "$OUT" <<EOF_NOTES
-# VyOS ARM64 ${BOARD_NAME} test image
+# VyOS ${VYOS_VERSION} for ${BOARD_NAME}
 
-Experimental VyOS ARM64 image for the ${BOARD_NAME}.
+Experimental VyOS ARM64 initial-installation image and system-update payload for the ${BOARD_NAME}.
 
 This image starts from the official VyOS ARM64 rolling userspace and keeps the native VyOS system-image/filesystem layout while adding the board-specific kernel, Device Tree, modules and firmware provider.
 
@@ -84,7 +97,8 @@ The image was created in these stages:
 7. Prepare the selected firmware provider and its board-specific layout.
 8. Assemble the final GPT image with firmware on/raw around GPT1, EFI on GPT2 and VyOS persistence on GPT3.
 9. Validate GPT, filesystems, initramfs, kernel config, DTB and payload consistency.
-10. Compress the final image as \`.img.xz\`.
+10. Build and checksum a standard VyOS system-image update ISO.
+11. Compress and checksum the initial-installation image as \`.img.xz\`.
 
 ## Hardware and build metadata
 
@@ -111,6 +125,10 @@ The image was created in these stages:
 - U-Boot ref: \`${UBOOT_REF:-n/a}\`
 - U-Boot patch set: \`${UBOOT_PATCHDIR:-n/a}\`
 - VyOS userspace: official VyOS rolling ARM64 build
+- VyOS version: \`${VYOS_VERSION}\`
+- Initial installation: \`${RELEASE_BASENAME}.img.xz\`
+- System-image update: \`${RELEASE_BASENAME}.iso\`
+- System-image update provider: \`${UPDATE_PROVIDER}\`
 
 ## Image layout
 
@@ -146,6 +164,9 @@ ${PROVIDER_VALIDATION}
 - [x] GPT validation
 - [x] Filesystem validation
 - [x] Image compression
+- [x] System-image ISO generation and checksum validation
+- [x] First-boot persistence expansion support
+- [x] Generic ARM CPU information display compatibility
 - [x] GitHub Actions artifact generation
 - [ ] This exact GitHub-generated image boot tested on real ${BOARD_NAME} hardware
 - [ ] This exact GitHub-generated image Ethernet tested on real ${BOARD_NAME} hardware

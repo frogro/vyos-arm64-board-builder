@@ -22,9 +22,19 @@ do
 done
 
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
+test -x "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.service"
 test -f "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.timer"
+test -f "$ROOTFS/etc/systemd/system/vyos-arm64-grow-persistence.service"
 test -L "$ROOTFS/etc/systemd/system/timers.target.wants/vyos-arm64-dhcp-wan-firstboot.timer"
+test -L "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-grow-persistence.service"
+
+grep -Fq '/usr/lib/live/mount/persistence' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
+grep -Fq 'resizepart "$PARTITION_NUMBER" 100%' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
+grep -Fq 'resize2fs "$SOURCE"' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 
 grep -Fq 'SSID="${SSID:-VyOS-AP}"' \
     "$STAGE/ap-dhcp-wan-setup.sh"

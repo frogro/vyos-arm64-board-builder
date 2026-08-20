@@ -118,6 +118,7 @@ ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
 FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
+ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
 [[ -x "$INSTALL_PROVIDER" ]] ||
@@ -125,6 +126,9 @@ GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
 [[ -x "$COMMON_ROOTFS_FINALIZER" ]] ||
     die "common VyOS rootfs finalizer missing: $COMMON_ROOTFS_FINALIZER"
+
+[[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
+    die "VyOS ARM CPU op-mode patcher missing: $ARM_CPU_OPMODE_PATCHER"
 
 [[ -x "$GRUB_CONSOLE_TOOL" ]] ||
     die "GRUB console-default tool missing: $GRUB_CONSOLE_TOOL"
@@ -462,6 +466,11 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
 "$COMMON_ROOTFS_FINALIZER" \
     "$BOARD" \
     "$SQUASH_ROOT"
+
+echo
+echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="
+
+python3 "$ARM_CPU_OPMODE_PATCHER" "$SQUASH_ROOT"
 
 echo
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
