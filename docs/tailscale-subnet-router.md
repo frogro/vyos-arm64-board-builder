@@ -1,8 +1,14 @@
 # Tailscale-ready VyOS ARM64 images
 
-The builder prepares every board image for a later, local Tailscale
-installation. It deliberately does not include Tailscale binaries, credentials,
+The builder prepares an image only when the optional Tailscale subnet-router
+profile is explicitly selected. The default is disabled so a base image remains
+close to stock VyOS. The profile deliberately does not include Tailscale binaries, credentials,
 tailnet identity, advertised routes or board-specific network policy.
+
+Interactive builds ask whether the profile should be enabled. Non-interactive
+builds use `TAILSCALE_SUBNET_ROUTER=yes|no`; GitHub Actions exposes the matching
+`tailscale_subnet_router` boolean input. When disabled, no Tailscale wrapper,
+service or readiness command is injected into the root filesystem.
 
 ## Persistent local layout
 

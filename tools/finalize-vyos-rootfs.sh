@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USAGE="Usage: $0 <board> <rootfs>"
+USAGE="Usage: $0 <board> <rootfs> [tailscale-subnet-router: yes|no]"
 
 BOARD="${1:?$USAGE}"
 ROOTFS="${2:?$USAGE}"
+TAILSCALE_SUBNET_ROUTER="${3:-no}"
+
+case "${TAILSCALE_SUBNET_ROUTER,,}" in
+    1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
+    0|false|no|n|off|disabled) TAILSCALE_SUBNET_ROUTER=no ;;
+    *)
+        echo "ERROR: invalid Tailscale profile value: $TAILSCALE_SUBNET_ROUTER" >&2
+        exit 1
+        ;;
+esac
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAYLOAD="$ROOT/tools/common-firstboot"
@@ -45,15 +55,15 @@ install \
     "$PAYLOAD/grow-persistence.sh" \
     "$SBIN_DIR/vyos-arm64-grow-persistence.sh"
 
-install \
-    -m 0755 \
-    "$PAYLOAD/tailscale-readiness.sh" \
-    "$SBIN_DIR/vyos-arm64-tailscale-readiness"
+if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    install -m 0755 \
+        "$PAYLOAD/tailscale-readiness.sh" \
+        "$SBIN_DIR/vyos-arm64-tailscale-readiness"
 
-install \
-    -m 0755 \
-    "$PAYLOAD/tailscale-wrapper.sh" \
-    "$SBIN_DIR/tailscale"
+    install -m 0755 \
+        "$PAYLOAD/tailscale-wrapper.sh" \
+        "$SBIN_DIR/tailscale"
+fi
 
 for unit in \
     vyos-arm64-dhcp-wan-firstboot.service \
@@ -66,9 +76,11 @@ install -m 0644 \
     "$PAYLOAD/vyos-arm64-grow-persistence.service" \
     "$UNIT_DIR/vyos-arm64-grow-persistence.service"
 
-install -m 0644 \
-    "$PAYLOAD/vyos-arm64-tailscaled.service" \
-    "$UNIT_DIR/vyos-arm64-tailscaled.service"
+if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    install -m 0644 \
+        "$PAYLOAD/vyos-arm64-tailscaled.service" \
+        "$UNIT_DIR/vyos-arm64-tailscaled.service"
+fi
 
 ln -sfn \
     ../vyos-arm64-dhcp-wan-firstboot.timer \
@@ -78,8 +90,10 @@ ln -sfn \
     ../vyos-arm64-grow-persistence.service \
     "$MULTI_USER_WANTS_DIR/vyos-arm64-grow-persistence.service"
 
-ln -sfn \
-    ../vyos-arm64-tailscaled.service \
-    "$MULTI_USER_WANTS_DIR/vyos-arm64-tailscaled.service"
+if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    ln -sfn \
+        ../vyos-arm64-tailscaled.service \
+        "$MULTI_USER_WANTS_DIR/vyos-arm64-tailscaled.service"
+fi
 
 echo "Installed common first-boot DHCP/SSH helpers for $BOARD"

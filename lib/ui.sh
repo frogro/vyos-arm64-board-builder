@@ -102,3 +102,44 @@ NOTICE
             ;;
     esac
 }
+
+select_tailscale_subnet_router() {
+    local requested="${TAILSCALE_SUBNET_ROUTER:-}"
+
+    if [[ -n "$requested" ]]; then
+        case "${requested,,}" in
+            1|true|yes|y|on|enabled)
+                printf 'yes\n'
+                return 0
+                ;;
+            0|false|no|n|off|disabled)
+                printf 'no\n'
+                return 0
+                ;;
+            *)
+                die "Invalid TAILSCALE_SUBNET_ROUTER value: $requested"
+                ;;
+        esac
+    fi
+
+    if [[ ! -t 0 ]]; then
+        printf 'no\n'
+        return 0
+    fi
+
+    cat >&2 <<'NOTICE'
+
+Optional Tailscale Subnet Router Support
+----------------------------------------
+This profile adds only the kernel validation, persistent service wrapper and
+runtime readiness tooling for a later local Tailscale installation. It does
+not install Tailscale, authenticate a node or advertise any routes.
+NOTICE
+
+    read -r -p 'Prepare this image as a Tailscale subnet router? [y/N] ' requested
+
+    case "${requested,,}" in
+        y|yes) printf 'yes\n' ;;
+        *) printf 'no\n' ;;
+    esac
+}

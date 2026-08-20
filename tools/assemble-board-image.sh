@@ -13,6 +13,13 @@ MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
 BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
+FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
+
+TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
+if [[ -f "$FEATURE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$FEATURE_SELECTION"
+fi
 
 SECTOR_SIZE=512
 
@@ -465,7 +472,8 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
 
 "$COMMON_ROOTFS_FINALIZER" \
     "$BOARD" \
-    "$SQUASH_ROOT"
+    "$SQUASH_ROOT" \
+    "$TAILSCALE_SUBNET_ROUTER"
 
 echo
 echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="

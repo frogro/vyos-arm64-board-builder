@@ -27,6 +27,12 @@ on:
         default: false
         type: boolean
 
+      tailscale_subnet_router:
+        description: "Prepare persistent local Tailscale subnet-router support"
+        required: true
+        default: false
+        type: boolean
+
       armbian_ref:
         description: "Exact Armbian build branch, tag or commit"
         required: true
@@ -58,6 +64,7 @@ jobs:
       BOARD: ${{ inputs.board || 'raspberry-pi-5' }}
       HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
       EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
+      TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
       BOOT_BRANCH: auto
       VYOS_BRANCH: rolling
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
@@ -82,6 +89,7 @@ jobs:
           python3 tests/test-release-identity.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
+          bash tests/test-tailscale-selection.sh
           bash tests/test-extended-network-resolver.sh
           bash tests/test-network-firmware.sh
 

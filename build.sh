@@ -50,6 +50,7 @@ main() {
     local armbian_board=""
     local vyos_branch="${VYOS_BRANCH:-rolling}"
     local extended_network=""
+    local tailscale_subnet_router=""
 
     #
     # Match the official VyOS kernel build. The VyOS defconfig keeps
@@ -96,6 +97,7 @@ main() {
     # to detect network hardware on the GitHub runner/build host.
     #
     extended_network="$(select_extended_network)"
+    tailscale_subnet_router="$(select_tailscale_subnet_router)"
 
     kernel_version="$(
         vyos_kernel_version |
@@ -115,6 +117,10 @@ main() {
         printf 'EXTENDED_NETWORK_PROFILE=%q\n' \
             'profiles/extended-network-drivers.txt'
     } > "${selection_dir}/extended-network.env"
+
+    {
+        printf 'TAILSCALE_SUBNET_ROUTER=%q\n' "${tailscale_subnet_router}"
+    } > "${selection_dir}/feature-profiles.env"
 
     info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
 
@@ -232,6 +238,7 @@ main() {
     info "Board DTB:      ${dtb:-unknown}"
     info "VyOS branch:    ${vyos_branch}"
     info "Extended net:   ${extended_network}"
+    info "Tailscale:      ${tailscale_subnet_router}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -541,10 +548,14 @@ main() {
 
     local tailscale_ready_out="${config_out}/tailscale-ready"
 
-    python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
-        --kernel-config "${config_out}/generated-final.config" \
-        --requirements "${ROOT_DIR}/profiles/tailscale-ready.config" \
-        --output-dir "${tailscale_ready_out}"
+    if [[ "${tailscale_subnet_router}" == "yes" ]]; then
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --requirements "${ROOT_DIR}/profiles/tailscale-ready.config" \
+            --output-dir "${tailscale_ready_out}"
+    else
+        rm -rf "${tailscale_ready_out}"
+    fi
 
     if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
         info "Validating promoted board-model requirements..."
@@ -561,7 +572,11 @@ main() {
     echo "Board fragment: ${config_out}/generated-board.config"
     echo "Final config:    ${config_out}/generated-final.config"
     echo "Validation:      ${config_out}/validation.txt"
-    echo "Tailscale ready: ${tailscale_ready_out}/tailscale-ready.txt"
+    if [[ "${tailscale_subnet_router}" == "yes" ]]; then
+        echo "Tailscale ready: ${tailscale_ready_out}/tailscale-ready.txt"
+    else
+        echo "Tailscale ready: disabled"
+    fi
     echo
     echo "Validation FAIL: 0"
     echo "Kconfig unresolved: 0"
@@ -757,6 +772,7 @@ main() {
     echo "Kernel config:  ${artifacts}/kernel.config"
     echo "Kernel release: ${kernel_release}"
     echo "Extended net:   ${extended_network}"
+    echo "Tailscale:      ${tailscale_subnet_router}"
     echo "Network report: ${artifacts}/network-firmware/extended-network-report.txt"
     echo
     info "VyOS ARM64 board kernel build completed successfully."
