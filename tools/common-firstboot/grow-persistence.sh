@@ -7,19 +7,68 @@ set -u
 
 MARKER="/config/.vyos-arm64-persistence-grown"
 MOUNTPOINT="/usr/lib/live/mount/persistence"
+SYS_CLASS_BLOCK="${SYS_CLASS_BLOCK:-/sys/class/block}"
 
 log()
 {
     printf '%s %s\n' "$(date -Is)" "vyos-arm64-grow-persistence: $*"
 }
 
+resolve_partition()
+{
+    local source="$1"
+    local device_name
+    local device_sysfs
+    local parent_name
+    local partition_number
+
+    device_name="$(basename "$source")"
+    device_sysfs="$SYS_CLASS_BLOCK/$device_name"
+
+    [[ -r "$device_sysfs/partition" ]] || return 1
+
+    partition_number="$(cat "$device_sysfs/partition")"
+    [[ "$partition_number" =~ ^[0-9]+$ ]] || return 1
+
+    parent_name="$(
+        basename "$(dirname "$(readlink -f "$device_sysfs")")"
+    )"
+    [[ -n "$parent_name" && "$parent_name" != "$device_name" ]] || return 1
+
+    printf '%s %s\n' "$parent_name" "$partition_number"
+}
+
+last_partition_number()
+{
+    local parent_name="$1"
+    local candidate
+    local candidate_parent
+    local candidate_number
+    local last=0
+
+    for candidate in "$SYS_CLASS_BLOCK"/*; do
+        [[ -r "$candidate/partition" ]] || continue
+        candidate_parent="$(
+            basename "$(dirname "$(readlink -f "$candidate")")"
+        )"
+        [[ "$candidate_parent" == "$parent_name" ]] || continue
+
+        candidate_number="$(cat "$candidate/partition")"
+        [[ "$candidate_number" =~ ^[0-9]+$ ]] || continue
+        (( candidate_number > last )) && last="$candidate_number"
+    done
+
+    (( last > 0 )) || return 1
+    printf '%s\n' "$last"
+}
+
+main()
+{
 [[ -e "$MARKER" ]] && exit 0
 
 for cmd in \
-    awk \
     blockdev \
     findmnt \
-    lsblk \
     parted \
     partprobe \
     partx \
@@ -42,9 +91,11 @@ SOURCE="$(readlink -f "$SOURCE" 2>/dev/null || true)"
     exit 1
 }
 
-PARENT="$(lsblk -dnro PKNAME "$SOURCE" 2>/dev/null || true)"
-PARTITION_NUMBER="$(lsblk -dnro PARTN "$SOURCE" 2>/dev/null || true)"
-FILESYSTEM_TYPE="$(lsblk -dnro FSTYPE "$SOURCE" 2>/dev/null || true)"
+PARTITION_IDENTITY="$(resolve_partition "$SOURCE" 2>/dev/null || true)"
+read -r PARENT PARTITION_NUMBER <<< "$PARTITION_IDENTITY"
+FILESYSTEM_TYPE="$(
+    findmnt -n -o FSTYPE --target "$MOUNTPOINT" 2>/dev/null || true
+)"
 
 [[ -n "$PARENT" && "$PARTITION_NUMBER" =~ ^[0-9]+$ ]] || {
     log "persistence source is not a resolvable partition: $SOURCE"
@@ -58,8 +109,7 @@ FILESYSTEM_TYPE="$(lsblk -dnro FSTYPE "$SOURCE" 2>/dev/null || true)"
 
 DISK="/dev/$PARENT"
 LAST_PARTITION_NUMBER="$(
-    lsblk -lnro PARTN "$DISK" |
-        awk 'NF { last = $1 } END { print last }'
+    last_partition_number "$PARENT" 2>/dev/null || true
 )"
 
 [[ "$PARTITION_NUMBER" == "$LAST_PARTITION_NUMBER" ]] || {
@@ -69,7 +119,7 @@ LAST_PARTITION_NUMBER="$(
 
 BEFORE_BYTES="$(blockdev --getsize64 "$SOURCE")"
 DISK_SECTORS="$(blockdev --getsz "$DISK")"
-PARTITION_START_SECTORS="$(lsblk -dnro START "$SOURCE")"
+PARTITION_START_SECTORS="$(cat "$SYS_CLASS_BLOCK/$(basename "$SOURCE")/start")"
 PARTITION_SECTORS="$(blockdev --getsz "$SOURCE")"
 FREE_TAIL_SECTORS=$((
     DISK_SECTORS - PARTITION_START_SECTORS - PARTITION_SECTORS
@@ -108,3 +158,8 @@ resize2fs "$SOURCE"
 touch "$MARKER"
 chmod 600 "$MARKER"
 log "expanded persistence from $BEFORE_BYTES to $AFTER_BYTES bytes"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

@@ -56,9 +56,10 @@ The compressed initial image deliberately remains small. On first boot,
 `vyos-arm64-grow-persistence.service` resolves the mounted persistence block
 device, repairs a relocated GPT backup header, extends the final persistence
 partition and grows ext4 online. It does not hard-code MMC, NVMe or USB device
-names. If the kernel cannot reread the expanded partition table while it is
-mounted, the service leaves no completion marker and retries after the next
-boot.
+names and resolves partition identity through the kernel's stable sysfs
+metadata rather than optional `lsblk` columns. If the kernel cannot reread the
+expanded partition table while it is mounted, the service leaves no completion
+marker and retries after the next boot.
 
 The image build also applies a guarded compatibility fix to VyOS
 `show hardware cpu`. It preserves the existing x86 fields and adds display

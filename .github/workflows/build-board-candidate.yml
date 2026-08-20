@@ -76,6 +76,7 @@ jobs:
           python3 tests/test-model-requirements.py
           python3 tests/test-grub-console-default.py
           bash tests/test-common-firstboot.sh
+          bash tests/test-grow-persistence-resolver.sh
           python3 tests/test-extended-network-profile.py
           python3 tests/test-release-identity.py
           python3 tests/test-arm-cpu-opmode.py

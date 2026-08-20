@@ -35,6 +35,10 @@ grep -Fq 'resizepart "$PARTITION_NUMBER" 100%' \
     "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 grep -Fq 'resize2fs "$SOURCE"' \
     "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
+grep -Fq '"$device_sysfs/partition"' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
+grep -Fq 'findmnt -n -o FSTYPE' \
+    "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 
 grep -Fq 'SSID="${SSID:-VyOS-AP}"' \
     "$STAGE/ap-dhcp-wan-setup.sh"
