@@ -118,9 +118,14 @@ main() {
             'profiles/extended-network-drivers.txt'
     } > "${selection_dir}/extended-network.env"
 
-    {
-        printf 'TAILSCALE_SUBNET_ROUTER=%q\n' "${tailscale_subnet_router}"
-    } > "${selection_dir}/feature-profiles.env"
+    python3 "${ROOT_DIR}/tools/feature-profile.py" \
+        --extended-network "${extended_network}" \
+        --tailscale-subnet-router "${tailscale_subnet_router}" \
+        --output-env "${selection_dir}/feature-profiles.env" \
+        --output-json "${selection_dir}/feature-profile.json"
+
+    # shellcheck disable=SC1090
+    source "${selection_dir}/feature-profiles.env"
 
     info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
 
@@ -239,6 +244,7 @@ main() {
     info "VyOS branch:    ${vyos_branch}"
     info "Extended net:   ${extended_network}"
     info "Tailscale:      ${tailscale_subnet_router}"
+    info "Build profile:  ${BUILD_PROFILE}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -773,6 +779,7 @@ main() {
     echo "Kernel release: ${kernel_release}"
     echo "Extended net:   ${extended_network}"
     echo "Tailscale:      ${tailscale_subnet_router}"
+    echo "Build profile:  ${BUILD_PROFILE}"
     echo "Network report: ${artifacts}/network-firmware/extended-network-report.txt"
     echo
     info "VyOS ARM64 board kernel build completed successfully."

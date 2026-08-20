@@ -18,7 +18,7 @@ VERSION_RE = re.compile(
 BOARD_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
-def derive(version: str, board: str) -> dict[str, str]:
+def derive(version: str, board: str, profile: str = "base") -> dict[str, str]:
     match = VERSION_RE.fullmatch(version)
     if match is None:
         raise ValueError(
@@ -26,6 +26,8 @@ def derive(version: str, board: str) -> dict[str, str]:
         )
     if BOARD_RE.fullmatch(board) is None:
         raise ValueError("invalid board slug: " + board)
+    if BOARD_RE.fullmatch(profile) is None:
+        raise ValueError("invalid profile slug: " + profile)
 
     stamp = match.group("stamp")
     parsed = datetime.strptime(stamp, "%Y%m%d%H%M")
@@ -33,8 +35,9 @@ def derive(version: str, board: str) -> dict[str, str]:
 
     return {
         "VYOS_VERSION": version,
-        "RELEASE_BASENAME": f"vyos-{version}-{board}",
-        "RELEASE_TAG": f"{parsed:%Y.%m.%d-%H%M}-{train}-{board}",
+        "BUILD_PROFILE": profile,
+        "RELEASE_BASENAME": f"vyos-{version}-{board}-{profile}",
+        "RELEASE_TAG": f"{parsed:%Y.%m.%d-%H%M}-{train}-{board}-{profile}",
     }
 
 
@@ -42,10 +45,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", required=True)
     parser.add_argument("--board", required=True)
+    parser.add_argument("--profile", default="base")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    values = derive(args.version, args.board)
+    values = derive(args.version, args.board, args.profile)
     text = "".join(
         f"{name}={shlex.quote(value)}\n" for name, value in values.items()
     )

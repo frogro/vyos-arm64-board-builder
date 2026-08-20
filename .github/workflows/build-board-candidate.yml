@@ -87,6 +87,7 @@ jobs:
           python3 tests/test-tailscale-ready.py
           python3 tests/test-extended-network-profile.py
           python3 tests/test-release-identity.py
+          python3 tests/test-feature-profile.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
           bash tests/test-tailscale-selection.sh
@@ -387,6 +388,7 @@ jobs:
             work/build/${{ env.BOARD }}/vyos-*.iso
             work/build/${{ env.BOARD }}/vyos-*.iso.sha256
             work/build/${{ env.BOARD }}/release.env
+            work/build/${{ env.BOARD }}/board-manifest.json
             work/build/${{ env.BOARD }}/artifacts/kernel.release
             work/build/${{ env.BOARD }}/artifacts/kernel.config
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
@@ -394,6 +396,8 @@ jobs:
             work/build/${{ env.BOARD }}/boot/boot-manifest.env
             work/build/${{ env.BOARD }}/selection/selected-reference.env
             work/build/${{ env.BOARD }}/selection/extended-network.env
+            work/build/${{ env.BOARD }}/selection/feature-profiles.env
+            work/build/${{ env.BOARD }}/selection/feature-profile.json
           if-no-files-found: error
           compression-level: 0
 
@@ -435,6 +439,7 @@ jobs:
             "work/build/${BOARD}/${RELEASE_BASENAME}.iso" \
             "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256" \
             "work/build/${BOARD}/release.env" \
+            "work/build/${BOARD}/board-manifest.json" \
             "work/build/${BOARD}/artifacts/kernel.release" \
             "work/build/${BOARD}/artifacts/kernel.config" \
             "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt" \
@@ -442,4 +447,5 @@ jobs:
             "work/build/${BOARD}/artifacts/network-firmware/required-firmware.txt" \
             "work/build/${BOARD}/artifacts/network-firmware/installed-firmware.txt" \
             "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt" \
-            "work/build/${BOARD}/boot/boot-manifest.env"
+            "work/build/${BOARD}/boot/boot-manifest.env" \
+            "work/build/${BOARD}/selection/feature-profile.json"

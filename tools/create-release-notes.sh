@@ -7,6 +7,7 @@ ROOT="${2:-work/build/$BOARD}"
 MANIFEST="$ROOT/boot/boot-manifest.env"
 KERNEL_FILE="$ROOT/artifacts/kernel.release"
 NETWORK_SELECTION="$ROOT/selection/extended-network.env"
+FEATURE_SELECTION="$ROOT/selection/feature-profiles.env"
 RELEASE_ENV="$ROOT/release.env"
 OUT="$ROOT/RELEASE_NOTES.md"
 
@@ -24,10 +25,17 @@ OUT="$ROOT/RELEASE_NOTES.md"
 source "$MANIFEST"
 
 EXTENDED_NETWORK="no"
+TAILSCALE_SUBNET_ROUTER="no"
+BUILD_PROFILE="base"
 
 if [[ -f "$NETWORK_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$NETWORK_SELECTION"
+fi
+
+if [[ -f "$FEATURE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$FEATURE_SELECTION"
 fi
 
 if [[ -f "$RELEASE_ENV" ]]; then
@@ -114,7 +122,9 @@ The image was created in these stages:
 - VyOS/reference kernel line: \`${VYOS_KERNEL_MAJOR_MINOR:-unknown}\` / \`${REFERENCE_KERNEL_MAJOR_MINOR:-unknown}\`
 - Boot reference branch: \`${BOOT_BRANCH}\`
 - Kernel: \`${KERNEL_RELEASE}\`
+- Build profile: \`${BUILD_PROFILE}\`
 - Extended Network drivers and firmware: \`${EXTENDED_NETWORK}\`
+- Tailscale subnet-router preparation: \`${TAILSCALE_SUBNET_ROUTER}\`
 - Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
 - Firmware provider: \`${FIRMWARE_PROVIDER}\`
 - Firmware variant: \`${FIRMWARE_VARIANT:-n/a}\`

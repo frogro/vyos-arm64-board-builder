@@ -3,10 +3,10 @@
 Each board build produces two user-facing artifacts from the same kernel,
 initramfs and SquashFS payload:
 
-- `vyos-<version>-<board>.img.xz` is the initial-installation and recovery
+- `vyos-<version>-<board>-<profile>.img.xz` is the initial-installation and recovery
   image. It contains the provider boot chain, GPT, EFI and VyOS persistence
   filesystems.
-- `vyos-<version>-<board>.iso` is the system-image payload consumed by the
+- `vyos-<version>-<board>-<profile>.iso` is the system-image payload consumed by the
   standard VyOS `add system image` command.
 
 Both files have adjacent `.sha256` files whose entries use basenames, so they
@@ -18,22 +18,30 @@ For VyOS version `1.5-rolling-202608200300` and board `rock-5b`, the builder
 publishes:
 
 ```text
-Tag: 2026.08.20-0300-rolling-rock-5b
-vyos-1.5-rolling-202608200300-rock-5b.img.xz
-vyos-1.5-rolling-202608200300-rock-5b.iso
+Tag: 2026.08.20-0300-rolling-rock-5b-base
+vyos-1.5-rolling-202608200300-rock-5b-base.img.xz
+vyos-1.5-rolling-202608200300-rock-5b-base.iso
 ```
 
-The board suffix is necessary while multiple boards share one release
-repository. A future dedicated repository for one board can omit the suffix
-from the tag while keeping it in asset filenames.
+The profile is derived from the selected build features and is never arbitrary:
+
+- `base`: neither optional feature selected;
+- `network`: Extended Network selected;
+- `tailscale`: Tailscale subnet-router preparation selected;
+- `network-tailscale`: both features selected.
+
+The same profile is recorded in the running root filesystem, release metadata
+and ISO manifest. This makes mismatches visible and keeps future feature
+profiles extensible without silently changing a stock-like base image.
 
 ## Update providers
 
 The ISO contains `board-manifest.json`, which records the board identifier,
-root Device Tree compatible strings, DTB path, firmware provider and update
-provider. The current stock VyOS installer ignores these additional metadata;
-they are included for validation tooling and a future board-compatibility
-gate.
+root Device Tree compatible strings, DTB path, firmware provider, update
+provider, exact build profile and feature flags. The current stock VyOS
+installer ignores these additional metadata; they are included for validation
+tooling and a future board/profile compatibility gate. Until that gate exists,
+only install an ISO whose board and profile match the running image.
 
 Provider modes are:
 

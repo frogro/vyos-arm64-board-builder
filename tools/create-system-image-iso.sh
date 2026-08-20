@@ -9,6 +9,7 @@ OUTPUT_DIR="${3:?Usage: $0 <board> <board.img> <output-dir>}"
 
 MANIFEST="$ROOT/work/build/$BOARD/boot/boot-manifest.env"
 IDENTITY_TOOL="$ROOT/tools/release-identity.py"
+FEATURE_ENV="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 
 die()
 {
@@ -46,6 +47,14 @@ done
 
 # shellcheck disable=SC1090
 source "$MANIFEST"
+
+BUILD_PROFILE="base"
+EXTENDED_NETWORK="no"
+TAILSCALE_SUBNET_ROUTER="no"
+if [[ -f "$FEATURE_ENV" ]]; then
+    # shellcheck disable=SC1090
+    source "$FEATURE_ENV"
+fi
 
 [[ -n "${BOOT_FDT_FILE:-}" ]] || die "BOOT_FDT_FILE missing from manifest"
 [[ -n "${BOARD_NAME:-}" ]] || die "BOARD_NAME missing from manifest"
@@ -141,6 +150,7 @@ RELEASE_ENV="$OUTPUT_DIR/release.env"
 python3 "$IDENTITY_TOOL" \
     --version "$VERSION" \
     --board "$BOARD" \
+    --profile "$BUILD_PROFILE" \
     --output "$RELEASE_ENV"
 
 # shellcheck disable=SC1090
@@ -165,14 +175,17 @@ python3 - \
     "$BOOT_FDT_FILE" \
     "$FIRMWARE_PROVIDER" \
     "$UPDATE_PROVIDER" \
+    "$BUILD_PROFILE" \
+    "$EXTENDED_NETWORK" \
+    "$TAILSCALE_SUBNET_ROUTER" \
     "${COMPATIBLE[@]}" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, name, dtb, firmware, update_provider, *compatible = sys.argv[1:]
+output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, *compatible = sys.argv[1:]
 Path(output).write_text(json.dumps({
-    "schema": 1,
+    "schema": 2,
     "architecture": "arm64",
     "board": board,
     "board_name": name,
@@ -180,8 +193,17 @@ Path(output).write_text(json.dumps({
     "device_tree": dtb,
     "firmware_provider": firmware,
     "update_provider": update_provider,
+    "profile": profile,
+    "profile_compatibility": "exact",
+    "features": {
+        "extended_network": extended_network == "yes",
+        "tailscale_subnet_router": tailscale == "yes",
+    },
 }, indent=2) + "\n")
 PY
+
+install -m 0644 "$ISO_ROOT/board-manifest.json" \
+    "$OUTPUT_DIR/board-manifest.json"
 
 (
     cd "$ISO_ROOT"

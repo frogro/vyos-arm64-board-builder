@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USAGE="Usage: $0 <board> <rootfs> [tailscale-subnet-router: yes|no]"
+USAGE="Usage: $0 <board> <rootfs> [tailscale yes|no] [network yes|no] [profile]"
 
 BOARD="${1:?$USAGE}"
 ROOTFS="${2:?$USAGE}"
 TAILSCALE_SUBNET_ROUTER="${3:-no}"
+EXTENDED_NETWORK="${4:-no}"
+BUILD_PROFILE="${5:-base}"
 
 case "${TAILSCALE_SUBNET_ROUTER,,}" in
     1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
@@ -15,6 +17,32 @@ case "${TAILSCALE_SUBNET_ROUTER,,}" in
         exit 1
         ;;
 esac
+
+case "${EXTENDED_NETWORK,,}" in
+    1|true|yes|y|on|enabled) EXTENDED_NETWORK=yes ;;
+    0|false|no|n|off|disabled) EXTENDED_NETWORK=no ;;
+    *)
+        echo "ERROR: invalid Extended Network value: $EXTENDED_NETWORK" >&2
+        exit 1
+        ;;
+esac
+
+[[ "$BUILD_PROFILE" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || {
+    echo "ERROR: invalid build profile: $BUILD_PROFILE" >&2
+    exit 1
+}
+
+case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}" in
+    no:no) EXPECTED_PROFILE=base ;;
+    yes:no) EXPECTED_PROFILE=network ;;
+    no:yes) EXPECTED_PROFILE=tailscale ;;
+    yes:yes) EXPECTED_PROFILE=network-tailscale ;;
+esac
+
+[[ "$BUILD_PROFILE" == "$EXPECTED_PROFILE" ]] || {
+    echo "ERROR: build profile '$BUILD_PROFILE' does not match selected features; expected '$EXPECTED_PROFILE'" >&2
+    exit 1
+}
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAYLOAD="$ROOT/tools/common-firstboot"
@@ -30,6 +58,27 @@ UNIT_DIR="$ROOTFS/etc/systemd/system"
 WANTS_DIR="$UNIT_DIR/timers.target.wants"
 
 install -d -m 0755 "$STAGE_DIR" "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
+
+PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
+install -d -m 0755 "$PROFILE_DIR"
+python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
+    "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+output, board, profile, network, tailscale = sys.argv[1:]
+Path(output).write_text(json.dumps({
+    "schema": 1,
+    "architecture": "arm64",
+    "board": board,
+    "profile": profile,
+    "features": {
+        "extended_network": network == "yes",
+        "tailscale_subnet_router": tailscale == "yes",
+    },
+}, indent=2) + "\n")
+PY
 
 MULTI_USER_WANTS_DIR="$UNIT_DIR/multi-user.target.wants"
 install -d -m 0755 "$MULTI_USER_WANTS_DIR"

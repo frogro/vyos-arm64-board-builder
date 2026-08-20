@@ -10,7 +10,17 @@ mkdir -p "$ROOTFS"
 
 STAGE="$ROOTFS/usr/local/share/vyos-arm64-firstboot"
 
-bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$ROOTFS" no
+bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$ROOTFS" no no base
+
+python3 - "$ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+assert data["profile"] == "base"
+assert data["features"] == {
+    "extended_network": False,
+    "tailscale_subnet_router": False,
+}
+PY
 
 for script in \
     ap-dhcp-wan-setup.sh \
@@ -35,7 +45,21 @@ test ! -e "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-tailsca
 
 TAILSCALE_ROOTFS="$WORK/tailscale-rootfs"
 mkdir -p "$TAILSCALE_ROOTFS"
-bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$TAILSCALE_ROOTFS" yes
+bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$TAILSCALE_ROOTFS" yes no tailscale
+
+python3 - "$TAILSCALE_ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+assert data["profile"] == "tailscale"
+assert data["features"]["tailscale_subnet_router"] is True
+PY
+
+if bash "$ROOT/tools/finalize-vyos-rootfs.sh" \
+    test-board "$WORK/invalid-rootfs" yes no base >/dev/null 2>&1
+then
+    echo "ERROR: mismatched build profile was accepted" >&2
+    exit 1
+fi
 
 test -x "$TAILSCALE_ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
 test -x "$TAILSCALE_ROOTFS/usr/local/sbin/tailscale"

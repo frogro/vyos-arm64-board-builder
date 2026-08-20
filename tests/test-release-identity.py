@@ -16,14 +16,19 @@ SPEC.loader.exec_module(MODULE)
 class ReleaseIdentityTests(unittest.TestCase):
     def test_nightly_style_names(self):
         self.assertEqual(
-            MODULE.derive("1.5-rolling-202608200300", "raspberry-pi-5"),
+            MODULE.derive(
+                "1.5-rolling-202608200300",
+                "raspberry-pi-5",
+                "network-tailscale",
+            ),
             {
                 "VYOS_VERSION": "1.5-rolling-202608200300",
+                "BUILD_PROFILE": "network-tailscale",
                 "RELEASE_BASENAME": (
-                    "vyos-1.5-rolling-202608200300-raspberry-pi-5"
+                    "vyos-1.5-rolling-202608200300-raspberry-pi-5-network-tailscale"
                 ),
                 "RELEASE_TAG": (
-                    "2026.08.20-0300-rolling-raspberry-pi-5"
+                    "2026.08.20-0300-rolling-raspberry-pi-5-network-tailscale"
                 ),
             },
         )
@@ -35,6 +40,10 @@ class ReleaseIdentityTests(unittest.TestCase):
     def test_invalid_board_is_rejected(self):
         with self.assertRaises(ValueError):
             MODULE.derive("1.5-rolling-202608200300", "Rock 5B")
+
+    def test_invalid_profile_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive("1.5-rolling-202608200300", "rock-5b", "Tail Scale")
 
 
 if __name__ == "__main__":
