@@ -116,9 +116,17 @@ INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
 ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
 FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
+COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
+GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
 [[ -x "$INSTALL_PROVIDER" ]] ||
     die "firmware provider installer missing: $INSTALL_PROVIDER"
+
+[[ -x "$COMMON_ROOTFS_FINALIZER" ]] ||
+    die "common VyOS rootfs finalizer missing: $COMMON_ROOTFS_FINALIZER"
+
+[[ -x "$GRUB_CONSOLE_TOOL" ]] ||
+    die "GRUB console-default tool missing: $GRUB_CONSOLE_TOOL"
 
 DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 
@@ -440,6 +448,13 @@ if [[ -x "$ROOTFS_PROVIDER" ]]; then
 fi
 
 echo
+echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
+
+"$COMMON_ROOTFS_FINALIZER" \
+    "$BOARD" \
+    "$SQUASH_ROOT"
+
+echo
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
 
 [[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||
@@ -577,6 +592,13 @@ cfg.write_text(text)
 
 print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
+
+echo
+echo "===== SELECTING GRAPHICAL VYOS CONSOLE ====="
+
+python3 "$GRUB_CONSOLE_TOOL" \
+    "$DST_MNT/boot/grub" \
+    --console-type tty
 
 if [[ -x "$FINALIZE_PROVIDER" ]]; then
     echo

@@ -67,6 +67,8 @@ jobs:
           python3 tests/test-early-of-declarations.py
           python3 tests/test-config-validation.py
           python3 tests/test-model-requirements.py
+          python3 tests/test-grub-console-default.py
+          bash tests/test-common-firstboot.sh
 
       - name: Show initial disk space
         run: df -h
