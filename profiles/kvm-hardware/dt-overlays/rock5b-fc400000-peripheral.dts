@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+/plugin/;
+
+/*
+ * ROCK 5B Profile-D experimental USB gadget routing.
+ *
+ * The RK3588 SoC describes usb@fc400000 as OTG capable, while the
+ * ROCK 5B board Device Tree overrides it to host mode.
+ *
+ * Test stage 1 changes ONLY the controller role.
+ *
+ * Deliberately NOT changed here:
+ *   - usb@fc000000
+ *   - HDMI-RX
+ *   - vcc5v0_host / USB VBUS
+ *   - ConfigFS/HID gadget creation
+ *
+ * VBUS safety must be validated separately before connecting this
+ * USB-A port to another USB host.
+ */
+
+ / {
+    fragment@0 {
+        target-path = "/usb@fc400000";
+
+        __overlay__ {
+            dr_mode = "peripheral";
+        };
+    };
+};

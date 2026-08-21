@@ -35,6 +35,10 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertEqual("rk3588-synopsys-hdmirx", result["provider"])
         self.assertEqual("exact", result["selection"])
         self.assertEqual("yes", result["hid_gadget"])
+        self.assertEqual(
+            "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts",
+            result["dt_overlay"],
+        )
         MODULE.validate_paths(ROOT, result)
 
     def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
@@ -42,11 +46,13 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertEqual("generic-v4l2", result["provider"])
         self.assertEqual("generic", result["selection"])
         self.assertEqual("", result["kernel_config"])
+        self.assertEqual("", result["dt_overlay"])
 
     def test_other_rk3588_board_is_not_inferred_from_soc_name(self) -> None:
         result = MODULE.select(self.entries, "orangepi-5-plus", True)
         self.assertEqual("generic-v4l2", result["provider"])
         self.assertEqual("generic", result["selection"])
+        self.assertEqual("", result["dt_overlay"])
 
     def test_disabled_profile_has_no_hardware_delta(self) -> None:
         result = MODULE.select(self.entries, "rock-5b", False)
@@ -66,7 +72,13 @@ class KvmHardwareProviderTests(unittest.TestCase):
                 "--output-env", str(env),
                 "--output-json", str(report),
             ], check=True)
-            self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env.read_text())
+            env_text = env.read_text()
+            self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env_text)
+            self.assertIn(
+                "KVM_HARDWARE_DT_OVERLAY=profiles/kvm-hardware/dt-overlays/"
+                "rock5b-fc400000-peripheral.dts",
+                env_text,
+            )
             self.assertIn('"selection": "exact"', report.read_text())
 
     def test_readiness_validator_can_require_host_mode_disabled(self) -> None:

@@ -33,9 +33,9 @@ def read_registry(path: Path) -> list[dict[str, str]]:
         if not line or line.startswith("#"):
             continue
         parts = [part.strip() for part in line.split("|")]
-        if len(parts) != 6:
-            raise ValueError(f"{path}:{number}: expected six pipe-separated fields")
-        board, provider, config, ready, backend, hid = parts
+        if len(parts) != 7:
+            raise ValueError(f"{path}:{number}: expected seven pipe-separated fields")
+        board, provider, config, ready, backend, hid, dt_overlay = parts
         if not BOARD.fullmatch(board):
             raise ValueError(f"{path}:{number}: invalid board: {board}")
         if board in seen:
@@ -52,6 +52,7 @@ def read_registry(path: Path) -> list[dict[str, str]]:
             "ready_config": ready,
             "capture_backend": backend,
             "hid_gadget": hid,
+            "dt_overlay": dt_overlay,
         })
     return entries
 
@@ -65,6 +66,7 @@ def select(entries: list[dict[str, str]], board: str, enabled: bool) -> dict[str
             "ready_config": "",
             "capture_backend": "disabled",
             "hid_gadget": "no",
+            "dt_overlay": "",
             "selection": "disabled",
         }
     exact = next((entry for entry in entries if entry["board"] == board), None)
@@ -80,7 +82,7 @@ def select(entries: list[dict[str, str]], board: str, enabled: bool) -> dict[str
 
 def validate_paths(root: Path, result: dict[str, str]) -> None:
     root = root.resolve()
-    for field in ("kernel_config", "ready_config"):
+    for field in ("kernel_config", "ready_config", "dt_overlay"):
         relative = result[field]
         if not relative:
             continue
@@ -121,6 +123,7 @@ def main() -> None:
         "KVM_HARDWARE_READY_CONFIG": result["ready_config"],
         "KVM_CAPTURE_BACKEND": result["capture_backend"],
         "KVM_HID_GADGET": result["hid_gadget"],
+        "KVM_HARDWARE_DT_OVERLAY": result["dt_overlay"],
         "KVM_HARDWARE_SELECTION": result["selection"],
     }
     args.output_env.parent.mkdir(parents=True, exist_ok=True)

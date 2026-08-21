@@ -264,6 +264,7 @@ main() {
     info "KVM-over-IP:    ${kvm_over_ip}"
     info "KVM HW provider:${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
     info "KVM capture:    ${KVM_CAPTURE_BACKEND}"
+    info "KVM DT overlay: ${KVM_HARDWARE_DT_OVERLAY:-none}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -716,6 +717,53 @@ main() {
 
     [[ -s "${final_dtb}" ]] ||
         die "Final board DTB was not generated"
+
+    #
+    # An exact-board KVM hardware provider may optionally apply a Device
+    # Tree overlay to the FINAL DTB. The stock DTB used above for generic
+    # hardware discovery deliberately remains untouched.
+    #
+    # This mechanism is generic. The provider registry decides which exact
+    # board is allowed to use which overlay.
+    #
+    if [[ -n "${KVM_HARDWARE_DT_OVERLAY:-}" ]]; then
+        command -v dtc >/dev/null 2>&1 ||
+            die "dtc required for KVM DT overlay"
+        command -v fdtoverlay >/dev/null 2>&1 ||
+            die "fdtoverlay required for KVM DT overlay"
+
+        local kvm_overlay_source="${ROOT_DIR}/${KVM_HARDWARE_DT_OVERLAY}"
+        local kvm_overlay_work="${ROOT_DIR}/work/build/${board}/kvm-dt-overlay"
+        local kvm_overlay_dtbo="${kvm_overlay_work}/provider.dtbo"
+        local kvm_overlay_result="${kvm_overlay_work}/final-patched.dtb"
+
+        [[ -f "${kvm_overlay_source}" ]] ||
+            die "KVM DT overlay not found: ${kvm_overlay_source}"
+
+        rm -rf "${kvm_overlay_work}"
+        mkdir -p "${kvm_overlay_work}"
+
+        case "${kvm_overlay_source}" in
+            *.dts)
+                dtc -@ -I dts -O dtb                     -o "${kvm_overlay_dtbo}"                     "${kvm_overlay_source}"
+                ;;
+            *.dtbo)
+                cp "${kvm_overlay_source}" "${kvm_overlay_dtbo}"
+                ;;
+            *)
+                die "Unsupported KVM DT overlay format: ${kvm_overlay_source}"
+                ;;
+        esac
+
+        fdtoverlay             -i "${final_dtb}"             -o "${kvm_overlay_result}"             "${kvm_overlay_dtbo}"
+
+        [[ -s "${kvm_overlay_result}" ]] ||
+            die "KVM DT overlay produced no final DTB"
+
+        cp "${kvm_overlay_result}" "${final_dtb}"
+
+        info "Applied KVM DT overlay: ${KVM_HARDWARE_DT_OVERLAY}"
+    fi
 
     local kernel_release
     kernel_release="$(
