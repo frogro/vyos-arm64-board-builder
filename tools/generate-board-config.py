@@ -488,7 +488,7 @@ def add_feature_requirements(
     kconfig_defs,
     reverse_select,
 ):
-    """Add opt-in feature capabilities without downgrading built-ins."""
+    """Add opt-in feature capabilities and explicit choice overrides."""
 
     for symbol, value in requirements.items():
         resolved = resolve_visible_frontend(
@@ -498,7 +498,12 @@ def add_feature_requirements(
         )
         current = vyos_values.get(resolved, "n")
 
-        if value == "y" and current != "y":
+        if value == "n" and current != "n":
+            # An exact-board feature provider may need to replace a mutually
+            # exclusive stock choice, for example DWC3 host-only with dual
+            # role. Explicit disables are never inferred from hardware.
+            selected[resolved] = "n"
+        elif value == "y" and current != "y":
             selected[resolved] = "y"
         elif value == "m" and current == "n":
             selected[resolved] = "m"

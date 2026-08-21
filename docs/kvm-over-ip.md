@@ -1,9 +1,23 @@
 # Optional KVM-over-IP preparation
 
 The KVM-over-IP build profile is opt-in. It prepares generic Linux support
-for USB UVC video capture and USB HID gadget operation. When selected,
-µStreamer is reproducibly built in a Debian Bookworm ARM64 environment and
-installed in the image, but it is not started automatically.
+for V4L2 capture (including USB UVC), USB capture audio and HID gadget operation.
+When selected, v4l-utils and GStreamer are installed from the VyOS image's own
+APT sources. µStreamer is reproducibly built in a Debian Bookworm ARM64
+environment and installed in the image, but it is not started automatically.
+
+Hardware-specific changes are resolved from
+`profiles/kvm-hardware-providers.conf`. Exact board identifiers take priority;
+the wildcard provider adds no SoC-specific kernel settings. `rock-5b` selects
+`rk3588-synopsys-hdmirx`, which enables the internal Synopsys HDMI receiver,
+loads a default EDID and replaces DWC3 host-only mode with dual-role mode.
+These settings are not applied to Raspberry Pi 5 or to builds without KVM.
+
+Other RK3588 boards are not selected merely because they use the same SoC.
+An exact registry row is added only after the physical HDMI-RX/HPD wiring,
+Device Tree and OTG port have been verified for that board. Until then, such a
+board receives the generic V4L2/UVC path and can use a supported USB or PCIe
+capture device.
 
 It does not expose a capture device, create a keyboard/mouse gadget, change
 the VyOS firewall or enable a listening service. Runtime state belongs under

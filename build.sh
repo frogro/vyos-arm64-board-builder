@@ -85,6 +85,7 @@ main() {
     local kernel_source
     local selection_dir
     local selection_env
+    local kvm_hardware_env
 
     armbian_fetch
     vyos_fetch
@@ -112,6 +113,7 @@ main() {
 
     selection_dir="${ROOT_DIR}/work/build/${board}/selection"
     selection_env="${selection_dir}/selected-reference.env"
+    kvm_hardware_env="${selection_dir}/kvm-hardware.env"
     mkdir -p "${selection_dir}"
 
     {
@@ -129,6 +131,17 @@ main() {
 
     # shellcheck disable=SC1090
     source "${selection_dir}/feature-profiles.env"
+
+    python3 "${ROOT_DIR}/tools/resolve-kvm-hardware.py" \
+        --board "${board}" \
+        --enabled "${kvm_over_ip}" \
+        --registry "${ROOT_DIR}/profiles/kvm-hardware-providers.conf" \
+        --root "${ROOT_DIR}" \
+        --output-env "${kvm_hardware_env}" \
+        --output-json "${selection_dir}/kvm-hardware.json"
+
+    # shellcheck disable=SC1090
+    source "${kvm_hardware_env}"
 
     info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
 
@@ -249,6 +262,8 @@ main() {
     info "Tailscale:      ${tailscale_subnet_router}"
     info "Build profile:  ${BUILD_PROFILE}"
     info "KVM-over-IP:    ${kvm_over_ip}"
+    info "KVM HW provider:${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
+    info "KVM capture:    ${KVM_CAPTURE_BACKEND}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -509,6 +524,11 @@ main() {
         config_args+=(
             --feature-required-config "${ROOT_DIR}/profiles/kvm-over-ip.config"
         )
+        if [[ -n "${KVM_HARDWARE_CONFIG}" ]]; then
+            config_args+=(
+                --feature-required-config "${ROOT_DIR}/${KVM_HARDWARE_CONFIG}"
+            )
+        fi
     fi
 
     python3 "${ROOT_DIR}/tools/generate-board-config.py" \
@@ -581,6 +601,14 @@ main() {
             --requirements "${ROOT_DIR}/profiles/kvm-over-ip-ready.config" \
             --output-dir "${kvm_ready_out}" \
             --report-name kvm-over-ip-ready
+
+        if [[ -n "${KVM_HARDWARE_READY_CONFIG}" ]]; then
+            python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+                --kernel-config "${config_out}/generated-final.config" \
+                --requirements "${ROOT_DIR}/${KVM_HARDWARE_READY_CONFIG}" \
+                --output-dir "${kvm_ready_out}/hardware" \
+                --report-name kvm-hardware-ready
+        fi
     else
         rm -rf "${kvm_ready_out}"
     fi
@@ -607,6 +635,10 @@ main() {
     fi
     if [[ "${kvm_over_ip}" == "yes" ]]; then
         echo "KVM ready:       ${kvm_ready_out}/kvm-over-ip-ready.txt"
+        echo "KVM provider:    ${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
+        if [[ -n "${KVM_HARDWARE_READY_CONFIG}" ]]; then
+            echo "KVM HW ready:    ${kvm_ready_out}/hardware/kvm-hardware-ready.txt"
+        fi
     else
         echo "KVM ready:       disabled"
     fi

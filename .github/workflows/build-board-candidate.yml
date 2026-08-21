@@ -34,7 +34,7 @@ on:
         type: boolean
 
       kvm_over_ip:
-        description: "Prepare USB UVC capture and optional HID gadget support"
+        description: "Prepare V4L2/UVC KVM capture and board-scoped HID support"
         required: true
         default: false
         type: boolean
@@ -114,6 +114,7 @@ jobs:
           python3 tests/test-release-identity.py
           python3 tests/test-feature-profile.py
           python3 tests/test-kvm-profile.py
+          python3 tests/test-kvm-hardware-provider.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
           bash tests/test-tailscale-selection.sh
@@ -441,6 +442,8 @@ jobs:
             work/build/${{ env.BOARD }}/selection/extended-network.env
             work/build/${{ env.BOARD }}/selection/feature-profiles.env
             work/build/${{ env.BOARD }}/selection/feature-profile.json
+            work/build/${{ env.BOARD }}/selection/kvm-hardware.env
+            work/build/${{ env.BOARD }}/selection/kvm-hardware.json
           if-no-files-found: error
           compression-level: 0
 
@@ -487,6 +490,7 @@ jobs:
             "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt"
             "work/build/${BOARD}/boot/boot-manifest.env"
             "work/build/${BOARD}/selection/feature-profile.json"
+            "work/build/${BOARD}/selection/kvm-hardware.json"
           )
 
           if [[ -d "work/build/${BOARD}/artifacts/ustreamer" ]]; then

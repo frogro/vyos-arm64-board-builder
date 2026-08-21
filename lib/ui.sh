@@ -164,11 +164,11 @@ select_kvm_over_ip() {
 
 Optional KVM-over-IP Preparation
 --------------------------------
-This profile enables generic USB UVC capture and USB HID gadget kernel
-capabilities, adds persistent readiness tooling and includes a pinned,
-source-built ARM64 µStreamer binary. It does not automatically start the
-streamer or open a network port. HID gadget operation additionally requires
-a board USB port and controller capable of USB device/OTG mode.
+This profile enables generic V4L2/UVC capture, USB capture audio and HID gadget
+kernel capabilities, installs v4l-utils and GStreamer, adds persistent
+readiness tooling and includes a pinned, source-built ARM64 µStreamer binary.
+Exact-board providers may add an internal HDMI receiver and OTG settings.
+It does not automatically start the streamer or open a network port.
 NOTICE
 
     read -r -p 'Prepare this image for KVM-over-IP? [y/N] ' requested

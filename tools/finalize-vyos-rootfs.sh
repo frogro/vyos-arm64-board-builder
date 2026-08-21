@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USAGE="Usage: $0 <board> <rootfs> [tailscale yes|no] [network yes|no] [profile] [kvm yes|no]"
+USAGE="Usage: $0 <board> <rootfs> [tailscale yes|no] [network yes|no] [profile] [kvm yes|no] [kvm-provider] [capture-backend] [hid-capability]"
 
 BOARD="${1:?$USAGE}"
 ROOTFS="${2:?$USAGE}"
@@ -9,6 +9,9 @@ TAILSCALE_SUBNET_ROUTER="${3:-no}"
 EXTENDED_NETWORK="${4:-no}"
 BUILD_PROFILE="${5:-base}"
 KVM_OVER_IP="${6:-no}"
+KVM_HARDWARE_PROVIDER="${7:-disabled}"
+KVM_CAPTURE_BACKEND="${8:-disabled}"
+KVM_HID_GADGET="${9:-no}"
 
 case "${TAILSCALE_SUBNET_ROUTER,,}" in
     1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
@@ -36,6 +39,17 @@ esac
 
 [[ "$BUILD_PROFILE" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || {
     echo "ERROR: invalid build profile: $BUILD_PROFILE" >&2
+    exit 1
+}
+
+for value in "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND"; do
+    [[ "$value" =~ ^[a-z0-9]+([+._-][a-z0-9]+)*$ ]] || {
+        echo "ERROR: invalid KVM hardware metadata: $value" >&2
+        exit 1
+    }
+done
+[[ "$KVM_HID_GADGET" =~ ^(yes|no|runtime)$ ]] || {
+    echo "ERROR: invalid KVM HID capability: $KVM_HID_GADGET" >&2
     exit 1
 }
 
@@ -73,14 +87,15 @@ install -d -m 0755 "$STAGE_DIR" "$SBIN_DIR" "$UNIT_DIR" "$WANTS_DIR"
 PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
-    "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" <<'PY'
+    "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" \
+    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale, kvm = sys.argv[1:]
+output, board, profile, network, tailscale, kvm, provider, capture, hid = sys.argv[1:]
 Path(output).write_text(json.dumps({
-    "schema": 1,
+    "schema": 2,
     "architecture": "arm64",
     "board": board,
     "profile": profile,
@@ -88,6 +103,11 @@ Path(output).write_text(json.dumps({
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+    },
+    "kvm": {
+        "hardware_provider": provider,
+        "capture_backend": capture,
+        "hid_gadget": hid,
     },
 }, indent=2) + "\n")
 PY

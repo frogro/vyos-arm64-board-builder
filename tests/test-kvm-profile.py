@@ -13,6 +13,11 @@ class KvmProfileTests(unittest.TestCase):
     def test_kernel_profile_is_opt_in_and_policy_free(self):
         text = (ROOT / "profiles/kvm-over-ip.config").read_text()
         self.assertIn("CONFIG_USB_VIDEO_CLASS=m", text)
+        self.assertIn("CONFIG_MEDIA_CAMERA_SUPPORT=y", text)
+        self.assertIn("CONFIG_MEDIA_PCI_SUPPORT=y", text)
+        self.assertIn("CONFIG_MEDIA_PLATFORM_SUPPORT=y", text)
+        self.assertIn("CONFIG_SND_USB_AUDIO=m", text)
+        self.assertIn("CONFIG_USB_GADGET=y", text)
         self.assertIn("CONFIG_USB_CONFIGFS_F_HID=y", text)
         lowered = text.lower()
         for forbidden in (
@@ -23,6 +28,8 @@ class KvmProfileTests(unittest.TestCase):
             "tcp_port",
         ):
             self.assertNotIn(forbidden, lowered)
+        self.assertNotIn("SYNOPSYS_HDMIRX", text)
+        self.assertNotIn("USB_DWC3_DUAL_ROLE", text)
 
     def test_readiness_profile_matches_kernel_profile(self):
         requested = (ROOT / "profiles/kvm-over-ip.config").read_text()
@@ -80,6 +87,30 @@ class KvmProfileTests(unittest.TestCase):
             self.assertTrue(
                 (rootfs / "usr/share/vyos-arm64-board-builder/ustreamer-build.env").is_file()
             )
+
+    def test_kvm_userspace_package_set_is_profile_scoped(self):
+        packages = (ROOT / "profiles/kvm-over-ip-packages.txt").read_text()
+        for package in (
+            "v4l-utils",
+            "gstreamer1.0-tools",
+            "gstreamer1.0-plugins-good",
+        ):
+            self.assertIn(package, packages)
+        installer = (ROOT / "tools/install-kvm-userspace.sh").read_text()
+        self.assertIn("apt-get install -y --no-install-recommends", installer)
+        self.assertNotIn("apt-get upgrade", installer)
+
+    def test_rock5b_provider_contains_only_opt_in_hardware_delta(self):
+        text = (
+            ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config"
+        ).read_text()
+        for line in (
+            "CONFIG_VIDEO_SYNOPSYS_HDMIRX=m",
+            "CONFIG_VIDEO_SYNOPSYS_HDMIRX_LOAD_DEFAULT_EDID=y",
+            "# CONFIG_USB_DWC3_HOST is not set",
+            "CONFIG_USB_DWC3_DUAL_ROLE=y",
+        ):
+            self.assertIn(line, text)
 
 
 if __name__ == "__main__":

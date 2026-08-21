@@ -16,11 +16,15 @@ NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
+KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
 
 EXTENDED_NETWORK="${EXTENDED_NETWORK:-no}"
 TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
 BUILD_PROFILE="${BUILD_PROFILE:-base}"
 KVM_OVER_IP="${KVM_OVER_IP:-no}"
+KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
+KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
+KVM_HID_GADGET="${KVM_HID_GADGET:-no}"
 if [[ -f "$NETWORK_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$NETWORK_SELECTION"
@@ -28,6 +32,10 @@ fi
 if [[ -f "$FEATURE_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$FEATURE_SELECTION"
+fi
+if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$KVM_HARDWARE_SELECTION"
 fi
 
 SECTOR_SIZE=512
@@ -134,6 +142,7 @@ ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
 FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
+KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
@@ -142,6 +151,11 @@ GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
 [[ -x "$COMMON_ROOTFS_FINALIZER" ]] ||
     die "common VyOS rootfs finalizer missing: $COMMON_ROOTFS_FINALIZER"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
+        die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+fi
 
 [[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
     die "VyOS ARM CPU op-mode patcher missing: $ARM_CPU_OPMODE_PATCHER"
@@ -166,6 +180,8 @@ echo "Firmware provider: $FIRMWARE_PROVIDER"
 echo "Firmware layout:   $FIRMWARE_LAYOUT_MODE"
 echo "Firmware GPT1:     ${FIRMWARE_PART_START}-${FIRMWARE_PART_END}"
 echo "EFI start sector:  $EFI_START_SECTOR"
+echo "KVM HW provider:   $KVM_HARDWARE_PROVIDER"
+echo "KVM capture:       $KVM_CAPTURE_BACKEND"
 echo
 
 mkdir -p "$(dirname "$OUTPUT")"
@@ -485,7 +501,10 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$TAILSCALE_SUBNET_ROUTER" \
     "$EXTENDED_NETWORK" \
     "$BUILD_PROFILE" \
-    "$KVM_OVER_IP"
+    "$KVM_OVER_IP" \
+    "$KVM_HARDWARE_PROVIDER" \
+    "$KVM_CAPTURE_BACKEND" \
+    "$KVM_HID_GADGET"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
@@ -525,6 +544,14 @@ mount --bind /dev/pts "$SQUASH_ROOT/dev/pts"
 mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING KVM-OVER-IP USERSPACE ====="
+    "$KVM_USERSPACE_INSTALLER" \
+        "$SQUASH_ROOT" \
+        "$ROOT/profiles/kvm-over-ip-packages.txt"
+fi
 
 chroot "$SQUASH_ROOT" /bin/bash -c "
     set -e

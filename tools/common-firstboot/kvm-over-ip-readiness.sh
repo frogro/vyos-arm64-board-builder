@@ -15,7 +15,7 @@ check_command()
     fi
 }
 
-for command in curl findmnt ip lsusb systemctl; do
+for command in curl findmnt gst-launch-1.0 ip lsusb systemctl v4l2-ctl; do
     check_command "$command"
 done
 
@@ -24,6 +24,12 @@ if findmnt -n --target /config >/dev/null 2>&1; then
 else
     printf 'FAIL  persistent configuration mount missing: /config\n'
     failed=1
+fi
+
+if [[ -r /usr/share/vyos-arm64-board-builder/profile.json ]]; then
+    printf 'INFO  build profile metadata: '
+    tr -d '\n' < /usr/share/vyos-arm64-board-builder/profile.json
+    printf '\n'
 fi
 
 if compgen -G '/dev/video*' >/dev/null; then

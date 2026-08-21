@@ -29,7 +29,9 @@ def read_requirements(path: Path) -> dict[str, str]:
         if "=" not in line:
             raise ValueError(f"{path}:{number}: malformed requirement")
         symbol, mode = line.split("=", 1)
-        if not symbol.startswith("CONFIG_") or mode not in {"builtin", "available"}:
+        if not symbol.startswith("CONFIG_") or mode not in {
+            "builtin", "available", "disabled"
+        }:
             raise ValueError(f"{path}:{number}: invalid requirement: {line}")
         if symbol in requirements:
             raise ValueError(f"{path}:{number}: duplicate symbol: {symbol}")
@@ -41,7 +43,12 @@ def validate(config: dict[str, str], requirements: dict[str, str]) -> list[dict[
     report: list[dict[str, str]] = []
     for symbol, mode in sorted(requirements.items()):
         actual = config.get(symbol, "n")
-        ok = actual == "y" if mode == "builtin" else actual in {"y", "m"}
+        if mode == "builtin":
+            ok = actual == "y"
+        elif mode == "available":
+            ok = actual in {"y", "m"}
+        else:
+            ok = actual == "n"
         report.append({
             "symbol": symbol,
             "requirement": mode,

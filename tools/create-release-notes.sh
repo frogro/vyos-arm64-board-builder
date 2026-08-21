@@ -8,6 +8,7 @@ MANIFEST="$ROOT/boot/boot-manifest.env"
 KERNEL_FILE="$ROOT/artifacts/kernel.release"
 NETWORK_SELECTION="$ROOT/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/selection/feature-profiles.env"
+KVM_HARDWARE_SELECTION="$ROOT/selection/kvm-hardware.env"
 RELEASE_ENV="$ROOT/release.env"
 OUT="$ROOT/RELEASE_NOTES.md"
 
@@ -28,6 +29,9 @@ EXTENDED_NETWORK="no"
 TAILSCALE_SUBNET_ROUTER="no"
 BUILD_PROFILE="base"
 KVM_OVER_IP="no"
+KVM_HARDWARE_PROVIDER="disabled"
+KVM_CAPTURE_BACKEND="disabled"
+KVM_HID_GADGET="no"
 
 if [[ -f "$NETWORK_SELECTION" ]]; then
     # shellcheck disable=SC1090
@@ -37,6 +41,11 @@ fi
 if [[ -f "$FEATURE_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$FEATURE_SELECTION"
+fi
+
+if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$KVM_HARDWARE_SELECTION"
 fi
 
 if [[ -f "$RELEASE_ENV" ]]; then
@@ -127,6 +136,9 @@ The image was created in these stages:
 - Extended Network drivers and firmware: \`${EXTENDED_NETWORK}\`
 - Tailscale subnet-router preparation: \`${TAILSCALE_SUBNET_ROUTER}\`
 - KVM-over-IP preparation: \`${KVM_OVER_IP}\`
+- KVM hardware provider: \`${KVM_HARDWARE_PROVIDER}\`
+- KVM capture backend: \`${KVM_CAPTURE_BACKEND}\`
+- KVM HID gadget capability: \`${KVM_HID_GADGET}\`
 - Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
 - Firmware provider: \`${FIRMWARE_PROVIDER}\`
 - Firmware variant: \`${FIRMWARE_VARIANT:-n/a}\`
@@ -192,11 +204,13 @@ The firmware provider, kernel hardware delta and boot metadata are selected from
 
 When Extended Network is enabled, the image contains the curated optional runtime modules which the selected Linux Kconfig can satisfy as modules. Exact enabled/skipped symbols and installed/missing firmware files are published beside the image in \`extended-network-report.txt\` and the network firmware manifest. Board-required drivers remain independent of this option.
 
-When KVM-over-IP preparation is enabled, the image contains generic USB UVC
-capture and USB HID gadget kernel capabilities, a Bookworm-built µStreamer
-binary and a read-only runtime audit. No streamer is started, no firewall port
-is opened, and HID operation remains conditional on a device/OTG-capable USB
-controller.
+When KVM-over-IP preparation is enabled, the image contains generic V4L2/UVC
+capture and USB HID gadget kernel capabilities, v4l-utils, GStreamer, a
+Bookworm-built µStreamer binary and a read-only runtime audit. The exact-board
+hardware provider is \`${KVM_HARDWARE_PROVIDER}\`; unregistered boards receive
+only the generic capture path. No streamer is started, no firewall port is
+opened, and HID operation remains conditional on the published provider and a
+device/OTG-capable USB controller.
 EOF_NOTES
 
 echo "$OUT"

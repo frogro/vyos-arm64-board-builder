@@ -199,6 +199,17 @@ config RUNTIME_DRIVER
         )
         self.assertEqual({}, selected)
 
+    def test_feature_requirement_preserves_explicit_disable(self) -> None:
+        selected = {}
+        GENERATE_BOARD_CONFIG.add_feature_requirements(
+            selected,
+            {"CONFIG_USB_DWC3_HOST": "n"},
+            {"CONFIG_USB_DWC3_HOST": "y"},
+            {"USB_DWC3_HOST": {"prompt": True}},
+            {},
+        )
+        self.assertEqual({"CONFIG_USB_DWC3_HOST": "n"}, selected)
+
 
 if __name__ == "__main__":
     unittest.main()

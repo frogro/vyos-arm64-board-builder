@@ -10,6 +10,7 @@ OUTPUT_DIR="${3:?Usage: $0 <board> <board.img> <output-dir>}"
 MANIFEST="$ROOT/work/build/$BOARD/boot/boot-manifest.env"
 IDENTITY_TOOL="$ROOT/tools/release-identity.py"
 FEATURE_ENV="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
+KVM_HARDWARE_ENV="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
 
 die()
 {
@@ -52,9 +53,16 @@ BUILD_PROFILE="base"
 EXTENDED_NETWORK="no"
 TAILSCALE_SUBNET_ROUTER="no"
 KVM_OVER_IP="no"
+KVM_HARDWARE_PROVIDER="disabled"
+KVM_CAPTURE_BACKEND="disabled"
+KVM_HID_GADGET="no"
 if [[ -f "$FEATURE_ENV" ]]; then
     # shellcheck disable=SC1090
     source "$FEATURE_ENV"
+fi
+if [[ -f "$KVM_HARDWARE_ENV" ]]; then
+    # shellcheck disable=SC1090
+    source "$KVM_HARDWARE_ENV"
 fi
 
 [[ -n "${BOOT_FDT_FILE:-}" ]] || die "BOOT_FDT_FILE missing from manifest"
@@ -180,14 +188,17 @@ python3 - \
     "$EXTENDED_NETWORK" \
     "$TAILSCALE_SUBNET_ROUTER" \
     "$KVM_OVER_IP" \
+    "$KVM_HARDWARE_PROVIDER" \
+    "$KVM_CAPTURE_BACKEND" \
+    "$KVM_HID_GADGET" \
     "${COMPATIBLE[@]}" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, kvm, *compatible = sys.argv[1:]
+output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, kvm, kvm_provider, capture_backend, hid_gadget, *compatible = sys.argv[1:]
 Path(output).write_text(json.dumps({
-    "schema": 2,
+    "schema": 3,
     "architecture": "arm64",
     "board": board,
     "board_name": name,
@@ -201,6 +212,11 @@ Path(output).write_text(json.dumps({
         "extended_network": extended_network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+    },
+    "kvm": {
+        "hardware_provider": kvm_provider,
+        "capture_backend": capture_backend,
+        "hid_gadget": hid_gadget,
     },
 }, indent=2) + "\n")
 PY
