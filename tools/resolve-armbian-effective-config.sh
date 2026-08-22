@@ -167,6 +167,8 @@ keys = [
     "KERNELPATCHDIR",
     "LINUXCONFIG",
     "KERNEL_MAJOR_MINOR",
+    "DEFAULT_CONSOLE",
+    "SERIALCON",
 
     "BOOT_FDT_FILE",
     "GRUB_FDT_FILE",
@@ -179,6 +181,7 @@ keys = [
     "BOOTDIR",
     "BOOT_SOC",
     "BOOT_SCENARIO",
+    "BOOTSCRIPT",
 
     "IMAGE_PARTITION_TABLE",
     "OFFSET",

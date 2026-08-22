@@ -141,6 +141,7 @@ INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
 ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
 FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
+BOOTFILES_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/bootfiles.sh"
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
 KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
@@ -665,6 +666,18 @@ cfg.write_text(text)
 
 print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
+
+if [[ -x "$BOOTFILES_PROVIDER" ]]; then
+    echo
+    echo "===== INSTALLING PROVIDER BOOT FILES ====="
+
+    "$BOOTFILES_PROVIDER" \
+        "$BOARD" \
+        "$DST_MNT/boot/efi" \
+        "$VERSION_DIR" \
+        "$GRUB_VERSION_CFG" \
+        "$MANIFEST"
+fi
 
 echo
 echo "===== SELECTING GRAPHICAL VYOS CONSOLE ====="

@@ -128,6 +128,7 @@ jobs:
           bash tests/test-resolve-raw-run.sh
           bash tests/test-extended-network-resolver.sh
           bash tests/test-network-firmware.sh
+          bash tests/test-armbian-vendor-vyos-bridge.sh
 
       - name: Show initial disk space
         run: df -h
