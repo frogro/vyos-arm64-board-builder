@@ -50,6 +50,7 @@ class KvmHardwareProviderTests(unittest.TestCase):
         for expected in (
             'target-path = "/usb@fc400000";',
             'dr_mode = "peripheral";',
+            "snps,dis_u2_susphy_quirk;",
             'target-path = "/regulator-vcc5v0-host";',
             'target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";',
             'target-path = "/pinctrl/gpio@fec50000";',
