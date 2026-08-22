@@ -21,6 +21,12 @@ on:
         default: "auto"
         type: string
 
+      boot_branch:
+        description: "Developer U-Boot branch override (normal builds use auto)"
+        required: true
+        default: "auto"
+        type: string
+
       extended_network:
         description: "Include curated additional Wi-Fi/Ethernet/WWAN support"
         required: true
@@ -72,7 +78,7 @@ jobs:
       EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
       TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
-      BOOT_BRANCH: auto
+      BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       VYOS_BRANCH: rolling
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
       RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
