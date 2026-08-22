@@ -41,6 +41,41 @@ class KvmHardwareProviderTests(unittest.TestCase):
         )
         MODULE.validate_paths(ROOT, result)
 
+    def test_rock5b_overlay_contains_safe_fixed_peripheral_routing(self) -> None:
+        overlay = (
+            ROOT
+            / "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts"
+        ).read_text(encoding="utf-8")
+
+        for expected in (
+            'target-path = "/usb@fc400000";',
+            'dr_mode = "peripheral";',
+            'target-path = "/regulator-vcc5v0-host";',
+            'target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";',
+            'target-path = "/pinctrl/gpio@fec50000";',
+            'gpios = <8 0>;',
+            "output-low;",
+            'target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";',
+            "rockchip,vbus-always-on;",
+        ):
+            self.assertIn(expected, overlay)
+
+        self.assertNotIn('target-path = "/usb@fc000000";', overlay)
+
+    def test_rock5b_vbus_patch_is_opt_in_and_prepared_by_builder(self) -> None:
+        patch = (
+            ROOT / "patches/kernel/0001-rockchip-usb2phy-vbus-always-on.patch"
+        ).read_text(encoding="utf-8")
+        source = (ROOT / "sources/vyos.sh").read_text(encoding="utf-8")
+
+        self.assertIn('"rockchip,vbus-always-on"', patch)
+        self.assertIn("rport->vbus_always_on", patch)
+        self.assertIn("USB_DR_MODE_PERIPHERAL", patch)
+        self.assertIn("Applying board-builder kernel patches", source)
+        self.assertIn('local_patch_dir="${ROOT_DIR}/patches/kernel"', source)
+        self.assertIn("builder_commit=${builder_commit}", source)
+        self.assertIn("local_patch_hash=${local_patch_hash}", source)
+
     def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
         result = MODULE.select(self.entries, "raspberry-pi-5", True)
         self.assertEqual("generic-v4l2", result["provider"])

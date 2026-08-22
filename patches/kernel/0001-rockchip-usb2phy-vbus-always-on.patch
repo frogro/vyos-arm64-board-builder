@@ -1,0 +1,137 @@
+From 7c4f0b8f6a8b7f119f98a11fa7c5ca8718a7615e Mon Sep 17 00:00:00 2001
+From: Frank Grootens <frank.grootens@gmail.com>
+Date: Sat, 22 Aug 2026 19:45:00 +0200
+Subject: [PATCH] phy: rockchip: support fixed-peripheral VBUS-always-on mode
+
+The RK3588 USB2 PHY at reg 0x4000 is OTG-capable, but some boards route
+its controller to a Type-A connector that is normally configured as a host.
+When such a board deliberately reuses that path as a fixed USB gadget, the
+physical VBUS-valid signal may not be available to the PHY even though the
+upstream host supplies VBUS.
+
+Rockchip's vendor driver has a rockchip,vbus-always-on concept. Add a small,
+opt-in equivalent for the mainline-derived driver used by VyOS. The property
+is accepted only for fixed peripheral mode. In that mode the PHY treats VBUS
+as attached, avoids BVALID/ID setup, prevents a bogus host extcon state, and
+seeds the existing OTG state machine as an SDP peripheral.
+
+Normal device-tree configurations are unchanged when the property is absent.
+Power direction and connector routing remain board-specific responsibilities.
+---
+
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c	2026-08-22 17:35:55.476224633 +0000
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c	2026-08-22 17:35:55.476313314 +0000
+@@ -4,6 +4,7 @@
+  * @port_id: flag for otg port or host port.
+  * @suspended: phy suspended flag.
+  * @vbus_attached: otg device vbus status.
++ * @vbus_always_on: force VBUS valid for a fixed peripheral-only port.
+  * @host_disconnect: usb host disconnect status.
+  * @bvalid_irq: IRQ number assigned for vbus valid rise detection.
+  * @id_irq: IRQ number assigned for ID pin detection.
+@@ -24,6 +25,7 @@
+ 	unsigned int	port_id;
+ 	bool		suspended;
+ 	bool		vbus_attached;
++	bool		vbus_always_on;
+ 	bool            host_disconnect;
+ 	int		bvalid_irq;
+ 	int		id_irq;
+@@ -57,6 +59,15 @@
+ 	if (rport->port_id == USB2PHY_PORT_OTG) {
+ 		if (rport->mode != USB_DR_MODE_HOST &&
+ 		    rport->mode != USB_DR_MODE_UNKNOWN) {
++			/*
++			 * Fixed peripheral ports using software VBUS-valid do not
++			 * consume the hardware BVALID/ID detection path.
++			 */
++			if (rport->vbus_always_on) {
++				schedule_delayed_work(&rport->otg_sm_work, 0);
++				goto out;
++			}
++
+ 			/* clear bvalid status and enable bvalid detect irq */
+ 			ret = property_enable(rphy->grf,
+ 					      &rport->port_cfg->bvalid_det_clr,
+@@ -87,6 +98,16 @@
+ 	.owner		= THIS_MODULE,
+ };
+ 
++static bool rockchip_usb2phy_vbus_attached(struct rockchip_usb2phy *rphy,
++					    struct rockchip_usb2phy_port *rport)
++{
++	if (rport->vbus_always_on)
++		return true;
++
++	return property_enabled(rphy->grf,
++				&rport->port_cfg->utmi_bvalid);
++}
++
+ static void rockchip_usb2phy_otg_sm_work(struct work_struct *work)
+ {
+ 	struct rockchip_usb2phy_port *rport =
+@@ -97,8 +118,7 @@
+ 	unsigned long delay;
+ 	bool vbus_attach, sch_work, notify_charger;
+ 
+-	vbus_attach = property_enabled(rphy->grf,
+-				       &rport->port_cfg->utmi_bvalid);
++	vbus_attach = rockchip_usb2phy_vbus_attached(rphy, rport);
+ 
+ 	sch_work = false;
+ 	notify_charger = false;
+@@ -129,6 +149,9 @@
+ 		}
+ 		break;
+ 	case USB2PHY_PORT_OTG:
++		if (rport->vbus_always_on)
++			break;
++
+ 		/*
+ 		 * Some SoCs use one interrupt with otg-id/otg-bvalid/linestate
+ 		 * interrupts muxed together, so probe the otg-mux interrupt first,
+@@ -173,12 +196,29 @@
+ 	mutex_init(&rport->mutex);
+ 
+ 	rport->mode = of_usb_get_dr_mode_by_phy(child_np, -1);
++	rport->vbus_always_on =
++		of_property_read_bool(child_np, "rockchip,vbus-always-on");
++
++	if (rport->vbus_always_on &&
++	    rport->mode != USB_DR_MODE_PERIPHERAL) {
++		dev_warn(rphy->dev,
++			 "rockchip,vbus-always-on ignored outside peripheral mode\n");
++		rport->vbus_always_on = false;
++	}
++
+ 	if (rport->mode == USB_DR_MODE_HOST ||
+ 	    rport->mode == USB_DR_MODE_UNKNOWN) {
+ 		ret = 0;
+ 		goto out;
+ 	}
+ 
++	if (rport->vbus_always_on) {
++		rphy->chg_state = USB_CHG_STATE_DETECTED;
++		rphy->chg_type = POWER_SUPPLY_TYPE_USB;
++		dev_info(rphy->dev,
++			 "using software VBUS-valid for fixed peripheral mode\n");
++	}
++
+ 	INIT_DELAYED_WORK(&rport->chg_work, rockchip_chg_detect_work);
+ 	INIT_DELAYED_WORK(&rport->otg_sm_work, rockchip_usb2phy_otg_sm_work);
+ 
+@@ -198,7 +238,12 @@
+ 			goto out;
+ 		}
+ 
+-		if (!of_property_present(rphy->dev->of_node, "extcon")) {
++		if (rport->vbus_always_on &&
++		    !of_property_present(rphy->dev->of_node, "extcon")) {
++			/* Fixed peripheral mode must not inherit a bogus host ID. */
++			extcon_set_state_sync(rphy->edev, EXTCON_USB_HOST, false);
++			extcon_set_state_sync(rphy->edev, EXTCON_USB, true);
++		} else if (!of_property_present(rphy->dev->of_node, "extcon")) {
+ 			/* do initial sync of usb state */
+ 			id = property_enabled(rphy->grf, &rport->port_cfg->utmi_id);
+ 			extcon_set_state_sync(rphy->edev, EXTCON_USB_HOST, !id);

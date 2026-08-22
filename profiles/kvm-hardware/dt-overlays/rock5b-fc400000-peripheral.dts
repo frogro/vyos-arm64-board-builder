@@ -5,27 +5,65 @@
 /*
  * ROCK 5B Profile-D experimental USB gadget routing.
  *
- * The RK3588 SoC describes usb@fc400000 as OTG capable, while the
- * ROCK 5B board Device Tree overrides it to host mode.
+ * This overlay is deliberately board-specific. The ROCK 5B routes the
+ * RK3588 fc400000 DWC3 controller to the lower blue USB-A connector and
+ * normally configures that path as a host.
  *
- * Test stage 1 changes ONLY the controller role.
+ * Profile-D test mode changes that connector into a fixed USB gadget port:
+ *   - fc400000 is forced to peripheral mode;
+ *   - the shared ROCK host-VBUS regulator is disabled;
+ *   - the known u2phy3 host consumer is disabled with that supply;
+ *   - GPIO4_PB0 / USB_HOST_PWREN_H is hogged low at boot; and
+ *   - u2phy1 uses software VBUS-valid because this Type-A routing does not
+ *     expose a usable device-mode BVALID signal to the PHY.
  *
- * Deliberately NOT changed here:
- *   - usb@fc000000
- *   - HDMI-RX
- *   - vcc5v0_host / USB VBUS
- *   - ConfigFS/HID gadget creation
- *
- * VBUS safety must be validated separately before connecting this
- * USB-A port to another USB host.
+ * The software VBUS-valid property requires the matching board-builder
+ * kernel patch. usb@fc000000 and HDMI-RX are intentionally untouched.
  */
 
- / {
+/ {
     fragment@0 {
         target-path = "/usb@fc400000";
 
         __overlay__ {
             dr_mode = "peripheral";
+        };
+    };
+
+    fragment@1 {
+        target-path = "/regulator-vcc5v0-host";
+
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+
+    fragment@2 {
+        target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";
+
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+
+    fragment@3 {
+        target-path = "/pinctrl/gpio@fec50000";
+
+        __overlay__ {
+            profile-d-usb-host-pwren-off {
+                gpio-hog;
+                gpios = <8 0>;
+                output-low;
+                line-name = "profile-d-usb-host-pwren-off";
+            };
+        };
+    };
+
+    fragment@4 {
+        target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";
+
+        __overlay__ {
+            rockchip,vbus-always-on;
         };
     };
 };

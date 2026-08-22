@@ -131,16 +131,38 @@ vyos_kernel_prepare() {
     local archive="${cache}/linux-${version}.tar.xz"
     local signature="${cache}/linux-${version}.tar.sign"
     local patch_dir
+    local local_patch_dir
     local stamp
     local vyos_commit
+    local builder_commit
+    local local_patch_hash
 
     patch_dir="$(vyos_source_dir)/scripts/package-build/linux-kernel/patches/kernel"
+    local_patch_dir="${ROOT_DIR}/patches/kernel"
     stamp="${source}/.vyos-kernel-prepared"
     vyos_commit="$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
+    builder_commit="$(git -C "${ROOT_DIR}" rev-parse HEAD 2>/dev/null || printf 'unknown')"
+    local_patch_hash="$(
+        {
+            if [[ -d "${local_patch_dir}" ]]; then
+                while IFS= read -r -d '' patch_file; do
+                    sha256sum "${patch_file}" | awk '{print $1}'
+                done < <(
+                    find "${local_patch_dir}" \
+                        -maxdepth 1 \
+                        -type f \
+                        -name '*.patch' \
+                        -print0 | sort -z
+                )
+            fi
+        } | sha256sum | awk '{print $1}'
+    )"
 
     if [[ -f "${stamp}" ]] &&
        grep -qx "kernel_version=${version}" "${stamp}" &&
-       grep -qx "vyos_commit=${vyos_commit}" "${stamp}"; then
+       grep -qx "vyos_commit=${vyos_commit}" "${stamp}" &&
+       grep -qx "builder_commit=${builder_commit}" "${stamp}" &&
+       grep -qx "local_patch_hash=${local_patch_hash}" "${stamp}"; then
         info "VyOS kernel source already prepared: ${source}"
         return 0
     fi
@@ -149,10 +171,10 @@ vyos_kernel_prepare() {
 
     #
     # Existing trees from previous/manual builds may already contain
-    # VyOS patches. Never blindly patch an unknown existing tree.
+    # VyOS or board-builder patches. Never blindly patch an unknown tree.
     #
     if [[ -d "${source}" ]]; then
-        warn "Kernel source exists without preparation stamp."
+        warn "Kernel source exists without matching preparation stamp."
         warn "Recreating it from the verified upstream archive."
         rm -rf "${source}"
     fi
@@ -234,6 +256,28 @@ vyos_kernel_prepare() {
             sort
     )
 
+    if [[ -d "${local_patch_dir}" ]]; then
+        info "Applying board-builder kernel patches..."
+
+        while IFS= read -r patch_file; do
+            [[ -f "${patch_file}" ]] || continue
+
+            info "Applying $(basename "${patch_file}")"
+
+            patch \
+                -d "${source}" \
+                -p1 \
+                < "${patch_file}"
+        done < <(
+            find "${local_patch_dir}" \
+                -maxdepth 1 \
+                -type f \
+                -name '*.patch' \
+                -printf '%p\n' |
+                sort
+        )
+    fi
+
     #
     # Match the VyOS kernel builder's certificate identity adjustment.
     #
@@ -247,6 +291,8 @@ vyos_kernel_prepare() {
         echo "kernel_version=${version}"
         echo "vyos_branch=${VYOS_BRANCH}"
         echo "vyos_commit=${vyos_commit}"
+        echo "builder_commit=${builder_commit}"
+        echo "local_patch_hash=${local_patch_hash}"
     } > "${stamp}"
 
     info "VyOS kernel source prepared successfully."
