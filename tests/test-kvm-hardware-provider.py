@@ -86,6 +86,30 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertIn("builder_commit=${builder_commit}", source)
         self.assertIn("local_patch_hash=${local_patch_hash}", source)
 
+    def test_kvm_profile_adds_gadget_diagnostics_and_virtual_media_only_when_enabled(self) -> None:
+        required = (ROOT / "profiles/kvm-over-ip.config").read_text(encoding="utf-8")
+        ready = (ROOT / "profiles/kvm-over-ip-ready.config").read_text(encoding="utf-8")
+        build = (ROOT / "build.sh").read_text(encoding="utf-8")
+
+        for expected in (
+            "CONFIG_USB_GADGET_DEBUG_FS=y",
+            "CONFIG_USB_CONFIGFS_F_LB_SS=y",
+            "CONFIG_USB_CONFIGFS_F_HID=y",
+            "CONFIG_USB_CONFIGFS_MASS_STORAGE=y",
+        ):
+            self.assertIn(expected, required)
+
+        for expected in (
+            "CONFIG_USB_GADGET_DEBUG_FS=builtin",
+            "CONFIG_USB_CONFIGFS_F_LB_SS=builtin",
+            "CONFIG_USB_CONFIGFS_F_HID=builtin",
+            "CONFIG_USB_CONFIGFS_MASS_STORAGE=builtin",
+        ):
+            self.assertIn(expected, ready)
+
+        self.assertIn('if [[ "${kvm_over_ip}" == "yes" ]]; then', build)
+        self.assertIn('profiles/kvm-over-ip.config', build)
+
     def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
         result = MODULE.select(self.entries, "raspberry-pi-5", True)
         self.assertEqual("generic-v4l2", result["provider"])
