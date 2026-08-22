@@ -15,10 +15,13 @@
  *   - the known u2phy3 host consumer is disabled with that supply;
  *   - GPIO4_PB0 / USB_HOST_PWREN_H is hogged low at boot; and
  *   - u2phy1 uses software VBUS-valid because this Type-A routing does not
- *     expose a usable device-mode BVALID signal to the PHY.
+ *     expose a usable device-mode BVALID signal to the PHY; and
+ *   - usbdp_phy1 forces the RK3588 hardware BVALID override that a normal
+ *     Type-C orientation event would otherwise program.
  *
- * The software VBUS-valid property requires the matching board-builder
- * kernel patch. usb@fc000000 and HDMI-RX are intentionally untouched.
+ * The software VBUS-valid and fixed-peripheral BVALID properties require
+ * the matching board-builder kernel patches. usb@fc000000 and HDMI-RX are
+ * intentionally untouched.
  */
 
 / {
@@ -67,4 +70,12 @@
             rockchip,vbus-always-on;
         };
     };
+    fragment@5 {
+        target-path = "/phy@fed90000";
+
+        __overlay__ {
+            rockchip,fixed-peripheral-bvalid;
+        };
+    };
+
 };

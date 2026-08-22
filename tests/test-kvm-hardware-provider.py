@@ -58,6 +58,8 @@ class KvmHardwareProviderTests(unittest.TestCase):
             "output-low;",
             'target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";',
             "rockchip,vbus-always-on;",
+            'target-path = "/phy@fed90000";',
+            "rockchip,fixed-peripheral-bvalid;",
         ):
             self.assertIn(expected, overlay)
 
@@ -67,11 +69,18 @@ class KvmHardwareProviderTests(unittest.TestCase):
         patch = (
             ROOT / "patches/kernel/0001-rockchip-usb2phy-vbus-always-on.patch"
         ).read_text(encoding="utf-8")
+        usbdp_patch = (
+            ROOT / "patches/kernel/0002-rockchip-usbdp-fixed-peripheral-bvalid.patch"
+        ).read_text(encoding="utf-8")
         source = (ROOT / "sources/vyos.sh").read_text(encoding="utf-8")
 
         self.assertIn('"rockchip,vbus-always-on"', patch)
         self.assertIn("rport->vbus_always_on", patch)
         self.assertIn("USB_DR_MODE_PERIPHERAL", patch)
+        self.assertIn('"rockchip,fixed-peripheral-bvalid"', usbdp_patch)
+        self.assertIn("rk_udphy_usb_bvalid_enable(udphy, true)", usbdp_patch)
+        self.assertIn("orientation-switch", usbdp_patch)
+        self.assertIn("mode-switch", usbdp_patch)
         self.assertIn("Applying board-builder kernel patches", source)
         self.assertIn('local_patch_dir="${ROOT_DIR}/patches/kernel"', source)
         self.assertIn("builder_commit=${builder_commit}", source)
