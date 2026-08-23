@@ -15,6 +15,24 @@ Mass Storage capability for later Virtual Media support. Enabling these kernel
 capabilities does not automatically create, bind or expose a USB gadget or
 virtual disk. Runtime gadget composition remains a userspace responsibility.
 
+Profile D also installs the first runtime layer, `vyos-kvm-gadget`. It is not
+started automatically and does not change the VyOS configuration tree. The
+initial D3 interface provides:
+
+    vyos-kvm-gadget create
+    vyos-kvm-gadget destroy
+    vyos-kvm-gadget bind
+    vyos-kvm-gadget unbind
+    vyos-kvm-gadget rebind
+    vyos-kvm-gadget status
+    vyos-kvm-gadget keyboard enable
+    vyos-kvm-gadget keyboard disable
+
+The manager owns ConfigFS/libcomposite setup and gadget composition. Board-
+specific UDC names remain in provider runtime metadata rather than in the
+generic manager. This keeps a later dedicated-port versus USB-C/PD-injector
+choice board-specific while preserving one common runtime interface.
+
 Hardware-specific changes are resolved from
 `profiles/kvm-hardware-providers.conf`. Exact board identifiers take priority;
 the wildcard provider adds no SoC-specific kernel settings. `rock-5b` selects

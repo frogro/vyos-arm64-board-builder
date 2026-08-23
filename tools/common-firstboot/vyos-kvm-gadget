@@ -1,0 +1,362 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROGRAM="${0##*/}"
+CONFIGFS_ROOT="${KVM_CONFIGFS_ROOT:-/sys/kernel/config}"
+GADGETS_ROOT="${CONFIGFS_ROOT}/usb_gadget"
+GADGET_NAME="${KVM_GADGET_NAME:-vyos-kvm}"
+GADGET="${GADGETS_ROOT}/${GADGET_NAME}"
+CONFIG_NAME="c.1"
+CONFIG="${GADGET}/configs/${CONFIG_NAME}"
+LANGUAGE="0x409"
+PROFILE_DIR="${KVM_PROFILE_DIR:-/usr/share/vyos-arm64-board-builder}"
+PROVIDER_CONFIG="${KVM_GADGET_PROVIDER_CONFIG:-${PROFILE_DIR}/kvm-gadget-provider.env}"
+UDC_ROOT="${KVM_UDC_ROOT:-/sys/class/udc}"
+
+ID_VENDOR="${KVM_GADGET_ID_VENDOR:-0x1d6b}"
+ID_PRODUCT="${KVM_GADGET_ID_PRODUCT:-0x0104}"
+MANUFACTURER="${KVM_GADGET_MANUFACTURER:-VyOS ARM64}"
+PRODUCT="${KVM_GADGET_PRODUCT:-VyOS KVM}"
+SERIAL="${KVM_GADGET_SERIAL:-VYOS-KVM}"
+CONFIGURATION="${KVM_GADGET_CONFIGURATION:-KVM HID}"
+REBIND_DELAY="${KVM_GADGET_REBIND_DELAY:-0.5}"
+
+# Standard 63-byte boot-keyboard report descriptor used by the proven
+# ROCK 5B hardware bring-up. Mouse functions are added in the next D3 step.
+KEYBOARD_REPORT_DESC_B64='BQEJBqEBBQcZ4CnnFQAlAXUBlQiBApUBdQiBAZUFdQEFCBkBKQWRApUBdQORAZUGdQgVACVlBQcZACllgQDA'
+
+PROVIDER="unknown"
+PORT="unknown"
+UDC=""
+
+usage()
+{
+    cat <<USAGE
+Usage: ${PROGRAM} <command>
+
+Commands:
+  create              Create the default keyboard gadget and bind it
+  destroy             Unbind and remove the gadget
+  bind                Bind an existing gadget to the provider-selected UDC
+  unbind              Unbind the gadget from its UDC
+  rebind              Unbind and bind again
+  status              Show provider, ConfigFS, UDC and keyboard state
+  keyboard enable     Add the keyboard HID function
+  keyboard disable    Remove the keyboard HID function
+  help                 Show this help
+USAGE
+}
+
+die()
+{
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+require_root()
+{
+    [[ ${EUID} -eq 0 ]] || die "${PROGRAM} must run as root for this command"
+}
+
+load_provider()
+{
+    [[ -r "${PROVIDER_CONFIG}" ]] ||
+        die "KVM gadget provider configuration missing: ${PROVIDER_CONFIG}"
+
+    # The file is installed from the selected, trusted board-provider payload.
+    # shellcheck disable=SC1090
+    source "${PROVIDER_CONFIG}"
+
+    PROVIDER="${KVM_GADGET_PROVIDER:-unknown}"
+    PORT="${KVM_GADGET_PORT:-${KVM_GADGET_DEFAULT_PORT:-}}"
+    [[ -n "${PORT}" ]] || die "provider does not define a default gadget port"
+    [[ "${PORT}" =~ ^[a-z0-9]+([_-][a-z0-9]+)*$ ]] ||
+        die "invalid gadget port token: ${PORT}"
+
+    local key variable
+    key="$(printf '%s' "${PORT}" | tr '[:lower:]-' '[:upper:]_')"
+    variable="KVM_GADGET_UDC_${key}"
+    UDC="${!variable:-}"
+    [[ -n "${UDC}" ]] ||
+        die "provider has no UDC mapping for gadget port '${PORT}'"
+    [[ "${UDC}" =~ ^[A-Za-z0-9._:-]+$ ]] ||
+        die "invalid UDC name from provider: ${UDC}"
+
+    SERIAL="${KVM_GADGET_SERIAL:-${SERIAL}}"
+}
+
+load_provider_optional()
+{
+    if [[ -r "${PROVIDER_CONFIG}" ]]; then
+        load_provider
+    fi
+}
+
+ensure_runtime()
+{
+    local fstype=""
+
+    mkdir -p "${CONFIGFS_ROOT}"
+    fstype="$(findmnt -n -o FSTYPE --target "${CONFIGFS_ROOT}" 2>/dev/null || true)"
+    if [[ "${fstype}" != "configfs" ]]; then
+        if mountpoint -q "${CONFIGFS_ROOT}"; then
+            die "${CONFIGFS_ROOT} is mounted as ${fstype:-unknown}, not configfs"
+        fi
+        mount -t configfs configfs "${CONFIGFS_ROOT}"
+    fi
+
+    modprobe libcomposite
+    [[ -d "${GADGETS_ROOT}" ]] ||
+        die "ConfigFS USB gadget root did not appear after loading libcomposite"
+}
+
+bound_udc()
+{
+    [[ -r "${GADGET}/UDC" ]] || return 0
+    tr -d '\n' < "${GADGET}/UDC"
+}
+
+is_bound()
+{
+    [[ -n "$(bound_udc)" ]]
+}
+
+function_count()
+{
+    local count=0 item
+    [[ -d "${CONFIG}" ]] || {
+        printf '0\n'
+        return
+    }
+    for item in "${CONFIG}"/*; do
+        [[ -L "${item}" ]] || continue
+        count=$((count + 1))
+    done
+    printf '%s\n' "${count}"
+}
+
+create_base()
+{
+    mkdir -p "${GADGET}"
+    printf '%s\n' "${ID_VENDOR}" > "${GADGET}/idVendor"
+    printf '%s\n' "${ID_PRODUCT}" > "${GADGET}/idProduct"
+
+    mkdir -p "${GADGET}/strings/${LANGUAGE}"
+    printf '%s\n' "${SERIAL}" > "${GADGET}/strings/${LANGUAGE}/serialnumber"
+    printf '%s\n' "${MANUFACTURER}" > "${GADGET}/strings/${LANGUAGE}/manufacturer"
+    printf '%s\n' "${PRODUCT}" > "${GADGET}/strings/${LANGUAGE}/product"
+
+    mkdir -p "${CONFIG}/strings/${LANGUAGE}"
+    printf '%s\n' "${CONFIGURATION}" > "${CONFIG}/strings/${LANGUAGE}/configuration"
+}
+
+ensure_keyboard()
+{
+    local function="${GADGET}/functions/hid.keyboard"
+    local link="${CONFIG}/hid.keyboard"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '1\n' > "${function}/protocol"
+        printf '1\n' > "${function}/subclass"
+        printf '8\n' > "${function}/report_length"
+        printf '%s\n' "${KEYBOARD_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_keyboard()
+{
+    local function="${GADGET}/functions/hid.keyboard"
+    local link="${CONFIG}/hid.keyboard"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+bind_gadget()
+{
+    local current
+
+    load_provider
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || die "gadget does not exist; run '${PROGRAM} create' first"
+    [[ -e "${UDC_ROOT}/${UDC}" ]] || die "provider-selected UDC is unavailable: ${UDC}"
+    (( $(function_count) > 0 )) || die "refusing to bind a gadget with no functions"
+
+    current="$(bound_udc)"
+    if [[ -n "${current}" ]]; then
+        [[ "${current}" == "${UDC}" ]] ||
+            die "gadget is already bound to a different UDC: ${current}"
+        return 0
+    fi
+
+    printf '%s\n' "${UDC}" > "${GADGET}/UDC"
+}
+
+unbind_gadget()
+{
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        printf '\n' > "${GADGET}/UDC"
+    fi
+}
+
+create_gadget()
+{
+    load_provider
+    ensure_runtime
+    unbind_gadget
+    create_base
+    ensure_keyboard
+    bind_gadget
+}
+
+destroy_gadget()
+{
+    local config lang function link
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    unbind_gadget
+
+    for config in "${GADGET}/configs/"*; do
+        [[ -d "${config}" ]] || continue
+        for link in "${config}/"*; do
+            [[ -L "${link}" ]] && rm "${link}"
+        done
+        for lang in "${config}/strings/"*; do
+            [[ -d "${lang}" ]] && rmdir "${lang}"
+        done
+        rmdir "${config}"
+    done
+
+    for function in "${GADGET}/functions/"*; do
+        [[ -d "${function}" ]] && rmdir "${function}"
+    done
+
+    for lang in "${GADGET}/strings/"*; do
+        [[ -d "${lang}" ]] && rmdir "${lang}"
+    done
+
+    rmdir "${GADGET}"
+}
+
+keyboard_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    create_base
+    ensure_keyboard
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+keyboard_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_keyboard
+    if [[ "${was_bound}" == yes && $(function_count) -gt 0 ]]; then
+        bind_gadget
+    fi
+}
+
+rebind_gadget()
+{
+    load_provider
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || die "gadget does not exist; run '${PROGRAM} create' first"
+    unbind_gadget
+    sleep "${REBIND_DELAY}"
+    bind_gadget
+}
+
+status_gadget()
+{
+    local configfs=missing composite=not-loaded gadget=absent keyboard=disabled
+    local current="" state="UNKNOWN" speed="UNKNOWN"
+
+    load_provider_optional
+
+    [[ -d "${GADGETS_ROOT}" ]] && configfs=ready
+    [[ -d /sys/module/libcomposite ]] && composite=loaded
+    if [[ -d "${GADGET}" ]]; then
+        gadget=present
+        [[ -L "${CONFIG}/hid.keyboard" ]] && keyboard=enabled
+        current="$(bound_udc)"
+    fi
+
+    if [[ -n "${UDC}" && -r "${UDC_ROOT}/${UDC}/state" ]]; then
+        state="$(cat "${UDC_ROOT}/${UDC}/state")"
+    fi
+    if [[ -n "${UDC}" && -r "${UDC_ROOT}/${UDC}/current_speed" ]]; then
+        speed="$(cat "${UDC_ROOT}/${UDC}/current_speed")"
+    fi
+
+    printf 'provider=%s\n' "${PROVIDER}"
+    printf 'port=%s\n' "${PORT}"
+    printf 'udc=%s\n' "${UDC:-unresolved}"
+    printf 'configfs=%s\n' "${configfs}"
+    printf 'libcomposite=%s\n' "${composite}"
+    printf 'gadget=%s\n' "${gadget}"
+    printf 'bound_udc=%s\n' "${current:-none}"
+    printf 'state=%s\n' "${state}"
+    printf 'speed=%s\n' "${speed}"
+    printf 'keyboard=%s\n' "${keyboard}"
+}
+
+command="${1:-help}"
+case "${command}" in
+    help|-h|--help)
+        usage
+        ;;
+    status)
+        status_gadget
+        ;;
+    create)
+        require_root
+        create_gadget
+        ;;
+    destroy)
+        require_root
+        destroy_gadget
+        ;;
+    bind)
+        require_root
+        bind_gadget
+        ;;
+    unbind)
+        require_root
+        unbind_gadget
+        ;;
+    rebind)
+        require_root
+        rebind_gadget
+        ;;
+    keyboard)
+        require_root
+        case "${2:-}" in
+            enable) keyboard_enable ;;
+            disable) keyboard_disable ;;
+            *) die "keyboard requires 'enable' or 'disable'" ;;
+        esac
+        ;;
+    *)
+        usage >&2
+        die "unknown command: ${command}"
+        ;;
+esac

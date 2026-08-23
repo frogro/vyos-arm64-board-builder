@@ -150,6 +150,21 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     install -m 0755 \
         "$PAYLOAD/kvm-over-ip-readiness.sh" \
         "$SBIN_DIR/vyos-arm64-kvm-readiness"
+    install -m 0755 \
+        "$PAYLOAD/vyos-kvm-gadget" \
+        "$SBIN_DIR/vyos-kvm-gadget"
+
+    KVM_GADGET_PROVIDER_SOURCE="$ROOT/profiles/kvm-hardware/runtime/${KVM_HARDWARE_PROVIDER}.env"
+    if [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]]; then
+        install -m 0644 \
+            "$KVM_GADGET_PROVIDER_SOURCE" \
+            "$PROFILE_DIR/kvm-gadget-provider.env"
+    elif [[ "$KVM_HID_GADGET" == "yes" ]]; then
+        echo "ERROR: KVM provider '${KVM_HARDWARE_PROVIDER}' claims HID gadget support" >&2
+        echo "ERROR: but has no runtime gadget routing: $KVM_GADGET_PROVIDER_SOURCE" >&2
+        exit 1
+    fi
+
     install -d -m 0750 "$ROOTFS/config/kvm-over-ip"
 fi
 

@@ -100,6 +100,44 @@ class KvmProfileTests(unittest.TestCase):
         self.assertIn("apt-get install -y --no-install-recommends", installer)
         self.assertNotIn("apt-get upgrade", installer)
 
+    def test_gadget_runtime_is_provider_driven_and_profile_scoped(self):
+        manager_path = ROOT / "tools/common-firstboot/vyos-kvm-gadget"
+        manager = manager_path.read_text()
+        provider = (
+            ROOT
+            / "profiles/kvm-hardware/runtime/rk3588-synopsys-hdmirx.env"
+        ).read_text()
+        finalizer = (ROOT / "tools/finalize-vyos-rootfs.sh").read_text()
+
+        subprocess.run(["bash", "-n", str(manager_path)], check=True)
+        help_result = subprocess.run(
+            ["bash", str(manager_path), "--help"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        for command in (
+            "create",
+            "destroy",
+            "bind",
+            "unbind",
+            "rebind",
+            "status",
+            "keyboard enable",
+            "keyboard disable",
+        ):
+            self.assertIn(command, help_result.stdout)
+
+        self.assertIn("modprobe libcomposite", manager)
+        self.assertIn("KVM_GADGET_UDC_", manager)
+        self.assertNotIn("fc400000.usb", manager)
+        self.assertIn("KVM_GADGET_UDC_DEDICATED=fc400000.usb", provider)
+        self.assertIn('KVM_GADGET_DEFAULT_PORT=dedicated', provider)
+
+        self.assertIn('"$PAYLOAD/vyos-kvm-gadget"', finalizer)
+        self.assertIn('kvm-gadget-provider.env', finalizer)
+        self.assertIn('if [[ "$KVM_OVER_IP" == "yes" ]]; then', finalizer)
+
     def test_rock5b_provider_contains_only_opt_in_hardware_delta(self):
         text = (
             ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config"
