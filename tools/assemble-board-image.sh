@@ -147,6 +147,7 @@ KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
 KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
+GRUB_BOARD_DTB_PATCHER="$ROOT/tools/patch-vyos-grub-board-dtb.py"
 
 [[ -x "$INSTALL_PROVIDER" ]] ||
     die "firmware provider installer missing: $INSTALL_PROVIDER"
@@ -169,6 +170,9 @@ fi
 
 [[ -x "$GRUB_CONSOLE_TOOL" ]] ||
     die "GRUB console-default tool missing: $GRUB_CONSOLE_TOOL"
+
+[[ -x "$GRUB_BOARD_DTB_PATCHER" ]] ||
+    die "GRUB board-DTB patcher missing: $GRUB_BOARD_DTB_PATCHER"
 
 DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 
@@ -525,6 +529,13 @@ echo
 echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="
 
 python3 "$ARM_CPU_OPMODE_PATCHER" "$SQUASH_ROOT"
+
+echo
+echo "===== ADDING BOARD DTB TO VYOS GRUB TEMPLATE ====="
+
+python3 "$GRUB_BOARD_DTB_PATCHER" \
+    "$SQUASH_ROOT" \
+    "$BOOT_FDT_FILE"
 
 echo
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
