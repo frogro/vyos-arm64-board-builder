@@ -129,6 +129,9 @@ class KvmProfileTests(unittest.TestCase):
             "mouse absolute disable",
             "mouse relative enable",
             "mouse relative disable",
+            "virtual-media attach",
+            "virtual-media eject",
+            "virtual-media status",
         ):
             self.assertIn(command, help_result.stdout)
 
@@ -141,6 +144,14 @@ class KvmProfileTests(unittest.TestCase):
         self.assertIn('printf \'4\\n\' > "${function}/report_length"', manager)
         self.assertIn("mouse_absolute=", manager)
         self.assertIn("mouse_relative=", manager)
+        self.assertIn("/config/kvm-over-ip/media", manager)
+        self.assertIn("forced_eject", manager)
+        self.assertIn('lun.0/cdrom', manager)
+        self.assertIn('lun.0/ro', manager)
+        self.assertIn('virtual_media_state=', manager)
+        self.assertIn('virtual_media_read_only=', manager)
+        self.assertIn("CD-ROM virtual media requires an .iso file", manager)
+        self.assertNotIn("virtual-media disk", manager)
         self.assertIn("KVM_GADGET_UDC_DEDICATED=fc400000.usb", provider)
         self.assertIn('KVM_GADGET_DEFAULT_PORT=dedicated', provider)
 

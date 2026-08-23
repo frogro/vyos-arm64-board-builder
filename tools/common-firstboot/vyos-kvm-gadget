@@ -20,6 +20,8 @@ PRODUCT="${KVM_GADGET_PRODUCT:-VyOS KVM}"
 SERIAL="${KVM_GADGET_SERIAL:-VYOS-KVM}"
 CONFIGURATION="${KVM_GADGET_CONFIGURATION:-KVM HID}"
 REBIND_DELAY="${KVM_GADGET_REBIND_DELAY:-0.5}"
+VIRTUAL_MEDIA_ROOT="${KVM_VIRTUAL_MEDIA_ROOT:-/config/kvm-over-ip/media}"
+VIRTUAL_MEDIA_INQUIRY="${KVM_VIRTUAL_MEDIA_INQUIRY:-VyOS Virtual CD}"
 
 # Standard 63-byte boot-keyboard report descriptor used by the proven
 # ROCK 5B hardware bring-up.
@@ -59,6 +61,12 @@ Commands:
                       Add the relative mouse HID function
   mouse relative disable
                       Remove the relative mouse HID function
+  virtual-media attach <iso>
+                      Attach a read-only CD-ROM ISO
+  virtual-media eject
+                      Force-eject the current virtual CD-ROM
+  virtual-media status
+                      Show virtual-media state
   help                 Show this help
 USAGE
 }
@@ -244,6 +252,163 @@ remove_relative_mouse()
     [[ -d "${function}" ]] && rmdir "${function}"
 }
 
+virtual_media_function()
+{
+    printf '%s\n' "${GADGET}/functions/mass_storage.virtual-media"
+}
+
+virtual_media_link()
+{
+    printf '%s\n' "${CONFIG}/mass_storage.virtual-media"
+}
+
+virtual_media_lun()
+{
+    printf '%s\n' "$(virtual_media_function)/lun.0"
+}
+
+virtual_media_file()
+{
+    local lun
+    lun="$(virtual_media_lun)"
+    [[ -r "${lun}/file" ]] || return 0
+    tr -d '\n' < "${lun}/file"
+}
+
+resolve_virtual_media_file()
+{
+    local requested="$1"
+    local root resolved
+
+    [[ -n "${requested}" ]] || die "virtual-media attach requires an ISO path"
+
+    mkdir -p "${VIRTUAL_MEDIA_ROOT}"
+    root="$(readlink -f -- "${VIRTUAL_MEDIA_ROOT}")" ||
+        die "unable to resolve virtual-media root: ${VIRTUAL_MEDIA_ROOT}"
+
+    if [[ "${requested}" != /* ]]; then
+        requested="${VIRTUAL_MEDIA_ROOT}/${requested}"
+    fi
+    resolved="$(readlink -f -- "${requested}")" ||
+        die "virtual-media file not found: ${requested}"
+
+    [[ -f "${resolved}" && -s "${resolved}" ]] ||
+        die "virtual-media file must be a non-empty regular file: ${resolved}"
+
+    case "${resolved}" in
+        "${root}"/*) ;;
+        *) die "virtual-media file must be below ${root}" ;;
+    esac
+
+    case "${resolved,,}" in
+        *.iso) ;;
+        *) die "CD-ROM virtual media requires an .iso file" ;;
+    esac
+
+    printf '%s\n' "${resolved}"
+}
+
+ensure_virtual_media()
+{
+    local function link
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '1\n' > "${function}/stall"
+        printf '1\n' > "${function}/lun.0/removable"
+        printf '1\n' > "${function}/lun.0/cdrom"
+        printf '1\n' > "${function}/lun.0/ro"
+        printf '%s\n' "${VIRTUAL_MEDIA_INQUIRY}" > "${function}/lun.0/inquiry_string"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+virtual_media_force_eject()
+{
+    local lun current
+    lun="$(virtual_media_lun)"
+    [[ -d "${lun}" ]] || return 0
+
+    current="$(virtual_media_file)"
+    [[ -n "${current}" ]] || return 0
+
+    printf '1\n' > "${lun}/forced_eject"
+}
+
+virtual_media_attach()
+{
+    local media="$1"
+    local function link lun current
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    media="$(resolve_virtual_media_file "${media}")"
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+    lun="$(virtual_media_lun)"
+
+    # Once the mass-storage function is part of the active configuration,
+    # media can be replaced without reconnecting the USB gadget.
+    if [[ -d "${function}" && -L "${link}" ]]; then
+        current="$(virtual_media_file)"
+        if [[ -n "${current}" && "${current}" != "${media}" ]]; then
+            virtual_media_force_eject
+        fi
+        if [[ "$(virtual_media_file)" != "${media}" ]]; then
+            printf '%s\n' "${media}" > "${lun}/file"
+        fi
+        return 0
+    fi
+
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+
+    create_base
+    ensure_virtual_media
+    printf '%s\n' "${media}" > "${lun}/file"
+
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+virtual_media_eject()
+{
+    ensure_runtime
+    virtual_media_force_eject
+}
+
+virtual_media_status()
+{
+    local function link lun
+    local enabled=disabled state=disabled file=none mode=none read_only=unknown
+
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+    lun="$(virtual_media_lun)"
+
+    if [[ -d "${function}" && -L "${link}" ]]; then
+        enabled=enabled
+        state=ejected
+        mode=cdrom
+        read_only=yes
+        if [[ -n "$(virtual_media_file)" ]]; then
+            state=attached
+            file="$(virtual_media_file)"
+        fi
+    fi
+
+    printf 'virtual_media=%s\n' "${enabled}"
+    printf 'virtual_media_state=%s\n' "${state}"
+    printf 'virtual_media_file=%s\n' "${file}"
+    printf 'virtual_media_mode=%s\n' "${mode}"
+    printf 'virtual_media_read_only=%s\n' "${read_only}"
+}
+
 restore_binding_if_possible()
 {
     local was_bound="$1"
@@ -297,6 +462,7 @@ destroy_gadget()
 
     ensure_runtime
     [[ -d "${GADGET}" ]] || return 0
+    virtual_media_force_eject
     unbind_gadget
 
     for config in "${GADGET}/configs/"*; do
@@ -455,6 +621,7 @@ status_gadget()
     printf 'keyboard=%s\n' "${keyboard}"
     printf 'mouse_absolute=%s\n' "${mouse_absolute}"
     printf 'mouse_relative=%s\n' "${mouse_relative}"
+    virtual_media_status
 }
 
 command="${1:-help}"
@@ -511,6 +678,22 @@ case "${command}" in
                 esac
                 ;;
             *) die "mouse requires 'absolute' or 'relative'" ;;
+        esac
+        ;;
+    virtual-media)
+        case "${2:-}" in
+            attach)
+                require_root
+                virtual_media_attach "${3:-}"
+                ;;
+            eject)
+                require_root
+                virtual_media_eject
+                ;;
+            status)
+                virtual_media_status
+                ;;
+            *) die "virtual-media requires 'attach', 'eject' or 'status'" ;;
         esac
         ;;
     *)

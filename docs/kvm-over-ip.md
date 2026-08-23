@@ -31,6 +31,9 @@ initial D3 interface provides:
     vyos-kvm-gadget mouse absolute disable
     vyos-kvm-gadget mouse relative enable
     vyos-kvm-gadget mouse relative disable
+    vyos-kvm-gadget virtual-media attach <iso>
+    vyos-kvm-gadget virtual-media eject
+    vyos-kvm-gadget virtual-media status
 
 The manager owns ConfigFS/libcomposite setup and gadget composition. Board-
 specific UDC names remain in provider runtime metadata rather than in the
@@ -41,6 +44,18 @@ Keyboard, absolute mouse and relative mouse are independent HID functions.
 The ROCK 5B hardware validation demonstrated all three simultaneously as a
 three-interface USB composite gadget. Absolute pointer reports use 16-bit
 coordinates, while relative pointer reports carry signed movement deltas.
+
+The first Virtual Media runtime supports ISO files as removable, read-only
+CD-ROM media. Media files are restricted to `/config/kvm-over-ip/media` by
+default. Eject uses the ConfigFS `forced_eject` control so a host media lock
+does not require reconnecting the whole USB gadget. The ROCK 5B validation
+demonstrated an attached ISO as `/dev/sr0`, a no-medium state after eject, and
+successful re-attach/read while the HID functions remained available.
+
+Writable CD-ROM media is intentionally unsupported. Future Virtual Media
+expansion may add separate `disk-read-only` and `disk-read-write` modes for
+USB disk images; the writable mode is intended for controlled data transfer
+or backup and will require additional mount/sync/eject safety checks.
 
 Hardware-specific changes are resolved from
 `profiles/kvm-hardware-providers.conf`. Exact board identifiers take priority;
@@ -56,10 +71,10 @@ Device Tree and gadget/OTG path have been verified for that board. Until then,
 such a board receives the generic V4L2/UVC path and can use a supported USB or
 PCIe capture device.
 
-It does not expose a capture device, create a keyboard/mouse gadget, attach
-Virtual Media, change the VyOS firewall or enable a listening service. Runtime
-state belongs under `/config/kvm-over-ip` so it can survive a normal VyOS
-system-image update.
+Nothing is exposed automatically at boot: the runtime does not create or bind
+a gadget, attach Virtual Media, change the VyOS firewall or enable a listening
+service unless explicitly invoked. Runtime state and media belong under
+`/config/kvm-over-ip` so they can survive a normal VyOS system-image update.
 
 Run `sudo vyos-arm64-kvm-readiness` after connecting the hardware. A detected
 `/dev/video*` device establishes capture readiness. Keyboard, mouse and Virtual
