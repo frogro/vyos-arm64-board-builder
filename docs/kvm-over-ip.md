@@ -27,11 +27,20 @@ initial D3 interface provides:
     vyos-kvm-gadget status
     vyos-kvm-gadget keyboard enable
     vyos-kvm-gadget keyboard disable
+    vyos-kvm-gadget mouse absolute enable
+    vyos-kvm-gadget mouse absolute disable
+    vyos-kvm-gadget mouse relative enable
+    vyos-kvm-gadget mouse relative disable
 
 The manager owns ConfigFS/libcomposite setup and gadget composition. Board-
 specific UDC names remain in provider runtime metadata rather than in the
 generic manager. This keeps a later dedicated-port versus USB-C/PD-injector
 choice board-specific while preserving one common runtime interface.
+
+Keyboard, absolute mouse and relative mouse are independent HID functions.
+The ROCK 5B hardware validation demonstrated all three simultaneously as a
+three-interface USB composite gadget. Absolute pointer reports use 16-bit
+coordinates, while relative pointer reports carry signed movement deltas.
 
 Hardware-specific changes are resolved from
 `profiles/kvm-hardware-providers.conf`. Exact board identifiers take priority;

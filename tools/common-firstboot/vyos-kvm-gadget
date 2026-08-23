@@ -22,8 +22,16 @@ CONFIGURATION="${KVM_GADGET_CONFIGURATION:-KVM HID}"
 REBIND_DELAY="${KVM_GADGET_REBIND_DELAY:-0.5}"
 
 # Standard 63-byte boot-keyboard report descriptor used by the proven
-# ROCK 5B hardware bring-up. Mouse functions are added in the next D3 step.
+# ROCK 5B hardware bring-up.
 KEYBOARD_REPORT_DESC_B64='BQEJBqEBBQcZ4CnnFQAlAXUBlQiBApUBdQiBAZUFdQEFCBkBKQWRApUBdQORAZUGdQgVACVlBQcZACllgQDA'
+
+# Proven absolute mouse descriptor:
+# 5 buttons, absolute 16-bit X/Y in the range 0..32767 and relative wheel.
+ABSOLUTE_MOUSE_REPORT_DESC_B64='BQEJAqEBCQGhAAUJGQEpBRUAJQGVBXUBgQKVAXUDgQEFAQkwCTEWAAAm/391EJUCgQIJOBWBJX91CJUBgQbAwA=='
+
+# Proven relative mouse descriptor:
+# 5 buttons, signed 8-bit relative X/Y and relative wheel.
+RELATIVE_MOUSE_REPORT_DESC_B64='BQEJAqEBCQGhAAUJGQEpBRUAJQGVBXUBgQKVAXUDgQEFAQkwCTEJOBWBJX91CJUDgQbAwA=='
 
 PROVIDER="unknown"
 PORT="unknown"
@@ -43,6 +51,14 @@ Commands:
   status              Show provider, ConfigFS, UDC and keyboard state
   keyboard enable     Add the keyboard HID function
   keyboard disable    Remove the keyboard HID function
+  mouse absolute enable
+                      Add the absolute mouse HID function
+  mouse absolute disable
+                      Remove the absolute mouse HID function
+  mouse relative enable
+                      Add the relative mouse HID function
+  mouse relative disable
+                      Remove the relative mouse HID function
   help                 Show this help
 USAGE
 }
@@ -176,6 +192,67 @@ remove_keyboard()
     [[ -d "${function}" ]] && rmdir "${function}"
 }
 
+ensure_absolute_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-absolute"
+    local link="${CONFIG}/hid.mouse-absolute"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '0\n' > "${function}/protocol"
+        printf '0\n' > "${function}/subclass"
+        printf '6\n' > "${function}/report_length"
+        printf '%s\n' "${ABSOLUTE_MOUSE_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_absolute_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-absolute"
+    local link="${CONFIG}/hid.mouse-absolute"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+ensure_relative_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-relative"
+    local link="${CONFIG}/hid.mouse-relative"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '0\n' > "${function}/protocol"
+        printf '0\n' > "${function}/subclass"
+        printf '4\n' > "${function}/report_length"
+        printf '%s\n' "${RELATIVE_MOUSE_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_relative_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-relative"
+    local link="${CONFIG}/hid.mouse-relative"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+restore_binding_if_possible()
+{
+    local was_bound="$1"
+
+    if [[ "${was_bound}" == yes && $(function_count) -gt 0 ]]; then
+        bind_gadget
+    fi
+}
+
 bind_gadget()
 {
     local current
@@ -270,9 +347,65 @@ keyboard_disable()
         unbind_gadget
     fi
     remove_keyboard
-    if [[ "${was_bound}" == yes && $(function_count) -gt 0 ]]; then
-        bind_gadget
+    restore_binding_if_possible "${was_bound}"
+}
+
+mouse_absolute_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
     fi
+    create_base
+    ensure_absolute_mouse
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+mouse_absolute_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_absolute_mouse
+    restore_binding_if_possible "${was_bound}"
+}
+
+mouse_relative_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    create_base
+    ensure_relative_mouse
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+mouse_relative_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_relative_mouse
+    restore_binding_if_possible "${was_bound}"
 }
 
 rebind_gadget()
@@ -288,6 +421,7 @@ rebind_gadget()
 status_gadget()
 {
     local configfs=missing composite=not-loaded gadget=absent keyboard=disabled
+    local mouse_absolute=disabled mouse_relative=disabled
     local current="" state="UNKNOWN" speed="UNKNOWN"
 
     load_provider_optional
@@ -297,6 +431,8 @@ status_gadget()
     if [[ -d "${GADGET}" ]]; then
         gadget=present
         [[ -L "${CONFIG}/hid.keyboard" ]] && keyboard=enabled
+        [[ -L "${CONFIG}/hid.mouse-absolute" ]] && mouse_absolute=enabled
+        [[ -L "${CONFIG}/hid.mouse-relative" ]] && mouse_relative=enabled
         current="$(bound_udc)"
     fi
 
@@ -317,6 +453,8 @@ status_gadget()
     printf 'state=%s\n' "${state}"
     printf 'speed=%s\n' "${speed}"
     printf 'keyboard=%s\n' "${keyboard}"
+    printf 'mouse_absolute=%s\n' "${mouse_absolute}"
+    printf 'mouse_relative=%s\n' "${mouse_relative}"
 }
 
 command="${1:-help}"
@@ -353,6 +491,26 @@ case "${command}" in
             enable) keyboard_enable ;;
             disable) keyboard_disable ;;
             *) die "keyboard requires 'enable' or 'disable'" ;;
+        esac
+        ;;
+    mouse)
+        require_root
+        case "${2:-}" in
+            absolute)
+                case "${3:-}" in
+                    enable) mouse_absolute_enable ;;
+                    disable) mouse_absolute_disable ;;
+                    *) die "mouse absolute requires 'enable' or 'disable'" ;;
+                esac
+                ;;
+            relative)
+                case "${3:-}" in
+                    enable) mouse_relative_enable ;;
+                    disable) mouse_relative_disable ;;
+                    *) die "mouse relative requires 'enable' or 'disable'" ;;
+                esac
+                ;;
+            *) die "mouse requires 'absolute' or 'relative'" ;;
         esac
         ;;
     *)

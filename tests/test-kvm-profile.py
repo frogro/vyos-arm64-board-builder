@@ -125,12 +125,22 @@ class KvmProfileTests(unittest.TestCase):
             "status",
             "keyboard enable",
             "keyboard disable",
+            "mouse absolute enable",
+            "mouse absolute disable",
+            "mouse relative enable",
+            "mouse relative disable",
         ):
             self.assertIn(command, help_result.stdout)
 
         self.assertIn("modprobe libcomposite", manager)
         self.assertIn("KVM_GADGET_UDC_", manager)
         self.assertNotIn("fc400000.usb", manager)
+        self.assertIn("ABSOLUTE_MOUSE_REPORT_DESC_B64=", manager)
+        self.assertIn("RELATIVE_MOUSE_REPORT_DESC_B64=", manager)
+        self.assertIn('printf \'6\\n\' > "${function}/report_length"', manager)
+        self.assertIn('printf \'4\\n\' > "${function}/report_length"', manager)
+        self.assertIn("mouse_absolute=", manager)
+        self.assertIn("mouse_relative=", manager)
         self.assertIn("KVM_GADGET_UDC_DEDICATED=fc400000.usb", provider)
         self.assertIn('KVM_GADGET_DEFAULT_PORT=dedicated', provider)
 
