@@ -1,0 +1,7 @@
+# Profile-D RK3588 media userspace components.
+# Comment out a line to omit that component from the next image build.
+# Format: component|mode  (mode: required or optional)
+libmpp|required
+ffmpeg-rockchip|required
+mediamtx|required
+gstreamer-rockchip|optional

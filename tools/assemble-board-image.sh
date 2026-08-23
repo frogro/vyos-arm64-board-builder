@@ -14,6 +14,7 @@ BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
+KVM_MEDIA_ARTIFACTS="$KERNEL_ARTIFACTS/kvm-media"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
@@ -143,6 +144,7 @@ FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh
 VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
 KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
+KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 
@@ -155,6 +157,11 @@ GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    [[ -x "$KVM_MEDIA_INSTALLER" ]] || die "KVM media installer missing: $KVM_MEDIA_INSTALLER"
+    [[ -d "$KVM_MEDIA_ARTIFACTS" ]] || die "KVM media artifacts missing: $KVM_MEDIA_ARTIFACTS"
 fi
 
 [[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
@@ -551,6 +558,12 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     "$KVM_USERSPACE_INSTALLER" \
         "$SQUASH_ROOT" \
         "$ROOT/profiles/kvm-over-ip-packages.txt"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    echo
+    echo "===== INSTALLING RK3588 KVM MEDIA STACK ====="
+    "$KVM_MEDIA_INSTALLER" "$SQUASH_ROOT" "$KVM_MEDIA_ARTIFACTS"
 fi
 
 chroot "$SQUASH_ROOT" /bin/bash -c "
