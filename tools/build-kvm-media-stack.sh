@@ -79,6 +79,12 @@ fi
 rm -rf "$WORK" "$ARTIFACTS"
 mkdir -p "$WORK" "$ARTIFACTS/bin" "$ARTIFACTS/lib" "$ARTIFACTS/gstreamer" "$ARTIFACTS/etc" "$ARTIFACTS/source"
 
+cleanup_work()
+{
+    rm -rf "$WORK"
+}
+trap cleanup_work EXIT
+
 debootstrap --arch=arm64 --variant=minbase bookworm "$CHROOT" https://deb.debian.org/debian
 install -D -m 0644 /etc/resolv.conf "$CHROOT/etc/resolv.conf"
 
