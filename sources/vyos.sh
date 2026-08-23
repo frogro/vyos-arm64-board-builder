@@ -123,8 +123,28 @@ vyos_kernel_source_dir() {
     printf '%s\n' "${ROOT_DIR}/cache/linux-vyos/linux-${version}"
 }
 
+vyos_patch_dir_hash() {
+    local dir="$1"
+
+    {
+        if [[ -n "${dir}" && -d "${dir}" ]]; then
+            while IFS= read -r -d '' patch_file; do
+                sha256sum "${patch_file}" | awk '{print $1}'
+            done < <(
+                find "${dir}" \
+                    -maxdepth 1 \
+                    -type f \
+                    -name '*.patch' \
+                    -print0 | sort -z
+            )
+        fi
+    } | sha256sum | awk '{print $1}'
+}
+
 vyos_kernel_prepare() {
     local version="$1"
+    local provider_patch_dir="${2:-}"
+    local provider_patch_id="${2:-none}"
 
     local cache="${ROOT_DIR}/cache/linux-vyos"
     local source="${cache}/linux-${version}"
@@ -136,33 +156,32 @@ vyos_kernel_prepare() {
     local vyos_commit
     local builder_commit
     local local_patch_hash
+    local provider_patch_hash
 
     patch_dir="$(vyos_source_dir)/scripts/package-build/linux-kernel/patches/kernel"
     local_patch_dir="${ROOT_DIR}/patches/kernel"
+
+    if [[ -n "${provider_patch_dir}" && "${provider_patch_dir}" != /* ]]; then
+        provider_patch_dir="${ROOT_DIR}/${provider_patch_dir}"
+    fi
+
+    if [[ -n "${provider_patch_dir}" && ! -d "${provider_patch_dir}" ]]; then
+        die "Hardware-provider kernel patch directory not found: ${provider_patch_dir}"
+    fi
+
     stamp="${source}/.vyos-kernel-prepared"
     vyos_commit="$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
     builder_commit="$(git -C "${ROOT_DIR}" rev-parse HEAD 2>/dev/null || printf 'unknown')"
-    local_patch_hash="$(
-        {
-            if [[ -d "${local_patch_dir}" ]]; then
-                while IFS= read -r -d '' patch_file; do
-                    sha256sum "${patch_file}" | awk '{print $1}'
-                done < <(
-                    find "${local_patch_dir}" \
-                        -maxdepth 1 \
-                        -type f \
-                        -name '*.patch' \
-                        -print0 | sort -z
-                )
-            fi
-        } | sha256sum | awk '{print $1}'
-    )"
+    local_patch_hash="$(vyos_patch_dir_hash "${local_patch_dir}")"
+    provider_patch_hash="$(vyos_patch_dir_hash "${provider_patch_dir}")"
 
     if [[ -f "${stamp}" ]] &&
        grep -qx "kernel_version=${version}" "${stamp}" &&
        grep -qx "vyos_commit=${vyos_commit}" "${stamp}" &&
        grep -qx "builder_commit=${builder_commit}" "${stamp}" &&
-       grep -qx "local_patch_hash=${local_patch_hash}" "${stamp}"; then
+       grep -qx "local_patch_hash=${local_patch_hash}" "${stamp}" &&
+       grep -Fqx "provider_patch_id=${provider_patch_id}" "${stamp}" &&
+       grep -Fqx "provider_patch_hash=${provider_patch_hash}" "${stamp}"; then
         info "VyOS kernel source already prepared: ${source}"
         return 0
     fi
@@ -278,6 +297,28 @@ vyos_kernel_prepare() {
         )
     fi
 
+    if [[ -n "${provider_patch_dir}" ]]; then
+        info "Applying hardware-provider kernel patches..."
+
+        while IFS= read -r patch_file; do
+            [[ -f "${patch_file}" ]] || continue
+
+            info "Applying $(basename "${patch_file}")"
+
+            patch \
+                -d "${source}" \
+                -p1 \
+                < "${patch_file}"
+        done < <(
+            find "${provider_patch_dir}" \
+                -maxdepth 1 \
+                -type f \
+                -name '*.patch' \
+                -printf '%p\n' |
+                sort
+        )
+    fi
+
     #
     # Match the VyOS kernel builder's certificate identity adjustment.
     #
@@ -293,6 +334,8 @@ vyos_kernel_prepare() {
         echo "vyos_commit=${vyos_commit}"
         echo "builder_commit=${builder_commit}"
         echo "local_patch_hash=${local_patch_hash}"
+        echo "provider_patch_id=${provider_patch_id}"
+        echo "provider_patch_hash=${provider_patch_hash}"
     } > "${stamp}"
 
     info "VyOS kernel source prepared successfully."

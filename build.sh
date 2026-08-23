@@ -218,7 +218,7 @@ main() {
     # Kconfig derivation. VyOS patches may themselves introduce Kconfig
     # symbols, so this must happen first.
     #
-    vyos_kernel_prepare "${kernel_version}"
+    vyos_kernel_prepare "${kernel_version}" "${KVM_HARDWARE_KERNEL_PATCH_DIR:-}"
 
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
@@ -265,6 +265,7 @@ main() {
     info "KVM HW provider:${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
     info "KVM capture:    ${KVM_CAPTURE_BACKEND}"
     info "KVM DT overlay: ${KVM_HARDWARE_DT_OVERLAY:-none}"
+    info "KVM kernel patches: ${KVM_HARDWARE_KERNEL_PATCH_DIR:-none}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"

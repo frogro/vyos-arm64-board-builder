@@ -39,6 +39,10 @@ class KvmHardwareProviderTests(unittest.TestCase):
             "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts",
             result["dt_overlay"],
         )
+        self.assertEqual(
+            "profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx",
+            result["kernel_patch_dir"],
+        )
         MODULE.validate_paths(ROOT, result)
 
     def test_rock5b_overlay_contains_safe_fixed_peripheral_routing(self) -> None:
@@ -110,6 +114,26 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertIn('if [[ "${kvm_over_ip}" == "yes" ]]; then', build)
         self.assertIn('profiles/kvm-over-ip.config', build)
 
+    def test_rock5b_profile_d_enables_encoder_only_mpp(self) -> None:
+        config = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config").read_text(encoding="utf-8")
+        ready = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx-ready.config").read_text(encoding="utf-8")
+        for expected in (
+            "CONFIG_ROCKCHIP_MPP_SERVICE=y",
+            "CONFIG_ROCKCHIP_MPP_PROC_FS=y",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2=y",
+            "# CONFIG_ROCKCHIP_MPP_RKVENC2_DEVFREQ is not set",
+            "# CONFIG_ROCKCHIP_MPP_RKVDEC2 is not set",
+        ):
+            self.assertIn(expected, config)
+        for expected in (
+            "CONFIG_ROCKCHIP_MPP_SERVICE=builtin",
+            "CONFIG_ROCKCHIP_MPP_PROC_FS=builtin",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2=builtin",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2_DEVFREQ=disabled",
+            "CONFIG_ROCKCHIP_MPP_RKVDEC2=disabled",
+        ):
+            self.assertIn(expected, ready)
+
     def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
         result = MODULE.select(self.entries, "raspberry-pi-5", True)
         self.assertEqual("generic-v4l2", result["provider"])
@@ -122,11 +146,13 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertEqual("generic-v4l2", result["provider"])
         self.assertEqual("generic", result["selection"])
         self.assertEqual("", result["dt_overlay"])
+        self.assertEqual("", result["kernel_patch_dir"])
 
     def test_disabled_profile_has_no_hardware_delta(self) -> None:
         result = MODULE.select(self.entries, "rock-5b", False)
         self.assertEqual("disabled", result["provider"])
         self.assertEqual("", result["kernel_config"])
+        self.assertEqual("", result["kernel_patch_dir"])
 
     def test_cli_writes_auditable_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -143,6 +169,11 @@ class KvmHardwareProviderTests(unittest.TestCase):
             ], check=True)
             env_text = env.read_text()
             self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env_text)
+            self.assertIn(
+                "KVM_HARDWARE_KERNEL_PATCH_DIR=profiles/kvm-hardware/kernel-patches/"
+                "rk3588-synopsys-hdmirx",
+                env_text,
+            )
             self.assertIn(
                 "KVM_HARDWARE_DT_OVERLAY=profiles/kvm-hardware/dt-overlays/"
                 "rock5b-fc400000-peripheral.dts",
