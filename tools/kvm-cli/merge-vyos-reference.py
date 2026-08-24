@@ -174,7 +174,7 @@ def verify_fresh_process():
         'o=owner(p, with_tag=True); '
         'q=priority(p); '
         'print(o); print(q); '
-        'assert o == "/usr/libexec/vyos/conf_mode/service_kvm_over_ip.py"; '
+        'assert o == "service_kvm_over_ip"; '
         'assert int(q) == 1000'
     )
     subprocess.run(
