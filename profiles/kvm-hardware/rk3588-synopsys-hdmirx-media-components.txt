@@ -1,5 +1,6 @@
 # Final Profile-D RK3588 media userspace components.
-# required means that build or validation failure aborts the image build.
+# required means build or hardware-independent install validation failure aborts the image build.
+# Target-hardware runtime checks are deferred until boot/service activation.
 # Comment out a line only for an explicit developer experiment.
 # Format: component|mode  (mode: required or optional)
 libmpp|required

@@ -120,9 +120,16 @@ class KvmProfileTests(unittest.TestCase):
         self.assertNotIn('ln -sfn ffmpeg-rockchip', installer)
         self.assertNotIn('ln -sfn ffprobe-rockchip', installer)
         self.assertIn('gst-inspect-1.0 x264enc', installer)
-        self.assertIn('GST_REGISTRY=', installer)
-        self.assertIn('gstreamer-rockchip-runtime.log', installer)
         self.assertIn('check_ldd "$GST_PLUGIN_TARGET"', installer)
+        self.assertIn('GST_RUNTIME_STATUS=deferred', installer)
+        self.assertIn(
+            'KVM_MEDIA_GSTREAMER_ROCKCHIP_RUNTIME=$GST_RUNTIME_STATUS',
+            installer,
+        )
+        self.assertNotIn(
+            '/usr/bin/gst-inspect-1.0 mpph264enc',
+            installer,
+        )
         self.assertIn('libgstrockchipmpp.ldd.txt', builder)
         self.assertIn('mpph264enc.txt 2>&1', builder)
 

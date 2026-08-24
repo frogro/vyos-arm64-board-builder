@@ -75,8 +75,6 @@ fi
 PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 MEDIA_LIB_DIR="$ROOTFS/usr/local/lib/vyos-kvm-media"
 GST_PLUGIN_TARGET="/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstrockchipmpp.so"
-GST_RUNTIME_LOG="$PROFILE_DIR/gstreamer-rockchip-runtime.log"
-GST_REGISTRY="/tmp/vyos-kvm-gstreamer-registry.bin"
 install -d -m 0755 "$PROFILE_DIR" "$MEDIA_LIB_DIR" "$ROOTFS/usr/local/bin"
 
 if enabled libmpp; then
@@ -193,30 +191,14 @@ if enabled mediamtx; then
         die "installed MediaMTX failed version check"
 fi
 
+GST_RUNTIME_STATUS=not-installed
 if [[ "$GST_PLUGIN_INSTALLED" == yes ]]; then
-    GST_MODE="$(mode_of gstreamer-rockchip)"
     check_ldd "$GST_PLUGIN_TARGET"
-    rm -f "$ROOTFS$GST_REGISTRY" "$GST_RUNTIME_LOG"
 
-    if chroot "$ROOTFS" /usr/bin/env \
-        GST_REGISTRY="$GST_REGISTRY" \
-        GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0 \
-        /usr/bin/gst-inspect-1.0 mpph264enc > "$GST_RUNTIME_LOG" 2>&1; then
-        echo "gstreamer-rockchip mpph264enc runtime validation: PASS"
-    else
-        echo "===== GSTREAMER-ROCKCHIP RUNTIME VALIDATION LOG =====" >&2
-        cat "$GST_RUNTIME_LOG" >&2 || true
-
-        if [[ "$GST_MODE" == required ]]; then
-            die "required gstreamer-rockchip plugin failed runtime validation"
-        fi
-
-        warn "optional gstreamer-rockchip plugin failed runtime validation; removing it from image"
-        rm -f "$ROOTFS$GST_PLUGIN_TARGET"
-        GST_PLUGIN_INSTALLED=no
-    fi
-
-    rm -f "$ROOTFS$GST_REGISTRY"
+    # mpph264enc probes the running SoC through /proc/device-tree.
+    # The image-assembly chroot is not the target RK3588 system.
+    GST_RUNTIME_STATUS=deferred
+    echo "gstreamer-rockchip target runtime validation: DEFERRED (requires target Rockchip SoC)"
 fi
 
 cat > "$PROFILE_DIR/kvm-media-install.env" <<EOF
@@ -226,6 +208,7 @@ KVM_MEDIA_LIBMPP=$(enabled libmpp && echo yes || echo no)
 KVM_MEDIA_FFMPEG_ROCKCHIP=$(enabled ffmpeg-rockchip && echo yes || echo no)
 KVM_MEDIA_MEDIAMTX=$(enabled mediamtx && echo yes || echo no)
 KVM_MEDIA_GSTREAMER_ROCKCHIP=$GST_PLUGIN_INSTALLED
+KVM_MEDIA_GSTREAMER_ROCKCHIP_RUNTIME=$GST_RUNTIME_STATUS
 EOF
 
 echo "Installed Profile-D KVM media stack into VyOS root filesystem"
