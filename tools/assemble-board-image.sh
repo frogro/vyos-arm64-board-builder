@@ -145,6 +145,7 @@ VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
 KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
 KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
+KVM_CLI_INSTALLER="$ROOT/tools/install-kvm-cli.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 GRUB_BOARD_DTB_PATCHER="$ROOT/tools/patch-vyos-grub-board-dtb.py"
@@ -159,6 +160,8 @@ SYSTEM_IMAGE_DTB_PATCHER="$ROOT/tools/patch-vyos-system-image-dtb.py"
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+    [[ -x "$KVM_CLI_INSTALLER" ]] ||
+        die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
 
 if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
@@ -628,6 +631,12 @@ for required in loop ext4 overlay squashfs; do
         "$WORK/initrd.list" ||
         die "initramfs missing live-root module: $required"
 done
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING NATIVE VYOS KVM-OVER-IP CLI ====="
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT"
+fi
 
 unmount_chroot
 
