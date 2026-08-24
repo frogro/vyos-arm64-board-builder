@@ -173,8 +173,13 @@ chroot "$ROOTFS" /usr/bin/ffprobe -hide_banner -version >/dev/null ||
 
 [[ -x "$ROOTFS/usr/bin/gst-inspect-1.0" ]] ||
     die "generic GStreamer tools are missing from Profile-D userspace"
-chroot "$ROOTFS" /usr/bin/gst-inspect-1.0 x264enc >/dev/null 2>&1 ||
+GST_GENERIC_REGISTRY=/tmp/vyos-kvm-gst-generic-registry.bin
+rm -f "$ROOTFS$GST_GENERIC_REGISTRY"
+if ! chroot "$ROOTFS" env GST_REGISTRY="$GST_GENERIC_REGISTRY" /usr/bin/gst-inspect-1.0 x264enc >/dev/null 2>&1; then
+    rm -f "$ROOTFS$GST_GENERIC_REGISTRY"
     die "generic GStreamer x264enc backend is missing"
+fi
+rm -f "$ROOTFS$GST_GENERIC_REGISTRY"
 
 if enabled ffmpeg-rockchip; then
     check_ldd /usr/local/bin/ffmpeg-rockchip
