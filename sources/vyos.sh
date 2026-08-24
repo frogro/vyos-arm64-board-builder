@@ -224,15 +224,35 @@ vyos_kernel_prepare() {
     info "Fetching Linux ${version} from kernel.org..."
 
     if [[ ! -s "${archive}" ]]; then
-        curl -fL \
-            "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz" \
-            -o "${archive}"
+        rm -f "${archive}.part"
+
+        curl --http1.1 \
+            --fail \
+            --location \
+            --retry 10 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --connect-timeout 30 \
+            "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz" \
+            -o "${archive}.part"
+
+        mv "${archive}.part" "${archive}"
     fi
 
     if [[ ! -s "${signature}" ]]; then
-        curl -fL \
-            "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.sign" \
-            -o "${signature}"
+        rm -f "${signature}.part"
+
+        curl --http1.1 \
+            --fail \
+            --location \
+            --retry 10 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --connect-timeout 30 \
+            "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.sign" \
+            -o "${signature}.part"
+
+        mv "${signature}.part" "${signature}"
     fi
 
     info "Importing kernel.org signing keys..."
