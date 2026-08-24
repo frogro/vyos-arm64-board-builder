@@ -40,6 +40,15 @@ class KvmCliTests(unittest.TestCase):
         self.assertIn('/usr/bin/ffmpeg', runner)
         self.assertIn('libx264', runner)
 
+    def test_rock_hdmi_rx_syncs_detected_dv_timings(self):
+        runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
+
+        self.assertIn('sync_provider_capture_timings', runner)
+        self.assertIn('rk3588-synopsys-hdmirx', runner)
+        self.assertIn(
+            'v4l2-ctl -d "${DEVICE}" --set-dv-bt-timings query', runner
+        )
+
     def test_reference_and_configd_integration_is_installed(self):
         installer = (ROOT / 'tools/install-kvm-cli.sh').read_text()
         merger = (ROOT / 'tools/kvm-cli/merge-vyos-reference.py').read_text()

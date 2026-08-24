@@ -77,6 +77,28 @@ detect_ffmpeg_input_format()
     esac
 }
 
+
+sync_provider_capture_timings()
+{
+    # The Synopsys HDMI-RX driver keeps the active DV timing separately from
+    # the timing currently detected on the HDMI input. Adopt the detected
+    # source timing before any backend opens the V4L2 capture device.
+    if [[ "${PROVIDER}" != "rk3588-synopsys-hdmirx" ]]; then
+        return 0
+    fi
+
+    command -v v4l2-ctl >/dev/null 2>&1 || {
+        echo "ERROR: v4l2-ctl is required for HDMI-RX timing synchronization" >&2
+        return 1
+    }
+
+    echo "KVM HDMI-RX: synchronizing DV timings with detected input on ${DEVICE}" >&2
+    v4l2-ctl -d "${DEVICE}" --set-dv-bt-timings query >/dev/null || {
+        echo "ERROR: failed to synchronize HDMI-RX DV timings on ${DEVICE}" >&2
+        return 1
+    }
+}
+
 DEVICE="$(resolve_device)" || {
     echo "ERROR: no usable V4L2 capture device found" >&2
     exit 1
@@ -86,6 +108,8 @@ DEVICE="$(resolve_device)" || {
     echo "ERROR: capture device does not exist: ${DEVICE}" >&2
     exit 1
 }
+
+sync_provider_capture_timings
 
 echo "KVM video backend=${BACKEND} provider=${PROVIDER} device=${DEVICE}" >&2
 
