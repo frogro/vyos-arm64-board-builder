@@ -1,8 +1,11 @@
 # Installed only when KVM_OVER_IP=yes. µStreamer is installed separately from
-# its pinned, reproducible build artifact.
+# its pinned, reproducible build artifact. Generic FFmpeg and GStreamer
+# remain installed alongside provider-specific accelerated implementations.
 v4l-utils
+ffmpeg
 gstreamer1.0-tools
 gstreamer1.0-plugins-base
 gstreamer1.0-plugins-good
 gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
 alsa-utils

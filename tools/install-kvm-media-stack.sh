@@ -74,6 +74,9 @@ fi
 
 PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 MEDIA_LIB_DIR="$ROOTFS/usr/local/lib/vyos-kvm-media"
+GST_PLUGIN_TARGET="/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstrockchipmpp.so"
+GST_RUNTIME_LOG="$PROFILE_DIR/gstreamer-rockchip-runtime.log"
+GST_REGISTRY="/tmp/vyos-kvm-gstreamer-registry.bin"
 install -d -m 0755 "$PROFILE_DIR" "$MEDIA_LIB_DIR" "$ROOTFS/usr/local/bin"
 
 if enabled libmpp; then
@@ -92,8 +95,6 @@ fi
 if enabled ffmpeg-rockchip; then
     install -m 0755 "$ARTIFACTS/bin/ffmpeg-rockchip" "$ROOTFS/usr/local/bin/ffmpeg-rockchip"
     install -m 0755 "$ARTIFACTS/bin/ffprobe-rockchip" "$ROOTFS/usr/local/bin/ffprobe-rockchip"
-    ln -sfn ffmpeg-rockchip "$ROOTFS/usr/local/bin/ffmpeg"
-    ln -sfn ffprobe-rockchip "$ROOTFS/usr/local/bin/ffprobe"
 fi
 
 if enabled mediamtx; then
@@ -126,7 +127,7 @@ if enabled gstreamer-rockchip; then
     GST_MODE="$(mode_of gstreamer-rockchip)"
     if [[ -s "$ARTIFACTS/gstreamer/libgstrockchipmpp.so" ]]; then
         install -D -m 0755 "$ARTIFACTS/gstreamer/libgstrockchipmpp.so" \
-            "$ROOTFS/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstrockchipmpp.so"
+            "$ROOTFS$GST_PLUGIN_TARGET"
         GST_PLUGIN_INSTALLED=yes
     elif [[ "$GST_MODE" == required ]]; then
         die "required gstreamer-rockchip plugin artifact missing"
@@ -163,6 +164,20 @@ if enabled libmpp; then
     check_ldd /usr/local/bin/mpi_enc_test
 fi
 
+[[ -x "$ROOTFS/usr/bin/ffmpeg" ]] ||
+    die "generic ffmpeg package is missing from Profile-D userspace"
+[[ -x "$ROOTFS/usr/bin/ffprobe" ]] ||
+    die "generic ffprobe package is missing from Profile-D userspace"
+chroot "$ROOTFS" /usr/bin/ffmpeg -hide_banner -version >/dev/null ||
+    die "generic ffmpeg failed runtime validation"
+chroot "$ROOTFS" /usr/bin/ffprobe -hide_banner -version >/dev/null ||
+    die "generic ffprobe failed runtime validation"
+
+[[ -x "$ROOTFS/usr/bin/gst-inspect-1.0" ]] ||
+    die "generic GStreamer tools are missing from Profile-D userspace"
+chroot "$ROOTFS" /usr/bin/gst-inspect-1.0 x264enc >/dev/null 2>&1 ||
+    die "generic GStreamer x264enc backend is missing"
+
 if enabled ffmpeg-rockchip; then
     check_ldd /usr/local/bin/ffmpeg-rockchip
     chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -encoders |
@@ -180,28 +195,33 @@ fi
 
 if [[ "$GST_PLUGIN_INSTALLED" == yes ]]; then
     GST_MODE="$(mode_of gstreamer-rockchip)"
-    if [[ -x "$ROOTFS/usr/bin/gst-inspect-1.0" ]]; then
-        if chroot "$ROOTFS" /usr/bin/env \
-            GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0 \
-            /usr/bin/gst-inspect-1.0 mpph264enc >/dev/null 2>&1; then
-            echo "gstreamer-rockchip mpph264enc runtime validation: PASS"
-        elif [[ "$GST_MODE" == required ]]; then
-            die "required gstreamer-rockchip plugin failed runtime validation"
-        else
-            warn "optional gstreamer-rockchip plugin failed runtime validation; removing it from image"
-            rm -f "$ROOTFS/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstrockchipmpp.so"
-            GST_PLUGIN_INSTALLED=no
-        fi
-    elif [[ "$GST_MODE" == required ]]; then
-        die "required gstreamer-rockchip validation needs gst-inspect-1.0"
+    check_ldd "$GST_PLUGIN_TARGET"
+    rm -f "$ROOTFS$GST_REGISTRY" "$GST_RUNTIME_LOG"
+
+    if chroot "$ROOTFS" /usr/bin/env \
+        GST_REGISTRY="$GST_REGISTRY" \
+        GST_PLUGIN_PATH=/usr/lib/aarch64-linux-gnu/gstreamer-1.0 \
+        /usr/bin/gst-inspect-1.0 mpph264enc > "$GST_RUNTIME_LOG" 2>&1; then
+        echo "gstreamer-rockchip mpph264enc runtime validation: PASS"
     else
-        warn "gst-inspect-1.0 unavailable; removing unvalidated optional gstreamer-rockchip plugin"
-        rm -f "$ROOTFS/usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgstrockchipmpp.so"
+        echo "===== GSTREAMER-ROCKCHIP RUNTIME VALIDATION LOG =====" >&2
+        cat "$GST_RUNTIME_LOG" >&2 || true
+
+        if [[ "$GST_MODE" == required ]]; then
+            die "required gstreamer-rockchip plugin failed runtime validation"
+        fi
+
+        warn "optional gstreamer-rockchip plugin failed runtime validation; removing it from image"
+        rm -f "$ROOTFS$GST_PLUGIN_TARGET"
         GST_PLUGIN_INSTALLED=no
     fi
+
+    rm -f "$ROOTFS$GST_REGISTRY"
 fi
 
 cat > "$PROFILE_DIR/kvm-media-install.env" <<EOF
+KVM_MEDIA_FFMPEG_GENERIC=yes
+KVM_MEDIA_GSTREAMER_GENERIC=yes
 KVM_MEDIA_LIBMPP=$(enabled libmpp && echo yes || echo no)
 KVM_MEDIA_FFMPEG_ROCKCHIP=$(enabled ffmpeg-rockchip && echo yes || echo no)
 KVM_MEDIA_MEDIAMTX=$(enabled mediamtx && echo yes || echo no)

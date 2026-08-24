@@ -144,23 +144,40 @@ fi
 GST_STATUS=disabled
 if enabled gstreamer-rockchip; then
     GST_MODE="$(mode_of gstreamer-rockchip)"
+    GST_INSPECT_LOG="$ARTIFACTS/gstreamer/mpph264enc-inspect.txt"
+    GST_LDD_LOG="$ARTIFACTS/gstreamer/libgstrockchipmpp.ldd.txt"
     echo "===== BUILDING GSTREAMER-ROCKCHIP ====="
 
     if (
         set -euo pipefail
         chroot "$CHROOT" env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends meson ninja-build python3 gstreamer1.0-tools libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
         clone_pinned "$GST_ROCKCHIP_REPO" "$GST_ROCKCHIP_COMMIT" "$CHROOT/build/gst-rockchip"
-        chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; meson setup /build/gst-rockchip/build /build/gst-rockchip --prefix=/usr/local --libdir=lib/aarch64-linux-gnu --buildtype=release -Drockchipmpp=enabled -Drga=disabled -Drkximage=disabled -Dkmssrc=disabled -Dvpxalphadec=disabled; ninja -C /build/gst-rockchip/build -j"${JOBS:-4}"; meson install -C /build/gst-rockchip/build; ldconfig; GST_PLUGIN_PATH=/usr/local/lib/aarch64-linux-gnu/gstreamer-1.0 gst-inspect-1.0 mpph264enc >/tmp/mpph264enc.txt'
+        chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; meson setup /build/gst-rockchip/build /build/gst-rockchip --prefix=/usr/local --libdir=lib/aarch64-linux-gnu --buildtype=release -Drockchipmpp=enabled -Drga=disabled -Drkximage=disabled -Dkmssrc=disabled -Dvpxalphadec=disabled; ninja -C /build/gst-rockchip/build -j"${JOBS:-4}"; meson install -C /build/gst-rockchip/build; ldconfig; rm -f /tmp/vyos-kvm-gst-registry.bin; GST_REGISTRY=/tmp/vyos-kvm-gst-registry.bin GST_PLUGIN_PATH=/usr/local/lib/aarch64-linux-gnu/gstreamer-1.0 gst-inspect-1.0 mpph264enc >/tmp/mpph264enc.txt 2>&1'
         GST_PLUGIN="$(find "$CHROOT/usr/local/lib/aarch64-linux-gnu/gstreamer-1.0" -type f -name 'libgstrockchipmpp.so*' -print -quit)"
         [[ -n "$GST_PLUGIN" ]]
+        GST_PLUGIN_REL="${GST_PLUGIN#$CHROOT}"
+        chroot "$CHROOT" /usr/bin/ldd "$GST_PLUGIN_REL" > "$GST_LDD_LOG"
+        ! grep -q 'not found' "$GST_LDD_LOG"
         install -m 0755 "$GST_PLUGIN" "$ARTIFACTS/gstreamer/libgstrockchipmpp.so"
-        cp "$CHROOT/tmp/mpph264enc.txt" "$ARTIFACTS/gstreamer/mpph264enc-inspect.txt"
+        cp "$CHROOT/tmp/mpph264enc.txt" "$GST_INSPECT_LOG"
         git -C "$CHROOT/build/gst-rockchip" archive --format=tar.gz --prefix="gst-rockchip-${GST_ROCKCHIP_COMMIT}/" --output="$ARTIFACTS/source/gst-rockchip-${GST_ROCKCHIP_COMMIT}.tar.gz" HEAD
     ); then
         GST_STATUS=pass
     else
         GST_STATUS=failed
-        rm -f "$ARTIFACTS/gstreamer/libgstrockchipmpp.so" "$ARTIFACTS/gstreamer/mpph264enc-inspect.txt" "$ARTIFACTS/source/gst-rockchip-${GST_ROCKCHIP_COMMIT}.tar.gz"
+        if [[ -s "$CHROOT/tmp/mpph264enc.txt" && ! -s "$GST_INSPECT_LOG" ]]; then
+            cp "$CHROOT/tmp/mpph264enc.txt" "$GST_INSPECT_LOG"
+        fi
+        rm -f "$ARTIFACTS/gstreamer/libgstrockchipmpp.so" "$ARTIFACTS/source/gst-rockchip-${GST_ROCKCHIP_COMMIT}.tar.gz"
+
+        if [[ -s "$GST_INSPECT_LOG" ]]; then
+            echo "===== GSTREAMER-ROCKCHIP GST-INSPECT FAILURE LOG =====" >&2
+            cat "$GST_INSPECT_LOG" >&2
+        fi
+        if [[ -s "$GST_LDD_LOG" ]]; then
+            echo "===== GSTREAMER-ROCKCHIP LDD LOG =====" >&2
+            cat "$GST_LDD_LOG" >&2
+        fi
 
         if [[ "$GST_MODE" == required ]]; then
             die "required gstreamer-rockchip build or validation failed"

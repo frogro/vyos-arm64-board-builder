@@ -92,13 +92,39 @@ class KvmProfileTests(unittest.TestCase):
         packages = (ROOT / "profiles/kvm-over-ip-packages.txt").read_text()
         for package in (
             "v4l-utils",
+            "ffmpeg",
             "gstreamer1.0-tools",
             "gstreamer1.0-plugins-good",
+            "gstreamer1.0-plugins-ugly",
         ):
             self.assertIn(package, packages)
         installer = (ROOT / "tools/install-kvm-userspace.sh").read_text()
         self.assertIn("apt-get install -y --no-install-recommends", installer)
         self.assertNotIn("apt-get upgrade", installer)
+
+    def test_profile_d_media_backends_keep_generic_and_rockchip_variants(self):
+        components = (
+            ROOT
+            / "profiles/kvm-hardware/rk3588-synopsys-hdmirx-media-components.txt"
+        ).read_text()
+        self.assertIn("gstreamer-rockchip|required", components)
+        self.assertNotIn("gstreamer-rockchip|optional", components)
+
+        installer = (ROOT / "tools/install-kvm-media-stack.sh").read_text()
+        builder = (ROOT / "tools/build-kvm-media-stack.sh").read_text()
+
+        self.assertIn('/usr/bin/ffmpeg', installer)
+        self.assertIn('/usr/bin/ffprobe', installer)
+        self.assertIn('/usr/local/bin/ffmpeg-rockchip', installer)
+        self.assertIn('/usr/local/bin/ffprobe-rockchip', installer)
+        self.assertNotIn('ln -sfn ffmpeg-rockchip', installer)
+        self.assertNotIn('ln -sfn ffprobe-rockchip', installer)
+        self.assertIn('gst-inspect-1.0 x264enc', installer)
+        self.assertIn('GST_REGISTRY=', installer)
+        self.assertIn('gstreamer-rockchip-runtime.log', installer)
+        self.assertIn('check_ldd "$GST_PLUGIN_TARGET"', installer)
+        self.assertIn('libgstrockchipmpp.ldd.txt', builder)
+        self.assertIn('mpph264enc.txt 2>&1', builder)
 
     def test_gadget_runtime_is_provider_driven_and_profile_scoped(self):
         manager_path = ROOT / "tools/common-firstboot/vyos-kvm-gadget"

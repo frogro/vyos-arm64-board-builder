@@ -1,7 +1,8 @@
-# Profile-D RK3588 media userspace components.
-# Comment out a line to omit that component from the next image build.
+# Final Profile-D RK3588 media userspace components.
+# required means that build or validation failure aborts the image build.
+# Comment out a line only for an explicit developer experiment.
 # Format: component|mode  (mode: required or optional)
 libmpp|required
 ffmpeg-rockchip|required
 mediamtx|required
-gstreamer-rockchip|optional
+gstreamer-rockchip|required
