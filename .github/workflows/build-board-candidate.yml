@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - "pi5-test-*"
+      - "rock5b-build-*"
 
   workflow_dispatch:
     inputs:
@@ -67,15 +68,15 @@ jobs:
       contents: write
 
     env:
-      BOARD: ${{ inputs.board || 'raspberry-pi-5' }}
+      BOARD: ${{ inputs.board || (startsWith(github.ref_name, 'rock5b-build-') && 'rock-5b') || 'raspberry-pi-5' }}
       HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
-      EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
-      TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
-      KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
+      EXTENDED_NETWORK: ${{ inputs.extended_network || startsWith(github.ref_name, 'rock5b-build-') }}
+      TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || startsWith(github.ref_name, 'rock5b-build-') }}
+      KVM_OVER_IP: ${{ inputs.kvm_over_ip || startsWith(github.ref_name, 'rock5b-build-') }}
       BOOT_BRANCH: auto
       VYOS_BRANCH: rolling
-      ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
-      RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
+      ARMBIAN_REF: ${{ inputs.armbian_ref || (startsWith(github.ref_name, 'rock5b-build-') && '0a6e3d8a789f7864a4cd23abf1688dbb84d5fb37') || '9de7be05323564424cf64171cb483712ec356bc1' }}
+      RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || (startsWith(github.ref_name, 'rock5b-build-') && '32008814114') || '' }}
       RAW_WORKFLOW: test-vyos-arm64-raw.yml
       JOBS: 4
 
@@ -464,7 +465,7 @@ jobs:
           compression-level: 0
 
       - name: Publish GitHub release
-        if: ${{ github.event_name == 'push' || inputs.publish_release }}
+        if: ${{ (github.event_name == 'push' && startsWith(github.ref_name, 'pi5-test-')) || inputs.publish_release }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
