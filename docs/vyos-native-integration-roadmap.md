@@ -69,7 +69,8 @@ On an isolated test system with the feature profile present, verify:
 6. Test board-matched image add/delete/default selection via supported CLI/API
    paths, then boot the selected version and verify configuration persistence.
 7. Keep Tailscale preparation-only: no bundled binaries, automatic installation,
-   login, advertised routes or mandatory new VyOS CLI integration. Verify the
+   login or predefined advertised routes. Add the planned optional native CLI
+   described below as part of preparation. Verify the
    prepared unit remains inert without user-installed binaries, and document
    user-controlled activation, persistence and external-state backup. Validate
    coexistence with VyOS firewall/routing after optional installation.
@@ -82,3 +83,28 @@ Source references checked 2026-09-13:
 Historical rationale: Vyos latest PDF, pages 356-357. Repository evidence:
 tools/install-kvm-cli.sh, tools/kvm-cli/merge-vyos-reference.py,
 tools/kvm-cli/service_kvm_over_ip.py, docs/tailscale-subnet-router.md.
+
+## Agreed next stage: optional native Tailscale CLI
+
+Recorded 2026-09-13 following the user's clarification: a native VyOS CLI is
+part of the desired preparation, even though installing Tailscale itself remains
+optional. The current image has a shell wrapper and prepared service, not this
+new configuration CLI. Implement after hardware acceptance of current candidates.
+
+Start with a small, explicitly defined schema using the normal VyOS-1x XML and
+conf_mode build mechanisms. Planned scope: enable/disable the service, advertised
+subnets and selected routing options, plus operational commands showing installed,
+authenticated and connected state. Exact command paths are not yet decided.
+Persist managed settings through VyOS configuration and test the same settings
+through SSH and the HTTPS API, including save/load, reboot and rollback.
+
+Do not bundle Tailscale binaries or credentials. Installation and authentication
+remain separate user decisions; commit must not download software or launch an
+interactive login. Without binaries, keep the service inactive and provide clear
+validation/status messages for activation attempts. Do not store plaintext auth
+keys in configuration.
+
+Define which settings VyOS owns and how direct tailscale set changes are detected
+or reconciled. Test firewall reloads, routing, SNAT and rollback so Tailscale and
+VyOS do not overwrite each other's intended state. Preserve identity separately
+from declarative configuration and document its backup/update handling.
