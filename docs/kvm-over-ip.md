@@ -15,9 +15,11 @@ Mass Storage capability for later Virtual Media support. Enabling these kernel
 capabilities does not automatically create, bind or expose a USB gadget or
 virtual disk. Runtime gadget composition remains a userspace responsibility.
 
-Profile D also installs the first runtime layer, `vyos-kvm-gadget`. It is not
-started automatically and does not change the VyOS configuration tree. The
-initial D3 interface provides:
+Profile D installs the reusable gadget runtime, `vyos-kvm-gadget`. Native
+VyOS configuration is integrated under `service kvm-over-ip`; the conf-mode
+handler translates committed VyOS configuration into the video/streaming
+runtime and calls the gadget manager for HID, USB routing and Virtual Media.
+The lower-level gadget interface remains available for diagnostics:
 
     vyos-kvm-gadget create
     vyos-kvm-gadget destroy
@@ -34,6 +36,33 @@ initial D3 interface provides:
     vyos-kvm-gadget virtual-media attach <iso>
     vyos-kvm-gadget virtual-media eject
     vyos-kvm-gadget virtual-media status
+
+The native VyOS configuration hierarchy is:
+
+    service kvm-over-ip
+      video
+        backend ustreamer|gstreamer|ffmpeg
+        device /dev/videoN
+        resolution WIDTHxHEIGHT
+        framerate FPS
+        bitrate KBIT/S
+        gop FRAMES
+        listen-address IPv4
+        port PORT
+      keyboard
+      mouse
+        absolute
+        relative
+      usb
+        port <provider-defined semantic port>
+      virtual-media
+        file /config/kvm-over-ip/media/FILE.iso
+
+Board-specific implementation details remain internal. On the validated ROCK 5B
+path, `ffmpeg` uses `ffmpeg-rockchip` with `h264_rkmpp`, while `gstreamer` uses
+the Rockchip MPP encoder. Generic boards keep the generic software/backend path.
+µStreamer JPEG quality is fixed internally at 80 and is intentionally not
+exposed as a VyOS CLI setting.
 
 The manager owns ConfigFS/libcomposite setup and gadget composition. Board-
 specific UDC names remain in provider runtime metadata rather than in the
@@ -65,15 +94,20 @@ and applies the board-specific USB gadget routing required for the tested
 ROCK 5B path. These settings are not applied to Raspberry Pi 5 or to builds
 without KVM.
 
+For the ROCK 5B HDMI-RX provider, the video runner synchronizes the currently
+detected HDMI DV timings before opening the capture device. This prevents a
+detected 1080p60 input from remaining on a stale 640x480 capture timing.
+
 Other RK3588 boards are not selected merely because they use the same SoC.
 An exact registry row is added only after the physical HDMI-RX/HPD wiring,
 Device Tree and gadget/OTG path have been verified for that board. Until then,
 such a board receives the generic V4L2/UVC path and can use a supported USB or
 PCIe capture device.
 
-Nothing is exposed automatically at boot: the runtime does not create or bind
-a gadget, attach Virtual Media, change the VyOS firewall or enable a listening
-service unless explicitly invoked. Runtime state and media belong under
+Building a KVM-enabled image alone does not expose a gadget, Virtual Media or
+a network stream. Runtime activation follows committed `service kvm-over-ip`
+configuration. With no KVM service configuration present, the image remains
+prepared but inactive. Runtime state and media belong under
 `/config/kvm-over-ip` so they can survive a normal VyOS system-image update.
 
 Run `sudo vyos-arm64-kvm-readiness` after connecting the hardware. A detected
