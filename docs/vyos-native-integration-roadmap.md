@@ -40,7 +40,10 @@ all boards use EFI.
   not know the custom service kvm-over-ip subtree. Generic command/path support
   is distinct from dedicated feature support. No NETCONF or other untested
   protocol support is claimed.
-- Tailscale is currently preparation with persistent binaries/state/preferences
+- Tailscale intentionally remains optional preparation. The image contains no
+  Tailscale binaries or credentials; installation and activation are the user’s
+  decision. This is an accepted scope boundary, not an integration defect. After
+  user installation there are persistent binaries/state/preferences
   under /config, not a complete declarative VyOS conf_mode integration. A
   config.boot export alone is not a complete Tailscale backup. KVM virtual-media
   files likewise remain external assets referenced by configuration.
@@ -65,9 +68,11 @@ On an isolated test system with the feature profile present, verify:
    dedicated KVM support in tools which lack its schema.
 6. Test board-matched image add/delete/default selection via supported CLI/API
    paths, then boot the selected version and verify configuration persistence.
-7. Define Tailscale declarative settings separately from identity/secrets and
-   external asset backup. Use existing upstream mechanisms where available;
-   decide exact schema during implementation, not via incidental shell hooks.
+7. Keep Tailscale preparation-only: no bundled binaries, automatic installation,
+   login, advertised routes or mandatory new VyOS CLI integration. Verify the
+   prepared unit remains inert without user-installed binaries, and document
+   user-controlled activation, persistence and external-state backup. Validate
+   coexistence with VyOS firewall/routing after optional installation.
 
 Source references checked 2026-09-13:
 - https://docs.vyos.io/en/rolling/automation/vyos-api.html
