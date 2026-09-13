@@ -28,13 +28,12 @@ class Selection(unittest.TestCase):
             if self.recipe is not None:
                 (target / 'raw-recipe-sha256.txt').write_text(self.recipe)
             return ''
-        url = args[-1]
+        url = next(a for a in args if a.startswith('repos/'))
         run = dict(id=42, conclusion=self.status, path='.github/workflows/test-vyos-arm64-raw.yml')
         if '/commits/' in url:
             return json.dumps({'sha': SHA})
         if url.endswith('/artifacts'):
-            return json.dumps([{'artifacts': [dict(name=n, expired=self.expired)
-                for n in ('vyos-arm64-raw', 'vyos-arm64-raw-provenance')]}])
+            return '' if self.expired else 'vyos-arm64-raw\nvyos-arm64-raw-provenance\n'
         if '?' in url:
             return json.dumps({'workflow_runs': [run]})
         return json.dumps(run)

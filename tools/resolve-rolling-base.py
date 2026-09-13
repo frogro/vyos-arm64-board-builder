@@ -36,9 +36,9 @@ def reusable(repo, run, commit, recipe, explicit=False):
         '.github/workflows/build-board-candidate.yml',
     ):
         return False
-    pages = json.loads(gh('api', '--paginate', '--slurp',
-                         f'repos/{repo}/actions/runs/{run["id"]}/artifacts'))
-    names = {a['name'] for p in pages for a in p['artifacts'] if not a['expired']}
+    names = set(gh('api', '--paginate',
+                   f'repos/{repo}/actions/runs/{run["id"]}/artifacts',
+                   '--jq', '.artifacts[] | select(.expired == false) | .name').splitlines())
     if not {'vyos-arm64-raw', 'vyos-arm64-raw-provenance'} <= names:
         return False
     with tempfile.TemporaryDirectory() as tmp:
