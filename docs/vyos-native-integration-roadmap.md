@@ -108,3 +108,49 @@ Define which settings VyOS owns and how direct tailscale set changes are detecte
 or reconciled. Test firewall reloads, routing, SNAT and rollback so Tailscale and
 VyOS do not overwrite each other's intended state. Preserve identity separately
 from declarative configuration and document its backup/update handling.
+
+## Consolidated agreed stages and VPN scope
+
+Confirmed by the user on 2026-09-13. These are planned stages, not claims of
+implemented or hardware-validated functionality:
+
+1. Complete the current ROCK 5B and E52C candidates and hardware acceptance:
+   boot, serial login, Ethernet and provider-correct image update/default/rollback.
+2. Move the existing KVM CLI into the normal VyOS-1x source/package generators;
+   retain its public configuration and verify local CLI, SSH and HTTPS API
+   equivalence, save/load/reboot and configuration rollback. Audit other local
+   console/image extensions against the same native-integration requirement.
+3. Add a small native Tailscale CLI as optional image preparation. Tailscale
+   installation, software updates and authentication remain user-controlled;
+   binaries and credentials are not bundled. Service enable/disable and status
+   must handle absent binaries and an unauthenticated device explicitly.
+4. Implement and accept the Tailscale subnet-router use case first: selected
+   LAN prefixes, explicit route approval/access policy, routing/firewall/SNAT
+   coexistence, remote configuration and persistence. Do not announce networks
+   or enable forwarding/firewall access implicitly merely by selecting a build
+   profile. Exact CLI syntax and firewall integration remain design work.
+5. Consider optional Exit Node support only if needed after the subnet-router
+   stage. It must be independently enabled and explicitly selected by clients;
+   neither subnet-router preparation nor installation should silently redirect
+   a client's general internet traffic.
+
+Existing native VyOS VPN facilities remain available. Tailscale is a voluntary
+alternative for users who want its device enrollment, access management and NAT
+connectivity workflow; it does not replace VyOS VPNs. Users satisfied with a
+native VPN need not install Tailscale. Subnet routing and an optional Exit Node
+may coexist on one device; they do not require separate appliances.
+
+Updateability is a cross-stage acceptance requirement, not a later optional
+feature. Every relevant image must retain matching CLI/service/provider support
+and carry saved VyOS configuration forward through the supported image-update
+path. Preserve user-installed Tailscale binaries, identity and state in the
+persistent layout. Test image add, default selection, reboot and return to the
+previous compatible image, including actual service/network behavior.
+
+VyOS image updates and optional Tailscale software updates are separate actions.
+Validate state-format compatibility for Tailscale upgrade/downgrade and provide
+backup/recovery before destructive migration; do not assume every older binary
+can consume newer state. Likewise, an image lacking a newly introduced CLI
+schema cannot be assumed to load that configuration. Document compatible
+rollback targets and a tested recovery path. This requirement is not yet a
+universal compatibility guarantee for the planned implementation.
