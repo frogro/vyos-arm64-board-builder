@@ -115,6 +115,11 @@ main() {
     selection_env="${selection_dir}/selected-reference.env"
     kvm_hardware_env="${selection_dir}/kvm-hardware.env"
     mkdir -p "${selection_dir}"
+    {
+        printf 'VYOS_SOURCE_REF=%q\n' "${VYOS_REF:-$VYOS_BRANCH}"
+        printf 'VYOS_SOURCE_COMMIT=%q\n' "$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
+    } > "${selection_dir}/vyos-source.env"
+
 
     {
         printf 'EXTENDED_NETWORK=%q\n' "${extended_network}"

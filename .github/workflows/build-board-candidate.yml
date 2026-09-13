@@ -45,6 +45,12 @@ on:
         default: false
         type: boolean
 
+      vyos_ref:
+        description: "VyOS build commit matching the selected raw-image kernel ABI"
+        required: false
+        default: "rolling"
+        type: string
+
       armbian_ref:
         description: "Exact Armbian build branch, tag or commit"
         required: true
@@ -80,6 +86,7 @@ jobs:
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       VYOS_BRANCH: rolling
+      VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
       RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
       RAW_WORKFLOW: test-vyos-arm64-raw.yml
@@ -131,6 +138,7 @@ jobs:
           bash tests/test-extended-network-resolver.sh
           bash tests/test-network-firmware.sh
           bash tests/test-armbian-vendor-vyos-bridge.sh
+          bash tests/test-vyos-source-ref.sh
 
       - name: Show initial disk space
         run: df -h
@@ -463,6 +471,7 @@ jobs:
             work/build/${{ env.BOARD }}/artifacts/kvm-media/**/*
             work/build/${{ env.BOARD }}/boot/boot-manifest.env
             work/build/${{ env.BOARD }}/selection/selected-reference.env
+            work/build/${{ env.BOARD }}/selection/vyos-source.env
             work/build/${{ env.BOARD }}/selection/extended-network.env
             work/build/${{ env.BOARD }}/selection/feature-profiles.env
             work/build/${{ env.BOARD }}/selection/feature-profile.json

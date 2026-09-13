@@ -8,22 +8,19 @@ vyos_source_dir() {
 }
 
 vyos_fetch() {
-    local dir
+    local dir ref
     dir="$(vyos_source_dir)"
-
-    if [[ -d "${dir}/.git" ]]; then
-        info "Updating VyOS build repository..."
-        git -C "${dir}" fetch --depth=1 origin "${VYOS_BRANCH}"
-        git -C "${dir}" reset --hard FETCH_HEAD
-    else
-        info "Cloning VyOS build repository..."
-        rm -rf "${dir}"
-        git clone \
-            --depth=1 \
-            --branch "${VYOS_BRANCH}" \
-            "${VYOS_BUILD_REPO}" \
-            "${dir}"
+    ref="${VYOS_REF:-${VYOS_BRANCH}}"
+    [[ -n "$ref" && "$ref" != -* && "$ref" != *[[:space:]]* ]] ||
+        die "Invalid VyOS source ref"
+    if [[ ! -d "$dir/.git" ]]; then
+        mkdir -p "$dir"
+        git -C "$dir" init -q
+        git -C "$dir" remote add origin "$VYOS_BUILD_REPO"
     fi
+    info "Fetching VyOS source ref: $ref"
+    git -C "$dir" fetch --depth=1 origin "$ref"
+    git -C "$dir" checkout --detach --force FETCH_HEAD
 }
 
 vyos_arm64_config() {
