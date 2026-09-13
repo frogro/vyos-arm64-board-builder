@@ -33,6 +33,16 @@ class ReleaseIdentityTests(unittest.TestCase):
             },
         )
 
+    def test_actual_self_build_version_is_preserved(self):
+        result = MODULE.derive('999.202609131019', 'rock-5b', 'network-tailscale-kvm')
+        self.assertEqual(result['VYOS_VERSION'], '999.202609131019')
+        self.assertEqual(result['RELEASE_BASENAME'], 'vyos-999.202609131019-rock-5b-network-tailscale-kvm')
+        self.assertEqual(result['RELEASE_TAG'], '2026.09.13-1019-selfbuilt-rock-5b-network-tailscale-kvm')
+
+    def test_invalid_self_build_date_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive('999.202613131019', 'radxa-e52c')
+
     def test_invalid_version_is_rejected(self):
         with self.assertRaises(ValueError):
             MODULE.derive("rolling-latest", "rock-5b")

@@ -15,14 +15,15 @@ VERSION_RE = re.compile(
     r"(?P<train>[a-z0-9][a-z0-9.-]*)-"
     r"(?P<stamp>[0-9]{12})$"
 )
+SELF_BUILD_RE = re.compile(r"^999\.(?P<stamp>[0-9]{12})$")
 BOARD_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def derive(version: str, board: str, profile: str = "base") -> dict[str, str]:
-    match = VERSION_RE.fullmatch(version)
+    match = VERSION_RE.fullmatch(version) or SELF_BUILD_RE.fullmatch(version)
     if match is None:
         raise ValueError(
-            "version must look like 1.5-rolling-YYYYMMDDHHMM: " + version
+            "version must look like 1.5-rolling-YYYYMMDDHHMM or 999.YYYYMMDDHHMM: " + version
         )
     if BOARD_RE.fullmatch(board) is None:
         raise ValueError("invalid board slug: " + board)
@@ -31,7 +32,7 @@ def derive(version: str, board: str, profile: str = "base") -> dict[str, str]:
 
     stamp = match.group("stamp")
     parsed = datetime.strptime(stamp, "%Y%m%d%H%M")
-    train = match.group("train")
+    train = match.groupdict().get("train", "selfbuilt")
 
     return {
         "VYOS_VERSION": version,
