@@ -39,7 +39,7 @@ class NativeBootTests(unittest.TestCase):
             f'    set boot_opts="boot=live rootdelay=5 vyos-union=/boot/{version} quiet"\n')
 
     def default(self, version):
-        (self.root / boot.DEFAULTS).write_text(f'set default="{uuid5(NAMESPACE_URL, version)}"\n'
+        (self.root / boot.DEFAULTS).write_text(f'set default="uuid5-{uuid5(NAMESPACE_URL, version)}"\n'
             'set console_type="ttyS"\nset console_num="2"\nset console_speed="1500000"\n')
 
     def sync(self):boot.sync(self.root, self.fat, self.metadata)

@@ -21,7 +21,7 @@ meta=dict(schema=1,architecture='arm64',board='example',profile='network',firmwa
 (version/'board-boot.json').write_text(json.dumps(meta))
 grub=temp/'persistence/boot/grub/grub.cfg.d';(grub/'vyos-versions').mkdir(parents=True)
 cfg=grub/'vyos-versions/test-v1.cfg';cfg.write_text('set boot_opts="boot=live vyos-union=/boot/test-v1"\n')
-(grub/'20-vyos-defaults-autoload.cfg').write_text(f'set default="{uuid5(NAMESPACE_URL,"test-v1")}"\n')
+(grub/'20-vyos-defaults-autoload.cfg').write_text(f'set default="uuid5-{uuid5(NAMESPACE_URL,"test-v1")}"\n')
 manifest=temp/'manifest.env';manifest.write_text('FIRMWARE_PROVIDER=armbian-uboot\nHW_BRANCH=current\nBOOT_BRANCH=vendor\nUBOOT_BOOTSCRIPT=boot-rk35xx.cmd:boot.cmd\n')
 fat=temp/'fat';fat.mkdir()
 subprocess.run(['bash',str(root/'tools/firmware-providers/armbian-uboot/bootfiles.sh'),'example',str(fat),str(version),str(cfg),str(manifest)],check=True)

@@ -159,7 +159,7 @@ def sync(root, firmware, metadata):
         if not all((destination / p).is_file() for p in ('Image', 'initrd.img', 'board.dtb')):
             raise RuntimeError(f'Incomplete cached boot payload: {destination}')
         label = 'vyos-' + uuid5(NAMESPACE_URL, version).hex
-        if str(uuid5(NAMESPACE_URL, version)) == default_uuid:
+        if 'uuid5-' + str(uuid5(NAMESPACE_URL, version)) == default_uuid:
             default_label = label
         prefix = '/vyos-boot/payloads/' + token
         entries.append(f'LABEL {label}\n    MENU LABEL VyOS {version}\n'
