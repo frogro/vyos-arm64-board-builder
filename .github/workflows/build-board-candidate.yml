@@ -58,7 +58,7 @@ on:
         type: string
 
       raw_run_id:
-        description: "Successful VyOS ARM64 raw run (blank = newest usable)"
+        description: "Source-matching VyOS raw run (blank = reuse or build automatically)"
         required: false
         default: ""
         type: string
@@ -70,7 +70,41 @@ on:
         type: boolean
 
 jobs:
+  rolling-base:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      vyos_commit: ${{ steps.resolve.outputs.vyos_commit }}
+      raw_run_id: ${{ steps.resolve.outputs.raw_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test Rolling base selection
+        run: python3 tests/test-rolling-base.py
+      - name: Resolve Rolling snapshot and matching base
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
+          RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
+        run: python3 tools/resolve-rolling-base.py
+
+  fresh-base:
+    needs: rolling-base
+    if: needs.rolling-base.outputs.raw_run_id == ''
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/test-vyos-arm64-raw.yml
+    with:
+      vyos_ref: ${{ needs.rolling-base.outputs.vyos_commit }}
+
   board-image:
+    needs: [rolling-base, fresh-base]
+    if: >-
+      ${{ always() && !cancelled() && needs.rolling-base.result == 'success' &&
+          (needs.fresh-base.result == 'success' || needs.fresh-base.result == 'skipped') }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 240
 
@@ -86,32 +120,15 @@ jobs:
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       VYOS_BRANCH: rolling
-      VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
+      VYOS_REF: ${{ needs.rolling-base.outputs.vyos_commit }}
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
-      RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
+      RAW_RUN_ID: ${{ needs.rolling-base.outputs.raw_run_id || needs.fresh-base.outputs.raw_run_id }}
       RAW_WORKFLOW: test-vyos-arm64-raw.yml
       JOBS: 4
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Resolve usable VyOS ARM64 raw image
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          RAW_RUN_ID="$(
-            ./tools/resolve-raw-run.sh \
-              --repo "${GITHUB_REPOSITORY}" \
-              --workflow "${RAW_WORKFLOW}" \
-              --run-id "${RAW_RUN_ID_REQUESTED:-auto}"
-          )"
-
-          echo "RAW_RUN_ID=${RAW_RUN_ID}" >> "$GITHUB_ENV"
-          echo "Using verified raw-image run: ${RAW_RUN_ID}"
 
       - name: Test DT boot-driver discovery
         run: |

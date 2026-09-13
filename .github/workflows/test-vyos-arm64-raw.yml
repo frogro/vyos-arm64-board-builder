@@ -9,10 +9,22 @@ on:
         default: rolling
         type: string
 
+  workflow_call:
+    inputs:
+      vyos_ref:
+        required: true
+        type: string
+    outputs:
+      raw_run_id:
+        description: Run containing the completed raw artifact
+        value: ${{ jobs.vyos-arm64-raw.outputs.raw_run_id }}
+
 jobs:
   vyos-arm64-raw:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    outputs:
+      raw_run_id: ${{ github.run_id }}
 
     steps:
       - name: Checkout board builder
@@ -34,6 +46,7 @@ jobs:
           source sources/vyos.sh
           vyos_fetch
           mkdir -p work/raw-provenance
+          python3 tools/resolve-rolling-base.py --recipe-only > work/raw-provenance/raw-recipe-sha256.txt
           git -C cache/vyos-build rev-parse HEAD > work/raw-provenance/vyos-source-commit.txt
           cp cache/vyos-build/data/defaults.toml work/raw-provenance/vyos-defaults.toml
 
