@@ -113,6 +113,8 @@ jobs:
           python3 tests/test-config-validation.py
           python3 tests/test-model-requirements.py
           python3 tests/test-grub-console-default.py
+          python3 tests/test-grub-board-dtb-persistence.py
+          python3 tests/test-system-image-dtb-update.py
           bash tests/test-common-firstboot.sh
           bash tests/test-grow-persistence-resolver.sh
           python3 tests/test-tailscale-ready.py
@@ -247,6 +249,19 @@ jobs:
               ./tools/build-ustreamer.sh "${BOARD}"
           else
             echo "KVM-over-IP profile disabled; skipping ustreamer build"
+          fi
+
+      - name: Build profile-scoped KVM media stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "work/build/${BOARD}/selection/feature-profiles.env"
+          source "work/build/${BOARD}/selection/kvm-hardware.env"
+
+          if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+            sudo --preserve-env=JOBS ./tools/build-kvm-media-stack.sh "${BOARD}"
+          else
+            echo "RK3588 Profile-D media stack not selected; skipping"
           fi
 
       - name: Prepare firmware provider
@@ -441,9 +456,11 @@ jobs:
             work/build/${{ env.BOARD }}/board-manifest.json
             work/build/${{ env.BOARD }}/artifacts/kernel.release
             work/build/${{ env.BOARD }}/artifacts/kernel.config
+            work/build/${{ env.BOARD }}/artifacts/interrupt-dtb-audit.json
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.txt
             work/build/${{ env.BOARD }}/artifacts/ustreamer/*
+            work/build/${{ env.BOARD }}/artifacts/kvm-media/**/*
             work/build/${{ env.BOARD }}/boot/boot-manifest.env
             work/build/${{ env.BOARD }}/selection/selected-reference.env
             work/build/${{ env.BOARD }}/selection/extended-network.env

@@ -92,13 +92,105 @@ class KvmProfileTests(unittest.TestCase):
         packages = (ROOT / "profiles/kvm-over-ip-packages.txt").read_text()
         for package in (
             "v4l-utils",
+            "ffmpeg",
             "gstreamer1.0-tools",
             "gstreamer1.0-plugins-good",
+            "gstreamer1.0-plugins-ugly",
         ):
             self.assertIn(package, packages)
         installer = (ROOT / "tools/install-kvm-userspace.sh").read_text()
         self.assertIn("apt-get install -y --no-install-recommends", installer)
         self.assertNotIn("apt-get upgrade", installer)
+
+    def test_profile_d_media_backends_keep_generic_and_rockchip_variants(self):
+        components = (
+            ROOT
+            / "profiles/kvm-hardware/rk3588-synopsys-hdmirx-media-components.txt"
+        ).read_text()
+        self.assertIn("gstreamer-rockchip|required", components)
+        self.assertNotIn("gstreamer-rockchip|optional", components)
+
+        installer = (ROOT / "tools/install-kvm-media-stack.sh").read_text()
+        builder = (ROOT / "tools/build-kvm-media-stack.sh").read_text()
+
+        self.assertIn('/usr/bin/ffmpeg', installer)
+        self.assertIn('/usr/bin/ffprobe', installer)
+        self.assertIn('/usr/local/bin/ffmpeg-rockchip', installer)
+        self.assertIn('/usr/local/bin/ffprobe-rockchip', installer)
+        self.assertNotIn('ln -sfn ffmpeg-rockchip', installer)
+        self.assertNotIn('ln -sfn ffprobe-rockchip', installer)
+        self.assertIn('gst-inspect-1.0 x264enc', installer)
+        self.assertIn('check_ldd "$GST_PLUGIN_TARGET"', installer)
+        self.assertIn('GST_RUNTIME_STATUS=deferred', installer)
+        self.assertIn(
+            'KVM_MEDIA_GSTREAMER_ROCKCHIP_RUNTIME=$GST_RUNTIME_STATUS',
+            installer,
+        )
+        self.assertNotIn(
+            '/usr/bin/gst-inspect-1.0 mpph264enc',
+            installer,
+        )
+        self.assertIn('libgstrockchipmpp.ldd.txt', builder)
+        self.assertIn('mpph264enc.txt 2>&1', builder)
+
+    def test_gadget_runtime_is_provider_driven_and_profile_scoped(self):
+        manager_path = ROOT / "tools/common-firstboot/vyos-kvm-gadget"
+        manager = manager_path.read_text()
+        provider = (
+            ROOT
+            / "profiles/kvm-hardware/runtime/rk3588-synopsys-hdmirx.env"
+        ).read_text()
+        finalizer = (ROOT / "tools/finalize-vyos-rootfs.sh").read_text()
+
+        subprocess.run(["bash", "-n", str(manager_path)], check=True)
+        help_result = subprocess.run(
+            ["bash", str(manager_path), "--help"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        for command in (
+            "create",
+            "destroy",
+            "bind",
+            "unbind",
+            "rebind",
+            "status",
+            "keyboard enable",
+            "keyboard disable",
+            "mouse absolute enable",
+            "mouse absolute disable",
+            "mouse relative enable",
+            "mouse relative disable",
+            "virtual-media attach",
+            "virtual-media eject",
+            "virtual-media status",
+        ):
+            self.assertIn(command, help_result.stdout)
+
+        self.assertIn("modprobe libcomposite", manager)
+        self.assertIn("KVM_GADGET_UDC_", manager)
+        self.assertNotIn("fc400000.usb", manager)
+        self.assertIn("ABSOLUTE_MOUSE_REPORT_DESC_B64=", manager)
+        self.assertIn("RELATIVE_MOUSE_REPORT_DESC_B64=", manager)
+        self.assertIn('printf \'6\\n\' > "${function}/report_length"', manager)
+        self.assertIn('printf \'4\\n\' > "${function}/report_length"', manager)
+        self.assertIn("mouse_absolute=", manager)
+        self.assertIn("mouse_relative=", manager)
+        self.assertIn("/config/kvm-over-ip/media", manager)
+        self.assertIn("forced_eject", manager)
+        self.assertIn('lun.0/cdrom', manager)
+        self.assertIn('lun.0/ro', manager)
+        self.assertIn('virtual_media_state=', manager)
+        self.assertIn('virtual_media_read_only=', manager)
+        self.assertIn("CD-ROM virtual media requires an .iso file", manager)
+        self.assertNotIn("virtual-media disk", manager)
+        self.assertIn("KVM_GADGET_UDC_DEDICATED=fc400000.usb", provider)
+        self.assertIn('KVM_GADGET_DEFAULT_PORT=dedicated', provider)
+
+        self.assertIn('"$PAYLOAD/vyos-kvm-gadget"', finalizer)
+        self.assertIn('kvm-gadget-provider.env', finalizer)
+        self.assertIn('if [[ "$KVM_OVER_IP" == "yes" ]]; then', finalizer)
 
     def test_rock5b_provider_contains_only_opt_in_hardware_delta(self):
         text = (

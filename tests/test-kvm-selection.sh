@@ -19,3 +19,6 @@ if (KVM_OVER_IP=invalid select_kvm_over_ip) >/dev/null 2>&1; then
 fi
 
 echo "PASS: KVM-over-IP profile selection"
+
+echo "===== NATIVE KVM CLI REGRESSION ====="
+python3 "$ROOT/tests/test-kvm-cli.py"

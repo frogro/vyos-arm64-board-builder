@@ -1,0 +1,703 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROGRAM="${0##*/}"
+CONFIGFS_ROOT="${KVM_CONFIGFS_ROOT:-/sys/kernel/config}"
+GADGETS_ROOT="${CONFIGFS_ROOT}/usb_gadget"
+GADGET_NAME="${KVM_GADGET_NAME:-vyos-kvm}"
+GADGET="${GADGETS_ROOT}/${GADGET_NAME}"
+CONFIG_NAME="c.1"
+CONFIG="${GADGET}/configs/${CONFIG_NAME}"
+LANGUAGE="0x409"
+PROFILE_DIR="${KVM_PROFILE_DIR:-/usr/share/vyos-arm64-board-builder}"
+PROVIDER_CONFIG="${KVM_GADGET_PROVIDER_CONFIG:-${PROFILE_DIR}/kvm-gadget-provider.env}"
+UDC_ROOT="${KVM_UDC_ROOT:-/sys/class/udc}"
+
+ID_VENDOR="${KVM_GADGET_ID_VENDOR:-0x1d6b}"
+ID_PRODUCT="${KVM_GADGET_ID_PRODUCT:-0x0104}"
+MANUFACTURER="${KVM_GADGET_MANUFACTURER:-VyOS ARM64}"
+PRODUCT="${KVM_GADGET_PRODUCT:-VyOS KVM}"
+SERIAL="${KVM_GADGET_SERIAL:-VYOS-KVM}"
+CONFIGURATION="${KVM_GADGET_CONFIGURATION:-KVM HID}"
+REBIND_DELAY="${KVM_GADGET_REBIND_DELAY:-0.5}"
+VIRTUAL_MEDIA_ROOT="${KVM_VIRTUAL_MEDIA_ROOT:-/config/kvm-over-ip/media}"
+VIRTUAL_MEDIA_INQUIRY="${KVM_VIRTUAL_MEDIA_INQUIRY:-VyOS Virtual CD}"
+
+# Standard 63-byte boot-keyboard report descriptor used by the proven
+# ROCK 5B hardware bring-up.
+KEYBOARD_REPORT_DESC_B64='BQEJBqEBBQcZ4CnnFQAlAXUBlQiBApUBdQiBAZUFdQEFCBkBKQWRApUBdQORAZUGdQgVACVlBQcZACllgQDA'
+
+# Proven absolute mouse descriptor:
+# 5 buttons, absolute 16-bit X/Y in the range 0..32767 and relative wheel.
+ABSOLUTE_MOUSE_REPORT_DESC_B64='BQEJAqEBCQGhAAUJGQEpBRUAJQGVBXUBgQKVAXUDgQEFAQkwCTEWAAAm/391EJUCgQIJOBWBJX91CJUBgQbAwA=='
+
+# Proven relative mouse descriptor:
+# 5 buttons, signed 8-bit relative X/Y and relative wheel.
+RELATIVE_MOUSE_REPORT_DESC_B64='BQEJAqEBCQGhAAUJGQEpBRUAJQGVBXUBgQKVAXUDgQEFAQkwCTEJOBWBJX91CJUDgQbAwA=='
+
+PROVIDER="unknown"
+PORT="unknown"
+UDC=""
+
+usage()
+{
+    cat <<USAGE
+Usage: ${PROGRAM} <command>
+
+Commands:
+  create              Create the default keyboard gadget and bind it
+  destroy             Unbind and remove the gadget
+  bind                Bind an existing gadget to the provider-selected UDC
+  unbind              Unbind the gadget from its UDC
+  rebind              Unbind and bind again
+  status              Show provider, ConfigFS, UDC and keyboard state
+  keyboard enable     Add the keyboard HID function
+  keyboard disable    Remove the keyboard HID function
+  mouse absolute enable
+                      Add the absolute mouse HID function
+  mouse absolute disable
+                      Remove the absolute mouse HID function
+  mouse relative enable
+                      Add the relative mouse HID function
+  mouse relative disable
+                      Remove the relative mouse HID function
+  virtual-media attach <iso>
+                      Attach a read-only CD-ROM ISO
+  virtual-media eject
+                      Force-eject the current virtual CD-ROM
+  virtual-media status
+                      Show virtual-media state
+  help                 Show this help
+USAGE
+}
+
+die()
+{
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+require_root()
+{
+    [[ ${EUID} -eq 0 ]] || die "${PROGRAM} must run as root for this command"
+}
+
+load_provider()
+{
+    [[ -r "${PROVIDER_CONFIG}" ]] ||
+        die "KVM gadget provider configuration missing: ${PROVIDER_CONFIG}"
+
+    # The file is installed from the selected, trusted board-provider payload.
+    # shellcheck disable=SC1090
+    source "${PROVIDER_CONFIG}"
+
+    PROVIDER="${KVM_GADGET_PROVIDER:-unknown}"
+    PORT="${KVM_GADGET_PORT:-${KVM_GADGET_DEFAULT_PORT:-}}"
+    [[ -n "${PORT}" ]] || die "provider does not define a default gadget port"
+    [[ "${PORT}" =~ ^[a-z0-9]+([_-][a-z0-9]+)*$ ]] ||
+        die "invalid gadget port token: ${PORT}"
+
+    local key variable
+    key="$(printf '%s' "${PORT}" | tr '[:lower:]-' '[:upper:]_')"
+    variable="KVM_GADGET_UDC_${key}"
+    UDC="${!variable:-}"
+    [[ -n "${UDC}" ]] ||
+        die "provider has no UDC mapping for gadget port '${PORT}'"
+    [[ "${UDC}" =~ ^[A-Za-z0-9._:-]+$ ]] ||
+        die "invalid UDC name from provider: ${UDC}"
+
+    SERIAL="${KVM_GADGET_SERIAL:-${SERIAL}}"
+}
+
+load_provider_optional()
+{
+    if [[ -r "${PROVIDER_CONFIG}" ]]; then
+        load_provider
+    fi
+}
+
+ensure_runtime()
+{
+    local fstype=""
+
+    mkdir -p "${CONFIGFS_ROOT}"
+    fstype="$(findmnt -n -o FSTYPE --target "${CONFIGFS_ROOT}" 2>/dev/null || true)"
+    if [[ "${fstype}" != "configfs" ]]; then
+        if mountpoint -q "${CONFIGFS_ROOT}"; then
+            die "${CONFIGFS_ROOT} is mounted as ${fstype:-unknown}, not configfs"
+        fi
+        mount -t configfs configfs "${CONFIGFS_ROOT}"
+    fi
+
+    modprobe libcomposite
+    [[ -d "${GADGETS_ROOT}" ]] ||
+        die "ConfigFS USB gadget root did not appear after loading libcomposite"
+}
+
+bound_udc()
+{
+    [[ -r "${GADGET}/UDC" ]] || return 0
+    tr -d '\n' < "${GADGET}/UDC"
+}
+
+is_bound()
+{
+    [[ -n "$(bound_udc)" ]]
+}
+
+function_count()
+{
+    local count=0 item
+    [[ -d "${CONFIG}" ]] || {
+        printf '0\n'
+        return
+    }
+    for item in "${CONFIG}"/*; do
+        [[ -L "${item}" ]] || continue
+        count=$((count + 1))
+    done
+    printf '%s\n' "${count}"
+}
+
+create_base()
+{
+    mkdir -p "${GADGET}"
+    printf '%s\n' "${ID_VENDOR}" > "${GADGET}/idVendor"
+    printf '%s\n' "${ID_PRODUCT}" > "${GADGET}/idProduct"
+
+    mkdir -p "${GADGET}/strings/${LANGUAGE}"
+    printf '%s\n' "${SERIAL}" > "${GADGET}/strings/${LANGUAGE}/serialnumber"
+    printf '%s\n' "${MANUFACTURER}" > "${GADGET}/strings/${LANGUAGE}/manufacturer"
+    printf '%s\n' "${PRODUCT}" > "${GADGET}/strings/${LANGUAGE}/product"
+
+    mkdir -p "${CONFIG}/strings/${LANGUAGE}"
+    printf '%s\n' "${CONFIGURATION}" > "${CONFIG}/strings/${LANGUAGE}/configuration"
+}
+
+ensure_keyboard()
+{
+    local function="${GADGET}/functions/hid.keyboard"
+    local link="${CONFIG}/hid.keyboard"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '1\n' > "${function}/protocol"
+        printf '1\n' > "${function}/subclass"
+        printf '8\n' > "${function}/report_length"
+        printf '%s\n' "${KEYBOARD_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_keyboard()
+{
+    local function="${GADGET}/functions/hid.keyboard"
+    local link="${CONFIG}/hid.keyboard"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+ensure_absolute_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-absolute"
+    local link="${CONFIG}/hid.mouse-absolute"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '0\n' > "${function}/protocol"
+        printf '0\n' > "${function}/subclass"
+        printf '6\n' > "${function}/report_length"
+        printf '%s\n' "${ABSOLUTE_MOUSE_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_absolute_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-absolute"
+    local link="${CONFIG}/hid.mouse-absolute"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+ensure_relative_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-relative"
+    local link="${CONFIG}/hid.mouse-relative"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '0\n' > "${function}/protocol"
+        printf '0\n' > "${function}/subclass"
+        printf '4\n' > "${function}/report_length"
+        printf '%s\n' "${RELATIVE_MOUSE_REPORT_DESC_B64}" |
+            base64 -d > "${function}/report_desc"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+remove_relative_mouse()
+{
+    local function="${GADGET}/functions/hid.mouse-relative"
+    local link="${CONFIG}/hid.mouse-relative"
+
+    [[ -L "${link}" ]] && rm "${link}"
+    [[ -d "${function}" ]] && rmdir "${function}"
+}
+
+virtual_media_function()
+{
+    printf '%s\n' "${GADGET}/functions/mass_storage.virtual-media"
+}
+
+virtual_media_link()
+{
+    printf '%s\n' "${CONFIG}/mass_storage.virtual-media"
+}
+
+virtual_media_lun()
+{
+    printf '%s\n' "$(virtual_media_function)/lun.0"
+}
+
+virtual_media_file()
+{
+    local lun
+    lun="$(virtual_media_lun)"
+    [[ -r "${lun}/file" ]] || return 0
+    tr -d '\n' < "${lun}/file"
+}
+
+resolve_virtual_media_file()
+{
+    local requested="$1"
+    local root resolved
+
+    [[ -n "${requested}" ]] || die "virtual-media attach requires an ISO path"
+
+    mkdir -p "${VIRTUAL_MEDIA_ROOT}"
+    root="$(readlink -f -- "${VIRTUAL_MEDIA_ROOT}")" ||
+        die "unable to resolve virtual-media root: ${VIRTUAL_MEDIA_ROOT}"
+
+    if [[ "${requested}" != /* ]]; then
+        requested="${VIRTUAL_MEDIA_ROOT}/${requested}"
+    fi
+    resolved="$(readlink -f -- "${requested}")" ||
+        die "virtual-media file not found: ${requested}"
+
+    [[ -f "${resolved}" && -s "${resolved}" ]] ||
+        die "virtual-media file must be a non-empty regular file: ${resolved}"
+
+    case "${resolved}" in
+        "${root}"/*) ;;
+        *) die "virtual-media file must be below ${root}" ;;
+    esac
+
+    case "${resolved,,}" in
+        *.iso) ;;
+        *) die "CD-ROM virtual media requires an .iso file" ;;
+    esac
+
+    printf '%s\n' "${resolved}"
+}
+
+ensure_virtual_media()
+{
+    local function link
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+
+    if [[ ! -d "${function}" ]]; then
+        mkdir "${function}"
+        printf '1\n' > "${function}/stall"
+        printf '1\n' > "${function}/lun.0/removable"
+        printf '1\n' > "${function}/lun.0/cdrom"
+        printf '1\n' > "${function}/lun.0/ro"
+        printf '%s\n' "${VIRTUAL_MEDIA_INQUIRY}" > "${function}/lun.0/inquiry_string"
+    fi
+
+    [[ -L "${link}" ]] || ln -s "${function}" "${link}"
+}
+
+virtual_media_force_eject()
+{
+    local lun current
+    lun="$(virtual_media_lun)"
+    [[ -d "${lun}" ]] || return 0
+
+    current="$(virtual_media_file)"
+    [[ -n "${current}" ]] || return 0
+
+    printf '1\n' > "${lun}/forced_eject"
+}
+
+virtual_media_attach()
+{
+    local media="$1"
+    local function link lun current
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    media="$(resolve_virtual_media_file "${media}")"
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+    lun="$(virtual_media_lun)"
+
+    # Once the mass-storage function is part of the active configuration,
+    # media can be replaced without reconnecting the USB gadget.
+    if [[ -d "${function}" && -L "${link}" ]]; then
+        current="$(virtual_media_file)"
+        if [[ -n "${current}" && "${current}" != "${media}" ]]; then
+            virtual_media_force_eject
+        fi
+        if [[ "$(virtual_media_file)" != "${media}" ]]; then
+            printf '%s\n' "${media}" > "${lun}/file"
+        fi
+        return 0
+    fi
+
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+
+    create_base
+    ensure_virtual_media
+    printf '%s\n' "${media}" > "${lun}/file"
+
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+virtual_media_eject()
+{
+    ensure_runtime
+    virtual_media_force_eject
+}
+
+virtual_media_status()
+{
+    local function link lun
+    local enabled=disabled state=disabled file=none mode=none read_only=unknown
+
+    function="$(virtual_media_function)"
+    link="$(virtual_media_link)"
+    lun="$(virtual_media_lun)"
+
+    if [[ -d "${function}" && -L "${link}" ]]; then
+        enabled=enabled
+        state=ejected
+        mode=cdrom
+        read_only=yes
+        if [[ -n "$(virtual_media_file)" ]]; then
+            state=attached
+            file="$(virtual_media_file)"
+        fi
+    fi
+
+    printf 'virtual_media=%s\n' "${enabled}"
+    printf 'virtual_media_state=%s\n' "${state}"
+    printf 'virtual_media_file=%s\n' "${file}"
+    printf 'virtual_media_mode=%s\n' "${mode}"
+    printf 'virtual_media_read_only=%s\n' "${read_only}"
+}
+
+restore_binding_if_possible()
+{
+    local was_bound="$1"
+
+    if [[ "${was_bound}" == yes && $(function_count) -gt 0 ]]; then
+        bind_gadget
+    fi
+}
+
+bind_gadget()
+{
+    local current
+
+    load_provider
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || die "gadget does not exist; run '${PROGRAM} create' first"
+    [[ -e "${UDC_ROOT}/${UDC}" ]] || die "provider-selected UDC is unavailable: ${UDC}"
+    (( $(function_count) > 0 )) || die "refusing to bind a gadget with no functions"
+
+    current="$(bound_udc)"
+    if [[ -n "${current}" ]]; then
+        [[ "${current}" == "${UDC}" ]] ||
+            die "gadget is already bound to a different UDC: ${current}"
+        return 0
+    fi
+
+    printf '%s\n' "${UDC}" > "${GADGET}/UDC"
+}
+
+unbind_gadget()
+{
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        printf '\n' > "${GADGET}/UDC"
+    fi
+}
+
+create_gadget()
+{
+    load_provider
+    ensure_runtime
+    unbind_gadget
+    create_base
+    ensure_keyboard
+    bind_gadget
+}
+
+destroy_gadget()
+{
+    local config lang function link
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    virtual_media_force_eject
+    unbind_gadget
+
+    for config in "${GADGET}/configs/"*; do
+        [[ -d "${config}" ]] || continue
+        for link in "${config}/"*; do
+            [[ -L "${link}" ]] && rm "${link}"
+        done
+        for lang in "${config}/strings/"*; do
+            [[ -d "${lang}" ]] && rmdir "${lang}"
+        done
+        rmdir "${config}"
+    done
+
+    for function in "${GADGET}/functions/"*; do
+        [[ -d "${function}" ]] && rmdir "${function}"
+    done
+
+    for lang in "${GADGET}/strings/"*; do
+        [[ -d "${lang}" ]] && rmdir "${lang}"
+    done
+
+    rmdir "${GADGET}"
+}
+
+keyboard_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    create_base
+    ensure_keyboard
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+keyboard_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_keyboard
+    restore_binding_if_possible "${was_bound}"
+}
+
+mouse_absolute_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    create_base
+    ensure_absolute_mouse
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+mouse_absolute_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_absolute_mouse
+    restore_binding_if_possible "${was_bound}"
+}
+
+mouse_relative_enable()
+{
+    local was_bound=no
+
+    load_provider
+    ensure_runtime
+    if [[ -d "${GADGET}" ]] && is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    create_base
+    ensure_relative_mouse
+    [[ "${was_bound}" == yes ]] && bind_gadget
+}
+
+mouse_relative_disable()
+{
+    local was_bound=no
+
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || return 0
+    if is_bound; then
+        was_bound=yes
+        unbind_gadget
+    fi
+    remove_relative_mouse
+    restore_binding_if_possible "${was_bound}"
+}
+
+rebind_gadget()
+{
+    load_provider
+    ensure_runtime
+    [[ -d "${GADGET}" ]] || die "gadget does not exist; run '${PROGRAM} create' first"
+    unbind_gadget
+    sleep "${REBIND_DELAY}"
+    bind_gadget
+}
+
+status_gadget()
+{
+    local configfs=missing composite=not-loaded gadget=absent keyboard=disabled
+    local mouse_absolute=disabled mouse_relative=disabled
+    local current="" state="UNKNOWN" speed="UNKNOWN"
+
+    load_provider_optional
+
+    [[ -d "${GADGETS_ROOT}" ]] && configfs=ready
+    [[ -d /sys/module/libcomposite ]] && composite=loaded
+    if [[ -d "${GADGET}" ]]; then
+        gadget=present
+        [[ -L "${CONFIG}/hid.keyboard" ]] && keyboard=enabled
+        [[ -L "${CONFIG}/hid.mouse-absolute" ]] && mouse_absolute=enabled
+        [[ -L "${CONFIG}/hid.mouse-relative" ]] && mouse_relative=enabled
+        current="$(bound_udc)"
+    fi
+
+    if [[ -n "${UDC}" && -r "${UDC_ROOT}/${UDC}/state" ]]; then
+        state="$(cat "${UDC_ROOT}/${UDC}/state")"
+    fi
+    if [[ -n "${UDC}" && -r "${UDC_ROOT}/${UDC}/current_speed" ]]; then
+        speed="$(cat "${UDC_ROOT}/${UDC}/current_speed")"
+    fi
+
+    printf 'provider=%s\n' "${PROVIDER}"
+    printf 'port=%s\n' "${PORT}"
+    printf 'udc=%s\n' "${UDC:-unresolved}"
+    printf 'configfs=%s\n' "${configfs}"
+    printf 'libcomposite=%s\n' "${composite}"
+    printf 'gadget=%s\n' "${gadget}"
+    printf 'bound_udc=%s\n' "${current:-none}"
+    printf 'state=%s\n' "${state}"
+    printf 'speed=%s\n' "${speed}"
+    printf 'keyboard=%s\n' "${keyboard}"
+    printf 'mouse_absolute=%s\n' "${mouse_absolute}"
+    printf 'mouse_relative=%s\n' "${mouse_relative}"
+    virtual_media_status
+}
+
+command="${1:-help}"
+case "${command}" in
+    help|-h|--help)
+        usage
+        ;;
+    status)
+        status_gadget
+        ;;
+    create)
+        require_root
+        create_gadget
+        ;;
+    destroy)
+        require_root
+        destroy_gadget
+        ;;
+    bind)
+        require_root
+        bind_gadget
+        ;;
+    unbind)
+        require_root
+        unbind_gadget
+        ;;
+    rebind)
+        require_root
+        rebind_gadget
+        ;;
+    keyboard)
+        require_root
+        case "${2:-}" in
+            enable) keyboard_enable ;;
+            disable) keyboard_disable ;;
+            *) die "keyboard requires 'enable' or 'disable'" ;;
+        esac
+        ;;
+    mouse)
+        require_root
+        case "${2:-}" in
+            absolute)
+                case "${3:-}" in
+                    enable) mouse_absolute_enable ;;
+                    disable) mouse_absolute_disable ;;
+                    *) die "mouse absolute requires 'enable' or 'disable'" ;;
+                esac
+                ;;
+            relative)
+                case "${3:-}" in
+                    enable) mouse_relative_enable ;;
+                    disable) mouse_relative_disable ;;
+                    *) die "mouse relative requires 'enable' or 'disable'" ;;
+                esac
+                ;;
+            *) die "mouse requires 'absolute' or 'relative'" ;;
+        esac
+        ;;
+    virtual-media)
+        case "${2:-}" in
+            attach)
+                require_root
+                virtual_media_attach "${3:-}"
+                ;;
+            eject)
+                require_root
+                virtual_media_eject
+                ;;
+            status)
+                virtual_media_status
+                ;;
+            *) die "virtual-media requires 'attach', 'eject' or 'status'" ;;
+        esac
+        ;;
+    *)
+        usage >&2
+        die "unknown command: ${command}"
+        ;;
+esac

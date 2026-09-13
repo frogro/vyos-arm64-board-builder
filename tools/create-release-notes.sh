@@ -95,6 +95,11 @@ else
     PROVIDER_VALIDATION="- [x] Provider-defined firmware integration"
 fi
 
+if [[ "$UPDATE_PROVIDER" == uboot-extlinux ]]; then
+    BOOT_APPROACH="Native vendor U-Boot loads versioned kernel/initrd/DTB payloads through extlinux. VyOS GRUB metadata remains the authoritative image/default database."
+    UPDATE_STATUS="Native extlinux lifecycle hooks are included for add/default/delete and rollback testing. First install this candidate via .img.xz; the old E52C image cannot bootstrap these hooks through its existing ISO installer. Hardware acceptance is still required. Image rename is intentionally rejected; add the ISO under a new name instead."
+fi
+
 cat > "$OUT" <<EOF_NOTES
 # VyOS ${VYOS_VERSION} for ${BOARD_NAME}
 

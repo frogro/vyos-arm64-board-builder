@@ -35,23 +35,124 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertEqual("rk3588-synopsys-hdmirx", result["provider"])
         self.assertEqual("exact", result["selection"])
         self.assertEqual("yes", result["hid_gadget"])
+        self.assertEqual(
+            "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts",
+            result["dt_overlay"],
+        )
+        self.assertEqual(
+            "profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx",
+            result["kernel_patch_dir"],
+        )
         MODULE.validate_paths(ROOT, result)
+
+    def test_rock5b_overlay_contains_safe_fixed_peripheral_routing(self) -> None:
+        overlay = (
+            ROOT
+            / "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts"
+        ).read_text(encoding="utf-8")
+
+        for expected in (
+            'target-path = "/usb@fc400000";',
+            'dr_mode = "peripheral";',
+            "snps,dis_u2_susphy_quirk;",
+            'target-path = "/regulator-vcc5v0-host";',
+            'target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";',
+            'target-path = "/pinctrl/gpio@fec50000";',
+            'gpios = <8 0>;',
+            "output-low;",
+            'target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";',
+            "rockchip,vbus-always-on;",
+            'target-path = "/phy@fed90000";',
+            "rockchip,fixed-peripheral-bvalid;",
+        ):
+            self.assertIn(expected, overlay)
+
+        self.assertNotIn('target-path = "/usb@fc000000";', overlay)
+
+    def test_rock5b_vbus_patch_is_opt_in_and_prepared_by_builder(self) -> None:
+        patch = (
+            ROOT / "patches/kernel/0001-rockchip-usb2phy-vbus-always-on.patch"
+        ).read_text(encoding="utf-8")
+        usbdp_patch = (
+            ROOT / "patches/kernel/0002-rockchip-usbdp-fixed-peripheral-bvalid.patch"
+        ).read_text(encoding="utf-8")
+        source = (ROOT / "sources/vyos.sh").read_text(encoding="utf-8")
+
+        self.assertIn('"rockchip,vbus-always-on"', patch)
+        self.assertIn("rport->vbus_always_on", patch)
+        self.assertIn("USB_DR_MODE_PERIPHERAL", patch)
+        self.assertIn('"rockchip,fixed-peripheral-bvalid"', usbdp_patch)
+        self.assertIn("rk_udphy_usb_bvalid_enable(udphy, true)", usbdp_patch)
+        self.assertIn("orientation-switch", usbdp_patch)
+        self.assertIn("mode-switch", usbdp_patch)
+        self.assertIn("Applying board-builder kernel patches", source)
+        self.assertIn('local_patch_dir="${ROOT_DIR}/patches/kernel"', source)
+        self.assertIn("builder_commit=${builder_commit}", source)
+        self.assertIn("local_patch_hash=${local_patch_hash}", source)
+
+    def test_kvm_profile_adds_gadget_diagnostics_and_virtual_media_only_when_enabled(self) -> None:
+        required = (ROOT / "profiles/kvm-over-ip.config").read_text(encoding="utf-8")
+        ready = (ROOT / "profiles/kvm-over-ip-ready.config").read_text(encoding="utf-8")
+        build = (ROOT / "build.sh").read_text(encoding="utf-8")
+
+        for expected in (
+            "CONFIG_USB_GADGET_DEBUG_FS=y",
+            "CONFIG_USB_CONFIGFS_F_LB_SS=y",
+            "CONFIG_USB_CONFIGFS_F_HID=y",
+            "CONFIG_USB_CONFIGFS_MASS_STORAGE=y",
+        ):
+            self.assertIn(expected, required)
+
+        for expected in (
+            "CONFIG_USB_GADGET_DEBUG_FS=builtin",
+            "CONFIG_USB_CONFIGFS_F_LB_SS=builtin",
+            "CONFIG_USB_CONFIGFS_F_HID=builtin",
+            "CONFIG_USB_CONFIGFS_MASS_STORAGE=builtin",
+        ):
+            self.assertIn(expected, ready)
+
+        self.assertIn('if [[ "${kvm_over_ip}" == "yes" ]]; then', build)
+        self.assertIn('profiles/kvm-over-ip.config', build)
+
+    def test_rock5b_profile_d_enables_encoder_only_mpp(self) -> None:
+        config = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config").read_text(encoding="utf-8")
+        ready = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx-ready.config").read_text(encoding="utf-8")
+        for expected in (
+            "CONFIG_ROCKCHIP_MPP_SERVICE=y",
+            "CONFIG_ROCKCHIP_MPP_PROC_FS=y",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2=y",
+            "# CONFIG_ROCKCHIP_MPP_RKVENC2_DEVFREQ is not set",
+            "# CONFIG_ROCKCHIP_MPP_RKVDEC2 is not set",
+        ):
+            self.assertIn(expected, config)
+        for expected in (
+            "CONFIG_ROCKCHIP_MPP_SERVICE=builtin",
+            "CONFIG_ROCKCHIP_MPP_PROC_FS=builtin",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2=builtin",
+            "CONFIG_ROCKCHIP_MPP_RKVENC2_DEVFREQ=disabled",
+            "CONFIG_ROCKCHIP_MPP_RKVDEC2=disabled",
+        ):
+            self.assertIn(expected, ready)
 
     def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
         result = MODULE.select(self.entries, "raspberry-pi-5", True)
         self.assertEqual("generic-v4l2", result["provider"])
         self.assertEqual("generic", result["selection"])
         self.assertEqual("", result["kernel_config"])
+        self.assertEqual("", result["dt_overlay"])
 
     def test_other_rk3588_board_is_not_inferred_from_soc_name(self) -> None:
         result = MODULE.select(self.entries, "orangepi-5-plus", True)
         self.assertEqual("generic-v4l2", result["provider"])
         self.assertEqual("generic", result["selection"])
+        self.assertEqual("", result["dt_overlay"])
+        self.assertEqual("", result["kernel_patch_dir"])
 
     def test_disabled_profile_has_no_hardware_delta(self) -> None:
         result = MODULE.select(self.entries, "rock-5b", False)
         self.assertEqual("disabled", result["provider"])
         self.assertEqual("", result["kernel_config"])
+        self.assertEqual("", result["kernel_patch_dir"])
 
     def test_cli_writes_auditable_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -66,7 +167,18 @@ class KvmHardwareProviderTests(unittest.TestCase):
                 "--output-env", str(env),
                 "--output-json", str(report),
             ], check=True)
-            self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env.read_text())
+            env_text = env.read_text()
+            self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env_text)
+            self.assertIn(
+                "KVM_HARDWARE_KERNEL_PATCH_DIR=profiles/kvm-hardware/kernel-patches/"
+                "rk3588-synopsys-hdmirx",
+                env_text,
+            )
+            self.assertIn(
+                "KVM_HARDWARE_DT_OVERLAY=profiles/kvm-hardware/dt-overlays/"
+                "rock5b-fc400000-peripheral.dts",
+                env_text,
+            )
             self.assertIn('"selection": "exact"', report.read_text())
 
     def test_readiness_validator_can_require_host_mode_disabled(self) -> None:

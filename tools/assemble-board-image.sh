@@ -14,6 +14,7 @@ BOOT="$ROOT/work/build/$BOARD/boot"
 MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
+KVM_MEDIA_ARTIFACTS="$KERNEL_ARTIFACTS/kvm-media"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
@@ -144,8 +145,12 @@ VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh
 BOOTFILES_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/bootfiles.sh"
 COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
 KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
+KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
+KVM_CLI_INSTALLER="$ROOT/tools/install-kvm-cli.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
+GRUB_BOARD_DTB_PATCHER="$ROOT/tools/patch-vyos-grub-board-dtb.py"
+SYSTEM_IMAGE_DTB_PATCHER="$ROOT/tools/patch-vyos-system-image-dtb.py"
 
 [[ -x "$INSTALL_PROVIDER" ]] ||
     die "firmware provider installer missing: $INSTALL_PROVIDER"
@@ -156,6 +161,13 @@ GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+    [[ -x "$KVM_CLI_INSTALLER" ]] ||
+        die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    [[ -x "$KVM_MEDIA_INSTALLER" ]] || die "KVM media installer missing: $KVM_MEDIA_INSTALLER"
+    [[ -d "$KVM_MEDIA_ARTIFACTS" ]] || die "KVM media artifacts missing: $KVM_MEDIA_ARTIFACTS"
 fi
 
 [[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
@@ -163,6 +175,12 @@ fi
 
 [[ -x "$GRUB_CONSOLE_TOOL" ]] ||
     die "GRUB console-default tool missing: $GRUB_CONSOLE_TOOL"
+
+[[ -x "$GRUB_BOARD_DTB_PATCHER" ]] ||
+    die "GRUB board-DTB patcher missing: $GRUB_BOARD_DTB_PATCHER"
+
+[[ -x "$SYSTEM_IMAGE_DTB_PATCHER" ]] ||
+    die "system-image DTB patcher missing: $SYSTEM_IMAGE_DTB_PATCHER"
 
 DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 
@@ -521,6 +539,19 @@ echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="
 python3 "$ARM_CPU_OPMODE_PATCHER" "$SQUASH_ROOT"
 
 echo
+echo "===== ADDING BOARD DTB TO VYOS GRUB TEMPLATE ====="
+
+python3 "$GRUB_BOARD_DTB_PATCHER" \
+    "$SQUASH_ROOT" \
+    "$BOOT_FDT_FILE"
+
+echo
+echo "===== ADDING BOARD DTB SUPPORT TO VYOS SYSTEM IMAGE UPDATES ====="
+
+python3 "$SYSTEM_IMAGE_DTB_PATCHER" \
+    "$SQUASH_ROOT"
+
+echo
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
 
 [[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||
@@ -552,6 +583,12 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     "$KVM_USERSPACE_INSTALLER" \
         "$SQUASH_ROOT" \
         "$ROOT/profiles/kvm-over-ip-packages.txt"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    echo
+    echo "===== INSTALLING RK3588 KVM MEDIA STACK ====="
+    "$KVM_MEDIA_INSTALLER" "$SQUASH_ROOT" "$KVM_MEDIA_ARTIFACTS"
 fi
 
 chroot "$SQUASH_ROOT" /bin/bash -c "
@@ -595,6 +632,41 @@ for required in loop ext4 overlay squashfs; do
         "$WORK/initrd.list" ||
         die "initramfs missing live-root module: $required"
 done
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING NATIVE VYOS KVM-OVER-IP CLI ====="
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT"
+fi
+
+# Native provider defaults and lifecycle runtime are installed only for its
+# verified boot contract. Existing ROCK/Pi providers do not enter this block.
+source "$ROOT/tools/firmware-providers/armbian-uboot/native-env.sh"
+if native_extlinux_enabled; then
+    NATIVE_METADATA="$VERSION_DIR/board-boot.json"
+    python3 "$ROOT/tools/audit-interrupt-dtb.py" "$DTB" "$KERNEL_ARTIFACTS/interrupt-dtb-audit.json"
+    python3 - "$NATIVE_METADATA" "$BOARD" "$BOOT_FDT_FILE" "$BUILD_PROFILE" "${HW_SERIALCON}" "${HW_DEFAULT_CONSOLE}" <<'PYMETA'
+import json, sys
+from pathlib import Path
+output, board, dtb, profile, console, mode = sys.argv[1:]
+Path(output).write_text(json.dumps(dict(schema=1, architecture='arm64', board=board,
+    device_tree=dtb, profile=profile, firmware_provider='armbian-uboot',
+    update_provider='uboot-extlinux', firmware_partition=2, console=console,
+    baud=1500000, display_console=mode == 'both'), indent=2) + '\n')
+PYMETA
+    python3 "$ROOT/tools/install-native-boot.py" "$SQUASH_ROOT" "$NATIVE_METADATA"
+    python3 "$ROOT/tools/patch-board-console.py" "$SQUASH_ROOT"
+    install -m 0755 "$ROOT/tools/configure-board-console.py" "$SQUASH_ROOT/tmp/board-console.py"
+    CONSOLE_CONFIGS=(/usr/share/vyos/config.boot.default)
+    # The raw image may already carry config.boot in its writable layer.
+    while IFS= read -r -d '' CONFIG_FILE; do
+        cp "$CONFIG_FILE" "$SQUASH_ROOT/tmp/board-initial.boot"
+        chroot "$SQUASH_ROOT" python3 /tmp/board-console.py "$HW_SERIALCON" 1500000 /tmp/board-initial.boot
+        cp "$SQUASH_ROOT/tmp/board-initial.boot" "$CONFIG_FILE"
+    done < <(find "$VERSION_DIR/rw" -type f -name config.boot -print0)
+    chroot "$SQUASH_ROOT" python3 /tmp/board-console.py "$HW_SERIALCON" 1500000 "${CONSOLE_CONFIGS[@]}"
+    rm -f "$SQUASH_ROOT/tmp/board-console.py" "$SQUASH_ROOT/tmp/board-initial.boot"
+fi
 
 unmount_chroot
 
@@ -667,6 +739,20 @@ cfg.write_text(text)
 print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
 
+if native_extlinux_enabled; then
+    python3 - "$DST_MNT/boot/grub/grub.cfg.d/20-vyos-defaults-autoload.cfg" "$HW_SERIALCON" <<'PYCONSOLE'
+from pathlib import Path
+import re, sys
+path = Path(sys.argv[1]); match = re.fullmatch(r'(ttyS|ttyAMA)([0-9]+)', sys.argv[2])
+if not match: raise SystemExit('Invalid native console')
+s = path.read_text()
+for key, value in dict(console_type=match[1], console_num=match[2], console_speed='1500000').items():
+    s, count = re.subn(r'^set ' + key + r'=.*$', 'set ' + key + '="' + value + '"', s, flags=re.M)
+    if count != 1: raise SystemExit('Missing/duplicate console variable: ' + key)
+path.write_text(s)
+PYCONSOLE
+fi
+
 if [[ -x "$BOOTFILES_PROVIDER" ]]; then
     echo
     echo "===== INSTALLING PROVIDER BOOT FILES ====="
@@ -682,9 +768,9 @@ fi
 echo
 echo "===== SELECTING GRAPHICAL VYOS CONSOLE ====="
 
-python3 "$GRUB_CONSOLE_TOOL" \
-    "$DST_MNT/boot/grub" \
-    --console-type tty
+if ! native_extlinux_enabled; then
+    python3 "$GRUB_CONSOLE_TOOL" "$DST_MNT/boot/grub" --console-type tty
+fi
 
 if [[ -x "$FINALIZE_PROVIDER" ]]; then
     echo

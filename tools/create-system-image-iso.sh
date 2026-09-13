@@ -81,6 +81,11 @@ case "$FIRMWARE_PROVIDER" in
         ;;
 esac
 
+source "$ROOT/tools/firmware-providers/armbian-uboot/native-env.sh"
+if native_extlinux_enabled; then
+    UPDATE_PROVIDER=uboot-extlinux
+fi
+
 mkdir -p "$OUTPUT_DIR"
 
 WORK="$(mktemp -d)"
@@ -171,6 +176,11 @@ install -D -m 0644 "$VERSION_DIR/vmlinuz" "$ISO_ROOT/live/vmlinuz"
 install -D -m 0644 "$VERSION_DIR/initrd.img" "$ISO_ROOT/live/initrd.img"
 install -D -m 0644 "$SQUASH" "$ISO_ROOT/live/filesystem.squashfs"
 install -D -m 0644 "$DTB" "$ISO_ROOT/live/dtb/$BOOT_FDT_FILE"
+
+if [[ "$UPDATE_PROVIDER" == uboot-extlinux ]]; then
+    unsquashfs -cat "$SQUASH" usr/share/vyos-arm64-board-builder/boot-provider.json \
+        > "$ISO_ROOT/live/boot-provider.json"
+fi
 
 unsquashfs -cat "$SQUASH" usr/share/vyos/version.json \
     > "$ISO_ROOT/version.json"

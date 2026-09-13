@@ -1,0 +1,10 @@
+[Unit]
+Description=VyOS KVM-over-IP MediaMTX transport
+After=network.target
+ConditionPathExists=/run/vyos-kvm-over-ip/mediamtx.yml
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mediamtx /run/vyos-kvm-over-ip/mediamtx.yml
+Restart=on-failure
+RestartSec=2

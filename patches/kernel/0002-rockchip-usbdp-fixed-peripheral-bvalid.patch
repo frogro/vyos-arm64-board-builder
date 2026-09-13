@@ -1,0 +1,32 @@
+Subject: [PATCH] phy: rockchip: allow fixed-peripheral USBDP BVALID override
+
+The RK3588 USBDP driver normally asserts the USB BVALID override from
+the Type-C orientation-switch callback. A board-specific fixed peripheral
+route can use the same USBDP/USB2 GRF path without having a Type-C
+orientation event, leaving the hardware BVALID override disabled.
+
+Add an opt-in property for that fixed-routing case. Reject it when Type-C
+orientation or mode switching is present so normal Type-C behaviour cannot
+be overridden accidentally.
+
+Normal device trees are unchanged when the property is absent.
+
+--- a/drivers/phy/rockchip/phy-rockchip-usbdp.c
++++ b/drivers/phy/rockchip/phy-rockchip-usbdp.c
+@@ -1497,6 +1497,16 @@
+ 	if (ret)
+ 		return ret;
+ 
++	if (device_property_present(dev, "rockchip,fixed-peripheral-bvalid")) {
++		if (device_property_present(dev, "orientation-switch") ||
++		    device_property_present(dev, "mode-switch"))
++			return dev_err_probe(dev, -EINVAL,
++					     "fixed peripheral BVALID conflicts with Type-C switching\n");
++
++		rk_udphy_usb_bvalid_enable(udphy, true);
++		dev_info(dev, "forcing USB BVALID for fixed peripheral routing\n");
++	}
++
+ 	mutex_init(&udphy->mutex);
+ 	platform_set_drvdata(pdev, udphy);
+ 

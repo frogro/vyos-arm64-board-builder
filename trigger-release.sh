@@ -86,6 +86,14 @@ normalize_boolean() {
     esac
 }
 
+workflow_boolean() {
+    case "${1,,}" in
+        1|true|yes|y|j|ja|on|enabled) printf 'true\n' ;;
+        0|false|no|n|nein|off|disabled) printf 'false\n' ;;
+        *) return 1 ;;
+    esac
+}
+
 select_publish_release() {
     local requested="$PUBLISH_RELEASE"
 
@@ -479,12 +487,12 @@ main() {
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
         -f hardware_reference="$hardware_reference" \
-        -f extended_network="$extended_network" \
-        -f tailscale_subnet_router="$tailscale_subnet_router" \
-        -f kvm_over_ip="$kvm_over_ip" \
+        -f extended_network="$(workflow_boolean "$extended_network")" \
+        -f tailscale_subnet_router="$(workflow_boolean "$tailscale_subnet_router")" \
+        -f kvm_over_ip="$(workflow_boolean "$kvm_over_ip")" \
         -f armbian_ref="$ARMBIAN_COMMIT" \
         -f raw_run_id="$resolved_raw_run_id" \
-        -f publish_release="$publish_release"
+        -f publish_release="$(workflow_boolean "$publish_release")"
 
     echo
     echo "Build dispatched."
