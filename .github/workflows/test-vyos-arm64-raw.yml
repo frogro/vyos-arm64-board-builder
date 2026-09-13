@@ -2,6 +2,12 @@ name: Test VyOS ARM64 raw image
 
 on:
   workflow_dispatch:
+    inputs:
+      vyos_ref:
+        description: Official VyOS source ref (use the same commit for the board candidate)
+        required: false
+        default: rolling
+        type: string
 
 jobs:
   vyos-arm64-raw:
@@ -18,12 +24,18 @@ jobs:
           docker info
 
       - name: Checkout official VyOS build
+        env:
+          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
         run: |
-          git clone \
-            --depth=1 \
-            --branch rolling \
-            https://github.com/vyos/vyos-build.git \
-            cache/vyos-build
+          set -euo pipefail
+          ROOT_DIR="$PWD"
+          info() { echo "$*"; }
+          die() { echo "$*" >&2; exit 1; }
+          source sources/vyos.sh
+          vyos_fetch
+          mkdir -p work/raw-provenance
+          git -C cache/vyos-build rev-parse HEAD > work/raw-provenance/vyos-source-commit.txt
+          cp cache/vyos-build/data/defaults.toml work/raw-provenance/vyos-defaults.toml
 
       - name: Apply ARM64 VyOS raw image patch
         shell: bash
@@ -44,6 +56,7 @@ jobs:
       - name: Pull official VyOS build container
         run: |
           docker pull vyos/vyos-build:rolling
+          docker image inspect vyos/vyos-build:rolling --format '{{json .RepoDigests}}' > work/raw-provenance/build-container.json
 
       - name: Configure build swap
         shell: bash
@@ -130,3 +143,11 @@ jobs:
           path: ${{ steps.raw.outputs.path }}
           if-no-files-found: error
           compression-level: 1
+
+      - name: Upload raw source provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-arm64-raw-provenance
+          path: work/raw-provenance/
+          if-no-files-found: warn
