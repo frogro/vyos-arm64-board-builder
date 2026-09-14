@@ -128,3 +128,36 @@ continue to come from the VyOS userspace.
 Do not install Debian Trixie's `ustreamer` package into the current VyOS
 userspace. It upgrades glibc and replaces libevent packages used by core VyOS
 components.
+
+## HDMI signal recovery and HID activation (2026-09-14)
+
+The `rk3588-synopsys-hdmirx` provider runs capture under a signal supervisor.
+It waits without repeatedly launching encoders when HDMI source power/link is
+absent. Signal loss or a DV-timing change stops the capture process group;
+returning input starts the existing runner, which synchronizes detected timings
+before opening capture. Small measured pixel-clock jitter is tolerated.
+FFmpeg/GStreamer wait for the local RTSP listener and additionally undergo a
+bounded packet-flow check (15-second startup grace, then every 10 seconds).
+Two unsuccessful packet checks restart even a process that is still alive.
+An unresponsive encoder receives SIGKILL after five seconds of SIGTERM grace.
+Generic V4L2 providers retain their existing runner behavior. USB HID is not
+reconfigured by video recovery. Browser reconnection is a separate client concern.
+
+The gadget helper also returns success after initially adding keyboard, mouse
+or virtual media to an unbound gadget. Previously its final conditional rebind
+returned status 1 when no binding existed; native CLI activation consequently
+failed before the final bind step.
+
+On ROCK 5B image `999.202609141528`, the helper correction allowed native CLI
+commit/save of keyboard and both mouse modes. The host enumerated all three;
+typed text and both mouse motion modes were confirmed by the tester. HDMI
+unplug/replug was recognized by the supervisor at 22:05:49/22:06:02 CEST, with
+automatic encoder restart. A later refinement tolerates pixel-clock jitter;
+the updated runtime was checked with 121 H.264 packets in two seconds at
+1920x1080/60 and HID remained configured. Full ROCK reboot persistence and a
+repeat target-computer reboot remain acceptance steps. GStreamer and ustreamer
+recovery are not hardware-validated by this FFmpeg test.
+
+These fixes were installed in the running test image with backups of the old
+helpers. The published `999.202609141528` ISO does not contain these changes;
+future images must be built from the corrected source to carry them forward.

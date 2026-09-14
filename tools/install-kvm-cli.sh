@@ -29,6 +29,7 @@ for path in \
     "$XML_SOURCE" \
     "$PAYLOAD/service_kvm_over_ip.py" \
     "$PAYLOAD/vyos-kvm-video-runner" \
+    "$PAYLOAD/vyos-kvm-video-supervisor.py" \
     "$PAYLOAD/vyos-kvm-video.service" \
     "$PAYLOAD/vyos-kvm-mediamtx.service" \
     "$PAYLOAD/merge-vyos-reference.py"
@@ -55,6 +56,7 @@ install -d -m 0755 \
 
 install -m 0755 "$PAYLOAD/service_kvm_over_ip.py" "$CONF_MODE"
 install -m 0755 "$PAYLOAD/vyos-kvm-video-runner" "$LIBEXEC/vyos-kvm-video-runner"
+install -m 0755 "$PAYLOAD/vyos-kvm-video-supervisor.py" "$LIBEXEC/vyos-kvm-video-supervisor.py"
 install -m 0644 "$PAYLOAD/vyos-kvm-video.service" "$UNIT_DIR/vyos-kvm-video.service"
 install -m 0644 "$PAYLOAD/vyos-kvm-mediamtx.service" "$UNIT_DIR/vyos-kvm-mediamtx.service"
 install -m 0755 "$PAYLOAD/merge-vyos-reference.py" "$LIBEXEC/vyos-kvm-merge-reference"

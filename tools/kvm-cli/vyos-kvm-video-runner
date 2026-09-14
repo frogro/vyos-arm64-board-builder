@@ -109,6 +109,11 @@ DEVICE="$(resolve_device)" || {
     exit 1
 }
 
+# Scope signal supervision to the provider with HDMI DV-timing support.
+if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" && "${KVM_VIDEO_SUPERVISED:-0}" != 1 ]]; then
+    exec /usr/bin/python3 /usr/local/libexec/vyos-kvm-video-supervisor.py "${DEVICE}" "${BACKEND}" "$0"
+fi
+
 sync_provider_capture_timings
 
 echo "KVM video backend=${BACKEND} provider=${PROVIDER} device=${DEVICE}" >&2

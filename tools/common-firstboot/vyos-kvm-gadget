@@ -373,7 +373,9 @@ virtual_media_attach()
     ensure_virtual_media
     printf '%s\n' "${media}" > "${lun}/file"
 
-    [[ "${was_bound}" == yes ]] && bind_gadget
+    if [[ "${was_bound}" == yes ]]; then
+        bind_gadget
+    fi
 }
 
 virtual_media_eject()
@@ -499,7 +501,9 @@ keyboard_enable()
     fi
     create_base
     ensure_keyboard
-    [[ "${was_bound}" == yes ]] && bind_gadget
+    if [[ "${was_bound}" == yes ]]; then
+        bind_gadget
+    fi
 }
 
 keyboard_disable()
@@ -528,7 +532,9 @@ mouse_absolute_enable()
     fi
     create_base
     ensure_absolute_mouse
-    [[ "${was_bound}" == yes ]] && bind_gadget
+    if [[ "${was_bound}" == yes ]]; then
+        bind_gadget
+    fi
 }
 
 mouse_absolute_disable()
@@ -557,7 +563,9 @@ mouse_relative_enable()
     fi
     create_base
     ensure_relative_mouse
-    [[ "${was_bound}" == yes ]] && bind_gadget
+    if [[ "${was_bound}" == yes ]]; then
+        bind_gadget
+    fi
 }
 
 mouse_relative_disable()

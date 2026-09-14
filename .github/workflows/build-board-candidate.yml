@@ -161,6 +161,7 @@ jobs:
           python3 tests/test-release-identity.py
           python3 tests/test-feature-profile.py
           python3 tests/test-kvm-profile.py
+          python3 tests/test-kvm-video-supervisor.py
           python3 tests/test-kvm-hardware-provider.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
