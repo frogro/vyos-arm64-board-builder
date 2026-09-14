@@ -27,6 +27,12 @@ on:
         default: "auto"
         type: string
 
+      expected_update_provider:
+        description: "Optional update compatibility assertion (e.g. uboot-extlinux)"
+        required: false
+        default: ""
+        type: string
+
       extended_network:
         description: "Include curated additional Wi-Fi/Ethernet/WWAN support"
         required: true
@@ -126,6 +132,7 @@ jobs:
       TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
+      EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
       VYOS_BRANCH: rolling
       VYOS_REF: ${{ needs.rolling-base.outputs.vyos_commit }}
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
@@ -324,6 +331,14 @@ jobs:
           # shellcheck disable=SC1090
           source "work/build/${BOARD}/boot/boot-manifest.env"
 
+          if [[ "$EXPECTED_UPDATE_PROVIDER" == uboot-extlinux ]]; then
+            source tools/firmware-providers/armbian-uboot/native-env.sh
+            native_extlinux_enabled || {
+              echo "::error::Selected firmware does not support the required uboot-extlinux update path"
+              exit 1
+            }
+          fi
+
           echo "Provider:         ${FIRMWARE_PROVIDER}"
           echo "Layout:           ${FIRMWARE_LAYOUT_MODE}"
           echo "Boot branch:      ${BOOT_BRANCH}"
@@ -429,6 +444,11 @@ jobs:
 
           # shellcheck disable=SC1090
           source "work/build/${BOARD}/release.env"
+
+          if [[ -n "$EXPECTED_UPDATE_PROVIDER" && "$UPDATE_PROVIDER" != "$EXPECTED_UPDATE_PROVIDER" ]]; then
+            echo "::error::Update provider mismatch: expected $EXPECTED_UPDATE_PROVIDER, got $UPDATE_PROVIDER"
+            exit 1
+          fi
 
           echo "Release tag:      ${RELEASE_TAG}"
           echo "Release basename: ${RELEASE_BASENAME}"
