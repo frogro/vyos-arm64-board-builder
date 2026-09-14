@@ -63,6 +63,12 @@ on:
         default: ""
         type: string
 
+      force_fresh_base:
+        description: "Rebuild matching Rolling base for a new image version"
+        required: false
+        default: false
+        type: boolean
+
       publish_release:
         description: "Publish successful build as GitHub Latest Release"
         required: true
@@ -88,6 +94,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
           RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
+          FORCE_FRESH_BASE: ${{ inputs.force_fresh_base || false }}
         run: python3 tools/resolve-rolling-base.py
 
   fresh-base:
@@ -132,6 +139,7 @@ jobs:
 
       - name: Test DT boot-driver discovery
         run: |
+          python3 tests/test-board-identity.py
           python3 tests/test-dtb-boot-roots.py
           python3 tests/test-early-of-declarations.py
           python3 tests/test-config-validation.py

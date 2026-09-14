@@ -58,6 +58,10 @@ def resolve(repo, ref, requested=''):
     if not re.fullmatch('[0-9a-f]{40}', commit):
         raise ValueError('Invalid resolved source commit')
     recipe = recipe_hash()
+    if os.environ.get('FORCE_FRESH_BASE', '').lower() == 'true':
+        if requested and requested != 'auto':
+            raise ValueError('Fresh base and explicit raw run cannot be combined')
+        return commit, '', recipe
     if requested and requested != 'auto':
         if not requested.isdigit():
             raise ValueError('Invalid raw run ID')

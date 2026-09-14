@@ -82,3 +82,19 @@ The supplied prior-chat summary reports coldboot/reboot success and ITS errors;
 their complete original logs remain needed for diagnosis. The gate and support
 bundle make the next test evidence explicit; they do not claim to have fixed a
 hardware ITS fault without testing it.
+
+### E52C hardware identity (2026-09-14)
+
+The E52C-tested Device Tree fallback is installed during common rootfs
+finalization, so both the board image and its update ISO contain it. DMI remains
+preferred for hardware display. The DUID init function retains an existing valid
+DUID; without DMI it derives DUID-UUID from the live DT serial using the same
+UUIDv5 DNS mapping as VyOS uses for a DMI serial. No synthetic hardware UUID is
+reported. Recreating the DUID with the same serial is deterministic, including
+in a new image. Actual cross-image DHCPv6/PD acceptance remains to be tested;
+custom DUID migration is not implied by deterministic regeneration.
+
+The shared helper is currently enabled only for radxa-e52c. ROCK 5B and Raspberry
+Pi firmware, identity and boot behavior are unchanged. The existing U-Boot handoff
+already supplies the E52C serial; no bootloader change is required. Additional
+boards require source validation before enabling the fallback.

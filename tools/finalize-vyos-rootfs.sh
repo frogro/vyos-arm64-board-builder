@@ -200,3 +200,8 @@ if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
 fi
 
 echo "Installed common first-boot DHCP/SSH helpers for $BOARD"
+
+# Hardware-tested native E52C identity fallback; keep other boards unchanged.
+if [[ "$BOARD" == "radxa-e52c" ]]; then
+    python3 "$ROOT/tools/patch-vyos-board-identity.py" --rootfs "$ROOTFS"
+fi
