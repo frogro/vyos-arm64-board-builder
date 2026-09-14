@@ -29,6 +29,8 @@ GADGET_PROVIDER_ENV = PROFILE_DIR / 'kvm-gadget-provider.env'
 GADGET = '/usr/local/sbin/vyos-kvm-gadget'
 VIDEO_SERVICE = 'vyos-kvm-video.service'
 MEDIAMTX_SERVICE = 'vyos-kvm-mediamtx.service'
+INPUT_SERVICE = 'vyos-kvm-input.service'
+INPUT_CONFIG = RUN_DIR / 'input.json'
 MEDIA_ROOT = Path('/config/kvm-over-ip/media')
 
 
@@ -110,6 +112,8 @@ def get_config(config=None):
         )
     )
 
+    kvm['_input_changed'] = is_node_changed(conf, BASE + ['local-input'])
+
     if 'video' in kvm:
         video = kvm['video']
         video.setdefault('listen_address', '0.0.0.0')
@@ -147,6 +151,20 @@ def verify(kvm):
         raise ConfigError(
             'USB gadget port is only meaningful with keyboard, mouse or virtual-media'
         )
+
+    local_input = kvm.get('local_input', {})
+    if 'local_input' in kvm and not local_input:
+        raise ConfigError('Local input requires a keyboard or mouse device')
+    for kind, path in local_input.items():
+        if kind not in ('keyboard', 'mouse') or not isinstance(path, str) or not re.fullmatch(
+                r'/dev/input/by-id/[A-Za-z0-9_.:+-]+', path):
+            raise ConfigError('Local input must use a persistent /dev/input/by-id/ device path')
+        if kind == 'keyboard' and 'keyboard' not in kvm:
+            raise ConfigError('Local keyboard forwarding requires KVM keyboard')
+        if kind == 'mouse' and 'relative' not in mouse:
+            raise ConfigError('Local mouse forwarding requires KVM relative mouse')
+    if len(set(local_input.values())) != len(local_input):
+        raise ConfigError('Keyboard and mouse must select different event devices')
 
     if video:
         backend = video.get('backend')
@@ -256,6 +274,13 @@ def _write_env(values):
 def generate(kvm):
     RUN_DIR.mkdir(mode=0o755, parents=True, exist_ok=True)
 
+    local_input = (kvm or {}).get('local_input', {})
+    if local_input:
+        INPUT_CONFIG.write_text(json.dumps(local_input) + '\n')
+        os.chmod(INPUT_CONFIG, 0o600)
+    else:
+        INPUT_CONFIG.unlink(missing_ok=True)
+
     if not kvm or 'video' not in kvm:
         VIDEO_ENV.unlink(missing_ok=True)
         MEDIAMTX_CONFIG.unlink(missing_ok=True)
@@ -361,6 +386,7 @@ def _apply_gadget(kvm):
 
 def apply(kvm):
     if not kvm:
+        _systemctl('stop', INPUT_SERVICE)
         _systemctl('stop', VIDEO_SERVICE)
         _systemctl('stop', MEDIAMTX_SERVICE)
         _apply_gadget(None)
@@ -382,8 +408,13 @@ def apply(kvm):
 
             _systemctl('restart', VIDEO_SERVICE, check=True)
 
+    input_changed = kvm.get('_input_changed', True) or kvm.get('_gadget_changed', True)
+    if input_changed:
+        _systemctl('stop', INPUT_SERVICE, check=True)
     if kvm.get('_gadget_changed', True):
         _apply_gadget(kvm)
+    if input_changed and kvm.get('local_input'):
+        _systemctl('restart', INPUT_SERVICE, check=True)
 
     return None
 

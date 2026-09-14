@@ -15,6 +15,7 @@ MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
 KVM_MEDIA_ARTIFACTS="$KERNEL_ARTIFACTS/kvm-media"
+KVM_CLI_ARTIFACTS="$KERNEL_ARTIFACTS/vyos-1x-kvm"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
@@ -477,6 +478,21 @@ unsquashfs \
     -d "$SQUASH_ROOT" \
     "$SQUASH"
 
+# Install the profile package before any board-specific rootfs patches.
+# Later finalizers must win over the original files shipped by vyos-1x.
+mkdir -p "$SQUASH_ROOT"/{dev/pts,proc,sys,run,boot}
+mount --bind /dev "$SQUASH_ROOT/dev"
+mount --bind /dev/pts "$SQUASH_ROOT/dev/pts"
+mount -t proc proc "$SQUASH_ROOT/proc"
+mount -t sysfs sysfs "$SQUASH_ROOT/sys"
+mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
+    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS"
+fi
+
 SQUASH_MODULE_DIR="$SQUASH_ROOT/usr/lib/modules/$KERNEL_RELEASE"
 
 rm -rf "$SQUASH_MODULE_DIR"
@@ -585,11 +601,6 @@ cp "$KERNEL_ARTIFACTS/kernel.config" \
 cp "$KERNEL_ARTIFACTS/System.map" \
     "$SQUASH_ROOT/boot/System.map-$KERNEL_RELEASE"
 
-mount --bind /dev "$SQUASH_ROOT/dev"
-mount --bind /dev/pts "$SQUASH_ROOT/dev/pts"
-mount -t proc proc "$SQUASH_ROOT/proc"
-mount -t sysfs sysfs "$SQUASH_ROOT/sys"
-mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
@@ -647,11 +658,6 @@ for required in loop ext4 overlay squashfs; do
         die "initramfs missing live-root module: $required"
 done
 
-if [[ "$KVM_OVER_IP" == "yes" ]]; then
-    echo
-    echo "===== INSTALLING NATIVE VYOS KVM-OVER-IP CLI ====="
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT"
-fi
 
 # Native provider defaults and lifecycle runtime are installed only for its
 # verified boot contract. Existing ROCK/Pi providers do not enter this block.

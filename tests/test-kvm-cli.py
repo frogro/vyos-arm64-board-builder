@@ -49,16 +49,14 @@ class KvmCliTests(unittest.TestCase):
             'v4l2-ctl -d "${DEVICE}" --set-dv-bt-timings query', runner
         )
 
-    def test_reference_and_configd_integration_is_installed(self):
+    def test_reference_and_configd_come_from_source_build(self):
         installer = (ROOT / 'tools/install-kvm-cli.sh').read_text()
-        merger = (ROOT / 'tools/kvm-cli/merge-vyos-reference.py').read_text()
-        assemble = (ROOT / 'tools/assemble-board-image.sh').read_text()
-
-        self.assertIn('vyos-kvm-merge-reference', installer)
-        self.assertIn('configd-include.json', merger)
-        self.assertIn('vyos.xml_ref.cache', merger)
-        self.assertIn('tree_merge', merger)
-        self.assertIn('KVM_CLI_INSTALLER', assemble)
+        prepare = (ROOT / 'tools/prepare-vyos-1x-profile.py').read_text()
+        builder = (ROOT / 'tools/build-vyos-1x-profile.py').read_text()
+        self.assertIn('interface-definitions/service_kvm-over-ip.xml.in', prepare)
+        self.assertIn('dpkg-buildpackage -b -us -uc', builder)
+        self.assertIn('configd-include.json', builder)
+        self.assertNotIn('merge-vyos-reference', installer)
 
     def test_gstreamer_rtsp_publisher_dependency_is_present(self):
         packages = (ROOT / 'profiles/kvm-over-ip-packages.txt').read_text()
@@ -77,10 +75,7 @@ class KvmCliTests(unittest.TestCase):
             str(ROOT / 'tools/kvm-cli/service_kvm_over_ip.py'),
             doraise=True,
         )
-        py_compile.compile(
-            str(ROOT / 'tools/kvm-cli/merge-vyos-reference.py'),
-            doraise=True,
-        )
+
 
 
 if __name__ == '__main__':

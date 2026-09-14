@@ -69,6 +69,20 @@ specific UDC names remain in provider runtime metadata rather than in the
 generic manager. This keeps a later dedicated-port versus USB-C/PD-injector
 choice board-specific while preserving one common runtime interface.
 
+The ROCK 5B dedicated gadget port is the lower blue USB-A socket. A connection
+to another USB host **requires a VBUS-blocking (power-off) adapter** which
+interrupts the 5 V conductor but preserves data and ground. A USB data blocker
+is not suitable. The board shares `USB_HOST_PWREN_H` between both USB-A
+connector pairs, so the gadget overlay preserves host power and the other
+host PHYs. Cutting their shared supply also disables external USB devices.
+This is a ROCK 5B wiring requirement, not a change to other board providers.
+
+On 2026-09-14, restoring host power and the host PHY and removing the GPIO-low
+hog restored enumeration of a Logitech Unifying receiver (`046d:c52b`), with
+keyboard and mouse input devices using the existing `hid-generic` driver.
+That test had the gadget cable disconnected; simultaneous physical input
+forwarding to the target remains a separate test.
+
 Keyboard, absolute mouse and relative mouse are independent HID functions.
 The ROCK 5B hardware validation demonstrated all three simultaneously as a
 three-interface USB composite gadget. Absolute pointer reports use 16-bit
@@ -161,3 +175,60 @@ recovery are not hardware-validated by this FFmpeg test.
 These fixes were installed in the running test image with backups of the old
 helpers. The published `999.202609141528` ISO does not contain these changes;
 future images must be built from the corrected source to carry them forward.
+
+## Selected local USB keyboard and mouse forwarding
+
+Use stable `/dev/input/by-id` event paths, not numbered `eventN` devices.
+For the tested Logitech Unifying receiver:
+
+```text
+configure
+set service kvm-over-ip keyboard
+set service kvm-over-ip mouse relative
+set service kvm-over-ip local-input keyboard /dev/input/by-id/usb-Logitech_USB_Receiver-event-kbd
+set service kvm-over-ip local-input mouse /dev/input/by-id/usb-Logitech_USB_Receiver-if01-event-mouse
+commit
+save
+exit
+```
+
+The receiver must remain on a host port. Only the selected keyboard and mouse
+are grabbed exclusively and forwarded to the target; their normal input no
+longer reaches the local console while forwarding is active. System-power and
+consumer-control event devices are not selected. No keystrokes are logged.
+The target OS determines the keyboard layout. Keyboard LED feedback and
+multimedia keys are not implemented.
+
+Configuration follows `get_config`, `verify`, `generate`, `apply`. The config
+script creates root-readable runtime JSON under `/run`, starts the service
+after gadget setup and stops it before gadget changes or configuration removal.
+The service is started by VyOS configuration application, not independently
+enabled with systemctl. Missing receivers may be configured: the daemon waits
+for them rather than failing boot. Stable paths are reused after hotplug.
+
+Remove forwarding with `delete service kvm-over-ip local-input`, then `commit`
+and `save`. Existing video and virtual media configuration is preserved.
+The XML, config script and service are included by the KVM image installer.
+Saved settings can be carried into a future image containing this extension;
+older images without these CLI nodes are not guaranteed to load them. Updating
+the current checkout does not change already-published images.
+
+KVM builds now prepare an isolated matching VyOS-1x source checkout, add the
+profile XML as `.xml.in` plus config and service sources, and run the upstream
+`dpkg-buildpackage` targets. CLI templates, reference caches and configd includes
+are generated together by VyOS. The package is installed before board patches;
+there is no post-build reference-tree merger. Non-KVM builds skip this step
+and keep the base package. Tailscale preparation alone does not modify VyOS-1x.
+
+The actual base package version must identify an accessible clean source commit.
+An unresolved/dirty version stops the KVM build rather than selecting another
+rolling revision. Artifacts include the source commit, recipe hash, container
+image ID and package checksum. Package outputs are isolated and are not reused
+from a shared cache. The build container must provide the dependencies for that
+source revision. Full package/image validation is required before releasing this
+new source-build path.
+
+Hardware tests on 2026-09-15 confirmed physical keyboard input through the
+ROCK into the target desktop, BIOS and Alpine live console, mouse operation
+on the desktop, and recovery after receiver unplug/replug. Native CLI boot
+restoration must be verified separately after installation.

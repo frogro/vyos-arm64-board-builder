@@ -55,11 +55,6 @@ class KvmHardwareProviderTests(unittest.TestCase):
             'target-path = "/usb@fc400000";',
             'dr_mode = "peripheral";',
             "snps,dis_u2_susphy_quirk;",
-            'target-path = "/regulator-vcc5v0-host";',
-            'target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";',
-            'target-path = "/pinctrl/gpio@fec50000";',
-            'gpios = <8 0>;',
-            "output-low;",
             'target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";',
             "rockchip,vbus-always-on;",
             'target-path = "/phy@fed90000";',
@@ -68,6 +63,10 @@ class KvmHardwareProviderTests(unittest.TestCase):
             self.assertIn(expected, overlay)
 
         self.assertNotIn('target-path = "/usb@fc000000";', overlay)
+        self.assertNotIn('target-path = "/regulator-vcc5v0-host";', overlay)
+        self.assertNotIn('gpio-hog;', overlay)
+        self.assertNotIn('target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";', overlay)
+        self.assertIn('disconnects VBUS (5 V)', overlay)
 
     def test_rock5b_vbus_patch_is_opt_in_and_prepared_by_builder(self) -> None:
         patch = (

@@ -1,0 +1,49 @@
+name: Test source-built VyOS-1x KVM package
+on:
+  push:
+    branches: [main-test]
+    paths:
+      - tools/build-vyos-1x-profile.py
+      - tools/prepare-vyos-1x-profile.py
+      - tools/kvm-cli/**
+      - profiles/kvm-cli/**
+      - .github/workflows/test-vyos-1x-profile.yml
+  workflow_dispatch:
+    inputs:
+      base_package_version:
+        description: Exact original vyos-1x version from the target raw image
+        required: true
+        default: 999.0-14891-gd185906f3
+        type: string
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check profile isolation and configuration lifecycle
+        run: |
+          python3 tests/test-vyos-1x-profile.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-local-input.py
+          python3 tests/test-kvm-cli.py
+      - name: Build exact-source ARM64 package with upstream targets
+        env:
+          BASE_PACKAGE_VERSION: ${{ inputs.base_package_version || '999.0-14891-gd185906f3' }}
+        run: |
+          sudo --preserve-env=BASE_PACKAGE_VERSION python3 - <<'PY'
+          import importlib.util, os
+          from pathlib import Path
+          spec = importlib.util.spec_from_file_location('builder', 'tools/build-vyos-1x-profile.py')
+          builder = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(builder)
+          builder.build(os.environ['BASE_PACKAGE_VERSION'], Path('work/vyos-1x-kvm').resolve())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: vyos-1x-kvm-source-build
+          path: work/vyos-1x-kvm/*
+          if-no-files-found: error

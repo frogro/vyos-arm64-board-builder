@@ -162,6 +162,9 @@ jobs:
           python3 tests/test-feature-profile.py
           python3 tests/test-kvm-profile.py
           python3 tests/test-kvm-video-supervisor.py
+          python3 tests/test-kvm-local-input.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-hardware-provider.py
           python3 tests/test-arm-cpu-opmode.py
           bash tests/test-extended-network-selection.sh
@@ -513,6 +516,7 @@ jobs:
             work/build/${{ env.BOARD }}/artifacts/interrupt-dtb-audit.json
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
             work/build/${{ env.BOARD }}/artifacts/network-firmware/*.txt
+            work/build/${{ env.BOARD }}/artifacts/vyos-1x-kvm/*
             work/build/${{ env.BOARD }}/artifacts/ustreamer/*
             work/build/${{ env.BOARD }}/artifacts/kvm-media/**/*
             work/build/${{ env.BOARD }}/boot/boot-manifest.env

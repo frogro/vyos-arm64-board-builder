@@ -1,0 +1,10 @@
+[Unit]
+Description=VyOS KVM selected USB keyboard and mouse forwarding
+ConditionPathExists=/run/vyos-kvm-over-ip/input.json
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/libexec/vyos-kvm-input.py
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=5

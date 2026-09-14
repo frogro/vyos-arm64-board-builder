@@ -113,6 +113,24 @@
             </children>
           </node>
 
+          <node name="local-input">
+            <properties><help>Forward selected local USB input devices to the KVM target</help></properties>
+            <children>
+              <leafNode name="keyboard">
+                <properties>
+                  <help>USB keyboard event device under /dev/input/by-id</help>
+                  <constraint><regex>/dev/input/by-id/[A-Za-z0-9_.:+-]+</regex></constraint>
+                </properties>
+              </leafNode>
+              <leafNode name="mouse">
+                <properties>
+                  <help>USB mouse event device under /dev/input/by-id</help>
+                  <constraint><regex>/dev/input/by-id/[A-Za-z0-9_.:+-]+</regex></constraint>
+                </properties>
+              </leafNode>
+            </children>
+          </node>
+
           <node name="usb">
             <properties>
               <help>USB gadget routing</help>
