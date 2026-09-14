@@ -19,6 +19,18 @@ The default is **No**. Non-interactive builds use `EXTENDED_NETWORK=no`
 unless explicitly overridden. GitHub Actions exposes the same setting as the
 `extended_network` workflow input.
 
+## Optional Quectel RM505Q-AE boot image
+
+With `EXTENDED_NETWORK=yes`, image assembly also includes the checksum-verified A04
+`sbl1.mbn`, its checksum and manual installation instructions under
+`/usr/share/quectel-rm505q-ae/a04/`. Base builds do not include this bundle.
+This applies to any board and combined feature profile with Extended Network
+enabled. The file is not automatically installed under `/lib/firmware`, loaded,
+or flashed; the user can install it manually when needed for the matching modem.
+No Quectel proprietary driver or QFirehose is added.
+
+Source and target instructions: [RM505Q-AE A04 asset](../firmware/quectel-rm505q-ae/a04/README.md).
+
 ## Security and resource notice
 
 The optional profile is a convenience-oriented, intentionally incomplete

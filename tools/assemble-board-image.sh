@@ -500,6 +500,20 @@ bash "$ROOT/tools/install-network-firmware.sh" \
     "$SQUASH_ROOT" \
     "$NETWORK_ARTIFACTS"
 
+# Bundle the optional modem boot image only with Additional/Extended Network.
+# Keep it outside the kernel firmware search path for manual installation.
+if [[ "$EXTENDED_NETWORK" == yes ]]; then
+    QUECTEL_ASSET="$ROOT/firmware/quectel-rm505q-ae/a04"
+    (
+        cd "$QUECTEL_ASSET"
+        sha256sum --check SHA256SUMS
+    )
+    install -D -m 0644 "$QUECTEL_ASSET/sbl1.mbn" \
+        "$SQUASH_ROOT/usr/share/quectel-rm505q-ae/a04/sbl1.mbn"
+    install -m 0644 "$QUECTEL_ASSET/README.md" "$QUECTEL_ASSET/SHA256SUMS" \
+        "$SQUASH_ROOT/usr/share/quectel-rm505q-ae/a04/"
+fi
+
 if [[ -x "$ROOTFS_PROVIDER" ]]; then
     echo
     echo "===== FINALIZING BOARD ROOT FILESYSTEM ====="
