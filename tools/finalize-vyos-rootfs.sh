@@ -126,6 +126,10 @@ do
         "$STAGE_DIR/$script"
 done
 
+install -m 0755 "$PAYLOAD/vyos-arm64-setup-links.sh" "$SBIN_DIR/vyos-arm64-setup-links.sh"
+install -m 0644 "$PAYLOAD/vyos-arm64-setup-links.service" "$UNIT_DIR/vyos-arm64-setup-links.service"
+ln -sfn ../vyos-arm64-setup-links.service "$MULTI_USER_WANTS_DIR/vyos-arm64-setup-links.service"
+
 install \
     -m 0755 \
     "$PAYLOAD/vyos-arm64-dhcp-wan-firstboot-wrapper.sh" \

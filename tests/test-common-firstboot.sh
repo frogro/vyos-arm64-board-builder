@@ -129,3 +129,40 @@ then
 fi
 
 echo "PASS: common ARM64 first-boot rootfs contract"
+
+# An upgrade retains the first-boot marker but has a new home directory.
+# Helper publication must work independently and never execute setup scripts.
+LINK_TEST="$WORK/setup-links-test"
+mkdir -p "$LINK_TEST/bin" "$LINK_TEST/home" "$LINK_TEST/stage" "$LINK_TEST/config"
+touch "$LINK_TEST/config/.dhcp-wan-ssh-firstboot-done"
+cat > "$LINK_TEST/bin/getent" <<EOF_GETENT
+#!/bin/sh
+printf '%s\n' 'vyos:x:$(id -u):$(id -g):test:$LINK_TEST/home:/bin/bash'
+EOF_GETENT
+chmod +x "$LINK_TEST/bin/getent"
+for script in ap-dhcp-wan-setup.sh dhcp-wan-ssh-setup.sh modem-connect.sh set-locales.sh; do
+    printf '#!/bin/sh\nexit 99\n' > "$LINK_TEST/stage/$script"
+    chmod +x "$LINK_TEST/stage/$script"
+done
+python3 - "$ROOT/tools/common-firstboot/vyos-arm64-setup-links.sh" "$LINK_TEST" <<'PY_LINKS'
+from pathlib import Path
+import sys
+source, root = map(Path, sys.argv[1:])
+(root/'setup-links.sh').write_text(source.read_text().replace('/usr/local/share/vyos-arm64-firstboot', str(root/'stage')))
+PY_LINKS
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+for script in ap-dhcp-wan-setup.sh dhcp-wan-ssh-setup.sh modem-connect.sh set-locales.sh; do
+    test "$(readlink "$LINK_TEST/home/$script")" = "$LINK_TEST/stage/$script"
+done
+# Repeated boots preserve custom files and custom/dangling links.
+rm "$LINK_TEST/home/modem-connect.sh" "$LINK_TEST/home/set-locales.sh"
+printf 'custom\n' > "$LINK_TEST/home/modem-connect.sh"
+ln -s /nonexistent/user-script "$LINK_TEST/home/set-locales.sh"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+grep -qx custom "$LINK_TEST/home/modem-connect.sh"
+test "$(readlink "$LINK_TEST/home/set-locales.sh")" = /nonexistent/user-script
+test -L "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-setup-links.service"
+test -x "$ROOTFS/usr/local/sbin/vyos-arm64-setup-links.sh"
+! grep -q ConditionPathExists "$ROOTFS/etc/systemd/system/vyos-arm64-setup-links.service"
+grep -Fq 'ConditionPathExists=!/config/.dhcp-wan-ssh-firstboot-done' "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.service"
+grep -Fq 'SETUP="$STAGE/dhcp-wan-ssh-setup.sh"' "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"

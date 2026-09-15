@@ -92,3 +92,22 @@ The following flow was hardware-tested:
 VyOS retained the active configuration, SSH identity and network state. The
 new version appeared as both `Default boot` and `Running` in
 `show system image`.
+
+## Setup helpers after installation and image updates
+
+The common image contains `ap-dhcp-wan-setup.sh`, `dhcp-wan-ssh-setup.sh`,
+`modem-connect.sh`, and `set-locales.sh` under
+`/usr/local/share/vyos-arm64-firstboot/`, including in the base profile.
+`vyos-arm64-setup-links.service` exposes missing helper names in the `vyos`
+user's home as links to the current image on every boot. Existing files and
+custom links are preserved; this service never executes the setup helpers.
+User-maintained copies can instead be stored under `/config/scripts/` and
+transferred with the configuration when installing an update.
+
+Initial wired DHCP and SSH configuration remains a separate, delayed task.
+The first-boot wrapper runs the image-provided `dhcp-wan-ssh-setup.sh --auto`
+through the native VyOS configuration commands, then checks the DHCP address,
+default route and SSH listener before creating
+`/config/.dhcp-wan-ssh-firstboot-done`. When that marker is transferred during
+an update, automatic first-boot network setup is skipped, while helper links
+are still provided. AP, modem and locale setup remain manually invoked.
