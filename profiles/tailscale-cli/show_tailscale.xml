@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="show">
+    <children>
+      <node name="tailscale">
+        <properties><help>Show Tailscale connection status</help></properties>
+        <command>sudo /usr/local/sbin/tailscale status</command>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

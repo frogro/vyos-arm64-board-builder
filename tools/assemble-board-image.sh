@@ -15,7 +15,7 @@ MANIFEST="$BOOT/boot-manifest.env"
 NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
 USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
 KVM_MEDIA_ARTIFACTS="$KERNEL_ARTIFACTS/kvm-media"
-KVM_CLI_ARTIFACTS="$KERNEL_ARTIFACTS/vyos-1x-kvm"
+KVM_CLI_ARTIFACTS="$KERNEL_ARTIFACTS/vyos-1x-profile"
 NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
 FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
 KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
@@ -162,6 +162,8 @@ SYSTEM_IMAGE_DTB_PATCHER="$ROOT/tools/patch-vyos-system-image-dtb.py"
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+fi
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
     [[ -x "$KVM_CLI_INSTALLER" ]] ||
         die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
@@ -487,10 +489,10 @@ mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-if [[ "$KVM_OVER_IP" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
-    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS"
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS"
+    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER"
 fi
 
 SQUASH_MODULE_DIR="$SQUASH_ROOT/usr/lib/modules/$KERNEL_RELEASE"

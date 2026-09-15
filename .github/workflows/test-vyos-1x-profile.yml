@@ -1,4 +1,4 @@
-name: Test source-built VyOS-1x KVM package
+name: Test source-built VyOS-1x profile packages
 on:
   push:
     branches: [main-test]
@@ -7,6 +7,11 @@ on:
       - tools/prepare-vyos-1x-profile.py
       - tools/kvm-cli/**
       - profiles/kvm-cli/**
+      - tools/tailscale-cli/**
+      - profiles/tailscale-cli/**
+      - tools/common-firstboot/vyos-arm64-tailscaled.service
+      - tests/test-tailscale-cli.py
+      - tests/test-vyos-1x-profile.py
       - .github/workflows/test-vyos-1x-profile.yml
   workflow_dispatch:
     inputs:
@@ -19,6 +24,10 @@ permissions:
   contents: read
 jobs:
   package:
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [kvm, tailscale, kvm-tailscale]
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     steps:
@@ -26,6 +35,7 @@ jobs:
       - name: Check profile isolation and configuration lifecycle
         run: |
           python3 tests/test-vyos-1x-profile.py
+          python3 tests/test-tailscale-cli.py
           python3 tests/test-kvm-input-config.py
           python3 tests/test-kvm-capture.py
           python3 tests/test-kvm-local-input.py
@@ -33,18 +43,21 @@ jobs:
       - name: Build exact-source ARM64 package with upstream targets
         env:
           BASE_PACKAGE_VERSION: ${{ inputs.base_package_version || '999.0-14891-gd185906f3' }}
+          CLI_PROFILE: ${{ matrix.profile }}
         run: |
-          sudo --preserve-env=BASE_PACKAGE_VERSION python3 - <<'PY'
+          sudo --preserve-env=BASE_PACKAGE_VERSION,CLI_PROFILE python3 - <<'PY'
           import importlib.util, os
           from pathlib import Path
           spec = importlib.util.spec_from_file_location('builder', 'tools/build-vyos-1x-profile.py')
           builder = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(builder)
-          builder.build(os.environ['BASE_PACKAGE_VERSION'], Path('work/vyos-1x-kvm').resolve())
+          selected = os.environ['CLI_PROFILE']
+          builder.build(os.environ['BASE_PACKAGE_VERSION'], Path('work/vyos-1x-profile').resolve(),
+                        kvm='kvm' in selected, tailscale='tailscale' in selected)
           PY
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: vyos-1x-kvm-source-build
-          path: work/vyos-1x-kvm/*
+          name: vyos-1x-${{ matrix.profile }}-source-build
+          path: work/vyos-1x-profile/*
           if-no-files-found: error

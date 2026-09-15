@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="service">
+    <properties><help>System services</help></properties>
+    <children>
+      <node name="tailscale" owner="/usr/libexec/vyos/conf_mode/service_tailscale.py">
+        <properties><help>Tailscale subnet router using locally installed binaries</help><priority>1000</priority></properties>
+        <children>
+          <leafNode name="disable">
+            <properties><help>Stop Tailscale while retaining its identity</help><valueless/></properties>
+          </leafNode>
+          <leafNode name="advertise-route">
+            <properties><help>IPv4 or IPv6 subnet to advertise (requires tailnet approval)</help><multi/></properties>
+          </leafNode>
+          <leafNode name="accept-routes">
+            <properties><help>Accept subnet routes advertised by other tailnet devices</help><valueless/></properties>
+          </leafNode>
+          <leafNode name="disable-snat">
+            <properties><help>Preserve source addresses; requires return routes on the LAN</help><valueless/></properties>
+          </leafNode>
+          <leafNode name="netfilter-mode">
+            <properties><help>Tailscale netfilter integration</help><completionHelp><list>on nodivert off</list></completionHelp><constraint><regex>(on|nodivert|off)</regex></constraint></properties>
+            <defaultValue>on</defaultValue>
+          </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

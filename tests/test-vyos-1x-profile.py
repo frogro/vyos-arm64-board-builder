@@ -29,6 +29,15 @@ class Tests(unittest.TestCase):
     def test_refuses_dirty_or_unknown_base(self):
         for version in ['rolling','999.0-123-gabcdef1-dirty','999.0-123-gabcdef1+kvm.old']:
             with tempfile.TemporaryDirectory() as d, self.assertRaises(ValueError):m.prepare(self.source(d),version,True)
+    def test_independent_and_combined_profiles(self):
+        for kvm,tailscale in [(False,True),(True,False),(True,True)]:
+            with self.subTest(kvm=kvm,tailscale=tailscale), tempfile.TemporaryDirectory() as d:
+                p=self.source(d);meta=m.prepare(p,'999.0-14891-gd185906f3',kvm,tailscale)
+                self.assertEqual((p/'interface-definitions/service_kvm-over-ip.xml.in').exists(),kvm)
+                self.assertEqual((p/'interface-definitions/service_tailscale.xml.in').exists(),tailscale)
+                self.assertEqual((p/'src/systemd/vyos-arm64-tailscaled.service').exists(),tailscale)
+                self.assertEqual('tailscale-subnet-router' in meta['profiles'],tailscale)
+                self.assertEqual('kvm-over-ip' in meta['profiles'],kvm)
     def test_refuses_existing_extension(self):
         with tempfile.TemporaryDirectory() as d:
             p=self.source(d);m.prepare(p,'999.0-14891-gd185906f3',True)
