@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 CONFIG = Path('/run/vyos-tailscale/config.json')
-BINARY = '/config/tailscale/bin/tailscale'
+BINARY = '/usr/libexec/tailscale/tailscale'
 SOCKET = '/run/tailscale/tailscaled.sock'
 
 
@@ -17,7 +17,7 @@ def arguments(config):
             '--snat-subnet-routes=' + str(config['snat_subnet_routes']).lower(),
             '--netfilter-mode=' + config['netfilter_mode'],
             # VyOS retains ownership of the router resolver configuration.
-            '--accept-dns=false']
+            '--accept-dns=false', '--auto-update=false']
 
 
 def main():

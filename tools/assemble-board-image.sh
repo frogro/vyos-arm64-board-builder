@@ -495,6 +495,10 @@ if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
     "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER"
 fi
 
+if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    python3 "$ROOT/tools/install-tailscale.py" "$SQUASH_ROOT"
+fi
+
 SQUASH_MODULE_DIR="$SQUASH_ROOT/usr/lib/modules/$KERNEL_RELEASE"
 
 rm -rf "$SQUASH_MODULE_DIR"

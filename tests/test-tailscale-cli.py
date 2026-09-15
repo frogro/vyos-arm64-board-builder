@@ -38,6 +38,7 @@ class Tests(unittest.TestCase):
         self.assertIn('--accept-routes=false', after)
         self.assertIn('--snat-subnet-routes=true', after)
         self.assertIn('--accept-dns=false', after)
+        self.assertIn('--auto-update=false', after)
         self.assertNotIn('up', after)
         self.assertNotIn('logout', after)
 

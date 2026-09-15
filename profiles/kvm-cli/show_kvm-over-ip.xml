@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <interfaceDefinition>
   <node name="show">
+    <properties><help>Show system information</help></properties>
     <children>
       <node name="kvm-over-ip">
         <properties><help>Show KVM capture selection and video service</help></properties>

@@ -44,10 +44,11 @@ else
     failed=1
 fi
 
-if [[ -x /config/tailscale/bin/tailscaled ]]; then
-    printf 'INFO  local tailscaled binary is installed\n'
+if [[ -x /usr/libexec/tailscale/tailscaled ]]; then
+    printf 'INFO  image tailscaled binary is installed\n'
 else
-    printf 'INFO  local tailscaled binary is not installed (expected initially)\n'
+    printf 'FAIL  image tailscaled binary is missing\n'
+    failed=1
 fi
 
 exit "$failed"

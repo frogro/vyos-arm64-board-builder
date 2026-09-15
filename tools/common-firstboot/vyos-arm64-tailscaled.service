@@ -1,9 +1,9 @@
 [Unit]
-Description=Locally installed Tailscale daemon for VyOS ARM64
+Description=Image-provided Tailscale daemon for VyOS ARM64
 Documentation=https://tailscale.com/docs/install/linux
 Wants=network-online.target
 After=network-online.target
-ConditionFileIsExecutable=/config/tailscale/bin/tailscaled
+ConditionFileIsExecutable=/usr/libexec/tailscale/tailscaled
 ConditionPathExists=/run/vyos-tailscale/config.json
 
 [Service]
@@ -11,7 +11,7 @@ Type=notify
 RuntimeDirectory=tailscale
 RuntimeDirectoryMode=0755
 ExecStartPre=/usr/bin/install -d -m 0700 /config/tailscale/state
-ExecStart=/config/tailscale/bin/tailscaled --state=/config/tailscale/state/tailscaled.state --socket=/run/tailscale/tailscaled.sock
+ExecStart=/usr/libexec/tailscale/tailscaled --state=/config/tailscale/state/tailscaled.state --socket=/run/tailscale/tailscaled.sock
 ExecStartPost=/usr/libexec/vyos/vyos-tailscale-apply.py
 Restart=on-failure
 RestartSec=5s

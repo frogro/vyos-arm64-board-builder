@@ -159,6 +159,7 @@ jobs:
           bash tests/test-grow-persistence-resolver.sh
           python3 tests/test-tailscale-ready.py
           python3 tests/test-tailscale-cli.py
+          python3 tests/test-tailscale-bundle.py
           python3 tests/test-extended-network-profile.py
           python3 tests/test-release-identity.py
           python3 tests/test-feature-profile.py

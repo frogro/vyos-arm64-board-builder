@@ -1,9 +1,52 @@
 # Tailscale subnet-router profile and native VyOS CLI
 
+## Agreed target design — 2026-09-15
+
+The following design was agreed with the project owner. It supersedes the
+earlier manual binary-installation approach. Image bundling is implemented;
+the explicit manual update command is still planned.
+
+- Selecting profile C (Tailscale subnet router), including combined profiles,
+  installs the official ARM64 Tailscale programs and service into the image.
+  Base images remain unaffected. Preinstallation does not activate the service,
+  authenticate a device or advertise any subnet.
+- Follow native VyOS configuration and operational command conventions. Enable
+  and configure through `set service tailscale ...`, apply with `commit` and
+  persist with `save`. Build the CLI from vyos-1x source for selected profiles;
+  do not modify generated CLI caches on deployed systems.
+- Keep program binaries and service definitions in the image. Keep user
+  configuration in `/config/config.boot` and node identity/authentication state
+  under `/config/tailscale/state`. Old binaries copied under `/config` must not
+  silently override the programs supplied by a newer image.
+- Each normal build with this profile must check the official stable release,
+  verify the selected ARM64 download and record its exact version and checksum
+  in build provenance. A newer image supplies its build-selected Tailscale
+  version. This means current at build time, not an automatic update at boot.
+- No unattended Tailscale self-update. Provide an explicitly invoked operational
+  command, `request tailscale update`, for a manual update. This is a planned
+  command, not an existing command or a `set` configuration leaf. Its detailed
+  design must cover verification, recovery after failure and precedence on the
+  next image update so an old manual installation cannot mask the new image.
+- `request tailscale login` performs interactive authentication; `show tailscale`
+  reports status. No reusable auth keys or preauthenticated identity belong in
+  a distributable image. Subnet approval and tailnet access policy are separate
+  from device login. A Photobooth Funnel or its address is not required.
+- When upgrading to another image with profile C and retaining configuration,
+  settings and node identity must survive. Validate this with an actual image
+  update, reboot, reconnection, subnet access and rollback test before claiming
+  end-to-end update compatibility. Future upstream compatibility is not implied
+  merely by downloading the newest release.
+
+Implementation follow-up: validate the ARM64 package/image builds and complete
+live update tests; implement the explicit update operation after the normal
+image-update path is verified.
+
+## Image implementation
+
 The builder prepares an image only when the optional Tailscale subnet-router
 profile is explicitly selected. The default is disabled so a base image remains
-close to stock VyOS. The profile deliberately does not include Tailscale binaries, credentials,
-tailnet identity, advertised routes or board-specific network policy.
+close to stock VyOS. The profile includes verified official ARM64 binaries but
+no credentials, tailnet identity, advertised routes or board-specific policy.
 
 Interactive builds ask whether the profile should be enabled. Non-interactive
 builds use `TAILSCALE_SUBNET_ROUTER=yes|no`; GitHub Actions exposes the matching
@@ -12,33 +55,32 @@ service, native CLI or readiness command is injected into the root filesystem.
 The builder compiles a single matching `vyos-1x` package from source containing
 the selected KVM and/or Tailscale extensions. Base builds skip this step.
 
-## Persistent local layout
+## Programs and persistent state
 
-Install the official static Linux ARM64 binaries later on the running system:
+The normal build queries the official stable release metadata and downloads the
+ARM64 static archive over HTTPS. It checks the published SHA256, validates both
+ELF binaries as ARM64 and installs them under `/usr/libexec/tailscale/`. Only the
+two expected regular files are read from the archive; arbitrary tar paths are
+not extracted. Download or validation errors fail the build. Provenance is saved
+at `/usr/share/vyos-arm64-board-builder/tailscale/build.json` and the version and
+archive checksum are printed in the build log. The installer supports an explicit
+`--version` for reproducible rebuilds while still recording the current stable
+version; normal board builds select the latest stable version.
 
-```text
-/config/tailscale/
-├── bin/
-│   ├── tailscale
-│   └── tailscaled
-└── state/
-    └── tailscaled.state
-```
+The bundled service remains inert until `service tailscale` is enabled through
+the native CLI. On commit and boot configuration loading, the configuration
+owner creates `/run/vyos-tailscale/config.json` and starts the service. The wrapper
+and service always use image-owned binaries, never old `/config/tailscale/bin`
+copies. The state file remains `/config/tailscale/state/tailscaled.state` and the
+socket remains `/run/tailscale/tailscaled.sock`. User settings live in
+`/config/config.boot`. No unattended self-update is enabled; the native owner
+explicitly sets `--auto-update=false`.
 
-The included `vyos-arm64-tailscaled.service` is inert until both binaries are
-installed and `service tailscale` is enabled through the native CLI. The
-configuration owner creates `/run/vyos-tailscale/config.json` and starts the
-service during commit and boot configuration loading. It runs the daemon with its
-state and node identity under `/config`, so the identity can survive a normal
-VyOS `add system image` update. The `tailscale` wrapper uses the matching socket
-at `/run/tailscale/tailscaled.sock`.
-
-When `add system image` asks whether to copy the active configuration, answer
-`y`. VyOS then copies the active configuration directory into the new image.
-The locally installed binaries, daemon state, node identity and preferences
-under `/config/tailscale` are therefore available to the prepared service after
-rebooting the new image. Store real files in this directory rather than using
-symlinks to files outside `/config`.
+When installing another image with this profile, retain the active configuration.
+The settings and node identity are copied under `/config`, while the programs come
+from the new image. The existing files under `/config/tailscale/bin`, if any, are
+ignored rather than deleted. Actual identity retention and rollback across
+versions must still be validated on hardware.
 
 Run the read-only readiness audit with:
 
@@ -68,7 +110,7 @@ through DHCP or on the individual hosts before disabling subnet-route SNAT.
 
 ## Native configuration
 
-After installing executable ARM64 binaries, replace the example prefix with
+On an image containing profile C, replace the example prefix with
 the actual subnet that should be reachable through this router:
 
 ```text
@@ -108,7 +150,8 @@ reapplied by `ExecStartPost` after a daemon restart.
 ## Update and migration boundary
 
 Between native-CLI images, retain the configuration during image installation:
-`config.boot`, binaries and identity are copied under `/config`. The new image
+`config.boot` and identity are copied under `/config`. Programs come from the new
+image. The new image
 must also include the Tailscale profile. Boot reconstructs runtime configuration.
 Keep the previous image until reconnection and subnet access are verified.
 
@@ -134,3 +177,14 @@ Pending: source-built ARM64 package matrix, image installation, boot and
 rollback, interactive tailnet login, actual subnet traffic, firewall reload,
 SNAT/return paths and identity retention across an image update. The already
 running ROCK build at commit `4becb3a` predates this native Tailscale CLI.
+
+### Bundling and CLI generation follow-up
+
+The official Tailscale 1.102.4 ARM64 archive was downloaded and validated locally
+(SHA256 `9dd1e6a592a014bbaea0103167ffe299adeda4ba14e078ce9c2895364f6c4c3f`).
+Installer tests cover bad checksums, wrong architecture, symlink rejection,
+profile gating and preservation of node state. Native operational XML now
+supplies help for its top-level `show`/`request` nodes: the upstream generator
+otherwise writes empty `node.def` files and fails the ARM64 package build.
+The same correction applies to KVM `show`. Local upstream-generator checks pass;
+the updated ARM64 CI and complete live image lifecycle remain to be verified.

@@ -15,7 +15,7 @@ BASE = ['service', 'tailscale']
 RUNTIME = Path('/run/vyos-tailscale/config.json')
 SERVICE = 'vyos-arm64-tailscaled.service'
 HELPER = '/usr/libexec/vyos/vyos-tailscale-apply.py'
-BIN = Path('/config/tailscale/bin')
+BIN = Path('/usr/libexec/tailscale')
 
 
 def get_config(config=None):
@@ -56,7 +56,7 @@ def verify(config):
         return
     for name in ('tailscale', 'tailscaled'):
         if not os.access(BIN / name, os.X_OK):
-            raise ConfigError(f'Install the ARM64 {name} binary at {BIN / name} first')
+            raise ConfigError(f'Image is missing its ARM64 Tailscale binary: {BIN / name}')
 
 
 def generate(config):

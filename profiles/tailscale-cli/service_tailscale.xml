@@ -4,7 +4,7 @@
     <properties><help>System services</help></properties>
     <children>
       <node name="tailscale" owner="/usr/libexec/vyos/conf_mode/service_tailscale.py">
-        <properties><help>Tailscale subnet router using locally installed binaries</help><priority>1000</priority></properties>
+        <properties><help>Tailscale subnet router using image-provided binaries</help><priority>1000</priority></properties>
         <children>
           <leafNode name="disable">
             <properties><help>Stop Tailscale while retaining its identity</help><valueless/></properties>

@@ -11,6 +11,8 @@ on:
       - profiles/tailscale-cli/**
       - tools/common-firstboot/vyos-arm64-tailscaled.service
       - tests/test-tailscale-cli.py
+      - tools/install-tailscale.py
+      - tests/test-tailscale-bundle.py
       - tests/test-vyos-1x-profile.py
       - .github/workflows/test-vyos-1x-profile.yml
   workflow_dispatch:
@@ -36,10 +38,30 @@ jobs:
         run: |
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-tailscale-cli.py
+          python3 tests/test-tailscale-bundle.py
           python3 tests/test-kvm-input-config.py
           python3 tests/test-kvm-capture.py
           python3 tests/test-kvm-local-input.py
           python3 tests/test-kvm-cli.py
+      - name: Verify official bundled programs on ARM64
+        if: contains(matrix.profile, 'tailscale')
+        run: |
+          mkdir -p work/tailscale-rootfs/etc
+          python3 tools/install-tailscale.py work/tailscale-rootfs
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          root = Path('work/tailscale-rootfs')
+          expected = json.loads((root/'usr/share/vyos-arm64-board-builder/tailscale/build.json').read_text())['version']
+          for name in ('tailscale', 'tailscaled'):
+              binary = root/'usr/libexec/tailscale'/name
+              actual = subprocess.check_output([str(binary), '--version'], text=True, timeout=15).splitlines()[0]
+              assert actual == expected, (name, actual, expected)
+          help_text = subprocess.check_output([str(root/'usr/libexec/tailscale/tailscale'), 'set', '--help'], text=True, stderr=subprocess.STDOUT, timeout=15)
+          for flag in ('--advertise-routes', '--accept-routes', '--snat-subnet-routes', '--netfilter-mode', '--accept-dns', '--auto-update'):
+              assert flag in help_text, flag
+          print('Both ARM64 executables and all CLI-owned preference flags verified')
+          PY
       - name: Build exact-source ARM64 package with upstream targets
         env:
           BASE_PACKAGE_VERSION: ${{ inputs.base_package_version || '999.0-14891-gd185906f3' }}

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <interfaceDefinition>
   <node name="request">
+    <properties><help>Make system operational requests</help></properties>
     <children>
       <node name="tailscale">
         <properties><help>Tailscale operational actions</help></properties>

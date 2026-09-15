@@ -81,7 +81,7 @@ test -x "$TAILSCALE_ROOTFS/usr/local/sbin/tailscale"
 test -f "$TAILSCALE_ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
 test -L "$TAILSCALE_ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-tailscaled.service"
 
-grep -Fq 'ConditionFileIsExecutable=/config/tailscale/bin/tailscaled' \
+grep -Fq 'ConditionFileIsExecutable=/usr/libexec/tailscale/tailscaled' \
     "$TAILSCALE_ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"
 grep -Fq -- '--state=/config/tailscale/state/tailscaled.state' \
     "$TAILSCALE_ROOTFS/etc/systemd/system/vyos-arm64-tailscaled.service"

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <interfaceDefinition>
   <node name="show">
+    <properties><help>Show system information</help></properties>
     <children>
       <node name="tailscale">
         <properties><help>Show Tailscale connection status</help></properties>
