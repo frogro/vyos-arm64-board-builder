@@ -38,14 +38,41 @@ def version_from_root(root):
     if root==Path('/') or not (root/'var/lib/dpkg/status').is_file(): raise ValueError('Expected an offline image rootfs')
     return output('dpkg-query','--admindir='+str(root/'var/lib/dpkg'),'-W','-f=${Version}','vyos-1x')
 
+def build_container(out):
+    override=os.environ.get('VYOS_1X_BUILD_IMAGE')
+    if override:
+        run('docker','pull','--platform','linux/arm64',override)
+        image=override
+        provenance={'image_override':override}
+    else:
+        # Docker Hub's vyos/vyos-build:rolling is AMD64-only. Build ARM64 from
+        # the official Dockerfile rather than relabeling that binary image.
+        ref=os.environ.get('VYOS_1X_CONTAINER_REF','rolling')
+        if not re.fullmatch(r'[A-Za-z0-9._/-]+',ref): raise ValueError('Invalid container source ref')
+        req=urllib.request.Request('https://api.github.com/repos/vyos/vyos-build/commits/'+ref,headers={'User-Agent':'vyos-arm64-board-builder'})
+        with urllib.request.urlopen(req,timeout=60) as response: commit=json.load(response)['sha']
+        if not re.fullmatch('[0-9a-f]{40}',commit): raise ValueError('Invalid container source commit')
+        context=out/'container-source'
+        run('git','init',context)
+        run('git','-C',context,'remote','add','origin','https://github.com/vyos/vyos-build.git')
+        run('git','-C',context,'fetch','--depth=1','origin',commit)
+        run('git','-C',context,'checkout','--detach','FETCH_HEAD')
+        image='vyos-profile-build:arm64-'+commit[:12]
+        run('docker','build','--network','host','--platform','linux/arm64',
+            '--build-arg','ARCH=arm64v8/','-t',image,context/'docker')
+        provenance={'container_source_commit':commit}
+    arch=output('docker','image','inspect','--format={{.Architecture}}',image)
+    if arch!='arm64': raise ValueError('Refusing non-ARM64 build container: '+arch)
+    return output('docker','image','inspect','--format={{.Id}}',image),provenance
+
 def build(version,out):
-    if output('uname','-m')!='aarch64': raise ValueError('Package build requires a native ARM64 runner')
+    host_arch=output('uname','-m')
+    if host_arch!='aarch64' and os.environ.get('VYOS_1X_ALLOW_EMULATION')!='yes':
+        raise ValueError('Use a native ARM64 runner or explicitly provision ARM64 binfmt and enable VYOS_1X_ALLOW_EMULATION=yes')
     sha=resolve(version)
     if out.exists(): raise ValueError('Artifact directory already exists; use a fresh build directory')
     out.mkdir(parents=True)
-    image=os.environ.get('VYOS_1X_BUILD_IMAGE','vyos/vyos-build:rolling')
-    run('docker','pull',image)
-    image_id=output('docker','image','inspect','--format={{.Id}}',image)
+    image_id,container_provenance=build_container(out)
     with tempfile.TemporaryDirectory(prefix='vyos-1x-kvm-',dir=out.parent) as tmp:
         work=Path(tmp); source=work/'vyos-1x'
         run('git','init',source)
@@ -57,24 +84,29 @@ def build(version,out):
         metadata=profile.prepare(source,version,True)
         # Upstream lint uses git ls-files: include the added files in its scope.
         run('git','-C',source,'add','.')
-        run('docker','run','--rm','--privileged','--platform','linux/arm64',
+        run('docker','run','--rm','--privileged','--network','host','--platform','linux/arm64',
             '-v',str(work)+':/work','-w','/work/vyos-1x','--entrypoint','/bin/bash',image_id,
             '-lc','git config --global --add safe.directory /work/vyos-1x; dpkg-buildpackage -b -us -uc')
         packages=list(work.glob('vyos-1x_*.deb'))
         if len(packages)!=1: raise ValueError('Expected exactly one vyos-1x binary package')
         package=packages[0]
+        # Preserve the completed binary if post-build validation fails.
+        # Only build.json/SHA256SUMS at the artifact root mark validated output.
+        unverified=out/'unverified';unverified.mkdir()
+        shutil.copy2(package,unverified/package.name)
         if output('dpkg-deb','-f',package,'Version')!=metadata['package_version']: raise ValueError('Built package version mismatch')
         if output('dpkg-deb','-f',package,'Architecture')!='arm64': raise ValueError('Built package architecture mismatch')
         unpack=work/'verify';run('dpkg-deb','-x',package,unpack)
         for rel in ['opt/vyatta/share/vyatta-cfg/templates/service/kvm-over-ip/local-input/keyboard/node.def',
-                    'usr/share/vyos/reftree.cache','usr/lib/python3/dist-packages/vyos/xml_ref/cache.py',
+                    'usr/share/vyos/reftree.cache','usr/lib/python3/dist-packages/vyos/xml_ref/update_cache.py',
                     'usr/libexec/vyos/conf_mode/service_kvm_over_ip.py',
                     'usr/libexec/vyos/vyos-kvm-input.py','lib/systemd/system/vyos-kvm-input.service']:
             if not (unpack/rel).is_file(): raise ValueError('Generated package file missing: '+rel)
         includes=json.loads((unpack/'usr/share/vyos/configd-include.json').read_text())
         if 'service_kvm_over_ip.py' not in includes: raise ValueError('Native configd include generation omitted KVM')
         dest=out/package.name;shutil.copy2(package,dest)
-        metadata.update(source_commit=sha,build_container_id=image_id,package=dest.name,
+        metadata.update(container_provenance)
+        metadata.update(source_commit=sha,build_container_id=image_id,build_host_arch=host_arch,package=dest.name,
                         package_sha256=hashlib.sha256(dest.read_bytes()).hexdigest())
         (out/'build.json').write_text(json.dumps(metadata,indent=2)+'\n')
         (out/'SHA256SUMS').write_text(metadata['package_sha256']+'  '+dest.name+'\n')
