@@ -2,6 +2,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 import subprocess
 p=Path(__file__).resolve().parents[1]/'tools/kvm-cli/vyos-kvm-capture.py'
 s=importlib.util.spec_from_file_location('capture',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
@@ -37,6 +38,16 @@ class CaptureTests(unittest.TestCase):
   self.assertEqual(m.compatible_formats(c,'1920x1080','60'),['YUYV'])
   self.assertEqual(m.compatible_formats(c,'3840x2160','60'),[])
   self.assertEqual(m.compatible_formats(c,'3840x2160','30'),['NV12'])
+ def test_hdmi_timings_applied_before_format_check(self):
+  c=dict(device='/dev/video3',signal='present',detected_size='1920x1080')
+  with patch.object(m,'query',side_effect=[(0,''),(0,"Width/Height : 1920/1080\nPixel Format : 'BGR3'")]) as q:
+   m.validate_size(c,'BGR3','1920x1080')
+   self.assertEqual(q.call_args_list[0].args,('/dev/video3','--set-dv-bt-timings=query'))
+ def test_failed_hdmi_initialization_rejects_capture(self):
+  c=dict(device='/dev/video3',signal='present',detected_size='1920x1080')
+  with patch.object(m,'query',return_value=(1,'')) as q:
+   with self.assertRaisesRegex(ValueError,'Cannot apply'):m.validate_size(c,'BGR3','1920x1080')
+   self.assertEqual(q.call_count,1)
  def test_formats(self):
   self.assertEqual(m.select_format(['NV12','YUYV'],'ffmpeg'),'NV12')
   self.assertEqual(m.select_format(['NV12','YUYV'],'gstreamer'),'NV12')

@@ -87,6 +87,12 @@ def validate_size(candidate, fmt, resolution):
         return
     if candidate.get('detected_size') and resolution != candidate['detected_size']:
         raise ValueError('Requested resolution differs from HDMI signal; change the source resolution')
+    # HDMI receivers may retain power-on timings until explicitly synchronized.
+    # Apply detected timings only on the selected source, before TRY_FMT.
+    if candidate.get('detected_size') and candidate['signal'] == 'present':
+        rc, _ = query(candidate['device'], '--set-dv-bt-timings=query')
+        if rc:
+            raise ValueError('Cannot apply detected HDMI timings to selected capture source')
     width, height = resolution.split('x')
     rc, out = query(candidate['device'], '--try-fmt-video=width='+width+',height='+height+',pixelformat='+fmt)
     size = re.search(r'Width/Height\s*:\s*(\d+)/(\d+)', out)
