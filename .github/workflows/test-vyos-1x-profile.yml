@@ -27,6 +27,7 @@ jobs:
         run: |
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-capture.py
           python3 tests/test-kvm-local-input.py
           python3 tests/test-kvm-cli.py
       - name: Build exact-source ARM64 package with upstream targets

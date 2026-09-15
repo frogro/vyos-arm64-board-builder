@@ -31,7 +31,7 @@
                 <properties>
                   <help>Override V4L2 capture device</help>
                   <constraint>
-                    <regex>/dev/video[0-9]+</regex>
+                    <regex>/dev/(video[0-9]+|v4l/by-(id|path)/[A-Za-z0-9_.:+-]+)</regex>
                   </constraint>
                 </properties>
               </leafNode>

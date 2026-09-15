@@ -203,8 +203,8 @@ def verify(kvm):
                 raise ConfigError('Video resolution is outside the supported CLI range')
 
         if 'device' in video:
-            if not re.fullmatch(r'/dev/video[0-9]+', str(video['device'])):
-                raise ConfigError('Video device must be /dev/videoN')
+            if not re.fullmatch(r'/dev/(?:video[0-9]+|v4l/by-(?:id|path)/[A-Za-z0-9_.:+-]+)', str(video['device'])):
+                raise ConfigError('Video device must be /dev/videoN or a persistent /dev/v4l/by-id or by-path name')
 
         try:
             listen = ipaddress.ip_address(

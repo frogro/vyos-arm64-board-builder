@@ -31,6 +31,21 @@ class KvmCliTests(unittest.TestCase):
         self.assertIn("'KVM_VIDEO_USTREAMER_QUALITY': '80'", conf)
         self.assertIn('KVM_VIDEO_USTREAMER_QUALITY:-80', runner)
 
+    def test_ustreamer_uses_selected_capture_format(self):
+        runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
+        start = runner.index('        # HDMI RX can expose')
+        end = runner.index('        [[ -n "${RESOLUTION}" ]] && args+=(--resolution=')
+        block = runner[start:end]
+        for detected, expected in [('bgr24', '--format=BGR24'),
+                                   ('mjpeg', '--format=MJPEG'),
+                                   ('yuyv422', '--format=YUYV')]:
+            script = ('args=(); DEVICE=/dev/video9; '
+                      'detect_ffmpeg_input_format() { echo ' + detected + '; };\n'
+                      + block + '\nprintf "%s" "${args[@]}"')
+            result = subprocess.run(['bash', '-c', script], capture_output=True,
+                                    text=True, check=True)
+            self.assertEqual(result.stdout, expected)
+
     def test_provider_specific_implementations_remain_internal(self):
         runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
 

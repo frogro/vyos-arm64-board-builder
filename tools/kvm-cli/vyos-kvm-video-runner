@@ -22,49 +22,12 @@ LISTEN_ADDRESS="${KVM_VIDEO_LISTEN_ADDRESS:-0.0.0.0}"
 PORT="${KVM_VIDEO_PORT:-8889}"
 USTREAMER_QUALITY="${KVM_VIDEO_USTREAMER_QUALITY:-80}"
 
-resolve_device()
-{
-    local entry name dev info
-
-    if [[ -n "${DEVICE}" ]]; then
-        printf '%s\n' "${DEVICE}"
-        return 0
-    fi
-
-    if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" ]]; then
-        for entry in /sys/class/video4linux/video*; do
-            [[ -r "${entry}/name" ]] || continue
-            name="$(cat "${entry}/name")"
-            if [[ "${name}" == "snps_hdmirx" ]]; then
-                printf '/dev/%s\n' "$(basename "${entry}")"
-                return 0
-            fi
-        done
-    fi
-
-    for entry in /sys/class/video4linux/video*; do
-        [[ -r "${entry}/name" ]] || continue
-        dev="/dev/$(basename "${entry}")"
-        info="$(v4l2-ctl -d "${dev}" --all 2>/dev/null || true)"
-        [[ "${info}" == *"Video Capture"* ]] || continue
-        [[ "${info}" == *"Memory-to-Memory"* ]] && continue
-        printf '%s\n' "${dev}"
-        return 0
-    done
-
-    return 1
-}
-
 detect_ffmpeg_input_format()
 {
     local dev="$1"
     local fourcc
 
-    fourcc="$(
-        v4l2-ctl -d "${dev}" --get-fmt-video 2>/dev/null |
-        sed -n "s/.*Pixel Format[[:space:]]*:[[:space:]]*'\([^']*\)'.*/\1/p" |
-        head -1
-    )"
+    fourcc="${FOURCC}"
 
     case "${fourcc}" in
         BGR3) printf 'bgr24\n' ;;
@@ -83,7 +46,7 @@ sync_provider_capture_timings()
     # The Synopsys HDMI-RX driver keeps the active DV timing separately from
     # the timing currently detected on the HDMI input. Adopt the detected
     # source timing before any backend opens the V4L2 capture device.
-    if [[ "${PROVIDER}" != "rk3588-synopsys-hdmirx" ]]; then
+    if [[ "${SOURCE_PROVIDER}" != "rk3588-synopsys-hdmirx" ]]; then
         return 0
     fi
 
@@ -99,24 +62,18 @@ sync_provider_capture_timings()
     }
 }
 
-DEVICE="$(resolve_device)" || {
-    echo "ERROR: no usable V4L2 capture device found" >&2
-    exit 1
-}
-
-[[ -e "${DEVICE}" ]] || {
-    echo "ERROR: capture device does not exist: ${DEVICE}" >&2
-    exit 1
-}
+# Host provider controls encoders; the selected source controls HDMI supervision.
+selection="$(/usr/bin/python3 /usr/local/libexec/vyos-kvm-capture.py --backend "${BACKEND}" --device "${DEVICE}" --resolution "${RESOLUTION}" --framerate "${FRAMERATE}")"
+eval "${selection}"
 
 # Scope signal supervision to the provider with HDMI DV-timing support.
-if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" && "${KVM_VIDEO_SUPERVISED:-0}" != 1 ]]; then
+if [[ "${SOURCE_PROVIDER}" == "rk3588-synopsys-hdmirx" && "${KVM_VIDEO_SUPERVISED:-0}" != 1 ]]; then
     exec /usr/bin/python3 /usr/local/libexec/vyos-kvm-video-supervisor.py "${DEVICE}" "${BACKEND}" "$0"
 fi
 
 sync_provider_capture_timings
 
-echo "KVM video backend=${BACKEND} provider=${PROVIDER} device=${DEVICE}" >&2
+echo "KVM video backend=${BACKEND} host=${PROVIDER} source=${SOURCE_PROVIDER} device=${DEVICE} format=${FOURCC}" >&2
 
 case "${BACKEND}" in
     ustreamer)
@@ -133,6 +90,16 @@ case "${BACKEND}" in
             --port="${PORT}"
             --quality="${USTREAMER_QUALITY}"
         )
+
+        # HDMI RX can expose BGR24 only; uStreamer otherwise defaults to YUYV.
+        # Derive the format from the selected V4L2 device, not the board name.
+        case "$(detect_ffmpeg_input_format "${DEVICE}")" in
+            bgr24) args+=(--format=BGR24) ;;
+            rgb24) args+=(--format=RGB24) ;;
+            yuyv422) args+=(--format=YUYV) ;;
+            uyvy422) args+=(--format=UYVY) ;;
+            mjpeg) args+=(--format=MJPEG) ;;
+        esac
 
         [[ -n "${RESOLUTION}" ]] && args+=(--resolution="${RESOLUTION}")
         [[ -n "${FRAMERATE}" ]] && args+=(--desired-fps="${FRAMERATE}")
@@ -202,20 +169,36 @@ case "${BACKEND}" in
             exit 1
         }
 
+        case "${FOURCC}" in
+            NV12) gst_format=NV12 ;; YUYV) gst_format=YUY2 ;;
+            UYVY) gst_format=UYVY ;; BGR3) gst_format=BGR ;; RGB3) gst_format=RGB ;;
+        esac
         args=("v4l2src" "device=${DEVICE}")
+        caps="video/x-raw,format=${gst_format}"
 
         if [[ -n "${RESOLUTION}" || -n "${FRAMERATE}" ]]; then
-            caps="video/x-raw"
             if [[ -n "${RESOLUTION}" ]]; then
                 width="${RESOLUTION%x*}"
                 height="${RESOLUTION#*x}"
                 caps+=",width=${width},height=${height}"
             fi
             [[ -n "${FRAMERATE}" ]] && caps+=",framerate=${FRAMERATE}/1"
-            args+=("!" "${caps}")
         fi
+        args+=("!" "${caps}")
 
-        args+=("!" "videoconvert" "!" "video/x-raw,format=NV12")
+        if [[ "${FOURCC}" != NV12 ]]; then
+            converter=videoconvert
+            # Validated Rockchip V4L2 RGA path for RGB capture. Other hosts retain
+            # software conversion; do not infer working RGA from a plugin alone.
+            if [[ "${PROVIDER}" == rk3588-synopsys-hdmirx && "${FOURCC}" =~ ^(BGR3|RGB3)$ ]]; then
+                inspect="$(gst-inspect-1.0 v4l2convert 2>/dev/null || true)"
+                if [[ "${inspect}" == *"format:"*"NV12"* ]] &&
+                   grep -qs "^rockchip-rga$" /sys/class/video4linux/video*/name; then
+                    converter=v4l2convert
+                fi
+            fi
+            args+=("!" "${converter}" "!" "video/x-raw,format=NV12")
+        fi
 
         if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" ]]; then
             gst-inspect-1.0 mpph264enc >/dev/null 2>&1 || {

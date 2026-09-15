@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="show">
+    <children>
+      <node name="kvm-over-ip">
+        <properties><help>Show KVM capture selection and video service</help></properties>
+        <command>sudo ${vyos_op_scripts_dir}/kvm_capture_status.py</command>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

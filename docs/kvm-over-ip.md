@@ -232,3 +232,158 @@ Hardware tests on 2026-09-15 confirmed physical keyboard input through the
 ROCK into the target desktop, BIOS and Alpine live console, mouse operation
 on the desktop, and recovery after receiver unplug/replug. Native CLI boot
 restoration must be verified separately after installation.
+
+## HDMI-to-CSI preparation (Profile D)
+
+The KVM kernel delta requests `CONFIG_VIDEO_TC358743=m`, I2C and the V4L2
+subdevice API. The readiness requirements also check these capabilities in
+the resulting kernel configuration. The upstream Toshiba TC358743 driver
+supports an HDMI-to-MIPI-CSI-2 bridge; this is not a generic driver for every
+HDMI-to-CSI adapter. Non-KVM profiles receive no additional request for it;
+a base or board configuration may independently include the driver.
+
+Source: https://github.com/torvalds/linux/blob/v6.18/drivers/media/i2c/Kconfig
+
+Driver inclusion alone does not provide a working capture source. The exact
+board/module combination still needs a CSI receiver driver and a matching
+Device Tree/overlay with I2C addressing, clocks, GPIOs, CSI lanes and media
+endpoints. EDID, media-graph setup and signal detection may need provider
+initialization. No overlay or CSI port is automatically enabled by this change.
+No HDMI-to-CSI hardware has been validated for this profile yet.
+
+A CSI camera supplies its own picture; an HDMI-to-CSI bridge captures an HDMI
+source. The planned shared source-selection layer accommodates both through
+providers: discover capture-capable nodes (exclude metadata-only nodes),
+report signal status as known or unknown, and choose a backend-compatible
+format. USB frame delivery alone must not be treated as proof of HDMI signal.
+This architecture is planned; adding the bridge module does not implement
+CSI source selection or a libcamera pipeline.
+
+### Geekworm bridge modules
+
+Manufacturer documentation checked on 2026-09-15 identifies the Toshiba
+TC358743XBG as the capture bridge in C779, C790, C792, X630, X1300 and X1301.
+These modules share the `VIDEO_TC358743` driver requested by Profile D; no
+separate vendor-named Geekworm capture driver is needed. This is a chip/driver
+mapping, not a claim of tested VyOS support for these products.
+
+C792 additionally uses a GSV2001 for its HDMI split/loop-out path. The vendor's
+capture setup still uses TC358743; loop-out behaviour has not been validated
+here. Connector, lane count and optional I2S audio differ between modules.
+Audio needs its own wiring, sound-card/codec and Device Tree integration;
+the video bridge module alone does not enable audio capture.
+
+The Pi 5 instructions explicitly configure an RP1 CFE media graph, load EDID
+and synchronize DV timings. A future provider must discover the matching
+media entities/subdevices instead of copying fixed `/dev/video0`,
+`/dev/v4l-subdev2` or I2C bus numbers from the vendor demo. Raspberry Pi
+`tc358743`/`tc358743-audio` overlays are board/boot-path specific and must not
+be enabled globally for ROCK or other SBCs.
+
+References:
+- https://wiki.geekworm.com/C792 (module comparison and capture setup)
+- https://wiki.geekworm.com/C790
+- https://wiki.geekworm.com/CSI_Manual_on_Pi_5
+
+### Raspberry Pi implementation checklist (planned, not enabled)
+
+- Identify the Pi model, actual kernel/boot path, CSI connector and bridge
+  module before selecting receiver support or overlays.
+- Verify the `tc358743` overlay exists in the image. Use four-lane operation
+  only where both the module and the selected CSI connector wire four lanes;
+  do not apply the vendor's CAM1 example to every Pi connector.
+- On Pi 5/CM5, verify RP1 CFE support and discover its media graph. Older Pi
+  receiver paths (for example Unicam) require their own matching setup.
+- Load a suitable EDID, query and synchronize the bridge DV timings, configure
+  media links/pad formats and negotiate the capture format. Discover entity
+  and subdevice identities; never assume fixed device numbers.
+- Treat optional `tc358743-audio`/I2S setup separately and verify wiring and
+  kernel sound support before enabling it.
+- Preserve the selected hardware configuration through the image update path.
+  Validate capture, signal loss/recovery and reboot on real Pi hardware before
+  marking the provider supported. No Pi boot configuration is changed yet.
+
+### Next integration gate
+
+Implement the shared capture/provider selection and backend format negotiation
+for the already tested ROCK HDMI and Elgato USB paths first. Test selection
+with one/multiple devices, unknown signal status, metadata-node exclusion and
+explicit device overrides. Exercise all three backends through the native VyOS
+CLI, then build a new KVM-profile image. Reboot and update persistence checks
+follow installation of that image; CSI remains prepared but unvalidated.
+
+### Initial shared selection live validation (2026-09-15)
+
+The capture helper and runner were patched temporarily into image
+999.202609151132 on ROCK 5B, with originals backed up under
+`/config/kvm-over-ip/backups/capture-integration-20260915`. With internal HDMI
+unplugged and Elgato HD60 X attached, automatic selection chose its persistent
+USB capture node and excluded the metadata sibling. Actual native CLI commits
+selected NV12 for FFmpeg/MPP and GStreamer/MPP, and YUYV for uStreamer.
+Both H.264 streams decoded at 1920x1080; uStreamer reported online 1080p and
+60 capture fps. H.264 bitrate/GOP must be removed when selecting uStreamer,
+as enforced by the existing CLI. The original FFmpeg/8000/60 configuration
+was restored after testing. No reboot or image update was performed.
+
+The new helper skips HDMI DV-timing queries when the ROCK's power_present
+control reports no source, avoiding the driver's expected no-link log noise.
+Source signal status for the USB grabber remains explicitly unknown. The last
+source is retained in /run across service/backend restarts; this selection
+memory is not persistent across boots. Explicit device overrides take priority.
+
+Outstanding: validate the shared selector with internal HDMI connected, both
+sources connected, USB disconnect/reconnect, unsupported modes and a new
+source-built image. Persistent device-path CLI schema changes are staged in
+the source tree but have not been installed into the live CLI reference tree.
+CSI/provider initialization and general hardware-converter negotiation remain
+future work; RGA selection is currently scoped to the tested ROCK RGB path.
+
+USB reconnect live check: after the user unplugged/reconnected the Elgato USB
+cable (HDMI left attached), systemd restarted the capture process automatically.
+The shared selector recovered the same by-id capture node, selected NV12 and
+FFmpeg/MPP resumed 1920x1080 H.264 streaming. No manual service restart was
+performed for recovery. This verifies USB recovery for the FFmpeg path only;
+visual confirmation after recovery is tracked separately.
+
+The user also confirmed the desktop returned after USB reconnect. Next, with
+Elgato USB removed and the source moved to ROCK HDMI-IN, automatic selection
+changed to stream_hdmirx (/dev/video0), reported signal present and selected
+BGR3 for FFmpeg. The user confirmed the picture returned without manual service
+intervention; video and local-input services were active.
+
+Internal HDMI native CLI backend checks also passed with the shared selector:
+GStreamer launched BGR -> v4l2convert (Rockchip RGA) -> NV12 -> mpph264enc,
+with 121 decoded 1080p frames in the short two-second RTSP probe. uStreamer
+launched with --format=BGR24 and reported online 1080p/60 capture fps. These
+are technical stream checks, not new visual colour/latency confirmations.
+FFmpeg/8000 kbit/s/GOP 60 was restored after the checks.
+
+Multi-device selection check: with internal HDMI carrying the signal and the
+Elgato attached by USB without HDMI, discovery returned exactly two capture
+sources (no metadata sibling). Internal HDMI reported present; Elgato reported
+unknown, not absent. Both selection with remembered state and a fresh selection
+chose internal HDMI. The running FFmpeg stream continued decoding at 1080p.
+This was a read-only selection check, not a reboot or a test with two valid
+HDMI signals.
+
+### Capture selection interface
+
+Omitting `video device` enables automatic source selection. Explicit
+`/dev/videoN`, `/dev/v4l/by-id/...` and `/dev/v4l/by-path/...` selections are
+accepted by the source-built CLI. The new `show kvm-over-ip` operational
+command displays the last selection plus service/process state; a remembered
+signal value is not presented as a current live measurement. These XML changes
+require the next source-built package, not edits to generated CLI caches.
+
+Format choice now filters discrete modes by requested size/rate (including
+fractional-rate tolerance), checks detected HDMI size/rate and uses the
+non-mutating V4L2 TRY_FMT ioctl for explicit resolution requests. Incompatible
+requests fail with an error rather than silently changing capture size. Where
+drivers do not enumerate frame intervals, runtime negotiation still determines
+whether a requested rate can be delivered; configured rate is not measured fps.
+Conversion is visible in the video service's process command line.
+
+Capture helper, CLI, source-profile, kernel-profile and supervisor tests pass,
+as do both CLI XML schemas against the locally available upstream schemas.
+No new kernel/image build has been performed for this changeset. Live helper
+updates have been applied; new XML command/path handling awaits package build.

@@ -8,9 +8,12 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = {
+ 'profiles/kvm-cli/show_kvm-over-ip.xml': 'op-mode-definitions/show_kvm-over-ip.xml.in',
+ 'tools/kvm-cli/kvm_capture_status.py': 'src/op_mode/kvm_capture_status.py',
  'profiles/kvm-cli/service_kvm-over-ip.xml': 'interface-definitions/service_kvm-over-ip.xml.in',
  'tools/kvm-cli/service_kvm_over_ip.py': 'src/conf_mode/service_kvm_over_ip.py',
  'tools/kvm-cli/vyos-kvm-input.py': 'src/helpers/vyos-kvm-input.py',
+ 'tools/kvm-cli/vyos-kvm-capture.py': 'src/helpers/vyos-kvm-capture.py',
  'tools/kvm-cli/vyos-kvm-video-supervisor.py': 'src/helpers/vyos-kvm-video-supervisor.py',
  'tools/kvm-cli/vyos-kvm-video-runner': 'src/helpers/vyos-kvm-video-runner.sh',
  'tools/kvm-cli/vyos-kvm-input.service': 'src/systemd/vyos-kvm-input.service',
@@ -45,7 +48,7 @@ def prepare(source, version, kvm):
         text = text.replace('/usr/local/libexec/vyos-kvm-video-runner', '/usr/libexec/vyos/vyos-kvm-video-runner.sh')
         text = text.replace('/usr/local/libexec/vyos-kvm-', '/usr/libexec/vyos/vyos-kvm-')
         p = source/dst; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(text)
-        p.chmod(0o755 if dst.startswith(('src/helpers/', 'src/conf_mode/')) else 0o644)
+        p.chmod(0o755 if dst.startswith(('src/helpers/', 'src/conf_mode/', 'src/op_mode/')) else 0o644)
     rules.write_text(re.sub(pattern, '\tdh_gencontrol -- -v'+output_version, data))
     metadata = {'schema':1, 'profiles':['kvm-over-ip'], 'base_package_version':version,
                 'package_version':output_version, 'recipe_sha256':digest}
