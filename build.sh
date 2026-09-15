@@ -229,6 +229,9 @@ main() {
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
     fi
 
+    # Source-gated dependency fix, shared by every board using this helper.
+    python3 "${ROOT_DIR}/tools/patch-hdmi-audio-dependency.py" "${kernel_source}"
+
     #
     # Reproduce the complete official VyOS ARM64 kernel configuration:
     #

@@ -146,6 +146,7 @@ jobs:
 
       - name: Test DT boot-driver discovery
         run: |
+          python3 tests/test-hdmi-audio-dependency.py
           python3 tests/test-board-identity.py
           python3 tests/test-dtb-boot-roots.py
           python3 tests/test-early-of-declarations.py
