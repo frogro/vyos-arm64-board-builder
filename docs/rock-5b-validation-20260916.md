@@ -88,3 +88,22 @@ newly compiled binary or 4K operation. Existing live binary restored afterwards.
 
 All 39 local test commands from the image workflow passed. The real patched FFmpeg
 compilation and new-image boot tests remain CI/hardware acceptance steps.
+
+## Native failover/failback — 11:32 local time
+
+Controlled live test administratively lowered eth0 using `ip link set eth0 down`.
+An independent systemd recovery timer was armed before disconnecting management;
+it was cancelled after successful automatic restoration, without executing.
+No persistent VyOS configuration changes or custom failover daemon were used.
+
+- Baseline: default via Ethernet, 3/3 pings to 1.1.1.1.
+- eth0 down 11:32:10: first route lookup already selected wwan0, 5/5 pings,
+  average 26.8 ms (first 72 ms; following 12.7–17.7 ms).
+- eth0 up 11:32:14: Ethernet default observed at 11:32:20 (two-second sampling),
+  5/5 pings, average 8.2 ms.
+- Both native DHCP clients, Tailscale and KVM video remained active at completion.
+
+This verifies router-originated connectivity after interface-down failover and
+failback using native route distances 1/200. It does not establish uninterrupted
+TCP/KVM sessions, forwarded WLAN-client failover, or detection of upstream Internet
+loss while the Ethernet link remains up.
