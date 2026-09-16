@@ -21,6 +21,10 @@ StartLimitIntervalSec=0
 [Service]
 Type=oneshot
 ExecStart=${SELF_PATH} --service-run --unlock-only
+# Retry the dependent start after a late unlock succeeds. A failed Requires=
+# job is not retried merely because its dependency later recovers.
+# Queue without waiting: modem-connect is ordered after this unit.
+ExecStartPost=/usr/bin/systemctl --no-block start modem-connect.service
 RemainAfterExit=yes
 TimeoutStartSec=600
 Restart=on-failure

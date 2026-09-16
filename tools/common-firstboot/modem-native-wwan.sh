@@ -56,8 +56,9 @@ Type=oneshot
 ExecStart=${SELF_PATH} --native-prepare
 RemainAfterExit=yes
 TimeoutStartSec=600
-Restart=on-failure
-RestartSec=30
+# Discovery and one scoped MHI recovery are already bounded inside the helper.
+# Leave a persistent hardware failure visible instead of repeating resets.
+Restart=no
 [Install]
 WantedBy=multi-user.target
 EOF_UNIT

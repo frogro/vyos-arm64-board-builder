@@ -100,6 +100,9 @@ write_native_service_unit
             run(code)
             unit=(root/'etc/systemd/system/vyos-modem-hardware.service').read_text()
             self.assertIn('--native-prepare',unit)
+            self.assertIn('Restart=no',unit)
+            self.assertNotIn('Restart=on-failure',unit)
+            self.assertIn('TimeoutStartSec=600',unit)
             self.assertNotIn('--service-run',unit)
             self.assertIn('disable --now modem-wan-failover.service modem-connect.service modem-unlock.service',(root/'calls').read_text())
 

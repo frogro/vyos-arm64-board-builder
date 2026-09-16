@@ -2215,8 +2215,18 @@ PY2
 }
 
 restore_wired_default_route() {
-  local ip4="" carrier="" current="" gateway=""
+  local ip4="" carrier="" current="" gateway="" active_config=""
   [ -n "$WIRED_WAN" ] || return 0
+  # A missing default can be intentional while native failover checks a WAN.
+  # Never bypass that decision with an unmanaged route, including during boot.
+  if ! active_config="$(/opt/vyatta/bin/vyatta-op-cmd-wrapper show configuration commands 2>/dev/null)"; then
+    warn "Cannot inspect active VyOS routing ownership; leaving default routes untouched."
+    return 0
+  fi
+  if printf '%s\n' "$active_config" | grep -q '^set protocols failover route 0\.0\.0\.0/0 '; then
+    log "Native VyOS failover owns the default route; leaving route recovery to VyOS."
+    return 0
+  fi
   ip link show "$WIRED_WAN" >/dev/null 2>&1 || return 0
   carrier="$(cat "/sys/class/net/$WIRED_WAN/carrier" 2>/dev/null || true)"
   [ "$carrier" = 1 ] || return 0

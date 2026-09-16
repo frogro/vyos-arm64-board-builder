@@ -10,6 +10,30 @@ def function(name):
 def run(code):
     return subprocess.run(['bash','-c',code],text=True,capture_output=True,check=True).stdout
 class Lifecycle(unittest.TestCase):
+    def test_successful_unlock_queues_dependent_without_ordering_deadlock(self):
+        with tempfile.TemporaryDirectory() as d:
+            unit=Path(d)/'unlock.service'
+            config=Path(d)/'modem.conf'
+            config.write_text('UNLOCK_KIND=fm350-fcc\n')
+            code=f'CONFIG_FILE="{config}"; UNLOCK_SERVICE_PATH="{unit}"; SELF_PATH=/test/modem-connect.sh\n'
+            run(code+LIB+'\nwrite_unlock_service_unit')
+            self.assertIn('ExecStartPost=/usr/bin/systemctl --no-block start modem-connect.service', unit.read_text())
+            self.assertIn('Before=modem-connect.service', unit.read_text())
+            config.write_text('UNLOCK_KIND=none\n')
+            run(code+'systemctl() { :; }\n'+LIB+'\nwrite_unlock_service_unit')
+            self.assertFalse(unit.exists())
+
+    def test_default_route_recovery_respects_native_failover(self):
+        with tempfile.TemporaryDirectory() as d:
+            wrapper=Path(d)/'op'
+            fn=function('restore_wired_default_route').replace('/opt/vyatta/bin/vyatta-op-cmd-wrapper',str(wrapper))
+            code='WIRED_WAN=eth7\nlog() { :; }; warn() { :; }; ip() { echo UNEXPECTED_ROUTE_ACCESS; }\n'+fn+'\nrestore_wired_default_route'
+            for body in ["echo 'set protocols failover route 0.0.0.0/0 dhcp-interface eth7 metric 10'", "exit 1"]:
+                wrapper.write_text('#!/bin/sh\n'+body+'\n');wrapper.chmod(0o755)
+                self.assertEqual(run(code),'')
+            wrapper.write_text('#!/bin/sh\nexit 0\n')
+            self.assertIn('UNEXPECTED_ROUTE_ACCESS',run(code.replace('>/dev/null 2>&1 || return 0','|| return 0',1)))
+
     def test_boot_waits_for_mount_and_completed_vyos_init(self):
         code = """n=0
 mountpoint() { [ "$n" -ge 1 ]; }
