@@ -107,3 +107,26 @@ This verifies router-originated connectivity after interface-down failover and
 failback using native route distances 1/200. It does not establish uninterrupted
 TCP/KVM sessions, forwarded WLAN-client failover, or detection of upstream Internet
 loss while the Ethernet link remains up.
+
+## Upstream loss and established TCP session — 11:35–11:36
+
+A temporary separate nftables output table blocked router-originated IPv4 traffic
+leaving eth0 except the local 192.168.178.0/24 network. It was protected by an
+independent removal timer and removed at the end. This simulates external IPv4
+reachability loss for the router, not a physical cable failure or forwarded client.
+Ethernet carrier remained up, gateway ping passed 2/2, default Internet ping failed
+0/3, and the default route remained Ethernet. Forced WWAN ping passed 3/3. After
+removing the rule, default Ethernet ping passed 3/3. Thus route preference alone
+does not provide upstream reachability monitoring; no monitoring configuration was
+added by this test.
+
+An established HTTPS download over Ethernet was then held open while eth0 was
+administratively lowered. The existing connection read its remaining buffered data
+(15,925 bytes), then timed out. A new HTTPS connection over the selected WWAN route
+returned HTTP 200 and 1,024 bytes. After restoring Ethernet, another new HTTPS
+connection returned HTTP 200 and 1,024 bytes. This verifies reconnection after
+failover/failback, not seamless migration of existing TCP sessions. Tailscale tunnel
+session continuity and remote browser KVM recovery need their own endpoint tests.
+
+All test firewall rules were removed, recovery timer cancelled, Ethernet default
+restored; both DHCP clients, Tailscale and KVM active; zero failed units.
