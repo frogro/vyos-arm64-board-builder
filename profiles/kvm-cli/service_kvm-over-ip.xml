@@ -16,6 +16,13 @@
               <help>Video capture and streaming</help>
             </properties>
             <children>
+              <leafNode name="transport">
+                <properties>
+                  <help>MediaMTX browser protocol (default webrtc)</help>
+                  <completionHelp><list>webrtc moq both</list></completionHelp>
+                  <constraint><regex>(webrtc|moq|both)</regex></constraint>
+                </properties>
+              </leafNode>
               <leafNode name="backend">
                 <properties>
                   <help>Video streaming backend</help>

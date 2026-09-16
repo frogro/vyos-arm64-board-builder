@@ -387,3 +387,45 @@ Capture helper, CLI, source-profile, kernel-profile and supervisor tests pass,
 as do both CLI XML schemas against the locally available upstream schemas.
 No new kernel/image build has been performed for this changeset. Live helper
 updates have been applied; new XML command/path handling awaits package build.
+
+## Access control and deployment permissions
+
+See [the access-control review](access-control-review.md) for the native VyOS
+permission policy, observed listeners, Tailscale/firewall interaction and
+remaining acceptance tests. Network access is configured by the deploying
+administrator; this profile does not add a separate web role system.
+
+## Browser transport and boot clock
+
+For FFmpeg and GStreamer, select the MediaMTX transport through native VyOS:
+
+```text
+configure
+set service kvm-over-ip video transport both
+commit
+save
+```
+
+Values are `webrtc` (default), `moq`, and `both`. uStreamer continues to use
+MJPEG and rejects this setting. WebRTC uses the configured video port (default
+TCP 8889) plus UDP 8189. MoQ uses HTTPS TCP 8892, WebTransport UDP 8892 and
+native QUIC UDP 8893. MediaMTX currently couples the two MoQ listeners. Internal
+RTSP stays at 127.0.0.1:8554. Unselected transports are disabled explicitly;
+no firewall rules are automatically created. Apply native VyOS input rules to
+all selected endpoints. The configured IPv4 listen address now also binds the
+WebRTC UDP and MoQ listeners. Choose WebRTC HTTP ports other than 8554/8892.
+
+The MediaMTX supervisor starts RTSP and selected WebRTC immediately. Requested
+MoQ waits in the background for Chrony to report synchronization within 100 ms.
+Checks are bounded and retried; router boot and configuration commit do not wait
+for NTP. After initial synchronization, a temporary loss of NTP does not stop
+MoQ. A wall-clock step exceeding five seconds causes transport restart and
+clock revalidation so old WebTransport certificates cannot remain in service.
+Such a restart can briefly interrupt WebRTC too when both share MediaMTX.
+No separate time daemon is installed and an RTC battery is not required for
+network time synchronization. If NTP is unavailable from boot, MoQ stays off.
+
+MoQ page certificates are auto-generated in the protected runtime directory;
+local testing still requires trusting that certificate in the browser. They
+are not an enterprise PKI deployment and may change after reboot/clock recovery.
+These new supervisor changes require image-level reboot/browser acceptance.

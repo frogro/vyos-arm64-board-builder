@@ -188,3 +188,10 @@ supplies help for its top-level `show`/`request` nodes: the upstream generator
 otherwise writes empty `node.def` files and fails the ARM64 package build.
 The same correction applies to KVM `show`. Local upstream-generator checks pass;
 the updated ARM64 CI and complete live image lifecycle remain to be verified.
+
+## Access control and deployment permissions
+
+See [the access-control review](access-control-review.md) for the native VyOS
+permission policy, observed listeners, Tailscale/firewall interaction and
+remaining acceptance tests. Network access is configured by the deploying
+administrator; this profile does not add a separate web role system.

@@ -99,12 +99,16 @@ def build(version,out,kvm=True,tailscale=False):
         if output('dpkg-deb','-f',package,'Version')!=metadata['package_version']: raise ValueError('Built package version mismatch')
         if output('dpkg-deb','-f',package,'Architecture')!='arm64': raise ValueError('Built package architecture mismatch')
         unpack=work/'verify';run('dpkg-deb','-x',package,unpack)
-        required=['usr/share/vyos/reftree.cache','usr/lib/python3/dist-packages/vyos/xml_ref/update_cache.py']
+        control=work/'verify-control';run('dpkg-deb','-e',package,control)
+        if 'chmod u+s /usr/bin/vyos-op-run' not in (control/'postinst').read_text():
+            raise ValueError('Built package omits native operator runner installation')
+        required=['usr/bin/vyos-op-run','usr/share/vyos/reftree.cache','usr/lib/python3/dist-packages/vyos/xml_ref/update_cache.py']
         owners=[]
         if kvm:
             required += ['opt/vyatta/share/vyatta-cfg/templates/service/kvm-over-ip/local-input/keyboard/node.def',
                          'usr/libexec/vyos/conf_mode/service_kvm_over_ip.py',
-                         'usr/libexec/vyos/vyos-kvm-input.py','lib/systemd/system/vyos-kvm-input.service']
+                         'usr/libexec/vyos/vyos-kvm-input.py','lib/systemd/system/vyos-kvm-input.service',
+                         'usr/libexec/vyos/vyos-kvm-mediamtx-supervisor.py']
             owners.append('service_kvm_over_ip.py')
         if tailscale:
             required += ['opt/vyatta/share/vyatta-cfg/templates/service/tailscale/advertise-route/node.def',

@@ -173,6 +173,13 @@ def verify(kvm):
                 'Video backend must be one of: ustreamer, gstreamer, ffmpeg'
             )
 
+        if video.get('transport', 'webrtc') not in ('webrtc', 'moq', 'both'):
+            raise ConfigError('Video transport must be webrtc, moq or both')
+        if backend == 'ustreamer' and 'transport' in video:
+            raise ConfigError('Video transport is only valid with ffmpeg or gstreamer')
+        if backend != 'ustreamer' and _as_int(video.get('port', 8889), 'Video port', 1, 65535) in (8554, 8892):
+            raise ConfigError('Video port conflicts with reserved RTSP or MoQ port')
+
         if backend == 'ustreamer':
             if 'bitrate' in video:
                 raise ConfigError('Video bitrate is not valid with ustreamer')
@@ -306,6 +313,7 @@ def generate(kvm):
     if backend in ('ffmpeg', 'gstreamer'):
         listen = video.get('listen_address', '0.0.0.0')
         port = video.get('port', '8889')
+        transport = video.get('transport', 'webrtc')
         MEDIAMTX_CONFIG.write_text(
             'logLevel: info\n'
             'rtsp: true\n'
@@ -317,7 +325,14 @@ def generate(kvm):
             'api: false\n'
             'metrics: false\n'
             'playback: false\n'
-            'webrtc: true\n'
+            f'webrtc: {str(transport in ("webrtc", "both")).lower()}\n'
+            f'moq: {str(transport in ("moq", "both")).lower()}\n'
+            f'moqHTTP2Address: {listen}:8892\n'
+            f'moqHTTP3Address: {listen}:8892\n'
+            f'moqQUICAddress: {listen}:8893\n'
+            f'webrtcLocalUDPAddress: {listen}:8189\n'
+            'moqServerKey: auto.key\n'
+            'moqServerCert: auto.crt\n'
             f'webrtcAddress: {listen}:{port}\n'
             'webrtcAllowOrigins: ["*"]\n'
             'paths:\n'

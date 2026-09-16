@@ -8,6 +8,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = {
+ 'tools/kvm-cli/vyos-kvm-mediamtx-supervisor.py': 'src/helpers/vyos-kvm-mediamtx-supervisor.py',
  'profiles/kvm-cli/show_kvm-over-ip.xml': 'op-mode-definitions/show_kvm-over-ip.xml.in',
  'tools/kvm-cli/kvm_capture_status.py': 'src/op_mode/kvm_capture_status.py',
  'profiles/kvm-cli/service_kvm-over-ip.xml': 'interface-definitions/service_kvm-over-ip.xml.in',
@@ -38,6 +39,22 @@ def recipe(payload=None):
         h.update(name.encode()+b'\0'+(ROOT/name).read_bytes()+b'\0')
     return h.hexdigest()
 
+def restore_operator_runner_install(source):
+    """Restore the former vyos-utils postinst step after its merge into vyos-1x."""
+    code = (source/'src/ocaml/vyos_op_run.ml').read_text()
+    postinst = source/'debian/vyos-1x.postinst'
+    script = postinst.read_text()
+    if 'check_command_permissions permissions args;\n    Unix.setuid 0;' not in code:
+        raise ValueError('Upstream operator runner changed; permission review required')
+    if not script.startswith('#!/bin/bash\n'):
+        raise ValueError('Upstream postinst changed; permission review required')
+    if 'chmod u+s /usr/bin/vyos-op-run' not in script:
+        script = script.replace('#!/bin/bash\n', '#!/bin/bash\n\n'
+            '# Restore the upstream vyos-utils operator runner installation.\n'
+            '# Native command permissions are checked before setuid.\n'
+            'chmod u+s /usr/bin/vyos-op-run || exit 1\n', 1)
+    return postinst, script
+
 def prepare(source, version, kvm, tailscale=False):
     if not kvm and not tailscale:
         return None
@@ -57,6 +74,7 @@ def prepare(source, version, kvm, tailscale=False):
     pattern = r'(?m)^\tdh_gencontrol -- -v[^\n]+$'
     if len(re.findall(pattern, data)) != 1:
         raise ValueError('Upstream package version rule changed; review required')
+    runner_postinst, runner_postinst_text = restore_operator_runner_install(source)
     digest = recipe(payload)
     suffix = 'kvm-tailscale' if kvm and tailscale else 'kvm' if kvm else 'tailscale'
     output_version = version+'+'+suffix+'.'+digest[:12]
@@ -69,6 +87,7 @@ def prepare(source, version, kvm, tailscale=False):
         text = text.replace('/usr/local/libexec/vyos-kvm-', '/usr/libexec/vyos/vyos-kvm-')
         p = source/dst; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(text)
         p.chmod(0o755 if dst.startswith(('src/helpers/', 'src/conf_mode/', 'src/op_mode/')) else 0o644)
+    runner_postinst.write_text(runner_postinst_text)
     rules.write_text(re.sub(pattern, '\tdh_gencontrol -- -v'+output_version, data))
     metadata = {'schema':1, 'profiles':profiles, 'base_package_version':version,
                 'package_version':output_version, 'recipe_sha256':digest}

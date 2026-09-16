@@ -22,6 +22,20 @@ with patch.dict(sys.modules, {'vyos': vyos, 'vyos.config': config, 'vyos.configd
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 
 class Tests(unittest.TestCase):
+    def test_transport_generates_explicit_listeners(self):
+        for transport, rtc, moq in [('webrtc','true','false'),('moq','false','true'),('both','true','true')]:
+            with tempfile.TemporaryDirectory() as d:
+                root=Path(d)
+                with patch.multiple(m,RUN_DIR=root,INPUT_CONFIG=root/'input.json',VIDEO_ENV=root/'video.env',MEDIAMTX_CONFIG=root/'media.yml'):
+                    m.generate({'video':{'backend':'ffmpeg','transport':transport,'listen_address':'192.0.2.1'}})
+                    text=m.MEDIAMTX_CONFIG.read_text()
+                    self.assertIn('webrtc: '+rtc+'\n',text)
+                    self.assertIn('moq: '+moq+'\n',text)
+                    self.assertIn('moqHTTP3Address: 192.0.2.1:8892',text)
+                    self.assertIn('webrtcLocalUDPAddress: 192.0.2.1:8189',text)
+    def test_ustreamer_rejects_mediamtx_transport(self):
+        with self.assertRaises(ConfigError):
+            m.verify({'video':{'backend':'ustreamer','transport':'moq'}})
     def test_rejects_missing_function_and_unstable_path(self):
         for c in [
             {'mouse': {'relative': {}}, 'local_input': {'keyboard': '/dev/input/by-id/test'}},

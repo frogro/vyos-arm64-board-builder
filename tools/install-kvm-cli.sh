@@ -35,6 +35,8 @@ finally:
     local.unlink(missing_ok=True)
     if previous is None: policy.unlink()
     else: policy.write_bytes(previous);policy.chmod(mode)
+runner=root/'usr/bin/vyos-op-run'
+assert runner.stat().st_uid==0 and runner.stat().st_mode & 0o4000, 'Operator runner setuid installation missing'
 owners=[]
 if kvm=='yes': owners.append((['service','kvm-over-ip','local-input','keyboard'],'service_kvm_over_ip'))
 if tailscale=='yes': owners.append((['service','tailscale','advertise-route'],'service_tailscale'))

@@ -11,6 +11,9 @@ class Tests(unittest.TestCase):
     def source(self,d):
         p=Path(d);(p/'debian').mkdir();(p/'data').mkdir()
         (p/'debian/rules').write_text('override_dh_gencontrol:\n\tdh_gencontrol -- -v$(BASE_VERSION)-$(COMMIT_ID)\noverride_dh_auto_build:\n\tmake all\n')
+        (p/'src/ocaml').mkdir(parents=True)
+        (p/'src/ocaml/vyos_op_run.ml').write_text('check_command_permissions permissions args;\n    Unix.setuid 0;')
+        (p/'debian/vyos-1x.postinst').write_text('#!/bin/bash\n# existing upstream steps\n')
         return p
     def test_base_is_byte_for_byte_unchanged(self):
         with tempfile.TemporaryDirectory() as d:
@@ -38,6 +41,21 @@ class Tests(unittest.TestCase):
                 self.assertEqual((p/'src/systemd/vyos-arm64-tailscaled.service').exists(),tailscale)
                 self.assertEqual('tailscale-subnet-router' in meta['profiles'],tailscale)
                 self.assertEqual('kvm-over-ip' in meta['profiles'],kvm)
+    def test_operator_runner_install_is_restored_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=self.source(d)
+            m.prepare(p,'999.0-14891-gd185906f3',True)
+            path, script=m.restore_operator_runner_install(p)
+            self.assertEqual(script.count('chmod u+s /usr/bin/vyos-op-run'),1)
+            self.assertIn('# existing upstream steps',script)
+            self.assertEqual(script,path.read_text())
+    def test_changed_runner_requires_review(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=self.source(d)
+            (p/'src/ocaml/vyos_op_run.ml').write_text('different implementation')
+            with self.assertRaisesRegex(ValueError,'permission review'):
+                m.prepare(p,'999.0-14891-gd185906f3',True)
+            self.assertFalse((p/'interface-definitions').exists())
     def test_refuses_existing_extension(self):
         with tempfile.TemporaryDirectory() as d:
             p=self.source(d);m.prepare(p,'999.0-14891-gd185906f3',True)

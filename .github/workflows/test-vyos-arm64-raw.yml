@@ -82,7 +82,7 @@ jobs:
           sudo swapoff -a || true
           sudo rm -f /swapfile
 
-          sudo fallocate -l 8G /swapfile
+          sudo fallocate -l 16G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -110,6 +110,14 @@ jobs:
               ./build-vyos-image \
                 --architecture arm64 \
                 arm64-raw
+
+      - name: Diagnose failed raw build
+        if: failure()
+        run: |
+          free -h
+          swapon --show
+          df -h
+          sudo dmesg | tail -80 || true
 
       - name: Show generated images
         shell: bash
