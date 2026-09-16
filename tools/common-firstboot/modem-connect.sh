@@ -26,6 +26,7 @@ DEFAULT_APN="${DEFAULT_APN:-internet}"
 BACKEND_MODE="${BACKEND_MODE:-auto}"
 BACKEND_POLICY="${BACKEND_POLICY:-}"
 BACKEND_EXPLICIT=0
+NATIVE_FAILOVER=0
 TRANSPORT_MODE="${TRANSPORT_MODE:-auto}"
 MULTIPLEX_MODE="${MULTIPLEX_MODE:-auto}"
 MODEM_REQUEST="${MODEM_REQUEST:-}"
@@ -190,6 +191,7 @@ Usage: sudo $0 [OPTIONS]
 Options:
   --probe                    Probe available modem/backend modes without connecting
   --backend MODE            auto, auto-native, vyos, mm, qmi, mbim, at-rndis or dhcp
+  --native-failover          Test native DHCP WAN health monitoring (--backend vyos)
   --apn APN                  Set APN without prompting
   --transport MODE          auto, pcie or usb; default: automatic detection
   --modem INDEX              Use a specific current ModemManager index
@@ -224,6 +226,7 @@ USAGE
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --probe) PROBE_ONLY=1; shift ;;
+    --native-failover) NATIVE_FAILOVER=1; shift ;;
     --native-prepare) SERVICE_RUN=1; NATIVE_PREPARE=1; shift ;;
     --restore-services) RESTORE_ONLY=1; shift ;;
     --backend) [ "$#" -ge 2 ] || die "Missing value for --backend is missing"; BACKEND_MODE="$2"; BACKEND_EXPLICIT=1; shift 2 ;;
@@ -351,6 +354,7 @@ case "$BACKEND_MODE" in auto|auto-native|vyos|mm|qmi|mbim|at-rndis|dhcp) ;; *) d
 case "$TRANSPORT_MODE" in auto|pcie|usb) ;; *) die "--transport muss auto, pcie or usb sein" ;; esac
 case "$MULTIPLEX_MODE" in auto|none|default) ;; *) die "--multiplex muss auto, none or default sein" ;; esac
 case "$WIRED_WAN" in auto|none) ;; *) [[ "$WIRED_WAN" =~ ^[A-Za-z0-9_.-]{1,15}$ ]] || die "--wired-wan muss auto, none or ein gueltiger Interfacename sein" ;; esac
+[ "$NATIVE_FAILOVER" -ne 1 ] || [ "$BACKEND_MODE" = vyos ] || die "--native-failover requires --backend vyos"
 case "$AP_NET" in */*) ;; *) die "--ap-net muss CIDR enthalten" ;; esac
 [ "$EUID" -eq 0 ] || die "Please run with sudo"
 
@@ -556,6 +560,7 @@ EOF
 }
 
 uninstall_all() {
+  remove_native_failover_setup
   log "Deinstalliere modem-connect..."
   systemctl disable --now modem-wan-failover.service modem-connect.service modem-unlock.service modem-connect-recover.service modem-connect-recover.timer 2>/dev/null || true
   stop_native_sessions
@@ -572,6 +577,7 @@ uninstall_all() {
 
 reset_manual_modem_setup() {
   local backup name old_native
+  remove_native_failover_setup
   old_native="$(config_get NATIVE_INTERFACE)"
   if [ "$(config_get MANAGEMENT)" = vyos ]; then
     [[ "$old_native" =~ ^wwan[0-9]+$ ]] || die "Invalid saved native interface"

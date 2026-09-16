@@ -114,3 +114,46 @@ ModemManager masking as before; concurrent independent ModemManager-managed
 modems are not validated. Thunderbolt auto-authorization and legacy eth1
 recovery assumptions are unchanged. They need separate policy/multi-device
 work, not an untested replacement during this persistence fix.
+
+
+### Experimental native Internet reachability failover
+
+Run `sudo ./modem-connect.sh --backend vyos --transport auto --apn internet --native-failover`
+to opt in. The existing wired-WAN detection selects the primary Ethernet interface;
+`--wired-wan NAME` overrides it. Native WWAN discovery selects the modem interface.
+No local address or gateway is embedded: `dhcp-interface` resolves gateways from leases.
+This experiment supports an Ethernet DHCP primary and a native WWAN DHCP backup,
+not arbitrary static WANs or every legacy modem backend.
+
+The script installs native `protocols failover` default routes (metrics 10/20),
+ICMP checks with `any-available` and timeout 3, and native DHCP-based /32 probe routes.
+Different targets are necessary on each WAN. Defaults are 208.67.222.222/208.67.220.220
+for Ethernet and 1.0.0.1/8.8.4.4 for WWAN. Override with space-separated
+`FAILOVER_WIRED_TARGETS` and `FAILOVER_MOBILE_TARGETS` environment variables passed
+through sudo. These addresses are probe destinations, not fixed gateways.
+Avoid addresses used for application traffic: their /32 routes stay pinned to a WAN.
+Existing administrator failover/default and probe routes must be reviewed rather
+than overwritten. Owned changes have a removal journal under `/config/modem-connect`;
+manual replacement/uninstall restores the prior DHCP distance.
+
+Both DHCP default-route distances become 255 (non-installable in FRR). Do not use
+`no-default-route`: this VyOS build then omits the DHCP router option request, leaving
+native DHCP-dependent probe and failover routes without gateways. No watchdog,
+custom route switching daemon or permanent firewall test rule is installed.
+
+Live test on 2026-09-16: Ethernet carrier remained up and FRITZ!Box reachable;
+blocking router-originated IPv4 Internet traffic on Ethernet triggered cellular
+failover in 10 seconds. Internet ping succeeded 5/5 over WWAN. Removing the block
+restored Ethernet in 3 seconds, followed by 5/5 successful pings. This verifies
+router-originated traffic, not existing TCP session continuity or all forwarded clients.
+
+The corrected script was deployed and setup repeated successfully. Final repeat
+at 11:58–11:59 switched to WWAN in 11 seconds and back to Ethernet in 3 seconds;
+both Internet checks passed 5/5. FRITZ!Box remained reachable (2/2) while Ethernet
+Internet was blocked. HTTPS returned 200 after recovery. Temporary nft rules and
+rollback timers were removed, no failed services remained, and config.boot
+contains the native settings. Source/deployed SHA256 hashes matched.
+Cleanup deletes the owned failover route as a whole: deleting only its two
+next-hop children leaves an invalid empty route node in this VyOS version.
+Warm/cold reboot with these new failover settings and forwarded-client traffic
+remain to be tested. The already-running candidate build predates this experiment.

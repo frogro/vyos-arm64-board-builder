@@ -21,14 +21,14 @@ native_cli_transaction() {
   cat > "$script" <<'HEADER'
 #!/bin/vbash
 source /opt/vyatta/etc/functions/script-template
-configure
+configure || builtin exit 1
 native_cmd_failed=0
 HEADER
   while IFS= read -r command; do
     [ -z "$command" ] || printf '%s || native_cmd_failed=1\n' "$command" >> "$script"
   done
   cat >> "$script" <<END
-if [ "\$native_cmd_failed" -ne 0 ]; then native_rc=1; elif \$API sessionChanged; then commit; native_rc=\$?; else native_rc=0; fi
+if [ "\$native_cmd_failed" -ne 0 ]; then native_rc=1; elif \$API sessionChanged; then commit; native_rc=\$?; if \$API sessionChanged; then native_rc=1; fi; else native_rc=0; fi
 if [ "\$native_rc" -eq 0 ]; then save; native_rc=\$?; else discard; fi
 printf '%s\\n' "\$native_rc" > $(printf '%q' "$result")
 builtin exit "\$native_rc"
@@ -122,6 +122,89 @@ EOF_CONFIG
   chmod 0600 "$CONFIG_FILE"
   rm -f "$ROUTE_CACHE" "$APN_CACHE" "$MUX_CACHE" "$BACKEND_CACHE"
   write_native_service_unit
+  if [ "${NATIVE_FAILOVER:-0}" = 1 ]; then
+    configure_native_failover "$iface" || die "Native failover setup did not complete"
+  fi
   log "PASS: native VyOS WWAN $iface; APN and DHCP settings saved in config.boot. No custom connection/failover service."
   return 0
+}
+
+# Opt-in native route-health setup. No background helper or firewall hook.
+remove_native_failover_setup() {
+  local restore="$PERSIST_DIR/native-failover-restore.commands"
+  [ -f "$restore" ] || return 0
+  native_cli_transaction < "$restore" || die "Cannot restore previous native failover settings"
+  rm -f "$restore"
+}
+
+configure_native_failover() {
+  local mobile="$1" wired="$WIRED_WAN" active target iface kind metric commands restore
+  [[ "$wired" =~ ^[A-Za-z0-9_.-]{1,15}$ ]] && [ "$wired" != "$mobile" ] || die "Native failover needs a separate wired WAN"
+  active="$(/opt/vyatta/bin/vyatta-op-cmd-wrapper show configuration commands)" || return 1
+  if printf '%s\n' "$active" | grep -q '^set protocols failover route 0.0.0.0/0 '; then
+    die "Existing administrator failover default route: refusing to replace it"
+  fi
+  if printf '%s\n' "$active" | grep -Eq '^set protocols static route 0[.]0[.]0[.]0/0 (next-hop|dhcp-interface|interface|blackhole|reject)( |$)'; then
+    die "Existing administrator static default route: refusing competing failover setup"
+  fi
+  local wired_targets="${FAILOVER_WIRED_TARGETS:-208.67.222.222 208.67.220.220}"
+  local mobile_targets="${FAILOVER_MOBILE_TARGETS:-1.0.0.1 8.8.4.4}"
+  python3 - "$wired_targets" "$mobile_targets" <<'CHECK_TARGETS' || return 1
+import ipaddress, sys
+sets = [value.split() for value in sys.argv[1:]]
+assert all(sets) and not set(sets[0]).intersection(sets[1]), "Use distinct targets per WAN"
+for value in sets[0] + sets[1]:
+    assert ipaddress.ip_address(value).version == 4, "IPv4 targets required"
+CHECK_TARGETS
+  for target in $wired_targets $mobile_targets; do
+    if printf '%s\n' "$active" | grep -Fq "set protocols static route $target/32 "; then
+      die "Existing route to health target $target: refusing to replace it"
+    fi
+  done
+  commands="$(mktemp "$UNLOCK_STATE_DIR/failover-XXXXXX")" || return 1
+  restore="$PERSIST_DIR/native-failover-restore.commands"
+  # Owned removal journal is written before commit so interrupted setup is recoverable.
+  : > "$restore"; chmod 0600 "$restore"
+  printf 'delete protocols failover route 0.0.0.0/0 2>/dev/null || true\n' >> "$restore"
+  for kind in ethernet wwan; do
+    if [ "$kind" = ethernet ]; then iface="$wired"; metric=10; else iface="$mobile"; metric=20; fi
+    if ! printf '%s\n' "$active" | grep -Eq "^set interfaces $kind $iface address '?dhcp'?$"; then
+      rm -f "$commands" "$restore"
+      die "Native failover requires an already configured DHCP interface: $iface"
+    fi
+    local previous_distance
+    previous_distance="$(printf '%s\n' "$active" | grep -F "set interfaces $kind $iface dhcp-options default-route-distance " || true)"
+    if printf '%s\n' "$active" | grep -Fxq "set interfaces $kind $iface dhcp-options no-default-route"; then
+      printf 'delete interfaces %q %q dhcp-options no-default-route\n' "$kind" "$iface" >> "$commands"
+      printf 'set interfaces %q %q dhcp-options no-default-route\n' "$kind" "$iface" >> "$restore"
+    fi
+    # Distance 255 retains DHCP gateway discovery without installing an
+    # unmonitored default route. no-default-route suppresses the router request.
+    printf 'set interfaces %q %q dhcp-options default-route-distance 255\n' "$kind" "$iface" >> "$commands"
+    if [ -n "$previous_distance" ]; then
+      printf '%s\n' "$previous_distance" >> "$restore"
+    else
+      printf 'delete interfaces %q %q dhcp-options default-route-distance 2>/dev/null || true\n' "$kind" "$iface" >> "$restore"
+    fi
+
+    printf 'set protocols failover route 0.0.0.0/0 dhcp-interface %q metric %s\n' "$iface" "$metric" >> "$commands"
+    printf 'set protocols failover route 0.0.0.0/0 dhcp-interface %q check type icmp\n' "$iface" >> "$commands"
+    printf 'set protocols failover route 0.0.0.0/0 dhcp-interface %q check timeout 3\n' "$iface" >> "$commands"
+    printf 'set protocols failover route 0.0.0.0/0 dhcp-interface %q check policy any-available\n' "$iface" >> "$commands"
+    local targets="$mobile_targets"
+    [ "$kind" != ethernet ] || targets="$wired_targets"
+    for target in $targets; do
+      printf 'set protocols static route %s/32 dhcp-interface %q\n' "$target" "$iface" >> "$commands"
+      printf 'set protocols failover route 0.0.0.0/0 dhcp-interface %q check target %s\n' "$iface" "$target" >> "$commands"
+      printf 'delete protocols static route %s/32 2>/dev/null || true\n' "$target" >> "$restore"
+    done
+  done
+  if ! native_cli_transaction < "$commands"; then
+    rm -f "$commands"
+    warn "Native failover setup failed; restoring previous routing settings"
+    remove_native_failover_setup
+    return 1
+  fi
+  rm -f "$commands"
+  log "Native failover configured: $wired preferred, $mobile backup; interface-specific health routes."
 }

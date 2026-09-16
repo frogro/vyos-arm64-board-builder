@@ -44,6 +44,48 @@ try_native_wwan
             self.assertIn('inbound-interface name wwan2',commands)
             self.assertIn('MANAGEMENT=vyos',(root/'settings').read_text())
             self.assertNotIn('APN=',(root/'settings').read_text())
+    def test_failover_uses_selected_interfaces_and_dhcp_gateways(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            wrapper = root/'op'
+            wrapper.write_text("#!/bin/sh\necho \"set interfaces ethernet eth7 address 'dhcp'\"\necho \"set interfaces wwan wwan2 address 'dhcp'\"\n")
+            wrapper.chmod(0o755)
+            lib = LIB.replace('/opt/vyatta/bin/vyatta-op-cmd-wrapper', str(wrapper))
+            code = lib + f"""
+WIRED_WAN=eth7; PERSIST_DIR={d}; UNLOCK_STATE_DIR={d}
+FAILOVER_WIRED_TARGETS='4.2.2.1 4.2.2.2'; FAILOVER_MOBILE_TARGETS='8.8.4.4'
+log() {{ :; }}; warn() {{ :; }}; die() {{ exit 1; }}
+native_cli_transaction() {{ cat >> {d}/commands; }}
+configure_native_failover wwan2
+"""
+            run(code)
+            commands = (root/'commands').read_text()
+            self.assertIn('static route 4.2.2.1/32 dhcp-interface eth7', commands)
+            self.assertIn('static route 8.8.4.4/32 dhcp-interface wwan2', commands)
+            self.assertIn('dhcp-interface eth7 metric 10', commands)
+            self.assertNotIn('192.168.', commands)
+            self.assertNotIn('next-hop', commands)
+            restore = (root/'native-failover-restore.commands').read_text()
+            self.assertIn('delete protocols failover route 0.0.0.0/0 2>', restore)
+            self.assertNotIn('delete protocols failover route 0.0.0.0/0 dhcp-interface', restore)
+            self.assertIn('default-route-distance 255', commands)
+            self.assertNotIn('set interfaces ethernet eth7 dhcp-options no-default-route', commands)
+
+    def test_failover_refuses_existing_admin_route(self):
+        with tempfile.TemporaryDirectory() as d:
+            wrapper = Path(d)/'op'
+            wrapper.write_text("#!/bin/sh\necho 'set protocols failover route 0.0.0.0/0 next-hop 192.0.2.1 interface eth9'\n")
+            wrapper.chmod(0o755)
+            code = LIB.replace('/opt/vyatta/bin/vyatta-op-cmd-wrapper', str(wrapper)) + f"""
+WIRED_WAN=eth7; PERSIST_DIR={d}; UNLOCK_STATE_DIR={d}
+die() {{ exit 42; }}
+native_cli_transaction() {{ touch {d}/unexpected; }}
+configure_native_failover wwan2
+"""
+            result = subprocess.run(['bash', '-c', code], capture_output=True)
+            self.assertEqual(result.returncode, 42)
+            self.assertFalse((Path(d)/'unexpected').exists())
+
     def test_native_service_replaces_old_dialers(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
