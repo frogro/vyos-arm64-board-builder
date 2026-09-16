@@ -46,6 +46,18 @@ class KvmCliTests(unittest.TestCase):
                                     text=True, check=True)
             self.assertEqual(result.stdout, expected)
 
+    def test_capture_buffers_limited_only_for_internal_hdmi(self):
+        runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
+        start = runner.index('        # HDMI-RX has a bounded')
+        end = runner.index('        [[ -n "${INPUT_FORMAT}" ]]', start)
+        for source, expected in [('rk3588-synopsys-hdmirx', '-capture_buffers 4'),
+                                 ('generic-v4l2', '')]:
+            code = 'args=(); SOURCE_PROVIDER=' + source + ';\n' + runner[start:end]
+            code += '\nprintf "%s" "${args[*]}"'
+            result = subprocess.run(['bash', '-c', code], capture_output=True,
+                                    text=True, check=True)
+            self.assertEqual(result.stdout, expected)
+
     def test_provider_specific_implementations_remain_internal(self):
         runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
 

@@ -59,7 +59,6 @@ class ExtendedNetworkProfileTests(unittest.TestCase):
         for forbidden in (
             "CONFIG_R8169=",
             "CONFIG_USB_RTL8152=",
-            "CONFIG_USB_NET_CDC_MBIM=",
             "CONFIG_MHI_BUS_EP=",
             "CONFIG_COMPILE_TEST=",
         ):

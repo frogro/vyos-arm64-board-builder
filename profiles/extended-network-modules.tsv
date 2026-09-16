@@ -41,3 +41,17 @@ ethernet-pcie	CONFIG_I40E	i40e	Intel 700 Series Ethernet
 ethernet-pcie	CONFIG_I40EVF	i40evf	Intel 700 Series Ethernet VF
 ethernet-pcie	CONFIG_ICE	ice	Intel E800 Series Ethernet
 ethernet-usb	CONFIG_USB_NET_AQC111	aqc111	Aquantia USB 2.5/5GbE
+wwan-usb	CONFIG_USB_NET_RNDIS_HOST	rndis_host	Fibocom FM350 USB RNDIS
+wwan-usb	CONFIG_USB_NET_QMI_WWAN	qmi_wwan	USB QMI modems
+wwan-usb	CONFIG_USB_NET_CDC_MBIM	cdc_mbim	USB MBIM modems
+wwan-usb	CONFIG_USB_NET_CDC_NCM	cdc_ncm	USB NCM modems
+wwan-usb	CONFIG_USB_NET_CDCETHER	cdc_ether	USB ECM/router-mode modems
+wwan-usb	CONFIG_USB_NET_HUAWEI_CDC_NCM	huawei_cdc_ncm	Huawei NCM modems
+wwan-usb	CONFIG_USB_SIERRA_NET	sierra_net	Sierra Direct IP modems
+wwan-usb	CONFIG_USB_SERIAL_OPTION	option	Common USB modem AT ports
+wwan-usb	CONFIG_USB_SERIAL_QUALCOMM	qcserial	Qualcomm USB serial ports
+wwan-usb	CONFIG_USB_SERIAL_SIERRAWIRELESS	sierra	Sierra USB serial ports
+wwan-usb	CONFIG_USB_ACM	cdc_acm	USB ACM control ports
+wwan-usb	CONFIG_USB_WDM	cdc_wdm	USB QMI/MBIM control ports
+wwan-pcie	CONFIG_IOSM	iosm	Intel XMM PCIe WWAN
+wwan-pcie	CONFIG_MTK_T7XX	mtk_t7xx	MediaTek T7xx/Fibocom FM350 PCIe

@@ -18,7 +18,12 @@ fi
 IFS=: read -r _ _ VYOS_UID VYOS_GID _ HOME_DIR _ <<<"$ENTRY"
 [[ "$VYOS_UID" =~ ^[0-9]+$ && "$VYOS_GID" =~ ^[0-9]+$ && "$HOME_DIR" == /* ]]
 install -d -m 0755 -o "$VYOS_UID" -g "$VYOS_GID" "$HOME_DIR"
-for script in ap-dhcp-wan-setup.sh dhcp-wan-ssh-setup.sh modem-connect.sh set-locales.sh; do
+# Remove only our own old convenience link, never a user file or custom link.
+firstboot_link="$HOME_DIR/dhcp-wan-ssh-setup.sh"
+if [[ -L "$firstboot_link" && "$(readlink "$firstboot_link")" == "$STAGE/dhcp-wan-ssh-setup.sh" ]]; then
+    rm -- "$firstboot_link"
+fi
+for script in ap-dhcp-wan-setup.sh modem-connect.sh set-locales.sh; do
     test -x "$STAGE/$script"
     target="$HOME_DIR/$script"
     # Keep custom files and links, including intentionally dangling symlinks.

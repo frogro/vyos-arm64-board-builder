@@ -10,6 +10,8 @@
 # Do not run with sudo, sudo bash, or bash.
 
 set -o pipefail
+# Non-login SSH invocations may omit administrative program directories.
+export PATH="${PATH}:/usr/sbin:/sbin"
 
 # Use a UTF-8 locale that is guaranteed to exist in the VyOS image.
 export LANG=C.UTF-8
@@ -142,20 +144,9 @@ fi
 echo
 echo 'Persisting the system locale as C.UTF-8...'
 
-if ! printf '%s\n' 'LANG=C.UTF-8' 'LC_ALL=C.UTF-8' | sudo tee /etc/default/locale >/dev/null; then
-    echo 'WARNING: Could not write /etc/default/locale.' >&2
-fi
-
-if ! printf '%s\n' 'LANG=C.UTF-8' 'LC_ALL=C.UTF-8' | sudo tee /etc/environment >/dev/null; then
-    echo 'WARNING: Could not write /etc/environment.' >&2
-fi
-
-if sudo install -d -m 0755 /etc/systemd/system.conf.d; then
-    if ! printf '%s\n' '[Manager]' 'DefaultEnvironment=LANG=C.UTF-8 LC_ALL=C.UTF-8' | sudo tee /etc/systemd/system.conf.d/10-vyos-arm64-locale.conf >/dev/null; then
-        echo 'WARNING: Could not write the systemd locale configuration.' >&2
-    fi
-else
-    echo 'WARNING: Could not create /etc/systemd/system.conf.d.' >&2
+if ! sudo python3 "$(dirname "$(readlink -f "$0")")/set-utf8-locale.py"; then
+    echo 'ERROR: Could not apply the UTF-8 locale defaults.' >&2
+    builtin exit 1
 fi
 
 echo

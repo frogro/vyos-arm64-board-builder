@@ -10,6 +10,18 @@ IFACE_FILE="/config/.dhcp-wan-interface"
 STAGE="/usr/local/share/vyos-arm64-firstboot"
 TIMER="vyos-arm64-dhcp-wan-firstboot.timer"
 
+# Type=simple does not imply that the boot configuration has finished.
+# Do not inspect markers or write logs into the temporary pre-mount /config.
+READY=0
+for _ in $(seq 1 90); do
+    if mountpoint -q /config && [ "$(systemctl show vyos-router.service -p SubState --value)" = exited ]; then
+        READY=1
+        break
+    fi
+    sleep 2
+done
+[ "$READY" -eq 1 ] || { echo "VyOS configuration did not become ready" >&2; exit 1; }
+
 exec >>"$LOG" 2>&1
 
 log() {

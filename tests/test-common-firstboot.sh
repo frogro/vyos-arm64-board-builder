@@ -32,6 +32,13 @@ do
     test -x "$STAGE/$script"
 done
 
+test -f "$STAGE/setup-transaction.sh"
+test -f "$STAGE/set-utf8-locale.py"
+grep -qx 'LANG=C.UTF-8' "$ROOTFS/etc/environment"
+test -f "$STAGE/modem-services.sh"
+test -f "$STAGE/modem-native-wwan.sh"
+test -f "$ROOTFS/etc/systemd/system/vyos-modem-restore.service"
+test -L "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-modem-restore.service"
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
 test -x "$ROOTFS/usr/local/sbin/vyos-arm64-grow-persistence.sh"
 test ! -e "$ROOTFS/usr/local/sbin/vyos-arm64-tailscale-readiness"
@@ -151,7 +158,7 @@ source, root = map(Path, sys.argv[1:])
 (root/'setup-links.sh').write_text(source.read_text().replace('/usr/local/share/vyos-arm64-firstboot', str(root/'stage')))
 PY_LINKS
 PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
-for script in ap-dhcp-wan-setup.sh dhcp-wan-ssh-setup.sh modem-connect.sh set-locales.sh; do
+for script in ap-dhcp-wan-setup.sh modem-connect.sh set-locales.sh; do
     test "$(readlink "$LINK_TEST/home/$script")" = "$LINK_TEST/stage/$script"
 done
 # Repeated boots preserve custom files and custom/dangling links.
@@ -180,3 +187,10 @@ EOF_DELAY
 chmod +x "$LINK_TEST/bin/getent"
 PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
 test -e "$LINK_TEST/user-ready"
+
+ln -s "$LINK_TEST/stage/dhcp-wan-ssh-setup.sh" "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+test ! -L "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
+printf 'user script\n' > "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+grep -qx 'user script' "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"

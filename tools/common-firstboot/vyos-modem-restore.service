@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore configured modem services from current image
+After=local-fs.target vyos-router.service
+Requires=vyos-router.service
+RequiresMountsFor=/config
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/share/vyos-arm64-firstboot/modem-connect.sh --restore-services
+TimeoutStartSec=240
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

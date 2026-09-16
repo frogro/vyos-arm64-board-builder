@@ -7,6 +7,8 @@
 # Prueft/activeiert ausserdem SSH robust through TCP-Port 22/sshd und fragt interactive nach SSID, Passwort und Wireless country code.
 
 set -o pipefail
+# Non-login SSH invocations may omit administrative program directories.
+export PATH="${PATH}:/usr/sbin:/sbin"
 
 SSID="${SSID:-VyOS-AP}"
 PASSPHRASE="${PASSPHRASE:-vyosvyos}"
@@ -538,21 +540,24 @@ else
 fi
 
 source /opt/vyatta/etc/functions/script-template
-configure
+source "$(dirname "$(readlink -f "$0")")/setup-transaction.sh"
+configure || { echo "ERROR: Cannot enter configuration mode." >&2; builtin exit 1; }
 
-echo "[1/2] Removing all previous wireless configuration ..."
-for N in $(seq 0 31); do
-  delete interfaces wireless "wlan$N" 2>/dev/null || true
-done
+echo "[1/2] Replacing the selected AP configuration ..."
+# Preserve other independently configured wireless interfaces.
+if [[ "$OLD_AP_IF" =~ ^wlan[0-9]+$ ]] && [ "$OLD_AP_IF" != "$VYOS_IF" ]; then
+  delete interfaces wireless "$OLD_AP_IF" 2>/dev/null || true
+fi
+delete interfaces wireless "$VYOS_IF" 2>/dev/null || true
 
-set system wireless country-code "$COUNTRY_CODE"
-set service ssh
-set interfaces wireless "$VYOS_IF" physical-device "$PHY"
-set interfaces wireless "$VYOS_IF" address "$AP_ADDRESS"
-set interfaces wireless "$VYOS_IF" type 'access-point'
-set interfaces wireless "$VYOS_IF" ssid "$SSID"
-set interfaces wireless "$VYOS_IF" channel "$CHANNEL"
-set interfaces wireless "$VYOS_IF" mode "$WLAN_MODE"
+setup_set system wireless country-code "$COUNTRY_CODE"
+setup_set service ssh
+setup_set interfaces wireless "$VYOS_IF" physical-device "$PHY"
+setup_set interfaces wireless "$VYOS_IF" address "$AP_ADDRESS"
+setup_set interfaces wireless "$VYOS_IF" type 'access-point'
+setup_set interfaces wireless "$VYOS_IF" ssid "$SSID"
+setup_set interfaces wireless "$VYOS_IF" channel "$CHANNEL"
+setup_set interfaces wireless "$VYOS_IF" mode "$WLAN_MODE"
 
 # Proven fast 5 GHz profile: explicit VHT80 geometry.
 # The usable-channel filter already excludes DFS/radar channels; in DE this normally
@@ -569,61 +574,59 @@ if [ "$WLAN_MODE" = "ac" ]; then
   esac
 
   if [ -n "$VHT_CENTER" ]; then
-    set interfaces wireless "$VYOS_IF" capabilities ht channel-set-width 'ht40+'
-    set interfaces wireless "$VYOS_IF" capabilities vht channel-set-width '1'
-    set interfaces wireless "$VYOS_IF" capabilities vht center-channel-freq freq-1 "$VHT_CENTER"
-    set interfaces wireless "$VYOS_IF" capabilities vht short-gi '80'
+    setup_set interfaces wireless "$VYOS_IF" capabilities ht channel-set-width 'ht40+'
+    setup_set interfaces wireless "$VYOS_IF" capabilities vht channel-set-width '1'
+    setup_set interfaces wireless "$VYOS_IF" capabilities vht center-channel-freq freq-1 "$VHT_CENTER"
+    setup_set interfaces wireless "$VYOS_IF" capabilities vht short-gi '80'
   else
     echo "WARNING: Channel $CHANNEL has no known 80 MHz center mapping; using plain 802.11ac without forced VHT80." >&2
   fi
 fi
 
-set interfaces wireless "$VYOS_IF" security wpa mode 'wpa2'
-set interfaces wireless "$VYOS_IF" security wpa cipher 'CCMP'
-set interfaces wireless "$VYOS_IF" security wpa passphrase "$PASSPHRASE"
+setup_set interfaces wireless "$VYOS_IF" security wpa mode 'wpa2'
+setup_set interfaces wireless "$VYOS_IF" security wpa cipher 'CCMP'
+setup_set interfaces wireless "$VYOS_IF" security wpa passphrase "$PASSPHRASE"
 
 echo "[1/2] Committing AP configuration ..."
-if ! commit; then
+if ! setup_commit_save; then
   echo "ERROR: AP commit failed. Changes will be discarded." >&2
   discard
   builtin exit 1
 fi
-save
 echo "[1/2] AP saved."
 
 echo "[2/2] Configuring DHCP ..."
 delete service dhcp-server shared-network-name "$DHCP_NAME" 2>/dev/null || true
-set service dhcp-server shared-network-name "$DHCP_NAME" authoritative
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" subnet-id '1'
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option default-router "$AP_GATEWAY"
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option name-server "$DHCP_DNS"
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option name-server "$AP_GATEWAY"
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" range 0 start "$DHCP_START"
-set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" range 0 stop "$DHCP_STOP"
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" authoritative
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" subnet-id '1'
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option default-router "$AP_GATEWAY"
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option name-server "$DHCP_DNS"
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" option name-server "$AP_GATEWAY"
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" range 0 start "$DHCP_START"
+setup_set service dhcp-server shared-network-name "$DHCP_NAME" subnet "$AP_NET" range 0 stop "$DHCP_STOP"
 
 # Reproduce the known-good DNS forwarding setup from config.boot.
-delete service dns forwarding 2>/dev/null || true
-set service dns forwarding allow-from "$AP_NET"
-set service dns forwarding listen-address "$AP_GATEWAY"
-set service dns forwarding name-server "$DNS_FORWARD_1"
-set service dns forwarding name-server "$DNS_FORWARD_2"
+# Preserve DNS forwarding entries for other networks.
+setup_set service dns forwarding allow-from "$AP_NET"
+setup_set service dns forwarding listen-address "$AP_GATEWAY"
+setup_set service dns forwarding name-server "$DNS_FORWARD_1"
+setup_set service dns forwarding name-server "$DNS_FORWARD_2"
 
 # Reproduce the known-good AP -> WAN forward policy.
 # Rule 20 sends traffic arriving from the AP to an accept chain.
 delete firewall ipv4 forward filter rule 20 2>/dev/null || true
 delete firewall ipv4 name VYOS-AP-OUT 2>/dev/null || true
-set firewall ipv4 name VYOS-AP-OUT default-action 'accept'
-set firewall ipv4 forward filter rule 20 action 'jump'
-set firewall ipv4 forward filter rule 20 inbound-interface name "$VYOS_IF"
-set firewall ipv4 forward filter rule 20 jump-target 'VYOS-AP-OUT'
+setup_set firewall ipv4 name VYOS-AP-OUT default-action 'accept'
+setup_set firewall ipv4 forward filter rule 20 action 'jump'
+setup_set firewall ipv4 forward filter rule 20 inbound-interface name "$VYOS_IF"
+setup_set firewall ipv4 forward filter rule 20 jump-target 'VYOS-AP-OUT'
 
 echo "[2/2] Committing DHCP configuration ..."
-if ! commit; then
+if ! setup_commit_save; then
   echo "ERROR: DHCP-Commit failed. The AP is already saved; only DHCP changes will be discarded." >&2
   discard
   builtin exit 1
 fi
-save
 echo "[2/2] DHCP saved."
 
 WAN_CONFIGURED=0
@@ -632,37 +635,33 @@ if [ -n "$WAN_IF_SELECTED" ]; then
 
   # Ethernet is the primary WAN. Keep this ownership in the AP/WAN script;
   # modem-connect.sh must never rewrite it.
-  set interfaces ethernet "$WAN_IF_SELECTED" address 'dhcp'
-  set interfaces ethernet "$WAN_IF_SELECTED" description 'WAN-LAN-DHCP'
-  set interfaces ethernet "$WAN_IF_SELECTED" dhcp-options default-route-distance "$WAN_ROUTE_DISTANCE"
+  setup_set interfaces ethernet "$WAN_IF_SELECTED" address 'dhcp'
+  setup_set interfaces ethernet "$WAN_IF_SELECTED" description 'WAN-LAN-DHCP'
+  setup_set interfaces ethernet "$WAN_IF_SELECTED" dhcp-options default-route-distance "$WAN_ROUTE_DISTANCE"
 
-  # Remove the legacy duplicate Ethernet NAT rule created by older modem scripts.
-  if [ "$NAT_RULE" != "100" ]; then
-    delete nat source rule 100 2>/dev/null || true
-  fi
+  # Replace only the explicitly selected NAT rule; leave other rules intact.
   delete nat source rule "$NAT_RULE" 2>/dev/null || true
-  set nat source rule "$NAT_RULE" description 'AP-NET-to-WIRED-WAN'
-  set nat source rule "$NAT_RULE" outbound-interface name "$WAN_IF_SELECTED"
-  set nat source rule "$NAT_RULE" source address "$AP_NET"
-  set nat source rule "$NAT_RULE" translation address 'masquerade'
+  setup_set nat source rule "$NAT_RULE" description 'AP-NET-to-WIRED-WAN'
+  setup_set nat source rule "$NAT_RULE" outbound-interface name "$WAN_IF_SELECTED"
+  setup_set nat source rule "$NAT_RULE" source address "$AP_NET"
+  setup_set nat source rule "$NAT_RULE" translation address 'masquerade'
 
   # WAN -> router/AP forwarding: only established/related return traffic.
   delete firewall ipv4 forward filter rule 10 2>/dev/null || true
   delete firewall ipv4 name VYOS-WAN-IN 2>/dev/null || true
-  set firewall ipv4 name VYOS-WAN-IN default-action 'drop'
-  set firewall ipv4 name VYOS-WAN-IN rule 10 action 'accept'
-  set firewall ipv4 name VYOS-WAN-IN rule 10 state 'established'
-  set firewall ipv4 name VYOS-WAN-IN rule 10 state 'related'
-  set firewall ipv4 forward filter rule 10 action 'jump'
-  set firewall ipv4 forward filter rule 10 inbound-interface name "$WAN_IF_SELECTED"
-  set firewall ipv4 forward filter rule 10 jump-target 'VYOS-WAN-IN'
+  setup_set firewall ipv4 name VYOS-WAN-IN default-action 'drop'
+  setup_set firewall ipv4 name VYOS-WAN-IN rule 10 action 'accept'
+  setup_set firewall ipv4 name VYOS-WAN-IN rule 10 state 'established'
+  setup_set firewall ipv4 name VYOS-WAN-IN rule 10 state 'related'
+  setup_set firewall ipv4 forward filter rule 10 action 'jump'
+  setup_set firewall ipv4 forward filter rule 10 inbound-interface name "$WAN_IF_SELECTED"
+  setup_set firewall ipv4 forward filter rule 10 jump-target 'VYOS-WAN-IN'
 
   echo "[3/3] Committing Ethernet WAN/NAT ..."
-  if ! commit; then
+  if ! setup_commit_save; then
     echo "WARNING: WAN/NAT commit failed. AP and DHCP remain saved." >&2
     discard
   else
-    save
     WAN_CONFIGURED=1
     echo "[3/3] Ethernet WAN/NAT saved."
   fi

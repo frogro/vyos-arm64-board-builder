@@ -64,9 +64,11 @@ dependencies, or symbols which Kconfig cannot keep as modules are reported as
 | Intel Ethernet | `IXGBE`, `IXGBEVF`, `I40E`, `I40EVF`, `ICE` | Intel 10/25/40/100GbE adapters | Module-declared firmware from the VyOS-pinned source |
 | Aquantia USB Ethernet | `USB_NET_AQC111` | AQC111U-based USB 2.5/5GbE adapters | Module-declared firmware from the VyOS-pinned source |
 
-USB modem support already present in stock VyOS (MBIM, QMI, NCM, `option`,
-Sierra and related USB serial/network drivers) is not duplicated. MHI endpoint
-mode, debug/test drivers and boot/controller infrastructure are also excluded.
+Common USB modem drivers (RNDIS, MBIM, QMI, NCM, `option`, Qualcomm and
+Sierra serial/network drivers) and Intel IOSM/MediaTek t7xx are explicitly
+requested as well. Existing built-in/module settings are preserved; missing
+optional symbols are reported by the resolver. MHI endpoint mode, debug/test
+drivers and boot/controller infrastructure remain excluded.
 
 The machine-readable source of truth is:
 
@@ -112,3 +114,36 @@ Each candidate publishes:
 
 These files show what was requested, already present, enabled, skipped,
 installed or missing for that exact kernel and VyOS firmware pin.
+
+### FM350 USB and PCIe
+
+The additional network profile requests `CONFIG_USB_NET_RNDIS_HOST=m` for
+FM350 USB AT/RNDIS data interfaces. Serial AT ports alone are insufficient:
+FCC unlock can succeed while the USB network driver is absent. The setup
+assistant loads the image-provided `rndis_host` module; it cannot enable a
+kernel build option at runtime. FM350 PCIe continues to use the t7xx/WWAN path.
+
+
+### Modem userspace and assembly checks
+
+The network profile installs `profiles/network-packages.txt`, including
+ModemManager, `libqmi-utils`, `libmbim-utils` (provides `mbimcli`), USB mode
+switching, PPP and the DHCP client. This is scoped to Extended Network.
+The installer suppresses daemon startup during image assembly. If the base
+has no APT sources, it temporarily uses signed Debian Bookworm repositories
+only after checking the installed libc matches that base. Sources are removed
+on exit; this does not enable runtime automatic updates.
+
+`tools/check-modem-image.py` rejects images missing required common USB driver
+configuration, loadable modules or executable modem tools. Optional PCIe
+hardware remains subject to the kernel's symbol availability and board support.
+Firmware follows module metadata and the pinned firmware source; vendor modem
+firmware is not flashed automatically.
+
+Native VyOS WWAN uses ModemManager (`set interfaces wwan ...`). The universal
+setup script now tries that native path first during automatic setup, with
+validated rollback before a fallback. It also supports direct QMI/MBIM and
+FM350 AT/RNDIS backends. Do not
+configure native WWAN and this assistant to manage the same connection at the
+same time. Neither driver presence nor `mbimcli` alone guarantees support for
+every vendor's firmware, USB composition or PCIe power sequence.

@@ -183,6 +183,8 @@ rm -f "$ROOTFS$GST_GENERIC_REGISTRY"
 
 if enabled ffmpeg-rockchip; then
     check_ldd /usr/local/bin/ffmpeg-rockchip
+    chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -h demuxer=v4l2 2>&1 |
+        grep -q 'capture_buffers' || die "FFmpeg capture-buffer option is missing"
     chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -encoders |
         grep -q 'h264_rkmpp' ||
         die "installed ffmpeg-rockchip does not expose h264_rkmpp"

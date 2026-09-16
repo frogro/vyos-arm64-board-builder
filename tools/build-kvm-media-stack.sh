@@ -130,8 +130,15 @@ if enabled ffmpeg-rockchip; then
     echo "===== BUILDING FFMPEG-ROCKCHIP ====="
     clone_pinned "$FFMPEG_REPO" "$FFMPEG_COMMIT" "$CHROOT/build/ffmpeg-rockchip"
 
+    FFMPEG_PATCH="$ROOT/profiles/kvm-hardware/ffmpeg-patches/0001-v4l2-configurable-capture-buffers.patch"
+    git -C "$CHROOT/build/ffmpeg-rockchip" apply --check "$FFMPEG_PATCH"
+    git -C "$CHROOT/build/ffmpeg-rockchip" apply "$FFMPEG_PATCH"
+    install -m 0644 "$FFMPEG_PATCH" "$ARTIFACTS/source/"
+
     chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; cd /build/ffmpeg-rockchip; ./configure --prefix=/usr/local --disable-debug --disable-doc --disable-shared --enable-static --disable-autodetect --enable-version3 --enable-libdrm --enable-rkmpp; make -j"${JOBS:-4}"; make install; ldconfig; /usr/local/bin/ffmpeg -hide_banner -encoders | grep -q "h264_rkmpp"; /usr/local/bin/ffmpeg -hide_banner -h encoder=h264_rkmpp | grep -q "bgr24"'
 
+    chroot "$CHROOT" /usr/local/bin/ffmpeg -hide_banner -h demuxer=v4l2 2>&1 |
+        grep -q 'capture_buffers' || die "FFmpeg capture-buffer option missing"
     install -m 0755 "$CHROOT/usr/local/bin/ffmpeg" "$ARTIFACTS/bin/ffmpeg-rockchip"
     install -m 0755 "$CHROOT/usr/local/bin/ffprobe" "$ARTIFACTS/bin/ffprobe-rockchip"
     chroot "$CHROOT" ldd /usr/local/bin/ffmpeg > "$ARTIFACTS/ffmpeg-rockchip.ldd.txt" || true

@@ -3,6 +3,8 @@
 # No AP, DHCP server, DNS forwarding, NAT, or modem configuration.
 
 set -o pipefail
+# Non-login SSH invocations may omit administrative program directories.
+export PATH="${PATH}:/usr/sbin:/sbin"
 
 WIRED_IF="${WIRED_IF:-auto}"
 ROUTE_DISTANCE="${ROUTE_DISTANCE:-1}"
@@ -87,34 +89,18 @@ sudo /sbin/ip link set "$WIRED_IF" up 2>/dev/null || true
     fail "VyOS script-template is missing"
 
 source /opt/vyatta/etc/functions/script-template
-configure
+source "$(dirname "$(readlink -f "$0")")/setup-transaction.sh"
+configure || { echo "ERROR: Cannot enter configuration mode." >&2; builtin exit 1; }
 
-set interfaces ethernet "$WIRED_IF" description 'WAN-LAN-DHCP'
-set interfaces ethernet "$WIRED_IF" address 'dhcp'
-set interfaces ethernet "$WIRED_IF" dhcp-options default-route-distance "$ROUTE_DISTANCE"
-set service ssh
+setup_set interfaces ethernet "$WIRED_IF" description 'WAN-LAN-DHCP'
+setup_set interfaces ethernet "$WIRED_IF" address 'dhcp'
+setup_set interfaces ethernet "$WIRED_IF" dhcp-options default-route-distance "$ROUTE_DISTANCE"
+setup_set service ssh
 
-COMMIT_LOG="$(mktemp /tmp/dhcp-wan-commit.XXXXXX)" ||
-    fail "Could not create temporary commit log"
-
-if commit 2>&1 | tee "$COMMIT_LOG"; then
-    rm -f "$COMMIT_LOG"
-
-    if ! save; then
-        discard 2>/dev/null || true
-        fail "save failed"
-    fi
-
-    log "VyOS configuration saved"
-elif grep -qF "No configuration changes to commit" "$COMMIT_LOG"; then
-    rm -f "$COMMIT_LOG"
+if ! setup_commit_save; then
     discard 2>/dev/null || true
-    log "The requested VyOS configuration was already present"
-else
-    COMMIT_ERROR="$(cat "$COMMIT_LOG")"
-    rm -f "$COMMIT_LOG"
-    discard 2>/dev/null || true
-    fail "commit failed: $COMMIT_ERROR"
+    fail "Could not commit and save wired WAN configuration"
 fi
+log "VyOS configuration saved (or already present)"
 
 log "Konfigurationsphase abgeschlossen"

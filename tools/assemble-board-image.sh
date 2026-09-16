@@ -525,6 +525,8 @@ bash "$ROOT/tools/install-network-firmware.sh" \
 # Bundle the optional modem boot image only with Additional/Extended Network.
 # Keep it outside the kernel firmware search path for manual installation.
 if [[ "$EXTENDED_NETWORK" == yes ]]; then
+    bash "$KVM_USERSPACE_INSTALLER" "$SQUASH_ROOT" "$ROOT/profiles/network-packages.txt" network
+    python3 "$ROOT/tools/check-modem-image.py" "$SQUASH_ROOT" "$KERNEL_ARTIFACTS/kernel.config"
     QUECTEL_ASSET="$ROOT/firmware/quectel-rm505q-ae/a04"
     (
         cd "$QUECTEL_ASSET"

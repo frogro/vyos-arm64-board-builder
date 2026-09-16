@@ -1,0 +1,35 @@
+--- a/libavdevice/v4l2.c
++++ b/libavdevice/v4l2.c
+@@ -52,7 +52,6 @@
+ #include <libv4l2.h>
+ #endif
+ 
+-static const int desired_video_buffers = 256;
+ 
+ #define V4L_ALLFORMATS  3
+ #define V4L_RAWFORMATS  1
+@@ -95,6 +94,7 @@
+     int64_t last_time_m;
+ 
+     int buffers;
++    int capture_buffers;
+     atomic_int buffers_queued;
+     int plane_count;
+     void ***buf_start;
+@@ -357,7 +357,7 @@
+     struct video_data *s = ctx->priv_data;
+     struct v4l2_requestbuffers req = {
+         .type   = (s->multi_planer) ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE,
+-        .count  = desired_video_buffers,
++        .count  = s->capture_buffers,
+         .memory = V4L2_MEMORY_MMAP
+     };
+ 
+@@ -1214,6 +1214,7 @@
+ #define DEC AV_OPT_FLAG_DECODING_PARAM
+ 
+ static const AVOption options[] = {
++    { "capture_buffers", "number of V4L2 MMAP capture buffers to request", OFFSET(capture_buffers), AV_OPT_TYPE_INT, {.i64 = 256}, 2, 256, DEC },
+     { "standard",     "set TV standard, used only by analog frame grabber",       OFFSET(standard),     AV_OPT_TYPE_STRING, {.str = NULL }, 0, 0,       DEC },
+     { "channel",      "set TV channel, used only by frame grabber",               OFFSET(channel),      AV_OPT_TYPE_INT,    {.i64 = -1 },  -1, INT_MAX, DEC },
+     { "video_size",   "set frame size",                                           OFFSET(width),        AV_OPT_TYPE_IMAGE_SIZE, {.str = NULL},  0, 0,   DEC },

@@ -131,6 +131,12 @@ case "${BACKEND}" in
             -f v4l2
         )
 
+        # HDMI-RX has a bounded reserved DMA pool. Four capture buffers fit
+        # even 4K BGR24 (4 x 32 MiB) in its 160 MiB pool. USB keeps its default.
+        if [[ "${SOURCE_PROVIDER}" == "rk3588-synopsys-hdmirx" ]]; then
+            args+=(-capture_buffers 4)
+        fi
+
         [[ -n "${INPUT_FORMAT}" ]] && args+=(-input_format "${INPUT_FORMAT}")
         [[ -n "${RESOLUTION}" ]] && args+=(-video_size "${RESOLUTION}")
         [[ -n "${FRAMERATE}" ]] && args+=(-framerate "${FRAMERATE}")

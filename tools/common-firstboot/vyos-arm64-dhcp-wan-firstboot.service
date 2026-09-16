@@ -7,4 +7,4 @@ ConditionPathExists=!/config/.dhcp-wan-ssh-firstboot-done
 [Service]
 Type=oneshot
 ExecStart=/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh
-TimeoutStartSec=300
+TimeoutStartSec=480

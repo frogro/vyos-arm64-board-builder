@@ -126,6 +126,14 @@ do
         "$STAGE_DIR/$script"
 done
 
+install -m 0644 "$PAYLOAD/set-utf8-locale.py" "$STAGE_DIR/set-utf8-locale.py"
+python3 "$PAYLOAD/set-utf8-locale.py" "$ROOTFS"
+install -m 0644 "$PAYLOAD/setup-transaction.sh" "$STAGE_DIR/setup-transaction.sh"
+install -m 0644 "$PAYLOAD/modem-services.sh" "$STAGE_DIR/modem-services.sh"
+install -m 0644 "$PAYLOAD/modem-native-wwan.sh" "$STAGE_DIR/modem-native-wwan.sh"
+install -m 0644 "$PAYLOAD/vyos-modem-restore.service" "$UNIT_DIR/vyos-modem-restore.service"
+ln -sfn ../vyos-modem-restore.service "$MULTI_USER_WANTS_DIR/vyos-modem-restore.service"
+
 install -m 0755 "$PAYLOAD/vyos-arm64-setup-links.sh" "$SBIN_DIR/vyos-arm64-setup-links.sh"
 install -m 0644 "$PAYLOAD/vyos-arm64-setup-links.service" "$UNIT_DIR/vyos-arm64-setup-links.service"
 ln -sfn ../vyos-arm64-setup-links.service "$MULTI_USER_WANTS_DIR/vyos-arm64-setup-links.service"

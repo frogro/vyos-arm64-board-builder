@@ -15,11 +15,13 @@
 set -o pipefail
 if [ "$(id -g -n)" != "vyattacfg" ]; then printf -v _vyos_cmd "%q " /bin/vbash "$(readlink -f "$0")" "$@"; exec sg vyattacfg -c "$_vyos_cmd"; fi
 
-APN_CACHE="${APN_CACHE:-/etc/modem-apn.conf}"
-MUX_CACHE="${MUX_CACHE:-/etc/modem-multiplex-mode.conf}"
-BACKEND_CACHE="${BACKEND_CACHE:-/etc/modem-backend-mode.conf}"
-ROUTE_CACHE="${ROUTE_CACHE:-/etc/modem-route.conf}"
-NATIVE_STATE_DIR="${NATIVE_STATE_DIR:-/var/lib/modem-connect}"
+NATIVE_PREPARE=0
+PERSIST_DIR="${PERSIST_DIR:-/config/modem-connect}"
+APN_CACHE="${APN_CACHE:-$PERSIST_DIR/modem-apn.conf}"
+MUX_CACHE="${MUX_CACHE:-$PERSIST_DIR/modem-multiplex-mode.conf}"
+BACKEND_CACHE="${BACKEND_CACHE:-$PERSIST_DIR/modem-backend-mode.conf}"
+ROUTE_CACHE="${ROUTE_CACHE:-$PERSIST_DIR/modem-route.conf}"
+NATIVE_STATE_DIR="${NATIVE_STATE_DIR:-/run/modem-connect/native}"
 DEFAULT_APN="${DEFAULT_APN:-internet}"
 BACKEND_MODE="${BACKEND_MODE:-auto}"
 BACKEND_POLICY="${BACKEND_POLICY:-}"
@@ -67,11 +69,13 @@ FM350_STABLE_IF="${FM350_STABLE_IF:-eth1}"
 UNLOCK_STATE_DIR="${UNLOCK_STATE_DIR:-/run/modem-connect}"
 FM350_RECOVERY_LOCK="${FM350_RECOVERY_LOCK:-/run/modem-connect/fm350-recovery.lock}"
 FM350_AT_CACHE="${FM350_AT_CACHE:-/run/modem-connect/fm350-at-port.conf}"
-CONFIG_FILE="${CONFIG_FILE:-/etc/modem-connect.conf}"
+CONFIG_FILE="${CONFIG_FILE:-$PERSIST_DIR/modem-connect.conf}"
 FCC_VENDOR_HASH="${FCC_VENDOR_HASH:-3df8c719}"
 ACTION="install"
 APN_ARG=""
 PROBE_ONLY=0
+RESTORE_ONLY=0
+TRANSPORT_EXPLICIT=0
 NO_SAVE_BACKEND=0
 SERVICE_RUN=0
 UNLOCK_ONLY=0
@@ -185,7 +189,7 @@ Usage: sudo $0 [OPTIONS]
 
 Options:
   --probe                    Probe available modem/backend modes without connecting
-  --backend MODE            auto, auto-native, mm, qmi, mbim, at-rndis or dhcp
+  --backend MODE            auto, auto-native, vyos, mm, qmi, mbim, at-rndis or dhcp
   --apn APN                  Set APN without prompting
   --transport MODE          auto, pcie or usb; default: automatic detection
   --modem INDEX              Use a specific current ModemManager index
@@ -205,10 +209,11 @@ Options:
   -h, --help                 Hilfe show
 
 Backend-Hinweise:
-  auto        Gespeichertes successfules Backend use; ohne Cache ModemManager.
+  auto        Prefer native VyOS WWAN during setup; otherwise use the helper backend.
               Retry the known ModemManager multiplex error with multiplex=none.
   auto-native Also try AT-RNDIS/QMI/MBIM/DHCP fallbacks after a failure.
-  mm          ModemManager only.
+  vyos        Native VyOS WWAN only; fail if handover is not supported.
+  mm          Helper-managed ModemManager connection (explicit override).
   qmi         qmicli direkt. Suitable for QMI-Control-Ports wie cdc-wdmX or wwanXqmiY.
   mbim        mbimcli direkt. Suitable for MBIM-Control-Ports wie cdc-wdmX or wwanXmbimY.
   at-rndis    FM350 USB/RNDIS mit dynamischem AT-Port und Data interface.
@@ -219,8 +224,10 @@ USAGE
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --probe) PROBE_ONLY=1; shift ;;
+    --native-prepare) SERVICE_RUN=1; NATIVE_PREPARE=1; shift ;;
+    --restore-services) RESTORE_ONLY=1; shift ;;
     --backend) [ "$#" -ge 2 ] || die "Missing value for --backend is missing"; BACKEND_MODE="$2"; BACKEND_EXPLICIT=1; shift 2 ;;
-    --transport) [ "$#" -ge 2 ] || die "Missing value for --transport is missing"; TRANSPORT_MODE="$2"; shift 2 ;;
+    --transport) [ "$#" -ge 2 ] || die "Missing value for --transport is missing"; TRANSPORT_MODE="$2"; TRANSPORT_EXPLICIT=1; shift 2 ;;
     --apn) [ "$#" -ge 2 ] || die "Missing value for --apn is missing"; APN_ARG="$2"; shift 2 ;;
     --modem) [ "$#" -ge 2 ] || die "Missing value for --modem is missing"; MODEM_REQUEST="$2"; shift 2 ;;
     --device-id) [ "$#" -ge 2 ] || die "Missing value for --device-id is missing"; MODEM_DEVICE_ID_REQUEST="$2"; shift 2 ;;
@@ -242,6 +249,57 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+# Inventory only: no service changes, module loading, AT commands or unlock.
+if [ "$PROBE_ONLY" -eq 1 ]; then
+  echo "=== Read-only modem inventory ==="
+  for device in /sys/bus/usb/devices/* /sys/bus/pci/devices/*; do
+    if [ -r "$device/idVendor" ]; then
+      vendor="$(cat "$device/idVendor")"; product="$(cat "$device/idProduct")"
+      case "$vendor" in 0e8d|2c7c|2cb7|1199|1bc7|1546|12d1) ;; *) continue ;; esac
+    elif [ -r "$device/vendor" ]; then
+      vendor="$(cat "$device/vendor")"; product="$(cat "$device/device")"
+      case "$vendor:$product" in 0x14c3:0x4d75|0x8086:0x7560|0x17cb:*) ;; *) continue ;; esac
+    else continue; fi
+    printf '%s %s:%s driver=%s\n' "$device" "$vendor" "$product" "$(readlink "$device/driver" 2>/dev/null || true)"
+  done
+  echo "Ports:"
+  for port in /dev/wwan* /dev/cdc-wdm* /dev/ttyUSB*; do
+    [ ! -e "$port" ] || printf '%s\n' "$port"
+  done
+  builtin exit 0
+fi
+
+wait_for_vyos_config() {
+  local attempt
+  # vyos-router is Type=simple: After= alone does not wait for its config mount.
+  for attempt in $(seq 1 180); do
+    if mountpoint -q /config && [ "$(systemctl show vyos-router.service -p SubState --value)" = exited ]; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+if [ "$PERSIST_DIR" = /config/modem-connect ] && { [ "$SERVICE_RUN" -eq 1 ] || [ "$RESTORE_ONLY" -eq 1 ]; }; then
+  wait_for_vyos_config || die "VyOS configuration did not become ready within 180 seconds"
+fi
+
+# Migrate settings only, never executables from a previous image. An existing
+# persistent setting always wins. Keep the journal of the previous route for
+# removal of old *persistent* VyOS next-hops; never treat it as live connectivity.
+[ "$EUID" -eq 0 ] || die "Please run with sudo"
+if [ -f /etc/modem-connect.conf ] || [ -f "$CONFIG_FILE" ] || [ "$RESTORE_ONLY" -eq 0 ]; then
+  install -d -m 0700 "$PERSIST_DIR"
+  for name in modem-connect.conf modem-apn.conf modem-multiplex-mode.conf modem-backend-mode.conf modem-route.conf; do
+    if [ ! -e "$PERSIST_DIR/$name" ] && [ -f "/etc/$name" ]; then
+      install -m 0600 "/etc/$name" "$PERSIST_DIR/$name" || die "Cannot migrate $name"
+    fi
+  done
+fi
+if [ "$RESTORE_ONLY" -eq 1 ] && [ ! -s "$CONFIG_FILE" ]; then
+  builtin exit 0
+fi
+
 config_get() {
   local key="$1"
   [ -s "$CONFIG_FILE" ] || return 0
@@ -250,9 +308,18 @@ config_get() {
 
 if [ "$SERVICE_RUN" -eq 1 ]; then
   [ -s "$CONFIG_FILE" ] || die "Autostart configuration is missing: $CONFIG_FILE"
+  if [ "$UNLOCK_ONLY" -eq 1 ] && [ "$(config_get UNLOCK_KIND)" = none ]; then
+    log "Configured modem requires no FCC unlock; skipping unlock preparation."
+    builtin exit 0
+  fi
   APN_ARG="$(config_get APN)"
   MODEM_DEVICE_ID_REQUEST="$(config_get MODEM_DEVICE_ID)"
   MODEM_EQUIPMENT_ID_REQUEST="$(config_get MODEM_EQUIPMENT_ID)"
+  if [ "$TRANSPORT_EXPLICIT" -eq 0 ]; then
+    TRANSPORT_MODE="$(config_get TRANSPORT_POLICY)"
+    [ -n "$TRANSPORT_MODE" ] || TRANSPORT_MODE="$(config_get TRANSPORT)"
+    TRANSPORT_MODE="${TRANSPORT_MODE:-auto}"
+  fi
   SAVED_BACKEND_POLICY="$(config_get BACKEND_POLICY)"
   SAVED_MULTIPLEX="$(config_get MULTIPLEX)"
   SAVED_AP_NET="$(config_get AP_NET)"
@@ -265,6 +332,7 @@ if [ "$SERVICE_RUN" -eq 1 ]; then
       FM350_EXPECTED_USB=1
       ;;
   esac
+  [ "$TRANSPORT_MODE" != pcie ] || FM350_EXPECTED_USB=0
   case "$SAVED_WIRED_WAN" in
     auto|none) WIRED_WAN="$SAVED_WIRED_WAN" ;;
     "") ;;
@@ -279,12 +347,36 @@ if [ "$SERVICE_RUN" -eq 1 ]; then
 fi
 BACKEND_POLICY="${BACKEND_POLICY:-$BACKEND_MODE}"
 
-case "$BACKEND_MODE" in auto|auto-native|mm|qmi|mbim|at-rndis|dhcp) ;; *) die "--backend muss auto, auto-native, mm, qmi, mbim, at-rndis or dhcp sein" ;; esac
+case "$BACKEND_MODE" in auto|auto-native|vyos|mm|qmi|mbim|at-rndis|dhcp) ;; *) die "--backend muss auto, auto-native, vyos, mm, qmi, mbim, at-rndis or dhcp sein" ;; esac
 case "$TRANSPORT_MODE" in auto|pcie|usb) ;; *) die "--transport muss auto, pcie or usb sein" ;; esac
 case "$MULTIPLEX_MODE" in auto|none|default) ;; *) die "--multiplex muss auto, none or default sein" ;; esac
 case "$WIRED_WAN" in auto|none) ;; *) [[ "$WIRED_WAN" =~ ^[A-Za-z0-9_.-]{1,15}$ ]] || die "--wired-wan muss auto, none or ein gueltiger Interfacename sein" ;; esac
 case "$AP_NET" in */*) ;; *) die "--ap-net muss CIDR enthalten" ;; esac
 [ "$EUID" -eq 0 ] || die "Please run with sudo"
+
+source "$(dirname "$SELF_PATH")/modem-services.sh" || die "Missing image modem service templates"
+source "$(dirname "$SELF_PATH")/modem-native-wwan.sh" || die "Missing native WWAN helper"
+if [ "$NATIVE_PREPARE" -eq 1 ]; then
+  native_iface="$(config_get NATIVE_INTERFACE)"
+  [[ "$native_iface" =~ ^wwan[0-9]+$ ]] || die "Invalid saved native WWAN interface"
+  native_config="$(/opt/vyatta/bin/vyatta-op-cmd-wrapper show configuration commands | grep -E "^set interfaces wwan ${native_iface} " || true)"
+  if [ -z "$native_config" ] || printf '%s\n' "$native_config" | grep -qx "set interfaces wwan $native_iface disable"; then
+    log "Native WWAN is absent or administratively disabled; leaving hardware untouched."
+    builtin exit 0
+  fi
+fi
+if [ "$RESTORE_ONLY" -eq 1 ]; then
+  if [ "$(config_get MANAGEMENT)" = vyos ]; then
+    write_native_service_unit
+    systemctl start --no-block vyos-modem-hardware.service
+    builtin exit $?
+  fi
+  write_unlock_service_unit
+  write_service_unit
+  write_failover_service_unit
+  systemctl start --no-block modem-connect.service
+  builtin exit $?
+fi
 
 # Take ownership from older modem-connect versions before touching the FM350.
 # Old recovery timers/udev rules could otherwise start v2.1 concurrently and
@@ -303,49 +395,6 @@ if [ "$SERVICE_RUN" -eq 0 ] && [ "$RECOVER_ONLY" -eq 0 ] && [ "$UNLOCK_ONLY" -eq
 fi
 rm -f "$FM350_LINK_FILE" "$FM350_UDEV_RULE" 2>/dev/null || true
 
-# Rewrite the two primary units immediately so any dependency started later in
-# this run can only invoke this exact script, never an older v2/v2.1 copy.
-cat > "$UNLOCK_SERVICE_PATH" <<EOF
-[Unit]
-Description=Run modem-specific FCC unlock before the WWAN connection
-After=systemd-modules-load.service systemd-udev-trigger.service
-Before=modem-connect.service
-StartLimitIntervalSec=0
-
-[Service]
-Type=oneshot
-ExecStart=${SELF_PATH} --service-run --unlock-only
-RemainAfterExit=yes
-TimeoutStartSec=360
-Restart=on-failure
-RestartSec=15
-StandardInput=null
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-cat > "$SERVICE_PATH" <<EOF
-[Unit]
-Description=Automatically connect the modem and configure the VyOS WWAN fallback
-After=vyos-router.service systemd-modules-load.service systemd-udev-trigger.service modem-unlock.service network.target
-Requires=vyos-router.service modem-unlock.service
-StartLimitIntervalSec=0
-
-[Service]
-Type=oneshot
-ExecStart=${SELF_PATH} --service-run
-RemainAfterExit=yes
-TimeoutStartSec=600
-Restart=on-failure
-RestartSec=20
-StandardInput=null
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl enable modem-unlock.service modem-connect.service >/dev/null 2>&1 || true
 udevadm control --reload-rules 2>/dev/null || true
 
 need_cmd ip
@@ -508,19 +557,45 @@ EOF
 
 uninstall_all() {
   log "Deinstalliere modem-connect..."
-  systemctl disable --now modem-connect.service modem-unlock.service modem-connect-recover.service modem-connect-recover.timer 2>/dev/null || true
+  systemctl disable --now modem-wan-failover.service modem-connect.service modem-unlock.service modem-connect-recover.service modem-connect-recover.timer 2>/dev/null || true
   stop_native_sessions
   rm -f "$SERVICE_PATH" "$UNLOCK_SERVICE_PATH" "$FM350_RECOVERY_SERVICE_PATH" "$FM350_RECOVERY_TIMER_PATH" "$FM350_UDEV_RULE" "$FM350_MM_IGNORE_RULE" "$FM350_LINK_FILE" "$FAILOVER_SERVICE_PATH" "$FAILOVER_SCRIPT_PATH"
   cleanup_legacy
   remove_managed_vyos_config
   rm -f "$APN_CACHE" "$MUX_CACHE" "$BACKEND_CACHE" "$ROUTE_CACHE" "$CONFIG_FILE"
+  rm -f /etc/modem-connect.conf /etc/modem-apn.conf /etc/modem-multiplex-mode.conf /etc/modem-backend-mode.conf /etc/modem-route.conf
   rm -rf "$NATIVE_STATE_DIR" "$UNLOCK_STATE_DIR"
   systemctl daemon-reload
   log "connections-/Unlock-Service, Caches, native Sitzungen und selbst verwaltete VyOS-Regeln entfernt."
   builtin exit 0
 }
 
+reset_manual_modem_setup() {
+  local backup name old_native
+  old_native="$(config_get NATIVE_INTERFACE)"
+  if [ "$(config_get MANAGEMENT)" = vyos ]; then
+    [[ "$old_native" =~ ^wwan[0-9]+$ ]] || die "Invalid saved native interface"
+    printf 'delete interfaces wwan %q\n' "$old_native" | native_cli_transaction || die "Cannot replace previous native WWAN configuration"
+  fi
+  backup="$(mktemp -d "$PERSIST_DIR/previous-XXXXXXXX")" || die "Cannot back up old modem settings"
+  systemctl disable --now modem-wan-failover.service modem-connect.service modem-unlock.service modem-connect-recover.service modem-connect-recover.timer vyos-modem-hardware.service >/dev/null 2>&1 || true
+  rm -f /etc/systemd/system/vyos-modem-hardware.service
+  stop_native_sessions
+  for name in "$CONFIG_FILE" "$APN_CACHE" "$MUX_CACHE" "$BACKEND_CACHE"; do
+    [ ! -f "$name" ] || mv "$name" "$backup/"
+  done
+  # Retain only the old next-hop journal until replacement removes that route.
+  # LAN/AP configuration and administrator-owned VyOS settings stay intact.
+  rm -f "$SERVICE_PATH" "$UNLOCK_SERVICE_PATH" "$FAILOVER_SERVICE_PATH" "$FAILOVER_SCRIPT_PATH" "$FM350_RECOVERY_SERVICE_PATH" "$FM350_RECOVERY_TIMER_PATH" "$FM350_UDEV_RULE" "$FM350_MM_IGNORE_RULE" "$FM350_LINK_FILE"
+  rm -f /etc/modem-connect.conf /etc/modem-apn.conf /etc/modem-multiplex-mode.conf /etc/modem-backend-mode.conf
+  systemctl daemon-reload
+  udevadm control --reload-rules
+  log "Previous modem settings archived; starting a fresh modem setup."
+}
 [ "$ACTION" = "uninstall" ] && uninstall_all
+if [ "$SERVICE_RUN" -eq 0 ] && [ "$RECOVER_ONLY" -eq 0 ] && [ "$UNLOCK_ONLY" -eq 0 ]; then
+  reset_manual_modem_setup
+fi
 cleanup_legacy
 
 ensure_modem_device_discovery() {
@@ -837,6 +912,7 @@ detect_fm350_transport() {
   MODEM_MODEL="Fibocom FM350-GL"
   MODEM_DEVICE="$FM350_SYS"
   if [ "$FM350_TRANSPORT" = pcie ]; then
+    FM350_USB_ID=""
     MODEM_PCI_ID="14c3:4d75"
     MODEM_DRIVER="$(basename "$(readlink -f "$FM350_SYS/driver" 2>/dev/null)" 2>/dev/null || true)"
     MODEM_DEVICE_ID="fm350-pcie-$(basename "$FM350_SYS")"
@@ -1464,6 +1540,37 @@ mm_port_list() {
   printf '%s\n' "$MINFO" | sed -n "s/^[^:]*ports\\.value\\[[0-9]\\+\\][[:space:]]*:[[:space:]]*\\([^[:space:]]\\+\\)[[:space:]]*(${type}).*/\\1/p"
 }
 
+recover_undetected_mhi_once() {
+  local dev bdf driver_dir=/sys/bus/pci/drivers/mhi-pci-generic
+  local -a candidates=()
+  [ "$AUTO_REPAIR" -eq 1 ] && [ "${MHI_DISCOVERY_REPAIRED:-0}" -eq 0 ] || return 1
+  [ "$TRANSPORT_MODE" != usb ] && [ "$FM350_AVAILABLE" -eq 0 ] || return 1
+  # Only the verified SDX55 PCI ID, only one physical candidate, and no
+  # exposed MM modem: never reset another working modem during discovery.
+  [ -z "$(mmcli -L 2>/dev/null | sed -n 's#.*/Modem/.*#present#p')" ] || return 1
+  for dev in "$driver_dir"/????:??:??.?; do
+    [ -r "$dev/vendor" ] && [ -r "$dev/device" ] || continue
+    [ "$(cat "$dev/vendor"):$(cat "$dev/device")" = 0x17cb:0x0306 ] || continue
+    candidates+=("$dev")
+  done
+  [ "${#candidates[@]}" -eq 1 ] || return 1
+  MHI_DISCOVERY_REPAIRED=1
+  bdf="$(basename "${candidates[0]}")"
+  warn "No ModemManager device after discovery timeout; rebinding SDX55 MHI device $bdf once."
+  systemctl stop ModemManager || return 1
+  if ! printf '%s' "$bdf" > "$driver_dir/unbind"; then
+    systemctl start ModemManager
+    return 1
+  fi
+  sleep 3
+  if ! printf '%s' "$bdf" > "$driver_dir/bind"; then
+    systemctl start ModemManager
+    return 1
+  fi
+  udevadm settle --timeout=15 || true
+  systemctl start ModemManager
+}
+
 discover_mm_modem() {
   local -a ids infos models device_ids equipment_ids primary_ports
   local id info model did eid pport choice selected_index i
@@ -1477,8 +1584,35 @@ discover_mm_modem() {
       [ "${#ids[@]}" -gt 0 ] && break
     done
   fi
+  if [ "${#ids[@]}" -eq 0 ] && recover_undetected_mhi_once; then
+    for _ in $(seq 1 "$MODEM_DISCOVERY_WAIT"); do
+      sleep 1
+      mapfile -t ids < <(mmcli -L 2>/dev/null | sed -n 's#.*/Modem/\([0-9]\+\).*#\1#p')
+      [ "${#ids[@]}" -gt 0 ] && break
+    done
+  fi
   [ "${#ids[@]}" -gt 0 ] || return 1
 
+  # Bind discovery to the selected physical device/transport. Never unlock one
+  # FM350 and then connect a different modem returned first by ModemManager.
+  local -a eligible_ids=()
+  local candidate_device candidate_transport
+  for id in "${ids[@]}"; do
+    info="$(mmcli -m "$id" -K 2>/dev/null || true)"
+    candidate_device="$(printf '%s\n' "$info" | kv_get modem.generic.device)"
+    if [ "$FM350_AVAILABLE" -eq 1 ]; then
+      fm350_path_belongs "$candidate_device" || continue
+    fi
+    case "$(readlink -f "$candidate_device" 2>/dev/null || true)" in
+      */usb*/*) candidate_transport=usb ;;
+      */pci*/*) candidate_transport=pcie ;;
+      *) candidate_transport=unknown ;;
+    esac
+    [ "$TRANSPORT_MODE" = auto ] || [ "$TRANSPORT_MODE" = "$candidate_transport" ] || continue
+    eligible_ids+=("$id")
+  done
+  ids=("${eligible_ids[@]}")
+  [ "${#ids[@]}" -gt 0 ] || return 1
   ALL_MODEM_IDS=("${ids[@]}")
   for id in "${ids[@]}"; do
     info="$(mmcli -m "$id" -K 2>/dev/null || true)"
@@ -1838,7 +1972,7 @@ xmm7560_unlock() {
 }
 
 perform_modem_unlock() {
-  local marker power
+  local marker power unlock_status
   MODEM_UNLOCK_KIND="$(detect_modem_unlock_kind)"
   if [ "$MODEM_UNLOCK_KIND" = fm350-fcc ] && [ "$FM350_AVAILABLE" -eq 1 ]; then
     fm350_find_at_port || return 1
@@ -1848,8 +1982,13 @@ perform_modem_unlock() {
   case "$MODEM_UNLOCK_KIND" in
     fm350-fcc)
       if [ -s "$marker" ]; then
-        log "FM350-FCC-Unlock was already confirmed during this boot."
-        return 0
+        # A modem can reboot while the host and its /run marker survive.
+        unlock_status="$(fm350_at_cmd 'AT+GTFCCLOCKVER?' 6 || true)"
+        if printf '%s\n' "$unlock_status" | grep -q '^+GTFCCLOCKVER: 1'; then
+          log "FM350-FCC unlock is still confirmed by the modem."
+          return 0
+        fi
+        rm -f "$marker"
       fi
       fm350_unlock || return 1
       printf 'KIND=%s\nMODEM_KEY=%s\n' "$MODEM_UNLOCK_KIND" "$MODEM_KEY" > "$marker"
@@ -3015,13 +3154,26 @@ load_known_drivers
 # misclassified as a generic/ModemManager modem just because USB enumeration
 # is still in progress. Wait for observable device state instead of sleeping a
 # fixed number of seconds.
+ensure_fm350_usb_driver() {
+  # Kernel options are build-time settings. Load an image-provided module;
+  # never download drivers, rebuild a kernel or touch the PCIe/t7xx path here.
+  [ -d /sys/module/rndis_host ] || modprobe rndis_host || return 1
+  udevadm settle --timeout=20 2>/dev/null || true
+}
+
 if [ "$SERVICE_RUN" -eq 1 ] && [ "$FM350_EXPECTED_USB" -eq 1 ]; then
+  ensure_fm350_usb_driver || die "Saved FM350 USB configuration requires the missing rndis_host kernel driver"
   wait_for_expected_fm350_usb_ready || die "Expected FM350 USB/RNDIS transport did not become ready during boot"
 fi
 
 detect_fm350_transport || true
+if [ "$FM350_AVAILABLE" -eq 1 ] && [ "$FM350_TRANSPORT" = usb ] && [ "$UNLOCK_ONLY" -eq 0 ]; then
+  ensure_fm350_usb_driver || die "FM350 USB requires CONFIG_USB_NET_RNDIS_HOST (rndis_host); install an image with this driver. AT unlock alone does not provide a network interface."
+  fm350_find_rndis_iface || true
+  [ -z "$FM350_RNDIS_IF" ] || fm350_install_rndis_recovery
+fi
 MM_AVAILABLE=0
-if [ "$FM350_AVAILABLE" -eq 1 ] && [ "$FM350_TRANSPORT" = usb ] && [ -n "$FM350_RNDIS_IF" ]; then
+if [ "$FM350_AVAILABLE" -eq 1 ] && [ "$FM350_TRANSPORT" = usb ] && { [ -n "$FM350_RNDIS_IF" ] || [ "$UNLOCK_ONLY" -eq 1 ]; }; then
   log "FM350 USB/RNDIS detected; ModemManager detection is skipped for this transport."
   fm350_block_modemmanager
 else
@@ -3051,6 +3203,7 @@ fi
 
 if [ "$UNLOCK_ONLY" -eq 1 ]; then
   [ "$MM_AVAILABLE" -eq 1 ] || [ "$FM350_AVAILABLE" -eq 1 ] || die "No modem detected for unlock"
+  [ "$MODEM_UNLOCK_OK" -eq 1 ] || die "Modem unlock failed"
   log "Unlock-Lauf abgeschlossen: Typ $MODEM_UNLOCK_KIND, Transport ${MODEM_TRANSPORT:-unknown}, Modem ${MODEM_EQUIPMENT_ID:-$MODEM_DEVICE_ID}."
   builtin exit 0
 fi
@@ -3060,7 +3213,47 @@ if [ "$PROBE_ONLY" -eq 1 ]; then
   builtin exit 0
 fi
 
+if [ "$NATIVE_PREPARE" -eq 1 ]; then
+  native_iface="$(config_get NATIVE_INTERFACE)"
+  [ "$(native_wwan_interface)" = "$native_iface" ] && [ "$MODEM_UNLOCK_OK" -eq 1 ] || die "Native WWAN hardware is not ready"
+  # A rebind creates the netdevice DOWN. Bring it up before native apply so
+  # netlinkd does not tear down the newly started DHCP client for an old DOWN.
+  ip link set dev "$native_iface" up || die "Cannot bring native WWAN link up"
+  /opt/vyatta/bin/vyatta-op-cmd-wrapper connect interface "$native_iface" || die "Native VyOS reconnect failed"
+  native_reapplied=0
+  for native_attempt in $(seq 1 30); do
+    if ip -4 -o addr show dev "$native_iface" scope global | grep -q ' inet ' && ping -I "$native_iface" -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then
+      log "Native WWAN hardware preparation and connectivity verified."
+      builtin exit 0
+    fi
+    if [ "$native_attempt" -ge 3 ] && [ "$native_reapplied" -eq 0 ] && ! systemctl is-active --quiet "dhclient@$native_iface.service"; then
+      native_reapplied=1
+      log "Reapplying native WWAN configuration after device recreation."
+      VYOS_TAGNODE_VALUE="$native_iface" /usr/libexec/vyos/conf_mode/interfaces_wwan.py || die "Native WWAN reapply failed"
+    fi
+    sleep 1
+  done
+  die "Native WWAN has no verified data path yet"
+fi
 choose_apn
+
+if [ "$SERVICE_RUN" -eq 0 ] && [ "$MODEM_UNLOCK_OK" -eq 1 ]; then
+  case "$BACKEND_MODE" in
+    auto|auto-native|vyos)
+      if try_native_wwan; then builtin exit 0; fi
+      [ "$BACKEND_MODE" != vyos ] || die "Native VyOS WWAN is not available for the selected modem"
+      ;;
+  esac
+fi
+
+# Never let a fallback backend compete with a configured native WWAN node.
+if [ "$MM_AVAILABLE" -eq 1 ]; then
+  for native_iface in $NET_PORTS; do
+    if /opt/vyatta/bin/vyatta-op-cmd-wrapper show configuration commands | grep -qE "^set interfaces wwan ${native_iface} "; then
+      die "Native VyOS already manages $native_iface; helper backend will not take ownership"
+    fi
+  done
+fi
 
 if [ "$BACKEND_MODE" = auto ] || [ "$BACKEND_MODE" = auto-native ]; then
   if [ "$FM350_AVAILABLE" -eq 1 ] && [ "$FM350_TRANSPORT" = usb ]; then
@@ -3172,6 +3365,7 @@ write_persistent_config() {
 APN=$APN
 BACKEND_POLICY=$BACKEND_POLICY
 TRANSPORT=$MODEM_TRANSPORT
+TRANSPORT_POLICY=$TRANSPORT_MODE
 MODEM_DEVICE_ID=$MODEM_DEVICE_ID
 MODEM_EQUIPMENT_ID=$MODEM_EQUIPMENT_ID
 MODEM_PCI_ID=$MODEM_PCI_ID
@@ -3184,528 +3378,6 @@ FM350_USB_ID=$FM350_USB_ID
 FM350_STABLE_IF=$FM350_STABLE_IF
 EOF
   chmod 600 "$CONFIG_FILE"
-}
-
-write_unlock_service_unit() {
-  cat > "$UNLOCK_SERVICE_PATH" <<EOF
-[Unit]
-Description=Run modem-specific FCC unlock before the WWAN connection
-After=systemd-modules-load.service systemd-udev-trigger.service
-Before=modem-connect.service
-StartLimitIntervalSec=0
-
-[Service]
-Type=oneshot
-ExecStart=${SELF_PATH} --service-run --unlock-only
-RemainAfterExit=yes
-TimeoutStartSec=360
-Restart=on-failure
-RestartSec=15
-StandardInput=null
-
-[Install]
-WantedBy=multi-user.target
-EOF
-}
-
-write_service_unit() {
-  cat > "$SERVICE_PATH" <<EOF
-[Unit]
-Description=Automatically connect the modem and configure the VyOS WWAN fallback
-After=vyos-router.service systemd-modules-load.service systemd-udev-trigger.service modem-unlock.service network.target
-Requires=vyos-router.service modem-unlock.service
-StartLimitIntervalSec=0
-
-[Service]
-Type=oneshot
-ExecStart=${SELF_PATH} --service-run
-RemainAfterExit=yes
-TimeoutStartSec=600
-Restart=on-failure
-RestartSec=20
-StandardInput=null
-
-[Install]
-WantedBy=multi-user.target
-EOF
-  systemctl daemon-reload
-  systemctl enable modem-unlock.service modem-connect.service >/dev/null 2>&1
-}
-
-write_failover_service_unit() {
-  # Generic WAN failover monitor. It does not know or care whether the modem is
-  # FM350, QMI, MBIM, ModemManager, ECM/NCM/RNDIS or PPP. modem-connect writes
-  # the current modem interface/gateway to ROUTE_CACHE. The monitor keeps routing
-  # preference correct and may request a controlled modem-connect restart when
-  # liveness/state/data-path checks fail; it never performs a VyOS commit itself.
-  cat > "$FAILOVER_SCRIPT_PATH" <<'FAILOVER_EOF'
-#!/bin/bash
-set -u
-
-CONFIG_FILE="${CONFIG_FILE:-/etc/modem-connect.conf}"
-ROUTE_CACHE="${ROUTE_CACHE:-/etc/modem-route.conf}"
-WIRED_METRIC="${WIRED_DEFAULT_METRIC:-20}"
-DEFAULT_WWAN_METRIC="${WWAN_ROUTE_METRIC:-200}"
-POLL_SEC="${FAILOVER_POLL_SEC:-2}"
-NOIP_ATTEMPTS="${WWAN_NOIP_ATTEMPTS:-4}"
-RECOVERY_COOLDOWN="${WWAN_RECOVERY_COOLDOWN:-60}"
-CONNECT_GRACE="${WWAN_CONNECT_GRACE:-60}"
-DATA_HEALTH_INTERVAL="${WWAN_DATA_HEALTH_INTERVAL:-15}"
-DATA_HEALTH_FAILURES="${WWAN_DATA_HEALTH_FAILURES:-3}"
-DATA_HEALTH_TARGET="${WWAN_DATA_HEALTH_TARGET:-1.1.1.1}"
-DATA_HEALTH_PINGS="${WWAN_DATA_HEALTH_PINGS:-3}"
-MM_ALWAYS_CONNECTED="${MM_ALWAYS_CONNECTED:-1}"
-MM_STATE_FAILURES="${MM_STATE_FAILURES:-2}"
-noip_count=0
-health_fail_count=0
-mm_state_fail_count=0
-last_health_check=0
-last_recovery=0
-
-log() { logger -t modem-wan-failover -- "$*"; }
-
-cfg_get() {
-  local f="$1" k="$2"
-  [ -r "$f" ] || return 0
-  sed -n "s/^${k}=//p" "$f" 2>/dev/null | head -1
-}
-
-net_driver() {
-  local iface="$1" p
-  p="$(readlink -f "/sys/class/net/$iface/device/driver" 2>/dev/null || true)"
-  [ -n "$p" ] && basename "$p"
-}
-
-is_modem_like_iface() {
-  local iface="$1" drv
-  case "$iface" in
-    wwan*|wwp*|usb*|rmnet*|ppp*) return 0 ;;
-  esac
-  drv="$(net_driver "$iface")"
-  case "$drv" in
-    rndis_host|cdc_ether|cdc_ncm|cdc_mbim|qmi_wwan|mhi_net|mhi_wwan_ctrl|iosm) return 0 ;;
-  esac
-  return 1
-}
-
-detect_wired() {
-  local configured iface
-  configured="$(cfg_get "$CONFIG_FILE" WIRED_WAN)"
-  case "$configured" in
-    ""|auto)
-      # Prefer eth0 when present, but remain usable on other hardware.
-      if ip link show eth0 >/dev/null 2>&1 && ! is_modem_like_iface eth0; then
-        printf '%s' eth0
-        return 0
-      fi
-      for iface in /sys/class/net/*; do
-        iface="$(basename "$iface")"
-        case "$iface" in eth*|en*) ;; *) continue ;; esac
-        is_modem_like_iface "$iface" && continue
-        [ -e "/sys/class/net/$iface/master" ] && continue
-        printf '%s' "$iface"
-        return 0
-      done
-      ;;
-    none) return 1 ;;
-    *)
-      ip link show "$configured" >/dev/null 2>&1 && printf '%s' "$configured"
-      ;;
-  esac
-}
-
-discover_wired_gateway() {
-  local iface="$1" route gw ipcidr guessed lease
-  route="$(ip -4 route show default dev "$iface" 2>/dev/null | head -1 || true)"
-  gw="$(printf '%s\n' "$route" | awk '{for(i=1;i<=NF;i++) if($i=="via"){print $(i+1);exit}}')"
-  [ -n "$gw" ] && { printf '%s' "$gw"; return 0; }
-
-  # Common dhclient / Kea / systemd-networkd lease locations; only accept a
-  # gateway that belongs to the current directly-connected subnet.
-  ipcidr="$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk 'NR==1{print $4}')"
-  [ -n "$ipcidr" ] || return 1
-  for lease in /var/lib/dhcp/dhclient*.leases /run/dhclient*.lease /run/systemd/netif/leases/* /var/lib/NetworkManager/*.lease; do
-    [ -r "$lease" ] || continue
-    gw="$(grep -Eho '(^|[ ;])(routers|ROUTER|gateway)[ =:]+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' "$lease" 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+){3}' | tail -1)"
-    [ -n "$gw" ] || continue
-    python3 - "$ipcidr" "$gw" <<'PY' >/dev/null 2>&1 && { printf '%s' "$gw"; return 0; }
-import ipaddress,sys
-raise SystemExit(0 if ipaddress.ip_address(sys.argv[2]) in ipaddress.ip_interface(sys.argv[1]).network else 1)
-PY
-  done
-
-  # Last resort for typical LANs: try the first host, but only if reachable.
-  guessed="$(python3 - "$ipcidr" <<'PY'
-import ipaddress,sys
-try:
-    print(next(ipaddress.ip_interface(sys.argv[1]).network.hosts()))
-except Exception:
-    pass
-PY
-)"
-  if [ -n "$guessed" ] && ping -I "$iface" -c 1 -W 1 "$guessed" >/dev/null 2>&1; then
-    printf '%s' "$guessed"
-    return 0
-  fi
-  return 1
-}
-
-usb_devnum_for_iface() {
-  local iface="$1" p
-  p="$(readlink -f "/sys/class/net/$iface/device" 2>/dev/null || true)"
-  [ -n "$p" ] || return 1
-  while [ "$p" != "/" ] && [ -n "$p" ]; do
-    if [ -f "$p/idVendor" ] && [ -f "$p/idProduct" ] && [ -f "$p/devnum" ]; then
-      if [ "$(cat "$p/idVendor" 2>/dev/null)" = "0e8d" ]; then
-        case "$(cat "$p/idProduct" 2>/dev/null)" in
-          7126|7127) cat "$p/devnum" 2>/dev/null; return 0 ;;
-        esac
-      fi
-    fi
-    p="$(dirname "$p")"
-  done
-  return 1
-}
-
-watchdog_count() {
-  local iface="$1"
-  journalctl -k -b --no-pager 2>/dev/null | \
-    grep -Ec "rndis_host .* ${iface}: NETDEV WATCHDOG:|rndis_host .*${iface}: NETDEV WATCHDOG:" || true
-}
-
-ensure_wwan_route() {
-  local iface gw method metric ip4 saved_ip prefix mtu saved_devnum current_devnum route_line
-  iface="$(cfg_get "$ROUTE_CACHE" INTERFACE)"
-  gw="$(cfg_get "$ROUTE_CACHE" GATEWAY)"
-  method="$(cfg_get "$ROUTE_CACHE" IP_METHOD)"
-  metric="$(cfg_get "$ROUTE_CACHE" WWAN_METRIC)"
-  saved_ip="$(cfg_get "$ROUTE_CACHE" IP)"
-  prefix="$(cfg_get "$ROUTE_CACHE" PREFIX)"
-  mtu="$(cfg_get "$ROUTE_CACHE" MTU)"
-  [ -n "$metric" ] || metric="$DEFAULT_WWAN_METRIC"
-  [ -n "$iface" ] || return 0
-  ip link show "$iface" >/dev/null 2>&1 || return 0
-
-  case "$method" in
-    ppp)
-      if ! ip -4 route show default dev "$iface" 2>/dev/null | grep -q '^default '; then
-        ip route add default dev "$iface" metric "$metric" 2>/dev/null && log "WWAN fallback restored: $iface metric $metric"
-      fi
-      ;;
-    *)
-      ip link set "$iface" up 2>/dev/null || true
-
-      saved_devnum="$(cfg_get "$ROUTE_CACHE" USB_DEVNUM)"
-      current_devnum="$(usb_devnum_for_iface "$iface" 2>/dev/null || true)"
-      if [ -n "$saved_devnum" ] && [ -n "$current_devnum" ] && [ "$saved_devnum" != "$current_devnum" ]; then
-        # A new FM350 USB instance must acquire fresh PDP/RNDIS state. Restoring
-        # the previous address is harmful and produced NETDEV WATCHDOG stalls.
-        ip addr flush dev "$iface" scope global 2>/dev/null || true
-        ip route del default dev "$iface" 2>/dev/null || true
-        return 0
-      fi
-
-      ip4="$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk 'NR==1{print $4}')"
-
-      # Restore cached runtime values only for the SAME FM350 USB instance.
-      if [ -z "$ip4" ] && [ -n "$saved_ip" ] && [ -n "$prefix" ]; then
-        ip addr flush dev "$iface" scope global 2>/dev/null || true
-        if ip addr add "$saved_ip/$prefix" dev "$iface" 2>/dev/null; then
-          [ -n "$mtu" ] && ip link set dev "$iface" mtu "$mtu" 2>/dev/null || true
-          ip4="$saved_ip/$prefix"
-          log "WWAN runtime IPv4 restored on $iface: $ip4"
-        fi
-      fi
-
-      [ -n "$ip4" ] || return 0
-      [ -n "$gw" ] || return 0
-      route_line="$(ip -4 route show default dev "$iface" 2>/dev/null | grep -F "via $gw" | head -1 || true)"
-      if ! printf '%s\n' "$route_line" | grep -Eq "metric[[:space:]]+${metric}([[:space:]]|$)"; then
-        ip route del default via "$gw" dev "$iface" 2>/dev/null || true
-        if ip route add default via "$gw" dev "$iface" metric "$metric" 2>/dev/null; then
-          log "WWAN fallback restored/corrected: via $gw dev $iface metric $metric"
-        fi
-      fi
-      ;;
-  esac
-}
-
-check_wwan_liveness() {
-  local iface ip4 now connected_at service_state service_pid service_name
-  iface="$(cfg_get "$ROUTE_CACHE" INTERFACE)"
-  [ -n "$iface" ] || { noip_count=0; return 0; }
-
-  # If the cached interface temporarily disappears, udev recovery may already be
-  # handling it. Count it the same way, but never react to a single observation.
-  if ! ip link show "$iface" >/dev/null 2>&1; then
-    noip_count=$((noip_count + 1))
-  else
-    ip4="$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk 'NR==1{print $4}')"
-    if [ -n "$ip4" ]; then
-      noip_count=0
-      return 0
-    fi
-    noip_count=$((noip_count + 1))
-  fi
-
-  [ "$noip_count" -lt "$NOIP_ATTEMPTS" ] && return 0
-
-  now="$(date +%s)"
-
-  connected_at="$(cfg_get "$ROUTE_CACHE" CONNECTED_AT)"
-  if [ -n "$connected_at" ] && [[ "$connected_at" =~ ^[0-9]+$ ]] &&      [ $((now - connected_at)) -lt "$CONNECT_GRACE" ]; then
-    [ $((noip_count % 10)) -eq 0 ] &&       log "WWAN $iface is inside the ${CONNECT_GRACE}s post-connect grace period; runtime repair is preferred over reconnect."
-    return 0
-  fi
-
-  if [ $((now - last_recovery)) -lt "$RECOVERY_COOLDOWN" ]; then
-    return 0
-  fi
-
-  # Never compete with the boot unlock, normal connection, or udev recovery.
-  # In particular, modem-unlock.service can be ActiveState=activating while it
-  # waits state-based for the FM350 USB/RNDIS/ttyUSB components to enumerate.
-  for service_name in modem-unlock.service modem-connect.service modem-connect-recover.service; do
-    service_state="$(systemctl show "$service_name" -p ActiveState --value 2>/dev/null || true)"
-    service_pid="$(systemctl show "$service_name" -p MainPID --value 2>/dev/null || true)"
-    if [ "$service_state" = "activating" ] || [ "$service_state" = "deactivating" ] ||        { [ -n "$service_pid" ] && [ "$service_pid" != "0" ]; }; then
-      [ $((noip_count % 10)) -eq 0 ] &&         log "WWAN $iface still has no IPv4, but $service_name is active/transitioning; failover will not request a competing reconnect."
-      return 0
-    fi
-  done
-
-  log "WWAN $iface has had no IPv4 address for $noip_count consecutive checks; requesting one controlled modem reconnect."
-  last_recovery="$now"
-  noip_count=0
-
-  # Generic path: restart the completed/idle normal modem connection service.
-  # This remains modem-agnostic; the connection script selects MM/QMI/MBIM/
-  # RNDIS/PPP as appropriate. --no-block avoids a circular wait.
-  systemctl restart --no-block modem-connect.service >/dev/null 2>&1 || true
-}
-
-check_mm_always_connected() {
-  local backend modem_id info state id binfo connected bearer_found now service_name service_state service_pid
-  [ "$MM_ALWAYS_CONNECTED" = "1" ] || return 0
-
-  backend="$(cfg_get "$ROUTE_CACHE" BACKEND)"
-  [ "$backend" = mm ] || { mm_state_fail_count=0; return 0; }
-
-  modem_id="$(cfg_get "$ROUTE_CACHE" MODEM_ID)"
-  [ -n "$modem_id" ] || { mm_state_fail_count=0; return 0; }
-  systemctl is-active --quiet ModemManager.service || return 0
-
-  info="$(mmcli -m "$modem_id" -K 2>/dev/null || true)"
-  state="$(printf '%s\n' "$info" | sed -n 's/^[^:]*modem\.generic\.state[[:space:]]*:[[:space:]]*//p' | head -1)"
-
-  bearer_found=0
-  while read -r id; do
-    [ -n "$id" ] || continue
-    binfo="$(mmcli -b "$id" -K 2>/dev/null || true)"
-    connected="$(printf '%s\n' "$binfo" | sed -n 's/^[^:]*bearer\.status\.connected[[:space:]]*:[[:space:]]*//p' | head -1)"
-    if [ "$connected" = yes ]; then
-      bearer_found=1
-      break
-    fi
-  done < <(printf '%s\n' "$info" | sed -n 's#^[^:]*bearers\.value\[[0-9]\+\][[:space:]]*:[[:space:]]*.*/Bearer/\([0-9]\+\).*#\1#p')
-
-  if [ "$state" = connected ] && [ "$bearer_found" -eq 1 ]; then
-    mm_state_fail_count=0
-    return 0
-  fi
-
-  mm_state_fail_count=$((mm_state_fail_count + 1))
-  [ "$mm_state_fail_count" -ge "$MM_STATE_FAILURES" ] || return 0
-
-  # Do not race a genuinely running/transitioning connect, unlock or recovery
-  # transaction. Type=oneshot units use RemainAfterExit=yes, so active/exited
-  # with MainPID=0 is completed/idle and must NOT suppress always-connected.
-  for service_name in modem-connect.service modem-unlock.service modem-connect-recover.service; do
-    service_state="$(systemctl show "$service_name" -p ActiveState --value 2>/dev/null || true)"
-    service_pid="$(systemctl show "$service_name" -p MainPID --value 2>/dev/null || true)"
-    if [ "$service_state" = "activating" ] || [ "$service_state" = "deactivating" ] || \
-       { [ -n "$service_pid" ] && [ "$service_pid" != "0" ]; }; then
-      return 0
-    fi
-  done
-
-  now="$(date +%s)"
-  [ $((now - last_recovery)) -ge "$RECOVERY_COOLDOWN" ] || return 0
-
-  log "Always-connected policy: modem/$modem_id state=${state:-unknown}, connected-bearer=$bearer_found; requesting generic modem reconnect."
-  mm_state_fail_count=0
-  last_recovery="$now"
-  systemctl restart --no-block modem-connect.service >/dev/null 2>&1 || true
-}
-
-check_wwan_data_path() {
-  local iface ip4 now service_name state pid baseline current
-  local backend transport driver model probe_output
-
-  iface="$(cfg_get "$ROUTE_CACHE" INTERFACE)"
-  [ -n "$iface" ] || { health_fail_count=0; return 0; }
-  ip link show "$iface" >/dev/null 2>&1 || return 0
-
-  ip4="$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk 'NR==1{print $4}')"
-  [ -n "$ip4" ] || return 0
-
-  now="$(date +%s)"
-  [ $((now - last_health_check)) -ge "$DATA_HEALTH_INTERVAL" ] || return 0
-  last_health_check="$now"
-
-  # Never compete with unlock/connect/recovery.
-  for service_name in modem-unlock.service modem-connect.service modem-connect-recover.service; do
-    state="$(systemctl show "$service_name" -p ActiveState --value 2>/dev/null || true)"
-    pid="$(systemctl show "$service_name" -p MainPID --value 2>/dev/null || true)"
-    if [ "$state" = "activating" ] || [ "$state" = "deactivating" ] || \
-       { [ -n "$pid" ] && [ "$pid" != "0" ]; }; then
-      return 0
-    fi
-  done
-
-  # Cellular links may drop isolated ICMP packets under load. A bearer is
-  # considered alive if ANY bound probe succeeds; do not reconnect for ordinary
-  # congestion or moderate packet loss.
-  probe_output="$(/bin/ping -I "$iface" -c "$DATA_HEALTH_PINGS" -W 2 "$DATA_HEALTH_TARGET" 2>/dev/null || true)"
-  if printf '%s\n' "$probe_output" | grep -q 'bytes from '; then
-    health_fail_count=0
-    return 0
-  fi
-
-  health_fail_count=$((health_fail_count + 1))
-  backend="$(cfg_get "$ROUTE_CACHE" BACKEND)"
-  transport="$(cfg_get "$ROUTE_CACHE" TRANSPORT)"
-  driver="$(cfg_get "$ROUTE_CACHE" DRIVER)"
-  model="$(cfg_get "$ROUTE_CACHE" MODEL)"
-
-  # NETDEV WATCHDOG is specific to the observed FM350 USB/RNDIS failure mode.
-  if [ "$backend" = "at-rndis" ] && [ "$transport" = "usb" ]; then
-    baseline="$(cfg_get "$ROUTE_CACHE" WATCHDOG_BASELINE)"
-    current="$(watchdog_count "$iface")"
-    [ -n "$baseline" ] || baseline=0
-    if [ "$current" -gt "$baseline" ]; then
-      log "New rndis_host NETDEV WATCHDOG detected on $iface ($baseline -> $current); requesting staged FM350 USB/RNDIS recovery."
-      health_fail_count="$DATA_HEALTH_FAILURES"
-    fi
-  fi
-
-  [ "$health_fail_count" -ge "$DATA_HEALTH_FAILURES" ] || return 0
-  [ $((now - last_recovery)) -ge "$RECOVERY_COOLDOWN" ] || return 0
-
-  last_recovery="$now"
-  health_fail_count=0
-
-  if [ "$backend" = "at-rndis" ] && [ "$transport" = "usb" ]; then
-    log "WWAN $iface has no real data path after repeated probes; starting staged FM350 USB/RNDIS recovery."
-    if systemctl cat modem-connect-recover.service >/dev/null 2>&1; then
-      systemctl start --no-block modem-connect-recover.service >/dev/null 2>&1 || true
-    else
-      log "FM350 recovery unit is unavailable; falling back to the generic modem reconnect service."
-      systemctl restart --no-block modem-connect.service >/dev/null 2>&1 || true
-    fi
-  else
-    # Generic recovery for PCIe/MHI/ModemManager, MBIM, QMI, DHCP and PPP.
-    # modem-connect.sh already performs the correct bearer cleanup and reconnect
-    # for the selected backend. No USB/RNDIS unbind is attempted here.
-    log "WWAN $iface (${model:-unknown}, transport ${transport:-unknown}, backend ${backend:-unknown}, driver ${driver:-unknown}) has no real data path after repeated probes; requesting generic modem reconnect."
-    systemctl restart --no-block modem-connect.service >/dev/null 2>&1 || true
-  fi
-}
-
-reconcile_wired() {
-  local iface carrier ip4 gw
-  iface="$(detect_wired 2>/dev/null || true)"
-  [ -n "$iface" ] || return 0
-  carrier="$(cat "/sys/class/net/$iface/carrier" 2>/dev/null || true)"
-  ip4="$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk 'NR==1{print $4}')"
-
-  if [ "$carrier" != 1 ] || [ -z "$ip4" ]; then
-    # Do not leave a stale low-metric route pointing at an unplugged WAN.
-    if ip -4 route show default dev "$iface" 2>/dev/null | grep -q '^default '; then
-      ip route del default dev "$iface" 2>/dev/null || true
-      log "Wired WAN unavailable: removed stale default route on $iface; WWAN may take over."
-    fi
-    return 0
-  fi
-
-  # Cable + IPv4: wired must be primary.
-  if ! ip -4 route show default dev "$iface" 2>/dev/null | grep -q '^default '; then
-    gw="$(discover_wired_gateway "$iface" 2>/dev/null || true)"
-    if [ -n "$gw" ]; then
-      ip route add default via "$gw" dev "$iface" metric "$WIRED_METRIC" 2>/dev/null && \
-        log "Wired WAN restored: via $gw dev $iface metric $WIRED_METRIC"
-    fi
-  else
-    # Normalize only the route on the wired device; never touch WWAN.
-    gw="$(ip -4 route show default dev "$iface" | awk 'NR==1{for(i=1;i<=NF;i++)if($i=="via"){print $(i+1);exit}}')"
-    if [ -n "$gw" ] && ! ip -4 route show default dev "$iface" | grep -q "metric $WIRED_METRIC\\b"; then
-      ip route del default dev "$iface" 2>/dev/null || true
-      ip route add default via "$gw" dev "$iface" metric "$WIRED_METRIC" 2>/dev/null || true
-    fi
-  fi
-}
-
-last=""
-while :; do
-  ensure_wwan_route
-  check_wwan_liveness
-  check_mm_always_connected
-  check_wwan_data_path
-  reconcile_wired
-
-  # Log only state changes, not every polling cycle.
-  now="$(ip -4 route show default 2>/dev/null | tr '\n' ';')"
-  if [ "$now" != "$last" ]; then
-    log "Default routes: ${now:-none}"
-    last="$now"
-  fi
-  sleep "$POLL_SEC"
-done
-FAILOVER_EOF
-  chmod 0755 "$FAILOVER_SCRIPT_PATH"
-
-  cat > "$FAILOVER_SERVICE_PATH" <<EOF
-[Unit]
-Description=Keep wired WAN primary and modem WAN as automatic fallback
-After=vyos-router.service network.target
-Requires=vyos-router.service
-StartLimitIntervalSec=0
-
-[Service]
-Type=simple
-ExecStart=$FAILOVER_SCRIPT_PATH
-Restart=always
-RestartSec=2
-Environment=CONFIG_FILE=$CONFIG_FILE
-Environment=ROUTE_CACHE=$ROUTE_CACHE
-Environment=WIRED_DEFAULT_METRIC=$WIRED_DEFAULT_METRIC
-Environment=WWAN_ROUTE_METRIC=$WWAN_ROUTE_METRIC
-Environment=FAILOVER_POLL_SEC=$FAILOVER_POLL_SEC
-Environment=WWAN_NOIP_ATTEMPTS=$WWAN_NOIP_ATTEMPTS
-Environment=WWAN_RECOVERY_COOLDOWN=$WWAN_RECOVERY_COOLDOWN
-Environment=WWAN_CONNECT_GRACE=$WWAN_CONNECT_GRACE
-Environment=WWAN_DATA_HEALTH_INTERVAL=$WWAN_DATA_HEALTH_INTERVAL
-Environment=WWAN_DATA_HEALTH_FAILURES=$WWAN_DATA_HEALTH_FAILURES
-Environment=WWAN_DATA_HEALTH_TARGET=$WWAN_DATA_HEALTH_TARGET
-Environment=WWAN_DATA_HEALTH_PINGS=$WWAN_DATA_HEALTH_PINGS
-Environment=MM_ALWAYS_CONNECTED=$MM_ALWAYS_CONNECTED
-Environment=MM_STATE_FAILURES=$MM_STATE_FAILURES
-
-[Install]
-WantedBy=multi-user.target
-EOF
-  chmod 0644 "$FAILOVER_SERVICE_PATH"
-  systemctl daemon-reload
-  systemctl enable modem-wan-failover.service >/dev/null 2>&1 || true
-
-  # IMPORTANT: do not synchronously restart this service here. modem-connect can
-  # itself be running as a systemd oneshot; waiting for another unit that used to
-  # depend on modem-connect caused a circular wait/hang. Start/restart detached.
-  if systemctl is-active --quiet modem-wan-failover.service; then
-    systemctl restart --no-block modem-wan-failover.service >/dev/null 2>&1 || true
-  else
-    systemctl start --no-block modem-wan-failover.service >/dev/null 2>&1 || true
-  fi
 }
 
 repair_dynamic_wwan_runtime() {
@@ -4095,6 +3767,6 @@ if [ "$WWAN_CONNECTED" -eq 1 ]; then
 else
   log "PASS: Ethernet=$WIRED_WAN active; WWAN is not connected, but configuration and autostart were installed."
 fi
-log "Autostart enabled: modem-unlock.service -> modem-connect.service; RM505Q PCIe/MHI requires connected state, a usable bearer and a live bound WWAN data path; ghost bearers are torn down and immediately rebuilt in the same service run; stuck connecting/NotOpened states escalate through bearer cleanup, MM restart and controlled MHI recovery; FM350 USB/RNDIS keeps staged recovery."
+log "Autostart enabled: modem-connect.service (separate unlock dependency only when required); RM505Q PCIe/MHI requires connected state, a usable bearer and a live bound WWAN data path; ghost bearers are torn down and immediately rebuilt in the same service run; stuck connecting/NotOpened states escalate through bearer cleanup, MM restart and controlled MHI recovery; FM350 USB/RNDIS keeps staged recovery."
 ip -4 route show default
 builtin exit 0
