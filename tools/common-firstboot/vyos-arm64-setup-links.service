@@ -5,6 +5,7 @@ Before=vyos-arm64-dhcp-wan-firstboot.service
 
 [Service]
 Type=oneshot
+TimeoutStartSec=150
 ExecStart=/usr/local/sbin/vyos-arm64-setup-links.sh
 
 [Install]

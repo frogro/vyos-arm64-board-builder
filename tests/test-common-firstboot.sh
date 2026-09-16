@@ -166,3 +166,17 @@ test -x "$ROOTFS/usr/local/sbin/vyos-arm64-setup-links.sh"
 ! grep -q ConditionPathExists "$ROOTFS/etc/systemd/system/vyos-arm64-setup-links.service"
 grep -Fq 'ConditionPathExists=!/config/.dhcp-wan-ssh-firstboot-done' "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot.service"
 grep -Fq 'SETUP="$STAGE/dhcp-wan-ssh-setup.sh"' "$ROOTFS/usr/local/sbin/vyos-arm64-dhcp-wan-firstboot-wrapper.sh"
+
+# A fresh image has no login user until the initial VyOS commit completes.
+mv "$LINK_TEST/bin/getent" "$LINK_TEST/bin/getent-ready"
+cat > "$LINK_TEST/bin/getent" <<EOF_DELAY
+#!/bin/bash
+if [[ ! -e "$LINK_TEST/user-ready" ]]; then
+    touch "$LINK_TEST/user-ready"
+    exit 2
+fi
+exec "$LINK_TEST/bin/getent-ready" "\$@"
+EOF_DELAY
+chmod +x "$LINK_TEST/bin/getent"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+test -e "$LINK_TEST/user-ready"
