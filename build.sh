@@ -520,6 +520,7 @@ main() {
         --boot-critical-symbols "${boot_symbols}"
         --boot-profile "${ROOT_DIR}/profiles/boot-media.conf"
         --policy "${ROOT_DIR}/profiles/kernel-policy.conf"
+        --feature-required-config "${ROOT_DIR}/profiles/base-cpufreq.config"
         --boot-media "${boot_media}"
         --output-dir "${config_out}"
     )
@@ -591,6 +592,13 @@ main() {
     cp \
         "${extended_config_out}/generated-final.config" \
         "${config_out}/generated-final.config"
+
+    # Base A requirements apply even when all optional profiles are disabled.
+    python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+        --kernel-config "${config_out}/generated-final.config" \
+        --requirements "${ROOT_DIR}/profiles/base-cpufreq-ready.config" \
+        --output-dir "${config_out}/base-cpufreq-ready" \
+        --report-name base-cpufreq-ready
 
     local tailscale_ready_out="${config_out}/tailscale-ready"
 
