@@ -1,4 +1,5 @@
 name: Build VyOS ARM64 board candidate
+run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }}"
 
 on:
   # Creating a deliberately named test branch is the non-interactive CI entry

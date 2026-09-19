@@ -11,6 +11,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          for board in radxa-e52c rock-5b; do
+          for board in radxa-e52c rock-5b raspberry-pi-5; do
             gh api "repos/VyARM-Community/$board" --jq '.permissions.push' | grep -qx true
           done

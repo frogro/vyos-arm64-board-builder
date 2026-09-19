@@ -37,3 +37,31 @@ permission without printing or transferring the credential.
 
 Public board descriptions describe VyOS and additional networking support;
 profile identifiers remain in filenames and machine-readable compatibility data.
+
+## Raspberry Pi 5
+
+`VyARM-Community/raspberry-pi-5` publishes network installation images, using the
+previously released `raspberrypi-native` / `firmware-files` boot chain. It does
+not receive an update feed or ISO publication until native FAT kernel/initramfs/
+DTB synchronization is implemented and hardware-tested. This is distinct from
+whether an installation image can be built successfully.
+
+## Official Rolling watcher
+
+`watch-upstream-rolling.yml` runs hourly at minute 23 on the default branch.
+It checks official, non-draft, non-prerelease dated Rolling releases, starting
+after baseline `2026.09.17-0028-rolling` (the reference already built manually).
+For every new release it dispatches the network image for E52C, ROCK 5B and Pi 5
+on `main-test`, with a fresh base and pinned Armbian metadata. It records each
+successful dispatch in `.github/rolling-build-state.json` on `main` and does
+not dispatch that board/release again. A shared concurrency group serializes
+watcher runs. Existing matching run titles help recover interrupted dispatches.
+An accepted build that subsequently fails is not retried indefinitely: inspect
+its failure before rerunning. This workflow does not promise exact upstream
+package equivalence. Source selection uses the build commit at the release tag's
+timestamp; rolling package timing differences remain documented.
+
+A manual dry run checks selection without dispatching or modifying state.
+The watcher uses the repository-scoped GitHub token with contents/actions write;
+board publication continues to use the existing release credential. No personal
+credential is copied into the watcher.

@@ -5,6 +5,32 @@ BUILD_ROOT="${2:?build directory required}"
 source "$BUILD_ROOT/release.env"
 source "$BUILD_ROOT/selection/feature-profiles.env"
 REPO="$(python3 tools/board-update-channel.py "$BOARD" "$BUILD_PROFILE")"
+if [[ "$BOARD" == raspberry-pi-5 && "$BUILD_PROFILE" == network ]]; then
+    REPO=VyARM-Community/raspberry-pi-5
+    # Native FAT kernel synchronization is not ready: publish installation only.
+    (cd "$BUILD_ROOT" && sha256sum -c "$RELEASE_BASENAME.img.xz.sha256")
+    python3 - "$BUILD_ROOT/board-manifest.json" <<'PYMANIFEST'
+import json, sys
+m = json.load(open(sys.argv[1]))
+assert (m['board'], m['profile'], m['architecture'], m['update_provider']) == ('raspberry-pi-5', 'network', 'arm64', 'firmware-files')
+PYMANIFEST
+    cat > "$BUILD_ROOT/BOARD_RELEASE_NOTES.md" <<EOFPI
+VyOS ${VYOS_VERSION} for Raspberry Pi 5, with additional network, Wi-Fi and cellular modem support.
+
+Initial installation: \`${RELEASE_BASENAME}.img.xz\`. Verify the adjacent SHA-256 checksum before flashing.
+
+Boot path: native Raspberry Pi EEPROM/firmware, FAT boot partition, matching kernel/initramfs and BCM2712 Device Tree. This exact image requires hardware testing. In-place ISO updates are not yet supported; no update feed is published for this board.
+
+Published Rolling reference: ${ROLLING_REFERENCE:-not specified}. Package versions may differ due to the later build against the rolling repository.
+EOFPI
+    gh release create "$RELEASE_TAG" --repo "$REPO" --draft \
+        --title "VyOS ${VYOS_VERSION} for Raspberry Pi 5" \
+        --notes-file "$BUILD_ROOT/BOARD_RELEASE_NOTES.md" \
+        "$BUILD_ROOT/$RELEASE_BASENAME.img.xz" "$BUILD_ROOT/$RELEASE_BASENAME.img.xz.sha256" \
+        "$BUILD_ROOT/board-manifest.json"
+    gh release edit "$RELEASE_TAG" --repo "$REPO" --draft=false --latest
+    exit 0
+fi
 [[ -n "$REPO" ]] || exit 0
 ISO="$BUILD_ROOT/$RELEASE_BASENAME.iso"
 python3 tools/board-update-channel.py "$BOARD" "$BUILD_PROFILE" \
