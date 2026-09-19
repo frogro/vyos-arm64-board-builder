@@ -1,626 +1,84 @@
-name: Build VyOS ARM64 board candidate
-run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }}"
-
+name: Recover validated Pi 5 release artifacts
+run-name: Recover Pi 5 artifacts from run 35464528782 (no rebuild)
 on:
-  # Creating a deliberately named test branch is the non-interactive CI entry
-  # point. Ordinary pushes to development branches never publish images.
-  push:
-    branches:
-      - "pi5-test-*"
-
   workflow_dispatch:
-    inputs:
-      board:
-        description: "Armbian board identifier"
-        required: true
-        default: "rock-5b"
-        type: string
-
-      hardware_reference:
-        description: "Developer override (normal builds use auto)"
-        required: true
-        default: "auto"
-        type: string
-
-      boot_branch:
-        description: "Developer U-Boot branch override (normal builds use auto)"
-        required: true
-        default: "auto"
-        type: string
-
-      expected_update_provider:
-        description: "Optional update compatibility assertion (e.g. uboot-extlinux)"
-        required: false
-        default: ""
-        type: string
-
-      extended_network:
-        description: "Include curated additional Wi-Fi/Ethernet/WWAN support"
-        required: true
-        default: false
-        type: boolean
-
-      tailscale_subnet_router:
-        description: "Prepare persistent local Tailscale subnet-router support"
-        required: true
-        default: false
-        type: boolean
-
-      kvm_over_ip:
-        description: "Prepare V4L2/UVC KVM capture and board-scoped HID support"
-        required: true
-        default: false
-        type: boolean
-
-      vyos_ref:
-        description: "VyOS build commit matching the selected raw-image kernel ABI"
-        required: false
-        default: "rolling"
-        type: string
-
-      rolling_reference:
-        description: "Published Rolling reference for release notes (not an exact package lock)"
-        required: false
-        default: ""
-        type: string
-
-      armbian_ref:
-        description: "Exact Armbian build branch, tag or commit"
-        required: true
-        default: "main"
-        type: string
-
-      raw_run_id:
-        description: "Source-matching VyOS raw run (blank = reuse or build automatically)"
-        required: false
-        default: ""
-        type: string
-
-      force_fresh_base:
-        description: "Rebuild matching Rolling base for a new image version"
-        required: false
-        default: false
-        type: boolean
-
-      publish_release:
-        description: "Publish successful build as GitHub Latest Release"
-        required: true
-        default: true
-        type: boolean
-
+permissions:
+  contents: read
+  actions: read
 jobs:
-  rolling-base:
+  recover:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: read
-    outputs:
-      vyos_commit: ${{ steps.resolve.outputs.vyos_commit }}
-      raw_run_id: ${{ steps.resolve.outputs.raw_run_id }}
     steps:
       - uses: actions/checkout@v4
-      - name: Test Rolling base selection
-        run: python3 tests/test-rolling-base.py
-      - name: Resolve Rolling snapshot and matching base
-        id: resolve
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
-          RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
-          FORCE_FRESH_BASE: ${{ inputs.force_fresh_base || false }}
-        run: python3 tools/resolve-rolling-base.py
-
-  fresh-base:
-    needs: rolling-base
-    if: needs.rolling-base.outputs.raw_run_id == ''
-    permissions:
-      contents: read
-      actions: read
-    uses: ./.github/workflows/test-vyos-arm64-raw.yml
-    with:
-      vyos_ref: ${{ needs.rolling-base.outputs.vyos_commit }}
-
-  board-image:
-    needs: [rolling-base, fresh-base]
-    if: >-
-      ${{ always() && !cancelled() && needs.rolling-base.result == 'success' &&
-          (needs.fresh-base.result == 'success' || needs.fresh-base.result == 'skipped') }}
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 240
-
-    permissions:
-      actions: read
-      contents: write
-
-    env:
-      BOARD: ${{ inputs.board || 'raspberry-pi-5' }}
-      HW_REFERENCE: ${{ inputs.hardware_reference || 'auto' }}
-      EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
-      TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
-      KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
-      BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
-      EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
-      ROLLING_REFERENCE: ${{ inputs.rolling_reference || '' }}
-      VYOS_BRANCH: rolling
-      VYOS_REF: ${{ needs.rolling-base.outputs.vyos_commit }}
-      ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}
-      RAW_RUN_ID: ${{ needs.rolling-base.outputs.raw_run_id || needs.fresh-base.outputs.raw_run_id }}
-      RAW_WORKFLOW: test-vyos-arm64-raw.yml
-      JOBS: 4
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Test DT boot-driver discovery
-        run: |
-          python3 tests/test-hdmi-audio-dependency.py
-          python3 tests/test-board-identity.py
-          python3 tests/test-dtb-boot-roots.py
-          python3 tests/test-early-of-declarations.py
-          python3 tests/test-config-validation.py
-          python3 tests/test-model-requirements.py
-          python3 tests/test-grub-console-default.py
-          python3 tests/test-grub-board-dtb-persistence.py
-          python3 tests/test-system-image-dtb-update.py
-          python3 tests/test-boot-branch-policy.py
-          python3 tests/test-syslog-start.py
-          python3 tests/test-native-boot.py
-          python3 tests/test-pi-native-boot.py
-          bash tests/test-common-firstboot.sh
-          bash tests/test-grow-persistence-resolver.sh
-          python3 tests/test-tailscale-ready.py
-          python3 tests/test-tailscale-cli.py
-          python3 tests/test-tailscale-bundle.py
-          python3 tests/test-extended-network-profile.py
-          python3 tests/test-board-update-channel.py
-          python3 tests/test-release-identity.py
-          python3 tests/test-feature-profile.py
-          python3 tests/test-modem-lifecycle.py
-          python3 tests/test-native-wwan.py
-          python3 tests/test-modem-image.py
-          python3 tests/test-setup-helpers.py
-          python3 tests/test-kvm-cli.py
-          python3 tests/test-kvm-profile.py
-          python3 tests/test-kvm-video-supervisor.py
-          python3 tests/test-kvm-local-input.py
-          python3 tests/test-kvm-input-config.py
-          python3 tests/test-kvm-mediamtx-clock.py
-          python3 tests/test-kvm-capture.py
-          python3 tests/test-vyos-1x-profile.py
-          python3 tests/test-kvm-hardware-provider.py
-          python3 tests/test-arm-cpu-opmode.py
-          bash tests/test-extended-network-selection.sh
-          bash tests/test-tailscale-selection.sh
-          bash tests/test-kvm-selection.sh
-          bash tests/test-resolve-raw-run.sh
-          bash tests/test-extended-network-resolver.sh
-          bash tests/test-network-firmware.sh
-          bash tests/test-armbian-vendor-vyos-bridge.sh
-          bash tests/test-vyos-source-ref.sh
-
-      - name: Show initial disk space
-        run: df -h
-
-      - name: Free runner disk space
-        shell: bash
-        run: |
-          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
-          sudo rm -rf /usr/share/dotnet 2>/dev/null || true
-          sudo rm -rf /opt/ghc 2>/dev/null || true
-          sudo rm -rf /opt/hostedtoolcache 2>/dev/null || true
-          df -h
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-
-          sudo apt-get install -y \
-            bc \
-            bison \
-            flex \
-            build-essential \
-            binutils \
-            libssl-dev \
-            libelf-dev \
-            libncurses-dev \
-            libxtables-dev \
-            iptables \
-            pkg-config \
-            device-tree-compiler \
-            python3 \
-            rsync \
-            kmod \
-            curl \
-            gnupg2 \
-            patch \
-            xz-utils \
-            zstd \
-            squashfs-tools \
-            xorriso \
-            dosfstools \
-            e2fsprogs \
-            gdisk \
-            parted \
-            dpkg-dev \
-            debootstrap \
-            initramfs-tools-core \
-            coreutils \
-            findutils
-
-          uname -a
-          dpkg --print-architecture
-          df -h
-
-      - name: Test Raspberry Pi firmware provider
-        run: bash tests/test-raspberrypi-provider.sh
-
-      - name: Build board-specific official VyOS kernel
-        id: kernel
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          chmod +x build.sh
-          ./build.sh
-
-          # The builder resolved these values from the real VyOS kernel.
-          # Export them for the provider and image-assembly stages.
-          source "work/build/${BOARD}/selection/selected-reference.env"
-          for name in \
-            ARMBIAN_BOARD \
-            BOARD_MODEL \
-            BOARD_NAME_OVERRIDE \
-            BOARD_SOC_OVERRIDE \
-            BOOT_FDT_FILE_OVERRIDE \
-            FIRMWARE_PROVIDER_OVERRIDE \
-            HW_BRANCH \
-            HW_SELECTION_MODE \
-            VYOS_KERNEL_VERSION \
-            VYOS_KERNEL_MAJOR_MINOR \
-            REFERENCE_KERNEL_MAJOR_MINOR
-          do
-            printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
-          done
-          echo "hw_branch=${HW_BRANCH}" >> "$GITHUB_OUTPUT"
-
-          echo
-          echo "===== KERNEL RELEASE ====="
-          cat "work/build/${BOARD}/artifacts/kernel.release"
-
-          echo
-          echo "===== FINAL KERNEL CONFIG ====="
-          CONFIG="work/build/${BOARD}/artifacts/kernel.config"
-          test -s "${CONFIG}"
-
-          printf 'Config lines: '
-          wc -l < "${CONFIG}"
-
-          sha256sum "${CONFIG}"
-
-          grep -E \
-            '^(CONFIG_MODULES|CONFIG_MODVERSIONS|CONFIG_MODULE_SIG|CONFIG_MODULE_COMPRESS)=' \
-            "${CONFIG}" \
-            || true
-
-          df -h
-
-      - name: Build profile-scoped ustreamer
-        shell: bash
-        run: |
-          set -euo pipefail
-          source "work/build/${BOARD}/selection/feature-profiles.env"
-
-          if [[ "$KVM_OVER_IP" == "yes" ]]; then
-            sudo --preserve-env=JOBS \
-              ./tools/build-ustreamer.sh "${BOARD}"
-          else
-            echo "KVM-over-IP profile disabled; skipping ustreamer build"
-          fi
-
-      - name: Build profile-scoped KVM media stack
-        shell: bash
-        run: |
-          set -euo pipefail
-          source "work/build/${BOARD}/selection/feature-profiles.env"
-          source "work/build/${BOARD}/selection/kvm-hardware.env"
-
-          if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
-            sudo --preserve-env=JOBS ./tools/build-kvm-media-stack.sh "${BOARD}"
-          else
-            echo "RK3588 Profile-D media stack not selected; skipping"
-          fi
-
-      - name: Prepare firmware provider
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          chmod +x \
-            tools/prepare-firmware.sh \
-            tools/resolve-firmware-provider.sh \
-            tools/select-uboot-branch.sh \
-            tools/resolve-bootchain.sh
-
-          ./tools/prepare-firmware.sh \
-            "${BOARD}" \
-            "${HW_BRANCH}" \
-            "${BOOT_BRANCH}" \
-            auto
-
-          echo
-          echo "===== BOOT / FIRMWARE MANIFEST ====="
-          cat "work/build/${BOARD}/boot/boot-manifest.env"
-
-          echo
-          echo "===== PROVIDER SUMMARY ====="
-
-          # shellcheck disable=SC1090
-          source "work/build/${BOARD}/boot/boot-manifest.env"
-
-          if [[ "$EXPECTED_UPDATE_PROVIDER" == uboot-extlinux ]]; then
-            source tools/firmware-providers/armbian-uboot/native-env.sh
-            native_extlinux_enabled || {
-              echo "::error::Selected firmware does not support the required uboot-extlinux update path"
-              exit 1
-            }
-          fi
-
-          echo "Provider:         ${FIRMWARE_PROVIDER}"
-          echo "Layout:           ${FIRMWARE_LAYOUT_MODE}"
-          echo "Boot branch:      ${BOOT_BRANCH}"
-          echo "EFI start sector: ${EFI_START_SECTOR}"
-
-          if [[ -d "work/build/${BOARD}/boot/artifacts" ]]; then
-            find "work/build/${BOARD}/boot/artifacts" \
-              -maxdepth 1 \
-              -type f \
-              -printf '%f %s bytes\n' \
-              | sort
-          fi
-
-          df -h
-
-      - name: Remove kernel build intermediates
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          find "work/build/${BOARD}" \
-            -mindepth 1 \
-            -maxdepth 1 \
-            ! -name artifacts \
-            ! -name modules \
-            ! -name boot \
-            ! -name selection \
-            -exec rm -rf {} +
-
-          sudo rm -rf cache/linux-vyos
-          sudo rm -rf cache/vyos-build
-          sudo rm -rf cache/armbian-build
-          sudo rm -rf cache/linux-firmware
-
-          df -h
-
-      - name: Download successful VyOS ARM64 raw image
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-
-          mkdir -p work/raw-artifact
-
-          gh run download "${RAW_RUN_ID}" \
-            --repo "${{ github.repository }}" \
-            --name vyos-arm64-raw \
-            --dir work/raw-artifact
-
-          find work/raw-artifact \
-            -type f \
-            -printf '%p %s bytes\n'
-
-          df -h
-
-      - name: Assemble VyOS board image
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          RAW="$(
-            find work/raw-artifact \
-              -type f \
-              -name '*.raw' \
-              -print \
-              -quit
-          )"
-
-          [[ -n "${RAW}" ]]
-          test -s "${RAW}"
-
-          sudo \
-            ./tools/assemble-board-image.sh \
-              "${BOARD}" \
-              "${HW_BRANCH}" \
-              "${RAW}" \
-              "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
-
-          sudo chown "$(id -u):$(id -g)" \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
-
-          df -h
-
-      - name: Create VyOS system-image update ISO
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          chmod +x \
-            tools/create-system-image-iso.sh \
-            tools/release-identity.py
-
-          sudo \
-            ./tools/create-system-image-iso.sh \
-              "${BOARD}" \
-              "work/build/${BOARD}/vyos-${BOARD}-candidate.img" \
-              "work/build/${BOARD}"
-
-          sudo chown -R "$(id -u):$(id -g)" \
-            "work/build/${BOARD}"
-
-          cat "work/build/${BOARD}/release.env" >> "$GITHUB_ENV"
-
-          # shellcheck disable=SC1090
-          source "work/build/${BOARD}/release.env"
-
-          if [[ -n "$EXPECTED_UPDATE_PROVIDER" && "$UPDATE_PROVIDER" != "$EXPECTED_UPDATE_PROVIDER" ]]; then
-            echo "::error::Update provider mismatch: expected $EXPECTED_UPDATE_PROVIDER, got $UPDATE_PROVIDER"
-            exit 1
-          fi
-
-          echo "Release tag:      ${RELEASE_TAG}"
-          echo "Release basename: ${RELEASE_BASENAME}"
-          echo "Update provider:  ${UPDATE_PROVIDER}"
-
-          ls -lh \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso" \
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256"
-
-      - name: Show final image layout
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          IMAGE="work/build/${BOARD}/vyos-${BOARD}-candidate.img"
-
-          sudo fdisk -l "$IMAGE"
-          sudo sgdisk -v "$IMAGE"
-          ls -lh "$IMAGE"
-          sha256sum "$IMAGE"
-
-      - name: Release raw workspace before compression
-        shell: bash
-        run: |
-          rm -rf work/raw-artifact
-          df -h
-
-      - name: Compress board image
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          xz \
-            -T0 \
-            -3 \
-            -c \
-            "work/build/${BOARD}/vyos-${BOARD}-candidate.img" \
-            > "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz"
-
-          rm -f "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
-
-          (
-            cd "work/build/${BOARD}"
-            sha256sum "${RELEASE_BASENAME}.img.xz" \
-              > "${RELEASE_BASENAME}.img.xz.sha256"
-          )
-
-      - name: Upload board candidate
-        uses: actions/upload-artifact@v4
         with:
-          name: vyos-${{ env.BOARD }}-${{ steps.kernel.outputs.hw_branch }}-candidate
-          path: |
-            work/build/${{ env.BOARD }}/vyos-*.img.xz
-            work/build/${{ env.BOARD }}/vyos-*.img.xz.sha256
-            work/build/${{ env.BOARD }}/vyos-*.iso
-            work/build/${{ env.BOARD }}/vyos-*.iso.sha256
-            work/build/${{ env.BOARD }}/release.env
-            work/build/${{ env.BOARD }}/board-manifest.json
-            work/build/${{ env.BOARD }}/artifacts/kernel.release
-            work/build/${{ env.BOARD }}/artifacts/kernel.config
-            work/build/${{ env.BOARD }}/artifacts/interrupt-dtb-audit.json
-            work/build/${{ env.BOARD }}/artifacts/network-firmware/*.json
-            work/build/${{ env.BOARD }}/artifacts/network-firmware/*.txt
-            work/build/${{ env.BOARD }}/artifacts/vyos-1x-kvm/*
-            work/build/${{ env.BOARD }}/artifacts/ustreamer/*
-            work/build/${{ env.BOARD }}/artifacts/kvm-media/**/*
-            work/build/${{ env.BOARD }}/boot/boot-manifest.env
-            work/build/${{ env.BOARD }}/selection/selected-reference.env
-            work/build/${{ env.BOARD }}/selection/vyos-source.env
-            work/build/${{ env.BOARD }}/selection/extended-network.env
-            work/build/${{ env.BOARD }}/selection/feature-profiles.env
-            work/build/${{ env.BOARD }}/selection/feature-profile.json
-            work/build/${{ env.BOARD }}/selection/kvm-hardware.env
-            work/build/${{ env.BOARD }}/selection/kvm-hardware.json
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Publish GitHub release
-        if: ${{ github.event_name == 'push' || inputs.publish_release }}
+          ref: e24a9f11685eaa3e2ec11d81183f0c2556095f3c
+      - name: Verify source run and retrieve validated artifacts
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        shell: bash
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          ./tools/create-release-notes.sh \
-            "${BOARD}" \
-            "work/build/${BOARD}"
-
-          # shellcheck disable=SC1090
-          source "work/build/${BOARD}/boot/boot-manifest.env"
-
-          # shellcheck disable=SC1090
-          source "work/build/${BOARD}/release.env"
-
-          echo "Release tag: $RELEASE_TAG"
-          echo "Release board: $BOARD_NAME"
-
-          if gh release view "$RELEASE_TAG" \
-              --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            echo "ERROR: release tag already exists: $RELEASE_TAG" >&2
-            exit 1
-          fi
-
-          release_assets=(
-            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz"
-            "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz.sha256"
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso"
-            "work/build/${BOARD}/${RELEASE_BASENAME}.iso.sha256"
-            "work/build/${BOARD}/release.env"
-            "work/build/${BOARD}/board-manifest.json"
-            "work/build/${BOARD}/artifacts/kernel.release"
-            "work/build/${BOARD}/artifacts/kernel.config"
-            "work/build/${BOARD}/artifacts/network-firmware/extended-network-report.txt"
-            "work/build/${BOARD}/artifacts/network-firmware/network-firmware-manifest.json"
-            "work/build/${BOARD}/artifacts/network-firmware/required-firmware.txt"
-            "work/build/${BOARD}/artifacts/network-firmware/installed-firmware.txt"
-            "work/build/${BOARD}/artifacts/network-firmware/missing-firmware.txt"
-            "work/build/${BOARD}/boot/boot-manifest.env"
-            "work/build/${BOARD}/selection/feature-profile.json"
-            "work/build/${BOARD}/selection/kvm-hardware.json"
-          )
-
-          if [[ -d "work/build/${BOARD}/artifacts/ustreamer" ]]; then
-            release_assets+=(
-              "work/build/${BOARD}/artifacts/ustreamer/ustreamer"
-              "work/build/${BOARD}/artifacts/ustreamer/ustreamer-dump"
-              "work/build/${BOARD}/artifacts/ustreamer/build.env"
-              "work/build/${BOARD}/artifacts/ustreamer/SHA256SUMS"
-              "work/build/${BOARD}/artifacts/ustreamer/LICENSE"
-              "work/build/${BOARD}/artifacts/ustreamer/LICENSE.libjpeg-turbo"
-              "work/build/${BOARD}/artifacts/ustreamer/ustreamer-v6.56-source.tar.gz"
-            )
-          fi
-
-          gh release create "$RELEASE_TAG" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --target "${GITHUB_SHA}" \
-            --title "VyOS ${VYOS_VERSION} for ${BOARD_NAME}" \
-            --notes-file "work/build/${BOARD}/RELEASE_NOTES.md" \
-            --latest \
-            "${release_assets[@]}"
-
-      - name: Publish registered board update channel
-        if: ${{ github.event_name == 'push' || inputs.publish_release }}
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/35464528782" > /tmp/source-run.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/35464528782/jobs" > /tmp/source-jobs.json
+          python3 - <<'PY'
+          import json
+          run=json.load(open('/tmp/source-run.json'))
+          assert run['head_sha']=='e24a9f11685eaa3e2ec11d81183f0c2556095f3c'
+          assert run['status']=='completed' and run['conclusion']=='failure'
+          jobs=json.load(open('/tmp/source-jobs.json'))['jobs']
+          failed=[s['name'] for j in jobs for s in j['steps'] if s['conclusion']=='failure']
+          assert failed==['Publish GitHub release'], failed
+          PY
+          gh run download 35464528782 --repo "$GITHUB_REPOSITORY" \
+            --name vyos-raspberry-pi-5-current-candidate --dir work/build/raspberry-pi-5
+          cd work/build/raspberry-pi-5
+          sha256sum -c ./*.sha256
+          python3 - <<'PY'
+          import json
+          m=json.load(open('board-manifest.json'))
+          assert (m['board'],m['profile'],m['architecture'],m['update_provider'])==('raspberry-pi-5','network','arm64','firmware-files')
+          PY
+      - name: Publish recovered test release without replacing old assets
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: ./tools/publish-board-release.sh "$BOARD" "work/build/$BOARD"
+          ROLLING_REFERENCE: 2026.09.17-0028-rolling
+        run: |
+          set -euo pipefail
+          ROOT=work/build/raspberry-pi-5
+          TAG=2026.09.19-1637-selfbuilt-raspberry-pi-5-network-run-35464528782
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Recovery release already exists; refusing to overwrite'; exit 1
+          fi
+          printf '\nRELEASE_TAG=%s\n' "$TAG" >> "$ROOT/release.env"
+          ./tools/create-release-notes.sh raspberry-pi-5 "$ROOT"
+          python3 - "$ROOT/RELEASE_NOTES.md" <<'PY'
+          import sys
+          from pathlib import Path
+          p=Path(sys.argv[1]); text=p.read_text()
+          marker='The release includes a VyOS system-image ISO, but native Raspberry Pi firmware boots'
+          start=text.find(marker)
+          if start>=0:
+              end=text.index('\n\n',start)
+              text=text[:start]+'Experimental FAT boot-file synchronization and image-switch hooks are included. They passed automated checks but still require Raspberry Pi 5 hardware validation. No public update feed is enabled; use the initial-installation image for hardware testing.'+text[end:]
+          text+='\n\n## Recovered publication\n\nImage files are unchanged artifacts from workflow run 35464528782, builder commit e24a9f11685eaa3e2ec11d81183f0c2556095f3c. All image-build steps succeeded; publication alone failed because the base-version release tag already existed. This separate tag preserves the older release. The internal VyOS version remains 999.202609191637; this is a fresh-installation test candidate, not a newer-version update.\n'
+          p.write_text(text)
+          PY
+          source "$ROOT/release.env"
+          assets=(
+            "$ROOT/$RELEASE_BASENAME.img.xz" "$ROOT/$RELEASE_BASENAME.img.xz.sha256"
+            "$ROOT/$RELEASE_BASENAME.iso" "$ROOT/$RELEASE_BASENAME.iso.sha256"
+            "$ROOT/release.env" "$ROOT/board-manifest.json"
+            "$ROOT/artifacts/kernel.release" "$ROOT/artifacts/kernel.config"
+            "$ROOT/artifacts/network-firmware/extended-network-report.txt"
+            "$ROOT/artifacts/network-firmware/network-firmware-manifest.json"
+            "$ROOT/artifacts/network-firmware/required-firmware.txt"
+            "$ROOT/artifacts/network-firmware/installed-firmware.txt"
+            "$ROOT/artifacts/network-firmware/missing-firmware.txt"
+            "$ROOT/boot/boot-manifest.env" "$ROOT/selection/feature-profile.json"
+            "$ROOT/selection/kvm-hardware.json"
+          )
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft \
+            --target e24a9f11685eaa3e2ec11d81183f0c2556095f3c \
+            --title "VyOS $VYOS_VERSION for Raspberry Pi 5 — revised test image" \
+            --notes-file "$ROOT/RELEASE_NOTES.md" "${assets[@]}"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          ./tools/publish-board-release.sh raspberry-pi-5 "$ROOT"
