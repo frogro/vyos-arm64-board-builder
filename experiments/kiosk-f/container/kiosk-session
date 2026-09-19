@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+xset s off
+xset -dpms || true
+mkdir -p "$HOME/.config/openbox"
+if [ -f /state/openbox/rc.xml ]; then
+    ln -sfn /state/openbox/rc.xml "$HOME/.config/openbox/rc.xml"
+fi
+ln -sfn /state/sunshine "$HOME/.config/sunshine"
+export LANG=C.UTF-8
+sunshine /state/sunshine/sunshine.conf > /state/sunshine/runtime.log 2>&1 &
+openbox &
+browser_pid=
+trap 'if [ -n "$browser_pid" ]; then kill -TERM "$browser_pid" 2>/dev/null || true; wait "$browser_pid" 2>/dev/null || true; fi; exit 0' TERM INT
+while true; do
+    chromium --kiosk --no-first-run --disable-session-crashed-bubble --disable-features=Translate,TranslateUI --user-data-dir=/state/browser "$KIOSK_URL" &
+    browser_pid=$!
+    wait "$browser_pid" || true
+    browser_pid=
+    sleep 2
+done

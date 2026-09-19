@@ -1,0 +1,12 @@
+FROM docker.io/library/debian:trixie-slim
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl chromium xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-fbdev x11-xserver-utils x11-utils xauth openbox dbus-x11 libinput-tools fonts-dejavu-core procps util-linux pulseaudio python3 && rm -rf /var/lib/apt/lists/*
+RUN curl -fL --retry 3 -o /tmp/sunshine.deb 'https://github.com/LizardByte/Sunshine/releases/download/v2026.914.233613/sunshine_2026.914.233613-1%2Bdebiantrixie_arm64.deb' && echo '45f250a6bae3629bd67d6856356e5d838569fbe4f6128440124c727a3d5fef5e  /tmp/sunshine.deb' | sha256sum -c - && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y /tmp/sunshine.deb && rm /tmp/sunshine.deb && rm -rf /var/lib/apt/lists/*
+RUN useradd -m -u 1000 -s /bin/bash kiosk && mkdir -p /opt/kiosk /state /run/kiosk && chown kiosk:kiosk /state /run/kiosk
+COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
+COPY xorg.conf /etc/X11/xorg.conf
+COPY input-test.html /opt/kiosk/input-test.html
+COPY start-kiosk /usr/local/bin/start-kiosk
+COPY kiosk-session /usr/local/bin/kiosk-session
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session
+ENV KIOSK_URL=file:///opt/kiosk/input-test.html DISPLAY=:0 HOME=/home/kiosk
+ENTRYPOINT ["/usr/local/bin/start-kiosk"]
