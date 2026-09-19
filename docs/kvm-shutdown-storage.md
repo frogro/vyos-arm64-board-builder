@@ -31,3 +31,38 @@ Diagnostic unit and executable were under /run and vanished on reboot. The
 captured report was retained on the diagnostic workstation; no monitoring
 service remains. The corrective gadget cleanup unit remains enabled live and
 is installed by the common finalizer only for future KVM-enabled images.
+
+## Follow-up: native persistence teardown
+
+Read-only inspection on 19 September found /run/initramfs empty: no executable
+shutdown pivot environment is installed. The rebuilt initrd includes Debian
+live-boot plus 9991-vyos.sh, but no shutdown handoff script. The current root is
+an overlay whose upper/work directories reside on /dev/mmcblk1p3 mounted at
+/run/live/persistence. This explains EBUSY during the ordinary mount-unit stop.
+
+The live 9991-vyos.sh exactly matches upstream vyos/vyos-build commit
+4571978c8542a1f996af8a4913c787eecfb0b15d (SHA256
+1d8b0b7508703c571fcf6cfc1688a2793598f15547a86e845e7f531ae9f3e0dc).
+Thus the inspected persistence mounting logic is native upstream, not a
+ROCK-specific modification. This is not proof that all upstream installations
+have the same shutdown symptom.
+
+systemd 252 subsequently kills remaining processes and attempts read-only
+remounts/unmounts in its final shutdown phase. It only returns to initramfs when
+/run/initramfs/shutdown exists and is executable. Sources:
+https://github.com/systemd/systemd/blob/v252/src/shutdown/shutdown.c
+https://github.com/systemd/systemd/blob/v252/src/shutdown/umount.c
+
+Our persistent journal ends when journald receives SIGTERM, before these final
+attempts. pstore is empty. Therefore the final persistence read-only status
+cannot be established from the journal. The next boot has no logged ext4
+recovery or I/O errors, but this is not equivalent to an offline filesystem
+check or proof of clean unmount.
+
+Next validation should capture final shutdown over serial console (or another
+verified late-boot capture mechanism), and/or inspect the powered-off card
+read-only on the ThinkPad. Do not run repair or claim fsck validity on the
+mounted writable persistence filesystem. Do not suppress the mount failure,
+force/lazily detach the active root backing store, or add a custom initramfs
+shutdown implementation before verifying native upstream behavior and the
+existing final remount outcome. No persistence shutdown modification was made.
