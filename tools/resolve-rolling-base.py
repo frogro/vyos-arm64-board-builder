@@ -77,41 +77,15 @@ def resolve(repo, ref, requested=''):
     return commit, '', recipe
 
 
-def require_exact_published_base():
-    """Fail closed until a release-attested ARM64 package source is supported.
-
-    A nightly repository tag, date, or SBOM alone cannot attest the package
-    versions downloaded from the mutable ARM64 rolling repository.
-    """
-    release = json.loads(gh('api', 'repos/vyos/vyos-nightly-build/releases/latest'))
-    tag = release.get('tag_name', '')
-    if release.get('draft') or release.get('prerelease') or not re.fullmatch(
-            r'\d{4}\.\d{2}\.\d{2}-\d{4}-rolling', tag):
-        raise ValueError('Latest official release is not a supported published Rolling release')
-    raise ValueError(
-        f'Exact published Rolling requested: {tag}. '
-        'This builder cannot yet attest an ARM64 base with the same release package versions. '
-        'A build commit or AMD64 SBOM alone is insufficient. Build stopped before compilation. '
-        'No automatic fallback. Explicit development-source mode restores the old behavior '
-        'but does NOT reproduce this published release.')
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY'))
     parser.add_argument('--ref', default=os.environ.get('VYOS_REF', 'rolling'))
     parser.add_argument('--run-id', default=os.environ.get('RAW_RUN_ID_REQUESTED', ''))
     parser.add_argument('--recipe-only', action='store_true')
-    parser.add_argument('--source-mode', choices=['published-exact', 'development-source'],
-                        default=os.environ.get('VYOS_SOURCE_MODE', 'published-exact'))
-    parser.add_argument('--check-release-policy', action='store_true')
     args = parser.parse_args()
     if args.recipe_only:
         print(recipe_hash())
-        return
-    if args.source_mode == 'published-exact':
-        require_exact_published_base()
-    if args.check_release_policy:
         return
     commit, run, recipe = resolve(args.repo, args.ref, args.run_id)
     output = f'vyos_commit={commit}\nraw_run_id={run}\nrecipe_sha256={recipe}\n'
