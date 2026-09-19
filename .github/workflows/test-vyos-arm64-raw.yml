@@ -3,6 +3,15 @@ name: Test VyOS ARM64 raw image
 on:
   workflow_dispatch:
     inputs:
+      source_mode:
+        description: "published-exact requires release parity (currently blocked); development-source explicitly uses the old build path"
+        required: true
+        default: published-exact
+        type: choice
+        options:
+          - published-exact
+          - development-source
+
       vyos_ref:
         description: Official VyOS source ref (use the same commit for the board candidate)
         required: false
@@ -11,6 +20,10 @@ on:
 
   workflow_call:
     inputs:
+      source_mode:
+        type: string
+        default: published-exact
+        required: false
       vyos_ref:
         required: true
         type: string
@@ -29,6 +42,12 @@ jobs:
     steps:
       - name: Checkout board builder
         uses: actions/checkout@v4
+
+      - name: Enforce published release policy before building
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VYOS_SOURCE_MODE: ${{ inputs.source_mode || 'published-exact' }}
+        run: python3 tools/resolve-rolling-base.py --check-release-policy
 
       - name: Verify Docker
         run: |

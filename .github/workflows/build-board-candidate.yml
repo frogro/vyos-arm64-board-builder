@@ -9,6 +9,15 @@ on:
 
   workflow_dispatch:
     inputs:
+      source_mode:
+        description: "published-exact requires release parity (currently blocked); development-source explicitly uses the old build path"
+        required: true
+        default: published-exact
+        type: choice
+        options:
+          - published-exact
+          - development-source
+
       board:
         description: "Armbian board identifier"
         required: true
@@ -98,6 +107,7 @@ jobs:
         id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
+          VYOS_SOURCE_MODE: ${{ inputs.source_mode || 'published-exact' }}
           VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
           RAW_RUN_ID_REQUESTED: ${{ inputs.raw_run_id || '' }}
           FORCE_FRESH_BASE: ${{ inputs.force_fresh_base || false }}
@@ -111,6 +121,7 @@ jobs:
       actions: read
     uses: ./.github/workflows/test-vyos-arm64-raw.yml
     with:
+      source_mode: development-source
       vyos_ref: ${{ needs.rolling-base.outputs.vyos_commit }}
 
   board-image:

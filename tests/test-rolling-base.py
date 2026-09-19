@@ -42,6 +42,19 @@ class Selection(unittest.TestCase):
         with patch.object(m, 'gh', self.gh):
             return m.resolve('owner/repo', 'rolling', requested)
 
+    def test_published_release_cannot_silently_use_development_packages(self):
+        release = {'tag_name': '2026.09.17-0028-rolling', 'assets': []}
+        with patch.object(m, 'gh', return_value=json.dumps(release)) as api:
+            with self.assertRaisesRegex(ValueError, 'cannot yet attest an ARM64 base'):
+                m.require_exact_published_base()
+            api.assert_called_once_with('api', 'repos/vyos/vyos-nightly-build/releases/latest')
+
+    def test_unexpected_release_is_rejected(self):
+        for release in ({'tag_name': '1.5.0'}, {'tag_name': '2026.09.17-0028-rolling', 'draft': True}):
+            with patch.object(m, 'gh', return_value=json.dumps(release)):
+                with self.assertRaisesRegex(ValueError, 'not a supported'):
+                    m.require_exact_published_base()
+
     def test_reuses_matching_snapshot_and_recipe(self):
         self.assertEqual(self.resolve()[:2], (SHA, '42'))
 
