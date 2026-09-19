@@ -1,0 +1,31 @@
+name: Watch official VyOS Rolling releases
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only inspect new releases; do not dispatch builds
+        type: boolean
+        default: true
+concurrency:
+  group: official-rolling-dispatch
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main-test
+      - name: Test release selection
+        run: python3 tests/test-watch-upstream-rolling.py
+      - name: Dispatch new official Rolling builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+        run: python3 tools/watch-upstream-rolling.py
