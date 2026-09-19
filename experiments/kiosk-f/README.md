@@ -20,7 +20,9 @@ capture-x11-probe.py captured 60 actual 1920x1080 desktop frames using XGetImage
 
 This proves access to MPP, NOT fast screen capture or Sunshine MPP integration. MPP emitted invalid-memory-pool warnings at shutdown; investigate before using this path in production. The probe is intentionally not a streaming service.
 
-The installed Sunshine source has no rkmpp encoder backend. Its FFmpeg is not replaced by installing an ffmpeg executable. A tested source change and compatible FFmpeg/MPP build are needed; hardware acceleration is NOT enabled in Sunshine. The examined rockchip-vaapi project is decode-only and does not solve encoding.
+The installed Sunshine source has no rkmpp encoder backend. Its FFmpeg is not replaced by installing an ffmpeg executable. A tested source change and compatible FFmpeg/MPP build are needed; hardware acceleration was not enabled at that initial probe. The subsequent
+patched implementation is now running: see `sunshine/README.md` for the verified
+MPP encoder, encrypted Moonlight session, limitations and rollback. The examined rockchip-vaapi project is decode-only and does not solve encoding.
 
 ## Existing native CLI (live test name)
 

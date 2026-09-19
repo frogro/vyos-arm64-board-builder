@@ -5,6 +5,12 @@ if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
     exec setsid --wait /bin/bash -c 'exec /usr/local/bin/start-kiosk </dev/tty8'
 fi
 export DISPLAY=:0 XAUTHORITY=/run/kiosk/Xauthority
+# Only an explicitly passed-through encoder device is adjusted. Sunshine still
+# runs as kiosk; neither world access nor a privileged container is required.
+if [ -c /dev/mpp_service ]; then
+    chgrp video /dev/mpp_service
+    chmod 0660 /dev/mpp_service
+fi
 mkdir -p /run/kiosk /state/browser /state/sunshine
 # This profile belongs exclusively to this kiosk instance.
 exec 9>/state/kiosk-session.lock
