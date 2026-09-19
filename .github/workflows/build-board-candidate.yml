@@ -57,6 +57,12 @@ on:
         default: "rolling"
         type: string
 
+      rolling_reference:
+        description: "Published Rolling reference for release notes (not an exact package lock)"
+        required: false
+        default: ""
+        type: string
+
       armbian_ref:
         description: "Exact Armbian build branch, tag or commit"
         required: true
@@ -133,6 +139,7 @@ jobs:
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
+      ROLLING_REFERENCE: ${{ inputs.rolling_reference || '' }}
       VYOS_BRANCH: rolling
       VYOS_REF: ${{ needs.rolling-base.outputs.vyos_commit }}
       ARMBIAN_REF: ${{ inputs.armbian_ref || '9de7be05323564424cf64171cb483712ec356bc1' }}

@@ -100,12 +100,19 @@ if [[ "$UPDATE_PROVIDER" == uboot-extlinux ]]; then
     UPDATE_STATUS="Native extlinux lifecycle hooks are included for add/default/delete and rollback testing. First install this candidate via .img.xz; the old E52C image cannot bootstrap these hooks through its existing ISO installer. Hardware acceptance is still required. Image rename is intentionally rejected; add the ISO under a new name instead."
 fi
 
+ROLLING_REFERENCE_NOTE=""
+if [[ -n "${ROLLING_REFERENCE:-}" ]]; then
+    ROLLING_REFERENCE_NOTE="Published VyOS Rolling reference: ${ROLLING_REFERENCE}. This ARM64 image is built later from the rolling package repository, so package versions may differ from that published release. It is not an exact reproduction; board and selected profile extensions are additional intentional changes."
+fi
+
 cat > "$OUT" <<EOF_NOTES
 # VyOS ${VYOS_VERSION} for ${BOARD_NAME}
 
 Experimental VyOS ARM64 initial-installation image and system-update payload for the ${BOARD_NAME}.
 
 This image starts from the official VyOS ARM64 rolling userspace and keeps the native VyOS system-image/filesystem layout while adding the board-specific kernel, Device Tree, modules and firmware provider.
+
+${ROLLING_REFERENCE_NOTE}
 
 ## Build approach
 
