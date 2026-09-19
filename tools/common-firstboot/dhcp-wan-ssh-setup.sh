@@ -6,6 +6,7 @@ set -o pipefail
 # Non-login SSH invocations may omit administrative program directories.
 export PATH="${PATH}:/usr/sbin:/sbin"
 
+AUTO_SETUP=no
 WIRED_IF="${WIRED_IF:-auto}"
 ROUTE_DISTANCE="${ROUTE_DISTANCE:-1}"
 LOG="/config/dhcp-wan-ssh-setup.log"
@@ -37,7 +38,7 @@ fi
 
 for ARG in "$@"; do
     case "$ARG" in
-        --auto) ;;
+        --auto) AUTO_SETUP=yes ;;
         --interface=*) WIRED_IF="${ARG#*=}" ;;
         --distance=*) ROUTE_DISTANCE="${ARG#*=}" ;;
         -h|--help)
@@ -96,6 +97,15 @@ setup_set interfaces ethernet "$WIRED_IF" description 'WAN-LAN-DHCP'
 setup_set interfaces ethernet "$WIRED_IF" address 'dhcp'
 setup_set interfaces ethernet "$WIRED_IF" dhcp-options default-route-distance "$ROUTE_DISTANCE"
 setup_set service ssh
+
+# Seed only fresh installations; never overwrite an administrator's channel.
+CHANNEL_FILE=/usr/share/vyos-arm64-board-builder/update-channel.json
+if [[ "$AUTO_SETUP" == yes && ! -e /config/.dhcp-wan-ssh-firstboot-done && -r "$CHANNEL_FILE" ]]; then
+    if ! "$API" existsActive system update-check url; then
+        CHANNEL_URL="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["url"])' "$CHANNEL_FILE")" || fail "Invalid image update channel"
+        setup_set system update-check url "$CHANNEL_URL"
+    fi
+fi
 
 if ! setup_commit_save; then
     discard 2>/dev/null || true

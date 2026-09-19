@@ -112,6 +112,12 @@ Path(output).write_text(json.dumps({
 }, indent=2) + "\n")
 PY
 
+# Only registered A+B images receive a channel. Extended profiles stay manual.
+rm -f "$PROFILE_DIR/update-channel.json"
+if [[ "$BUILD_PROFILE" == network && -f "$ROOT/profiles/update-channels/$BOARD.json" ]]; then
+    install -m 0644 "$ROOT/profiles/update-channels/$BOARD.json" "$PROFILE_DIR/update-channel.json"
+fi
+
 MULTI_USER_WANTS_DIR="$UNIT_DIR/multi-user.target.wants"
 install -d -m 0755 "$MULTI_USER_WANTS_DIR"
 
