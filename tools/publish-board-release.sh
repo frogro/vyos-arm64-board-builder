@@ -7,7 +7,7 @@ source "$BUILD_ROOT/selection/feature-profiles.env"
 REPO="$(python3 tools/board-update-channel.py "$BOARD" "$BUILD_PROFILE")"
 if [[ "$BOARD" == raspberry-pi-5 && "$BUILD_PROFILE" == network ]]; then
     REPO=VyARM-Community/raspberry-pi-5
-    # Native FAT kernel synchronization is not ready: publish installation only.
+    # Native FAT lifecycle is experimental: keep public publication installation-only.
     (cd "$BUILD_ROOT" && sha256sum -c "$RELEASE_BASENAME.img.xz.sha256")
     python3 - "$BUILD_ROOT/board-manifest.json" <<'PYMANIFEST'
 import json, sys
@@ -19,7 +19,7 @@ VyOS ${VYOS_VERSION} for Raspberry Pi 5, with additional network, Wi-Fi and cell
 
 Initial installation: \`${RELEASE_BASENAME}.img.xz\`. Verify the adjacent SHA-256 checksum before flashing.
 
-Boot path: native Raspberry Pi EEPROM/firmware, FAT boot partition, matching kernel/initramfs and BCM2712 Device Tree. This exact image requires hardware testing. In-place ISO updates are not yet supported; no update feed is published for this board.
+Boot path: native Raspberry Pi EEPROM/firmware, FAT boot partition, matching kernel/initramfs and BCM2712 Device Tree. This exact image requires hardware testing. Experimental FAT image-switch hooks are included for validation, but in-place ISO updates are not yet hardware-validated; no update feed is published for this board.
 
 Published Rolling reference: ${ROLLING_REFERENCE:-not specified}. Package versions may differ due to the later build against the rolling repository.
 EOFPI

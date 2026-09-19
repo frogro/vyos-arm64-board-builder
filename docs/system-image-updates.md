@@ -55,9 +55,9 @@ Provider modes are:
   Radxa ROCK 5B using EDK II.
 - `grub-version-dtb`: a future post-install gate must copy the board DTB into
   the new version and add the matching GRUB `devicetree` line.
-- `firmware-files`: a future post-install gate must synchronize the selected
-  kernel, initramfs and DTB to a provider boot filesystem such as Raspberry
-  Pi `RPICFG`.
+- `firmware-files`: experimental Pi 5 lifecycle hooks synchronize the selected
+  kernel, initramfs, DTB, overlay and command line to `RPICFG`; see the
+  [Pi test procedure](pi5-native-update-testing.md). Hardware validation is pending.
 
 The ISO is generated and checksum-tested for every provider so its contents
 remain reproducible. Release notes warn when the selected provider still

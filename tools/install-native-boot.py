@@ -46,7 +46,7 @@ def patch_manager(path):
     anchor = "    if name_old == image.get_running_image():"
     if text.count(anchor) != 1:
         raise RuntimeError('Unsupported VyOS rename-image implementation')
-    text = text.replace(anchor, "    if Path('/usr/share/vyos-arm64-board-builder/boot-provider.json').is_file():\n        exit('Native U-Boot image rename is not supported; add the ISO under the desired name instead')\n\n" + anchor)
+    text = text.replace(anchor, "    if Path('/usr/share/vyos-arm64-board-builder/boot-provider.json').is_file():\n        exit('Native boot image rename is not supported; add the ISO under the desired name instead')\n\n" + anchor)
     ast.parse(text)
     path.write_text(text)
 
@@ -60,6 +60,8 @@ def install(root, metadata):
         raise RuntimeError('Cannot locate unique VyOS grub.py')
     patch_grub(candidates[0])
     shutil.copyfile(Path(__file__).parent / 'firmware-providers/armbian-uboot/board_boot.py', candidates[0].with_name('board_boot.py'))
+    if metadata.get('firmware_provider') == 'raspberrypi-native':
+        shutil.copyfile(Path(__file__).parent / 'firmware-providers/raspberrypi-native/board_boot_rpi.py', candidates[0].with_name('board_boot_rpi.py'))
     patch_manager(root / 'usr/libexec/vyos/op_mode/image_manager.py')
     flavor_path = root / 'usr/share/vyos/flavor.json'
     flavor = json.loads(flavor_path.read_text())

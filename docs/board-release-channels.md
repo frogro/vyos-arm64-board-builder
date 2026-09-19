@@ -43,7 +43,7 @@ profile identifiers remain in filenames and machine-readable compatibility data.
 `VyARM-Community/raspberry-pi-5` publishes network installation images, using the
 previously released `raspberrypi-native` / `firmware-files` boot chain. It does
 not receive an update feed or ISO publication until native FAT kernel/initramfs/
-DTB synchronization is implemented and hardware-tested. This is distinct from
+DTB synchronization is hardware-tested. Experimental synchronization is now implemented; controlled ISO tests use the central build artifacts. This is distinct from
 whether an installation image can be built successfully.
 
 ## Official Rolling watcher

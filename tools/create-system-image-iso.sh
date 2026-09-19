@@ -177,9 +177,13 @@ install -D -m 0644 "$VERSION_DIR/initrd.img" "$ISO_ROOT/live/initrd.img"
 install -D -m 0644 "$SQUASH" "$ISO_ROOT/live/filesystem.squashfs"
 install -D -m 0644 "$DTB" "$ISO_ROOT/live/dtb/$BOOT_FDT_FILE"
 
-if [[ "$UPDATE_PROVIDER" == uboot-extlinux ]]; then
+if [[ "$UPDATE_PROVIDER" == uboot-extlinux || "$FIRMWARE_PROVIDER" == raspberrypi-native ]]; then
     unsquashfs -cat "$SQUASH" usr/share/vyos-arm64-board-builder/boot-provider.json \
         > "$ISO_ROOT/live/boot-provider.json"
+fi
+
+if [[ "$FIRMWARE_PROVIDER" == raspberrypi-native ]]; then
+    install -D -m 0644 "$VERSION_DIR/rpi/bcm2712d0.dtbo" "$ISO_ROOT/live/rpi/bcm2712d0.dtbo"
 fi
 
 unsquashfs -cat "$SQUASH" usr/share/vyos/version.json \

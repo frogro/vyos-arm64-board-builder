@@ -160,5 +160,25 @@ do
     }
 done
 
+# Preserve the firmware-ready DTB and overlay in each installed version and ISO.
+install -D -m 0644 "$FIRMWARE_DTB" "$VERSION_DIR/dtb/$BOOT_FDT_FILE"
+install -D -m 0644 "$D0_OVERLAY" "$VERSION_DIR/rpi/bcm2712d0.dtbo"
+if [[ -f "$VERSION_DIR/board-boot.json" ]]; then
+    mkdir -p "$FIRMWARE_MNT/vyos-boot"
+    cp "$VERSION_DIR/board-boot.json" "$FIRMWARE_MNT/vyos-boot/provider.json"
+    python3 - "$PROVIDER_DIR" "$VERSION_DIR" "$FIRMWARE_MNT" <<'PYPI'
+import importlib.util, json, sys
+from pathlib import Path
+provider, version, fat = map(Path, sys.argv[1:])
+def load(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+common = load(provider.parent / 'armbian-uboot/board_boot.py', 'common_boot')
+rpi = load(provider / 'board_boot_rpi.py', 'rpi_boot')
+rpi.sync(version.parent.parent, fat, json.loads((version / 'board-boot.json').read_text()), common)
+PYPI
+fi
 sync
 echo "Finalized Raspberry Pi direct-kernel boot payload for $BOARD"

@@ -77,7 +77,7 @@ if [[ "$FIRMWARE_PROVIDER" == "raspberrypi-native" ]]; then
     LAYOUT_DESCRIPTION="- GPT1 is a 512 MiB FAT32 \`RPICFG\` partition containing pinned Raspberry Pi firmware plus the matching kernel, initramfs and BCM2712 Device Tree
 - GPT2 is the unchanged official VyOS EFI filesystem
 - GPT3 is the unchanged VyOS persistence/system-image filesystem"
-    UPDATE_STATUS="The release includes a VyOS system-image ISO, but native Raspberry Pi firmware boots the kernel from FAT rather than through GRUB. An \`add system image\` operation therefore also requires synchronization of the selected board kernel, initramfs and DTB to \`RPICFG\`. Do not use the ISO on this provider until that synchronization gate is implemented and hardware-tested."
+    UPDATE_STATUS="Experimental native Pi image lifecycle hooks are included: the selected VyOS image supplies its kernel, initramfs, DTB, overlay and command line through a versioned FAT payload. This requires a fresh installation of this generation; older Pi images have no lifecycle hooks. The ISO is available for controlled update/rollback tests only. Hardware validation is pending, no automatic update feed is enabled, and a separate bootable recovery medium must be retained."
     PROVIDER_VALIDATION="- [x] Raspberry Pi firmware-partition filesystem validation
 - [x] \`config.txt\`, \`cmdline.txt\`, kernel, initramfs and BCM2712 DTB validation
 - [x] FAT kernel equality with the built kernel artifact"

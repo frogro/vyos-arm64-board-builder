@@ -130,6 +130,32 @@ fdtget \
     /__overrides__ \
     wifiaddr >/dev/null
 
+# Exercise the production managed handoff as well as legacy payload generation.
+mkdir -p "$WORK/persistence/boot/2026.08.19-test" "$WORK/persistence/boot/grub/grub.cfg.d/vyos-versions"
+cp -a "$WORK/version/." "$WORK/persistence/boot/2026.08.19-test/"
+cp "$WORK/artifacts/Image" "$WORK/persistence/boot/2026.08.19-test/vmlinuz"
+cp "$WORK/grub-version.cfg" "$WORK/persistence/boot/grub/grub.cfg.d/vyos-versions/2026.08.19-test.cfg"
+python3 - "$WORK/persistence" <<'PYFIX'
+import json, sys
+from pathlib import Path
+from uuid import uuid5, NAMESPACE_URL
+root = Path(sys.argv[1])
+(root / 'boot/2026.08.19-test/board-boot.json').write_text(json.dumps(dict(
+    schema=1, architecture='arm64', board='raspberry-pi-5', profile='network',
+    firmware_provider='raspberrypi-native', update_provider='firmware-files',
+    firmware_partition=1, device_tree='broadcom/bcm2712-rpi-5-b-test.dtb',
+    console='ttyAMA10', baud=115200, display_console=True)))
+(root / 'boot/grub/grub.cfg.d/20-vyos-defaults-autoload.cfg').write_text(
+    'set default="uuid5-' + str(uuid5(NAMESPACE_URL, '2026.08.19-test')) + '"\n')
+PYFIX
+"$ROOT/tools/firmware-providers/raspberrypi-native/finalize.sh" raspberry-pi-5 \
+    "$WORK/firmware" "$WORK/persistence/boot/2026.08.19-test" "$WORK/artifacts" \
+    "$WORK/grub-version.cfg" "$WORK/boot-manifest.env"
+PREFIX="$(sed -n 's/^os_prefix=//p' "$WORK/firmware/config.txt")"
+test -n "$PREFIX"
+cmp "$WORK/firmware/$PREFIX/vmlinuz" "$WORK/artifacts/Image"
+grep -q 'BOOT_IMAGE=/boot/2026.08.19-test/vmlinuz' "$WORK/firmware/$PREFIX/cmdline.txt"
+test -s "$WORK/firmware/vyos-boot/provider.json"
 echo "PASS: raspberrypi-native finalize contract"
 
 PACKAGE_ROOT="$WORK/package-root"

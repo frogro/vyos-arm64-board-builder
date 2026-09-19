@@ -135,8 +135,12 @@ def _copy_board_dtb_from_update_iso(
         for field in ('architecture', 'board', 'profile', 'firmware_provider', 'update_provider', 'device_tree'):
             if current_boot.get(field) != native_metadata.get(field) or current_boot.get(field) != manifest.get(field):
                 raise RuntimeError(f'Native boot update {field} mismatch')
-        if native_metadata.get('schema') != 1 or native_metadata.get('update_provider') != 'uboot-extlinux':
+        if native_metadata.get('schema') != 1 or (native_metadata.get('firmware_provider'), native_metadata.get('update_provider')) not in (('armbian-uboot', 'uboot-extlinux'), ('raspberrypi-native', 'firmware-files')):
             raise RuntimeError('Unsupported native boot update contract')
+
+    if native_metadata is not None and native_metadata.get('firmware_provider') == 'raspberrypi-native':
+        if native_metadata.get('firmware_partition') != 1 or not (iso_root / 'live/rpi/bcm2712d0.dtbo').is_file():
+            raise RuntimeError('Pi update overlay or firmware partition contract missing')
 
     dtb = _validate_board_update_dtb_path(
         manifest.get('device_tree')
@@ -165,6 +169,10 @@ def _copy_board_dtb_from_update_iso(
     copy(source, destination)
 
     if native_metadata is not None:
+        if native_metadata.get('firmware_provider') == 'raspberrypi-native':
+            overlay = root_dir / 'boot' / image_name / 'rpi/bcm2712d0.dtbo'
+            overlay.parent.mkdir(parents=True, exist_ok=True)
+            copy(iso_root / 'live/rpi/bcm2712d0.dtbo', overlay)
         copy(iso_root / 'live' / 'boot-provider.json',
              root_dir / 'boot' / image_name / 'board-boot.json')
 
@@ -204,6 +212,13 @@ def patch_image_installer(rootfs: Path) -> bool:
     )
 
     if helper_present and call_present:
+        start = source.index('def _load_board_update_json(')
+        end = source.index(ADD_IMAGE_ANCHOR, start)
+        refreshed = source[:start] + HELPER_BLOCK + '\n\n' + source[end:]
+        if refreshed != source:
+            target.write_text(refreshed)
+            py_compile.compile(str(target), doraise=True)
+            return True
         py_compile.compile(
             str(target),
             doraise=True,

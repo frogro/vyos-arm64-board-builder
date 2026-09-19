@@ -113,6 +113,10 @@ def sync(root, firmware, metadata):
     refer to complete payloads. Unreferenced payloads are retained for recovery;
     prune() runs only after both menus have been durably replaced.
     """
+    if metadata.get('update_provider') == 'firmware-files':
+        from vyos.system import board_boot_rpi
+        import sys
+        return board_boot_rpi.sync(root, firmware, metadata, sys.modules[__name__])
     root, firmware = Path(root), Path(firmware)
     variables = grub_vars(root)
     configs = sorted((root / VERSIONS).glob('*.cfg'))

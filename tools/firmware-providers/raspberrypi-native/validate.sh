@@ -41,6 +41,19 @@ do
     }
 done
 
+# Validate the actual selected bundle, not just the legacy root copies.
+PREFIX="$(sed -n 's/^os_prefix=//p' "$WORK/config.txt" | tail -n 1)"
+if [[ -n "$PREFIX" ]]; then
+    [[ "$PREFIX" =~ ^vyos-boot/payloads/[0-9a-f]{64}/$ ]] || exit 1
+    PAYLOAD="$WORK/$PREFIX"
+    for required in vmlinuz initrd.img cmdline.txt bcm2712-rpi-5-b.dtb overlays/bcm2712d0.dtbo overlays/README; do
+        [[ -s "$PAYLOAD/$required" ]] || { echo "Missing selected Pi payload: $required" >&2; exit 1; }
+    done
+    cmp "$PAYLOAD/vmlinuz" "$ARTIFACTS/Image"
+    grep -q 'BOOT_IMAGE=/boot/' "$PAYLOAD/cmdline.txt"
+    grep -q 'vyos-union=/boot/' "$PAYLOAD/cmdline.txt"
+fi
+
 cmp -s "$WORK/vmlinuz" "$ARTIFACTS/Image" || {
     echo "ERROR: Raspberry Pi FAT kernel differs from build artifact" >&2
     exit 1

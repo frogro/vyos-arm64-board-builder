@@ -696,6 +696,19 @@ PYMETA
     rm -f "$SQUASH_ROOT/tmp/board-console.py" "$SQUASH_ROOT/tmp/board-initial.boot"
 fi
 
+if [[ "$FIRMWARE_PROVIDER" == raspberrypi-native ]]; then
+    python3 - "$VERSION_DIR/board-boot.json" "$BOARD" "$BOOT_FDT_FILE" "$BUILD_PROFILE" <<'PYPI'
+import json, sys
+from pathlib import Path
+output, board, dtb, profile = sys.argv[1:]
+Path(output).write_text(json.dumps(dict(schema=1, architecture='arm64', board=board,
+    device_tree=dtb, profile=profile, firmware_provider='raspberrypi-native',
+    update_provider='firmware-files', firmware_partition=1, console='ttyAMA10',
+    baud=115200, display_console=True), indent=2) + '\n')
+PYPI
+    python3 "$ROOT/tools/install-native-boot.py" "$SQUASH_ROOT" "$VERSION_DIR/board-boot.json"
+fi
+
 unmount_chroot
 
 # These files were only staged inside the chroot so update-initramfs could

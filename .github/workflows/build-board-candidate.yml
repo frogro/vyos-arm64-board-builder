@@ -163,6 +163,8 @@ jobs:
           python3 tests/test-grub-console-default.py
           python3 tests/test-grub-board-dtb-persistence.py
           python3 tests/test-system-image-dtb-update.py
+          python3 tests/test-native-boot.py
+          python3 tests/test-pi-native-boot.py
           bash tests/test-common-firstboot.sh
           bash tests/test-grow-persistence-resolver.sh
           python3 tests/test-tailscale-ready.py
