@@ -223,3 +223,6 @@ echo "Installed common first-boot DHCP/SSH helpers for $BOARD"
 if [[ "$BOARD" == "radxa-e52c" ]]; then
     python3 "$ROOT/tools/patch-vyos-board-identity.py" --rootfs "$ROOTFS"
 fi
+
+# Preserve native syslog startup order during initial timezone application.
+python3 "$ROOT/tools/patch-vyos-syslog-start.py" --rootfs "$ROOTFS"
