@@ -15,7 +15,13 @@ patching for review; applying the same patch twice is safe.
 Live installation: original file saved at
 /config/system_timezone.py.before-syslog-fix. rsyslog restarted successfully
 and a test message reached /var/log/messages. No failed units remained.
-A reboot test of the corrected boot ordering remains outstanding.
+Reboot validation passed on 19 September: new boot ID confirmed, rsyslog
+started once at uptime 42.3 seconds with no failed initial start. A test
+message reached /var/log/messages, and systemctl reported no failed units.
+LAN and FM350-bound Internet probes each passed 3/3; AP and DHCP services,
+modem failover service and Tailscale recovered. No WLAN client or remote
+Tailscale peer was available for an end-to-end test. The rotation collision
+did not recur in this boot; this does not establish that it is fixed.
 Installing the already-built 1517 image will not carry this patch; it needs
 reapplication for testing or a subsequent build containing this change.
 
