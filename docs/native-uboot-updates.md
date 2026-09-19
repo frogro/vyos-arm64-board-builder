@@ -98,3 +98,16 @@ The shared helper is currently enabled only for radxa-e52c. ROCK 5B and Raspberr
 Pi firmware, identity and boot behavior are unchanged. The existing U-Boot handoff
 already supplies the E52C serial; no bootloader change is required. Additional
 boards require source validation before enabling the fallback.
+
+## Automatic boot selection
+
+`profiles/boot-branches.conf` selects vendor U-Boot for E52C builds using
+current hardware metadata. This applies to manual and scheduled builds when
+`boot_branch=auto`; it does not change the kernel branch. Explicit developer
+overrides remain possible, but publication requesting `uboot-extlinux` still
+rejects incompatible firmware.
+
+The 19 September run 35453228297 omitted the vendor override and selected
+current U-Boot. The required-update-provider check correctly rejected it.
+Earlier successful current-U-Boot images used the different `grub-version-dtb`
+update contract; their build success did not validate the extlinux path.

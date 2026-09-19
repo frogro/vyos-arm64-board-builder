@@ -62,6 +62,23 @@ if [[ "$REQUESTED" != "auto" ]]; then
     exit 0
 fi
 
+# Board boot policy is independent of the hardware/kernel branch. In
+# particular, native extlinux updates can require vendor U-Boot with a current
+# kernel. Explicit developer overrides above remain authoritative.
+PROFILE="$ROOT/profiles/boot-branches.conf"
+if [[ -f "$PROFILE" ]]; then
+    PREFERRED="$(awk -F'|' -v board="$BOARD" -v hw="$HW_BRANCH" \
+        '$1 == board && $2 == hw { print $3; exit }' "$PROFILE")"
+    if [[ -n "$PREFERRED" ]]; then
+        has_target "$PREFERRED" || {
+            echo "ERROR: configured boot branch '$PREFERRED' is not supported by $BOARD" >&2
+            exit 1
+        }
+        printf '%s\n' "$PREFERRED"
+        exit 0
+    fi
+fi
+
 #
 # AUTO policy:
 #
