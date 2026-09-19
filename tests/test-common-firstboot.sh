@@ -116,7 +116,7 @@ grep -Fq '/config/vyos-ap-interface.conf' \
     "$STAGE/modem-connect.sh"
 
 if grep -RqiE \
-    'frogro/vyos-build-pi5|set system update-check|UPDATE_CHECK_URL|Photobooth|PHOTOBOOTH' \
+    'frogro/vyos-build-pi5|UPDATE_CHECK_URL|Photobooth|PHOTOBOOTH' \
     "$STAGE" \
     "$ROOTFS/usr/local/sbin" \
     "$ROOTFS/etc/systemd/system/vyos-arm64-dhcp-wan-firstboot."*
