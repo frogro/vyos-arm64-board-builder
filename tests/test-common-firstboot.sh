@@ -5,8 +5,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# The finalizer patches the native timezone handler shipped by vyos-1x.
+seed_timezone() {
+    mkdir -p "$1/usr/libexec/vyos/conf_mode"
+    printf "def apply(tz):\n    call('systemctl restart rsyslog')\n" > "$1/usr/libexec/vyos/conf_mode/system_timezone.py"
+}
+
 ROOTFS="$WORK/rootfs"
 mkdir -p "$ROOTFS"
+seed_timezone "$ROOTFS"
 
 STAGE="$ROOTFS/usr/local/share/vyos-arm64-firstboot"
 
@@ -54,6 +61,7 @@ test ! -e "$ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-arm64-tailsca
 
 TAILSCALE_ROOTFS="$WORK/tailscale-rootfs"
 mkdir -p "$TAILSCALE_ROOTFS"
+seed_timezone "$TAILSCALE_ROOTFS"
 bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$TAILSCALE_ROOTFS" yes no tailscale
 
 python3 - "$TAILSCALE_ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" <<'PY'
@@ -72,10 +80,14 @@ fi
 
 KVM_ROOTFS="$WORK/kvm-rootfs"
 mkdir -p "$KVM_ROOTFS"
+seed_timezone "$KVM_ROOTFS"
 bash "$ROOT/tools/finalize-vyos-rootfs.sh" \
     test-board "$KVM_ROOTFS" no no kvm yes
 test -x "$KVM_ROOTFS/usr/local/sbin/vyos-arm64-kvm-readiness"
 test -d "$KVM_ROOTFS/config/kvm-over-ip"
+test -L "$KVM_ROOTFS/etc/systemd/system/multi-user.target.wants/vyos-kvm-gadget-cleanup.service"
+test ! -e "$ROOTFS/etc/systemd/system/vyos-kvm-gadget-cleanup.service"
+grep -q 'try-restart rsyslog' "$ROOTFS/usr/libexec/vyos/conf_mode/system_timezone.py"
 python3 - "$KVM_ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" <<'PY'
 import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))

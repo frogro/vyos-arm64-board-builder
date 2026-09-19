@@ -226,3 +226,10 @@ fi
 
 # Preserve native syslog startup order during initial timezone application.
 python3 "$ROOT/tools/patch-vyos-syslog-start.py" --rootfs "$ROOTFS"
+
+# A virtual-media backing ISO is held by the kernel until gadget teardown.
+# Release it before /config and the live persistence filesystem are unmounted.
+if [[ "$KVM_OVER_IP" == yes ]]; then
+    install -m 0644 "$PAYLOAD/vyos-kvm-gadget-cleanup.service" "$UNIT_DIR/vyos-kvm-gadget-cleanup.service"
+    ln -sfn ../vyos-kvm-gadget-cleanup.service "$MULTI_USER_WANTS_DIR/vyos-kvm-gadget-cleanup.service"
+fi

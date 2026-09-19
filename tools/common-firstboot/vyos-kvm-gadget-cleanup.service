@@ -1,0 +1,14 @@
+[Unit]
+Description=Release VyOS KVM USB gadget before unmounting persistent storage
+After=vyos-router.service config.mount sys-kernel-config.mount
+Before=vyos-kvm-input.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+ExecStop=/bin/sh -c 'if [ -d /sys/kernel/config/usb_gadget/vyos-kvm ]; then exec /usr/local/sbin/vyos-kvm-gadget destroy; fi'
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target
