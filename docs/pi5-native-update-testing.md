@@ -54,3 +54,12 @@ The pre-change source is preserved in
 Revert the dedicated Pi lifecycle commit to remove this experiment from future
 builds without rewriting development history. Reverting code does not migrate
 an already-installed medium back; use the retained raw image/boot medium.
+
+Build 35456147338 reached final assembly but failed the generic raw-DTB byte
+comparison: the Pi finalizer now deliberately stores the firmware-ready DTB
+(with the Wi-Fi MAC handoff overlay) in the installed version for ISO updates.
+The release gate now reconstructs that expected DTB from the original kernel
+artifact and provider overlay before comparing bytes. Other providers retain
+raw-artifact comparison. The real provider fixture tests valid transformed DTB
+acceptance and corrupted-DTB rejection; the seven Pi lifecycle tests also pass.
+This fixes build validation, not outstanding physical Pi update acceptance.

@@ -156,6 +156,17 @@ test -n "$PREFIX"
 cmp "$WORK/firmware/$PREFIX/vmlinuz" "$WORK/artifacts/Image"
 grep -q 'BOOT_IMAGE=/boot/2026.08.19-test/vmlinuz' "$WORK/firmware/$PREFIX/cmdline.txt"
 test -s "$WORK/firmware/vyos-boot/provider.json"
+# Match the release gate: transformed Pi DTB is valid, corruption is not.
+"$ROOT/tools/verify-installed-dtb.sh" raspberrypi-native \
+    "$WORK/artifacts/dtb/broadcom/bcm2712-rpi-5-b-test.dtb" \
+    "$WORK/version/dtb/broadcom/bcm2712-rpi-5-b-test.dtb"
+printf 'corrupt' >> "$WORK/version/dtb/broadcom/bcm2712-rpi-5-b-test.dtb"
+if "$ROOT/tools/verify-installed-dtb.sh" raspberrypi-native \
+    "$WORK/artifacts/dtb/broadcom/bcm2712-rpi-5-b-test.dtb" \
+    "$WORK/version/dtb/broadcom/bcm2712-rpi-5-b-test.dtb"; then
+    echo "ERROR: corrupted installed DTB accepted" >&2
+    exit 1
+fi
 echo "PASS: raspberrypi-native finalize contract"
 
 PACKAGE_ROOT="$WORK/package-root"

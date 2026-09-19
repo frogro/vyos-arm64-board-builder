@@ -849,10 +849,7 @@ cmp -s \
     "$VERSION_DIR/vmlinuz" ||
     die "installed kernel does not match build artifact"
 
-cmp -s \
-    "$DTB" \
-    "$DTB_TARGET" ||
-    die "installed DTB does not match build artifact"
+"$ROOT/tools/verify-installed-dtb.sh" "$FIRMWARE_PROVIDER" "$DTB" "$DTB_TARGET"
 
 GRUB_CORE="$DST_MNT/boot/grub/arm64-efi/core.efi"
 
