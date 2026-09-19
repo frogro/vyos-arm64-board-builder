@@ -66,3 +66,23 @@ mounted writable persistence filesystem. Do not suppress the mount failure,
 force/lazily detach the active root backing store, or add a custom initramfs
 shutdown implementation before verifying native upstream behavior and the
 existing final remount outcome. No persistence shutdown modification was made.
+
+## Offline verification after regular poweroff
+
+The card was removed after regular poweroff and inspected unmounted on the
+ThinkPad as /dev/sdc (59.5 GiB SD/MMC), with no filesystem mount or repair.
+Direct read-only superblock inspection on /dev/sdc3 reported state=1 (clean),
+no filesystem error flag and no needs_recovery incompat flag.
+
+Administrator-authorized `e2fsck -f -n /dev/sdc3` completed all five passes,
+exit 0, with no reported inconsistencies: 10977/3883008 files,
+5189340/15524091 blocks. `fsck.fat -n /dev/sdc2` also exited 0:
+6 files, 75/65467 clusters. Neither check repaired or replayed the journal.
+
+This provides evidence of a clean persisted filesystem after this tested
+poweroff despite the early persistence mount-unit EBUSY message. It does not
+prove physical unmount in the final stage (a successful final read-only remount
+can also leave clean state), nor does it establish power-loss resilience.
+No custom persistence shutdown implementation is justified by this result.
+Keep the proven KVM media-release fix; treat the remaining early mount-unit
+message separately from filesystem integrity and review upstream if needed.
