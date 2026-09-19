@@ -23,7 +23,7 @@ Published Rolling reference: ${ROLLING_REFERENCE:-not specified}. Package versio
 
 These files are identical to the [source build release](https://github.com/${GITHUB_REPOSITORY}/releases/tag/${RELEASE_TAG}). Builder commit: ${GITHUB_SHA}.
 
-Automated build checks passed. This exact image still requires hardware testing. For E52C, older installations without native extlinux image lifecycle hooks require a fresh installation first. See the repository README for installation and update instructions.
+Automated build checks passed. This exact image still requires hardware testing. See the repository README for installation and update instructions.
 EOF
 # Keep the previous channel intact until all assets have been uploaded.
 gh release create "$RELEASE_TAG" --repo "$REPO" --draft \

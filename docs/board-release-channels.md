@@ -2,7 +2,8 @@
 
 Registered channels live in `profiles/update-channels/`. Only the exact `network`
 profile receives a channel; base and profiles including Tailscale or KVM do not.
-Currently registered: `radxa-e52c` → `VyARM-Community/radxa-e52c`.
+Registered: `radxa-e52c` → `VyARM-Community/radxa-e52c` and
+`rock-5b` → `VyARM-Community/rock-5b`.
 
 The image contains `/usr/share/vyos-arm64-board-builder/update-channel.json`.
 On a fresh installation the existing first-boot DHCP helper seeds the native

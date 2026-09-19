@@ -14,7 +14,9 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 class ChannelTests(unittest.TestCase):
     def test_only_registered_network(self):
         self.assertEqual(m.channel_for('radxa-e52c','network')['repository'],'VyARM-Community/radxa-e52c')
-        for board, profile in [('rock-5b','network'),('radxa-e52c','base'),('radxa-e52c','network-tailscale'),('radxa-e52c','network-tailscale-kvm')]:
+        self.assertEqual(m.channel_for('rock-5b','network')['repository'],'VyARM-Community/rock-5b')
+        self.assertIsNone(m.channel_for('rock-5b','network-tailscale-kvm'))
+        for board, profile in [('unknown-board','network'),('radxa-e52c','base'),('radxa-e52c','network-tailscale'),('radxa-e52c','network-tailscale-kvm')]:
             self.assertIsNone(m.channel_for(board,profile))
 
     def test_feed_and_rejection(self):
