@@ -1,0 +1,14 @@
+name: Check board publication access
+on:
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Verify existing release credential can publish to E52C repository
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          gh api repos/VyARM-Community/radxa-e52c --jq '.permissions.push' | grep -qx true
