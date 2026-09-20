@@ -92,3 +92,40 @@ the native `$VAR(../../@)` context to select the enclosing container name, with
 the upstream native-name constraint plus defensive argument validation. End-to-end
 Tab/? with that context still requires package installation and remains untested.
 No sudo rules, operator roles, host listeners or running display settings changed.
+
+## Native package live test (2026-09-20, 13:50 CEST)
+
+Installed ARM64 vyos-1x version
+`999.0-14924-g27383e4f1+kvm-tailscale.e1a4f68a2e90+kiosk.72cc8e8c3d84`
+over the matching original base/profile. Original package was reconstructed with
+unmodified dpkg-repack 1.54build1 (helper only, not installed) and inspected before
+testing. Backup and manual rollback instructions are on ROCK under
+`/config/kiosk-test/backups/cli-package-20260920/` (root-only).
+Full package downgrade has not been tested.
+
+Package maintainer postinst is identical to the installed one. Existing package
+file hashes differ only for container.py, three generated reference caches,
+profile provenance and one IPv6 help string. KVM/Tailscale files are retained.
+`dpkg --audit` is empty after installation. Postinst emitted an existing-image
+cloud-init-local.service missing-dependency warning; installation exited zero.
+
+Live results:
+- Actual interactive Tab completion offers `auto` and connected `HDMI-1` with help.
+- Invalid rotation 45 is rejected by CLI validation.
+- Migrated only three legacy environment nodes into native kiosk url/output/
+  rotation using interactive compare, commit, save. Saved whole-config diff
+  contains only that migration. Values remain local test page, auto, 90.
+- Container restart completed; Xorg previous instance exited zero. New service
+  is active, NRestarts=0, display status HDMI-1/90/1080x1920, touch event4 mapped.
+- Sunshine startup detects h264_rkmpp. Existing capability/audio-daemon probe
+  errors remain; this test did not modify Sunshine or claim to fix those.
+- No additional failed service; pre-existing modem recovery failure unchanged.
+- This is runtime/state verification, not a new visual/touch confirmation or an
+  image-update/boot test. Sunshine CLI and H.265 remain separate pending work.
+
+Test-harness correction: native script-template command wrappers did not return
+expected shell failure status for invalid `set`, and plain `exit 1` invokes a CLI
+command. Initial automated candidate was discarded and no changes committed.
+Testing continued in a fresh interactive session; no pass claim is based on that
+script's exit code. Rollback is documented as explicit interactive commands,
+not the discarded automated script.
