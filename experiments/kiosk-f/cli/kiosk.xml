@@ -2,19 +2,44 @@
   <properties><help>Web kiosk settings for a compatible kiosk container image</help></properties>
   <children>
     <leafNode name="url">
-      <properties><help>Absolute HTTP, HTTPS or local file URL to display</help></properties>
+      <properties>
+        <help>Required page URL; quote the complete URL</help>
+        <valueHelp>
+          <format>https://example.org/menu</format>
+          <description>Web page displayed fullscreen; HTTP is also supported</description>
+        </valueHelp>
+        <valueHelp>
+          <format>file:///opt/kiosk/input-test.html</format>
+          <description>Absolute file path inside the container, not on the router host</description>
+        </valueHelp>
+      </properties>
     </leafNode>
     <leafNode name="output">
       <properties>
-        <help>Display output name or auto for the primary or sole connected output</help>
+        <help>Display output selection (default auto)</help>
+        <completionHelp><list>auto</list></completionHelp>
+        <valueHelp>
+          <format>auto</format>
+          <description>Use the primary or sole connected display; otherwise select a name</description>
+        </valueHelp>
+        <valueHelp>
+          <format>&lt;text&gt;</format>
+          <description>Exact connected output name, for example HDMI-1 or DP-1; names depend on hardware</description>
+        </valueHelp>
         <constraint><regex>[A-Za-z0-9][A-Za-z0-9_.:-]*</regex></constraint>
+        <constraintErrorMessage>Use auto or an output name such as HDMI-1; no spaces</constraintErrorMessage>
       </properties>
     </leafNode>
     <leafNode name="rotation">
       <properties>
-        <help>Display and touch rotation in degrees counterclockwise</help>
+        <help>Display and touch rotation counterclockwise (default 0)</help>
         <completionHelp><list>0 90 180 270</list></completionHelp>
+        <valueHelp><format>0</format><description>Normal orientation</description></valueHelp>
+        <valueHelp><format>90</format><description>Quarter turn left; touch rotates with the display</description></valueHelp>
+        <valueHelp><format>180</format><description>Upside down</description></valueHelp>
+        <valueHelp><format>270</format><description>Quarter turn right; touch rotates with the display</description></valueHelp>
         <constraint><regex>(0|90|180|270)</regex></constraint>
+        <constraintErrorMessage>Choose 0, 90, 180 or 270 degrees</constraintErrorMessage>
       </properties>
     </leafNode>
   </children>

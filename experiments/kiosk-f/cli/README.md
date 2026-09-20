@@ -28,6 +28,12 @@ volume and enable/disable settings remain native container configuration. The
 extension grants no additional permissions or hardware access. A compatible
 kiosk image is required; arbitrary container images need not consume these vars.
 
+CLI help follows upstream English wording: every kiosk leaf includes value help,
+examples or per-value explanations. Output completes `auto`; hardware-specific
+output names are not yet discovered for completion. Rotation completes all four
+supported values. URL help distinguishes container paths from host paths. Help
+must accompany future options, including defaults, prerequisites and valid values.
+
 Validation runs in the native container verify phase, before generation/apply:
 URL required, http/https/absolute local file only, no embedded user/password,
 no raw control/space/double-quote/backslash characters, valid port, rotation
