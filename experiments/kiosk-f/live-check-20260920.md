@@ -126,3 +126,5 @@ backed up in sunshine-cli-20260920. Native image commit succeeded, portrait and
 event4 reported. Post-start Xorg PID 758991, Chromium PID 759079. Awaiting user
 unplug/replug test. This is limited recovery for existing node numbers; changed
 event numbers/new devices still require host/container device reconciliation.
+
+Live reconnect accepted: user confirmed automatic recovery and correct portrait touch. Log records "Kiosk touch reconnected: /dev/input/event4". Xorg PID 758991 and Chromium PID 759079 unchanged; no container/desktop restart during reconnect. Native save completed.
