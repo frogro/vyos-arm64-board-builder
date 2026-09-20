@@ -1,0 +1,11 @@
+--- a/drivers/media/platform/rockchip/rga/rga-hw.c
++++ b/drivers/media/platform/rockchip/rga/rga-hw.c
+@@ -208,7 +208,7 @@
+ 			dst_info.data.csc_mode = RGA_SRC_CSC_MODE_BT709_R0;
+ 			break;
+ 		default:
+-			dst_info.data.csc_mode = RGA_DST_CSC_MODE_BT601_R0;
++			dst_info.data.csc_mode = RGA_DST_CSC_MODE_BT601_R1;
+ 			break;
+ 		}
+ 	}
