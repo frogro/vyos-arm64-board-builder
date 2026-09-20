@@ -205,3 +205,15 @@ Backup, install status, initramfs listing and rollback instructions are under
 /config/kiosk-test/kernel-test2. Cancel pending test with:
 `sudo grub-editenv /run/live/persistence/boot/grub/grubenv unset next_entry`.
 Boot, GPU/RGA, heaps, HDMI audio and touch on new kernel NOT yet tested.
+
+## Sep21: test2 boot attempt unsuccessful; fallback confirmed
+
+User authorized reboot. Before reboot uname=6.18.50-vyos and GRUB
+next_entry=vyarm-kernel-test2 confirmed. After reboot LAN/SSH remained unreachable
+across repeated attempts (ARP failed); no useful local-display report available.
+User power-cycled on request. SSH returned after startup, uname=6.18.50-vyos,
+boot ID 7e1736a9d4dc4ac29bf8700b84bda7a9, zero failed systemd units, next_entry
+empty. One-shot fallback therefore worked. Journal boot list has no intervening
+test2 boot recorded; /sys/fs/pstore empty. Cannot identify failure stage or assert
+kernel panic from this evidence. Test2 remains installed but not selected for
+next boot. Do not repeat unattended test before obtaining early boot diagnostics.
