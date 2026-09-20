@@ -170,3 +170,20 @@ Tailscale and KVM video services were also active after reboot; KVM had been
 stopped manually during earlier performance isolation, so future comparisons
 must account for this restored background workload. User confirmation of the
 new Moonlight session and physical inputs remains outstanding.
+
+## User acceptance and remaining shutdown defects
+
+User confirmed the post-reboot session is usable and running very well at
+8 Mbit/s. The previous-boot shutdown journal nevertheless shows two unresolved
+kiosk-path defects at monotonic +530 s: Xorg caught signal 11 during teardown,
+and Podman/netavark cleanup exited 125 because aardvark-dns attempted to create
+a transient systemd scope after shutdown.target was already queued. systemd
+therefore marked vyos-container-kiosk-test.service failed. These are distinct
+from the later /run/live/persistence busy unmount. A successful normal restart
+is not proof of a clean full-system shutdown. Current boot has no failed units.
+
+Prioritize child-process/Xorg shutdown ordering and container-network DNS teardown
+before calling this final. Do not suppress exit codes or remove networking/DNS
+without checking the configured customer-URL requirements. Then package the live
+helpers/drop-in for updates and add the planned native service schema/validation.
+Rotated touch/remote-input verification and RGA/H.265 remain separate work items.
