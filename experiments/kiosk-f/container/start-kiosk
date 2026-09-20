@@ -2,7 +2,17 @@
 set -euo pipefail
 if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
     export KIOSK_SESSION_READY=1
-    exec setsid --wait /bin/bash -c 'exec /usr/local/bin/start-kiosk </dev/tty8'
+    setsid --wait /bin/bash -c 'exec /usr/local/bin/start-kiosk </dev/tty8' &
+    leader=$!
+    forward_stop() {
+        trap '' TERM INT
+        kill -TERM "$leader" 2>/dev/null || true
+        wait "$leader" 2>/dev/null || true
+        exit 0
+    }
+    trap forward_stop TERM INT
+    wait "$leader"
+    exit $?
 fi
 export DISPLAY=:0 XAUTHORITY=/run/kiosk/Xauthority
 # Only an explicitly passed-through encoder device is adjusted. Sunshine still
@@ -11,6 +21,7 @@ if [ -c /dev/mpp_service ]; then
     chgrp video /dev/mpp_service
     chmod 0660 /dev/mpp_service
 fi
+python3 /usr/local/bin/kiosk-display.py validate
 mkdir -p /run/kiosk /state/browser /state/sunshine
 # This profile belongs exclusively to this kiosk instance.
 exec 9>/state/kiosk-session.lock
@@ -26,11 +37,24 @@ xauth -f "$XAUTHORITY" add :0 MIT-MAGIC-COOKIE-1 "$cookie"
 chown kiosk:kiosk "$XAUTHORITY"
 Xorg :0 vt8 -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /etc/X11/xorg.conf -logfile /state/Xorg.log &
 xpid=$!
-trap 'kill "$xpid" 2>/dev/null || true' EXIT
+session_pid=
+cleanup() {
+    trap '' TERM INT
+    if [ -n "$session_pid" ]; then
+        kill -TERM "$session_pid" 2>/dev/null || true
+        wait "$session_pid" 2>/dev/null || true
+    fi
+    kill -TERM "$xpid" 2>/dev/null || true
+    wait "$xpid" 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 0' TERM INT
 for n in $(seq 1 40); do
     if xdpyinfo >/dev/null 2>&1; then break; fi
     kill -0 "$xpid" || { cat /state/Xorg.log; exit 1; }
     sleep 1
 done
 xdpyinfo >/dev/null
-runuser -u kiosk -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" dbus-run-session -- /usr/local/bin/kiosk-session
+runuser -u kiosk -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" dbus-run-session -- /usr/local/bin/kiosk-session &
+session_pid=$!
+wait "$session_pid"

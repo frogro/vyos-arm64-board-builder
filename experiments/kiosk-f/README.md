@@ -87,3 +87,13 @@ Live read-only check: Xorg on ROCK 5B advertises normal/left/inverted/right on
 its connected display (currently 1920x1080 at 60 Hz). This establishes advertised
 support only. No actual rotation, touchscreen transform or rotated streaming test
 has been performed, and the active landscape session remains unchanged.
+
+## First live CLI implementation
+
+See [CLI.md](CLI.md) for the tested native-container commands, configuration
+validation limits, live results and rollback. The live prototype now supports
+KIOSK_URL, KIOSK_ROTATION and KIOSK_OUTPUT, persistent native enable/disable,
+status/logs and native restart. A new `service kiosk` schema is not installed.
+The 90-degree display change is now verified (1080x1920); rotated touch and
+Moonlight absolute input still need testing. RGA remains blocked by the color
+validation result. No H.265 changes have been made.
