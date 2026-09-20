@@ -76,3 +76,18 @@ Initial live-session CPU sample: 12 seconds using /proc process counters,
 100% = one CPU core: Sunshine 66.6%, Xorg 40.6%, Chromium processes combined
 21.9%. This is an observational sample, not a controlled latency/FPS benchmark
 or a like-for-like software-versus-MPP comparison.
+
+## Follow-up conversion probe
+
+A missing `/dev/rga` did NOT imply that RGA was unavailable. The live kernel
+has CONFIG_VIDEO_ROCKCHIP_RGA=m and a bound rockchip_rga V4L2 memory-to-memory
+device (currently /dev/video0; production discovery must not hardcode that number).
+It advertises XR24 input and NV12 output. A bounded v4l2-ctl mmap test converted
+60 synthetic 1920x1080 frames and exited 0. This is a feasibility test, not a
+measured end-to-end speedup or verified color-accuracy test. Sunshine still uses
+CPU color conversion. GPU rendering remains separate; Panfrost/Panthor are not
+enabled in this kernel.
+
+X11 advertises MIT-SHM; active shared-memory capture needs confirming during a
+stream. The V-Sync-only Moonlight comparison is pending user feedback; resolution,
+stream frame rate, minimum FPS and frame pacing were not changed for these probes.
