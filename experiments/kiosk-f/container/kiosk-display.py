@@ -66,6 +66,20 @@ def geometry(text, output):
     return tuple(map(int, match.groups() + screen.groups()))
 
 
+def active_rotation(text, output):
+    # Query output (not --verbose): no rotation token means normal. Do not
+    # confuse the parenthesized list of supported rotations with active state.
+    match = re.search(r'^' + re.escape(output) +
+                      r' connected(?: primary)? \d+x\d+\+\d+\+\d+(.*?)\(', text, re.M)
+    if not match:
+        raise ValueError('Cannot determine active display rotation')
+    token = match[1].strip() or 'normal'
+    reverse = {value: key for key, value in ROTATIONS.items()}
+    if token not in reverse:
+        raise ValueError('Unsupported display rotation/reflection: ' + token)
+    return reverse[token]
+
+
 def touch_matrix(rotation, geom):
     w, h, x, y, sw, sh = geom
     if min(w, h, sw, sh) <= 0:
@@ -119,8 +133,9 @@ def watch():
             text = command(['xrandr', '--query'])
             output = select_output(text, requested)
             geom = geometry(text, output)
+            rotation = active_rotation(text, output)
             devices = touch_devices()
-            signature = (output, geom, tuple(devices))
+            signature = (output, rotation, geom, tuple(devices))
             if signature != previous:
                 matrix = [str(v) for v in touch_matrix(rotation, geom)]
                 for device, _ in devices:

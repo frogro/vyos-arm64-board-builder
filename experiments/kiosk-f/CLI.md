@@ -187,3 +187,32 @@ before calling this final. Do not suppress exit codes or remove networking/DNS
 without checking the configured customer-URL requirements. Then package the live
 helpers/drop-in for updates and add the planned native service schema/validation.
 Rotated touch/remote-input verification and RGA/H.265 remain separate work items.
+
+## Mobile touch monitor test (2026-09-20, in progress)
+
+User confirmed landscape local touch is correct and very smooth. Generic USB
+class discovery with --include-touch found the new touchscreen and pointer
+interface; native device mappings were refreshed from that inventory. This is
+still a snapshot, not automatic host hotplug reconciliation.
+
+The first portrait startup produced a black screen reported by the user despite
+Xrandr reporting a connected rotated output. Returning to landscape restored the
+picture. A subsequent direct live Xrandr rotation remained visible, but touch was
+wrong because the watcher still used the configured landscape rotation. The
+watcher now reads the actual output rotation and includes it in its change
+signature (including 0/180 and 90/270 changes with unchanged dimensions).
+Seven local tests pass. A live 90-degree test reports 1080x1920 and the expected
+touch matrix. User confirmed portrait touch works perfectly. A timed systemd job
+returns the display to landscape. Saved configuration remains rotation 0.
+The updated display helper is exposed via a native read-only display-helper
+volume from /config/kiosk-test/build/kiosk-display.py.
+
+The shutdown prototype now directly supervises the session bus and desktop
+children as the unprivileged kiosk user (setpriv replaces the runuser wrapper).
+It is exposed via a native read-only session-supervisor volume. Live restart
+logs confirm children cleanup finishes before Xorg stops, but Xorg STILL reports
+SIGSEGV at teardown; this is not a completed fix. no-name-server is saved for
+the dedicated network and generated Quadlet has DisableDNS=true, but the existing
+Podman network still has dns_enabled=true. Network recreation and full shutdown
+validation remain pending. External name resolution currently works. Do not
+claim the aardvark shutdown issue is fixed yet.

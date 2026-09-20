@@ -29,6 +29,13 @@ class DisplayTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             display.select_output(text, 'HDMI-1')
 
+    def test_active_rotation_tracks_same_size_changes(self):
+        for token, expected in [('', '0'), ('left ', '90'), ('inverted ', '180'), ('right ', '270')]:
+            text = 'DP-1 connected primary 1920x1080+0+0 ' + token + '(normal left inverted right)'
+            self.assertEqual(display.active_rotation(text, 'DP-1'), expected)
+        with self.assertRaises(ValueError):
+            display.active_rotation('DP-1 disconnected (normal left inverted right)', 'DP-1')
+
     def test_rotation_maps_corners_inside_selected_output(self):
         geom = (1080, 1920, 1920, 0, 3000, 1920)
         for rotation in display.ROTATIONS:
