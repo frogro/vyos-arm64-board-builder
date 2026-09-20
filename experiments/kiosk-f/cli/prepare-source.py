@@ -15,11 +15,12 @@ def prepare(root):
     schema = root / 'interface-definitions/container.xml.in'
     owner = root / 'src/conf_mode/container.py'
     helper = root / 'python/vyos/kiosk.py'
+    completion = root / 'src/completion/list-kiosk-outputs.py'
     xml = schema.read_text()
     code = owner.read_text()
     tree = ET.fromstring(xml)
     parent = tree.find("./node[@name='container']/children/tagNode[@name='name']/children")
-    if parent is None or parent.find("node[@name='kiosk']") is not None or helper.exists():
+    if parent is None or parent.find("node[@name='kiosk']") is not None or helper.exists() or completion.exists():
         raise ValueError('Unexpected or already patched source tree')
     anchor = '          <leafNode name="allow-host-pid">'
     checks = [
@@ -43,6 +44,9 @@ def prepare(root):
     compile(code, str(owner), 'exec')
     ET.fromstring(xml)
     helper.write_text((HERE / 'kiosk.py').read_text())
+    completion.parent.mkdir(parents=True, exist_ok=True)
+    completion.write_text((HERE / 'list-kiosk-outputs.py').read_text())
+    completion.chmod(0o755)
     schema.write_text(xml)
     owner.write_text(code)
 

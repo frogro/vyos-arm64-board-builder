@@ -29,8 +29,10 @@ extension grants no additional permissions or hardware access. A compatible
 kiosk image is required; arbitrary container images need not consume these vars.
 
 CLI help follows upstream English wording: every kiosk leaf includes value help,
-examples or per-value explanations. Output completes `auto`; hardware-specific
-output names are not yet discovered for completion. Rotation completes all four
+examples or per-value explanations. Output completion queries the selected running
+kiosk's X11 server with a two-second timeout and offers connected output names
+plus `auto`. A stopped/unavailable container yields `auto`; it is never started
+by completion. No DRM-to-X11 naming assumptions are made. Rotation completes all four
 supported values. URL help distinguishes container paths from host paths. Help
 must accompany future options, including defaults, prerequisites and valid values.
 
@@ -47,7 +49,8 @@ Conflicting legacy settings are rejected when the new node is used.
 ## Build path and tests
 
 Run `python3 prepare-source.py /path/to/clean/vyos-1x` BEFORE upstream generation
-and packaging. It patches container.xml.in/container.py and adds python/vyos/kiosk.py.
+and packaging. It patches container.xml.in/container.py and adds python/vyos/kiosk.py
+and src/completion/list-kiosk-outputs.py.
 The patch checks exact insertion points and refuses unexpected/already modified
 sources. Rebuild via upstream targets, including schema validation, command
 templates and reference caches. Do not copy individual node.def files into the
@@ -77,3 +80,15 @@ Before returning to an unextended vyos-1x/image, replace the kiosk node with its
 equivalent three KIOSK_* environment nodes in one native commit/save. Older
 packages do not understand the new node. Pairing/browser state remains under
 /config. This migration and an actual image update are not yet tested.
+
+## Dynamic output completion test
+
+2026-09-20: 20 local tests pass. The completion helper executed read-only on ROCK
+for kiosk-test and returned `auto HDMI-1`. The kernel advertises HDMI-A-1 instead,
+confirming why direct sysfs names are unsuitable for this X11 setting. Tests cover
+disconnected connectors, timeout, stopped/missing containers and invalid names.
+Source preparation and native schema/template generation passed. Completion uses
+the native `$VAR(../../@)` context to select the enclosing container name, with
+the upstream native-name constraint plus defensive argument validation. End-to-end
+Tab/? with that context still requires package installation and remains untested.
+No sudo rules, operator roles, host listeners or running display settings changed.

@@ -17,14 +17,16 @@
     <leafNode name="output">
       <properties>
         <help>Display output selection (default auto)</help>
-        <completionHelp><list>auto</list></completionHelp>
+        <completionHelp>
+          <script>sudo -n ${vyos_completion_dir}/list-kiosk-outputs.py '$VAR(../../@)'</script>
+        </completionHelp>
         <valueHelp>
           <format>auto</format>
           <description>Use the primary or sole connected display; otherwise select a name</description>
         </valueHelp>
         <valueHelp>
           <format>&lt;text&gt;</format>
-          <description>Exact connected output name, for example HDMI-1 or DP-1; names depend on hardware</description>
+          <description>Exact output name; detected names require a running kiosk (for example HDMI-1 or DP-1)</description>
         </valueHelp>
         <constraint><regex>[A-Za-z0-9][A-Za-z0-9_.:-]*</regex></constraint>
         <constraintErrorMessage>Use auto or an output name such as HDMI-1; no spaces</constraintErrorMessage>
