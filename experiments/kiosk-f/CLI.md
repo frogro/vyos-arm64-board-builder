@@ -112,3 +112,61 @@ No extra host privilege or network listener is introduced.
 - Final state is enabled, rotation 0, output auto, original local test URL,
   committed and saved. No router reboot was performed; persistence across a
   full reboot remains a separate test.
+
+## Client tuning and latency observations
+
+User accepted Moonlight H.264, 1080p/60 with forced hardware decoding, VSync off,
+and 8 Mbit/s as "almost perfect" on 2026-09-20. This is a client preference,
+not an image default or a universal recommended bitrate. Resolution and frame
+rate were retained. User observes slight initial mouse-motion delay compared
+with direct local input; its cause is not established.
+
+Sunshine stream_audio is disabled. A roughly 19-second wlan0 capture recorded
+2934 outgoing video packets and zero outgoing packets on the audio port. Video
+payload averaged 1.741 Mbit/s in that sample; packet-group gaps had median
+16.67 ms, 95th percentile 38.31 ms, maximum 47.77 ms. These are packet timings,
+not measured frame rate or end-to-end mouse latency. No payload was retained.
+Fifteen ICMP probes averaged 1.168 ms with zero loss; this short sample does not
+establish absence of video packet loss. Intel video-engine counters increased
+while Moonlight was running, confirming active hardware decoding. Sunshine has
+an attached SysV shared-memory segment, consistent with its X11 SHM capture.
+ThinkPad WLAN power saving was on; no privileged local change was made.
+
+## Boot readiness correction
+
+The first full reboot exposed a DHCP ordering failure: the container attempted
+its explicit host-address port binds at boot +47 s, before DHCP supplied that
+address at +49 s. Native restart=no left it failed, and the boot configuration
+activation omitted the failed container section. The container section was
+restored in isolation from the pre-change backup, with current kiosk settings.
+Never save an incomplete active configuration following a failed boot/commit;
+`exit` in the vbash configuration environment is not a reliable substitute for
+terminating a shell script. Save only inside a successful-commit branch.
+
+The lab now uses native `restart on-failure`, plus a **prototype systemd drop-in**
+for this container only. `systemd/wait-container-addresses.py` reads explicit bind
+addresses from the generated Quadlet and waits up to 60 monotonic seconds for
+those addresses to exist. Wildcard listeners do not require a wait. It neither
+changes interface addresses nor broadens port exposure. Retry delay is five
+seconds, without a start-rate cutoff. Manual service stop remains respected.
+
+Live installation: `/usr/local/libexec/vyos-kiosk-wait-addresses` and
+`/etc/systemd/system/vyos-container-kiosk-test.service.d/kiosk-retry.conf`.
+The drop-in is intentionally separate from the generated native unit; it is
+NOT an upstream VyOS CLI feature. Its files must be packaged/recreated by the
+future profile for image updates; this live installation alone is not update-safe.
+The sample drop-in names kiosk-test; production generation must use the selected
+container name. A changed DHCP lease address still requires correcting the
+explicit published-address configuration; waiting cannot resolve a stale address.
+
+The second reboot passed: native configuration retained the kiosk, the container
+started at boot +49 s, and display state was 1920x1080/rotation 0. No failed
+systemd units were reported; Sunshine detected h264_rkmpp. On this particular
+boot the bind address was already present at the pre-start check. A separate
+live test in an isolated network namespace withheld the address for two seconds:
+the helper waited and returned after 2.02 seconds once it was added. The real
+router interfaces were not modified. Six local unit tests passed.
+Tailscale and KVM video services were also active after reboot; KVM had been
+stopped manually during earlier performance isolation, so future comparisons
+must account for this restored background workload. User confirmation of the
+new Moonlight session and physical inputs remains outstanding.
