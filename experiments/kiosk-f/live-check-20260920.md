@@ -128,3 +128,30 @@ unplug/replug test. This is limited recovery for existing node numbers; changed
 event numbers/new devices still require host/container device reconciliation.
 
 Live reconnect accepted: user confirmed automatic recovery and correct portrait touch. Log records "Kiosk touch reconnected: /dev/input/event4". Xorg PID 758991 and Chromium PID 759079 unchanged; no container/desktop restart during reconnect. Native save completed.
+
+## HDMI audio hardware test
+
+Live 6.18.50-vyos kernel already has SND_SOC_HDMI_CODEC=m and SND_USB_AUDIO=m.
+ALSA lists rk3588-es8316, hdmi0, hdmi1. Connected monitor RTK FHD HDR advertises
+two-channel LPCM in HDMI ELD; no USB sound device found. Generated low-amplitude
+stereo PCM 48kHz/16bit WAV, played for four seconds with host aplay using stable
+ALSA card identifier plughw:CARD=hdmi0,DEV=0. Playback exited zero and user
+confirmed both tones audible from touch-monitor speaker. No mixer settings changed.
+
+Container currently has no /dev/snd mappings. libasound and pulseaudio present,
+but no running PulseAudio server (pactl connection refused). This confirms host
+HDMI hardware path only, not browser audio or Moonlight audio. Next: narrowly
+map selected playback/control nodes, configure user audio session and verify
+Chromium playback and optional Sunshine capture independently.
+
+## Planned handling of changed input event numbers
+
+Use host-side stable by-id identity (by-path fallback, explicit physical-port
+semantics) for authorized devices; debounce hotplug, resolve current event node
+and compare against container grants/mappings. Same-node generation change uses
+existing Xorg recovery. Changed node requires native container recreation with
+fresh device mapping and touch rotation; do not edit saved config recursively
+from a udev handler, expose all /dev/input, or grant arbitrary new devices.
+Keep absent-device selection persisted; runtime handling for boot while device
+is missing must be designed alongside native validation. This host reconciler
+is planned, not implemented or tested. No fixed manufacturer IDs in algorithm.
