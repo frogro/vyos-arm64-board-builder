@@ -177,3 +177,31 @@ Source installer restored to accepted baseline (no automatic reconciler install)
 Experimental helper/tests retained for diagnosis, NOT accepted for deployment.
 Touch same-node reconnect helper remains independently active/previously tested.
 Need diagnose system/AP and verify actual shifted mappings before acceptance.
+
+## Sep21: physical connections restored; kernel test2 staged for next boot
+
+User found WLAN card loose and LAN cable disconnected; after reseating and cold
+boot reports connectivity restored. This is evidence of connection trouble, not
+proof explaining every previous kernel timeout. Changed-event reconciler remains
+inactive and withdrawn from auto-start; touch tests postponed by user to tomorrow.
+
+On explicit request installed 6.18.50-vyos-f-test2 alongside 6.18.50-vyos.
+Artifacts from tmp/kiosk-kernel-20260920/artifacts-v2; SHA256SUMS-v2 checked locally,
+staged Image/config/DTB/modules hashes checked again on ROCK. Modules installed
+in /lib/modules/6.18.50-vyos-f-test2; depmod passed, panthor vermagic and signer
+checked. Created /boot/vmlinuz-f-test2 and /boot/initrd-f-test2.img (220 MiB).
+Initramfs verified to contain VyOS live boot hook, live scripts and new kernel's
+ext4/overlay/squashfs modules; Rockchip MMC built in. mkinitramfs fsck warning
+about identifying the overlay root recorded; generated archive readable.
+
+Normal GRUB default file unchanged (cmp against backup). Added dedicated entry
+vyarm-kernel-test2 and late one-shot next_entry handler; grub-script-check passed.
+Queued next_entry=vyarm-kernel-test2. No reboot performed: uname still6.18.50-vyos.
+Next boot selects test2 once, clearing next_entry before boot; subsequent boot
+uses original default. No watchdog automatic reboot promised if kernel hangs.
+Shared root/config; this is kernel fallback, not a full filesystem rollback.
+Firmware-provided DT unchanged; new DTB staged only, EFI entry has no DT override.
+Backup, install status, initramfs listing and rollback instructions are under
+/config/kiosk-test/kernel-test2. Cancel pending test with:
+`sudo grub-editenv /run/live/persistence/boot/grub/grubenv unset next_entry`.
+Boot, GPU/RGA, heaps, HDMI audio and touch on new kernel NOT yet tested.
