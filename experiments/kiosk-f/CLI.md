@@ -240,3 +240,40 @@ packages were confined to discarded live container layers, not the image.
 Full router shutdown/reboot with this correction is still pending. The separate
 stale Podman network/DNS cleanup issue described above remains unresolved.
 Do not conflate successful container restart with full poweroff validation.
+
+## Dedicated network recreation and persistence audit
+
+Native `no-name-server` had generated DisableDNS=true but did not replace the
+already-existing Podman network. Recreation used native commits: disable kiosk,
+remove only the saved kiosk container and its network, then restore only those
+81 commands from a current config backup. Merely detaching the network while
+keeping even a disabled container is rejected by VyOS validation; that failed
+candidate was discarded, not saved. Other router configuration was untouched.
+The restored kiosk network now reports dns_enabled=false. The container inherits
+host resolvers (in this lab 1.1.1.1 and 9.9.9.9), and external lookup succeeded.
+This removes unnecessary internal container-name discovery for this single-app
+network, not DNS functionality for customer websites.
+
+Podman graph root is /usr/lib/live/mount/persistence/container/storage, so local
+images use the native persistent store. Native saved container configuration
+retains environment, volumes and devices. Browser and pairing state are bound
+under /config/kiosk-test/state; live helper scripts are under /config as well.
+This does NOT establish tested image-update compatibility: the address readiness
+helper under /usr/local/libexec and its /etc/systemd drop-in are outside this
+persistence scheme. Production profile F must package/recreate those components,
+provide a reproducible versioned container image and test add-system-image plus
+rollback with existing state. Device mapping still needs generic enumeration
+reconciliation. Whole-router reboot validation is now in progress.
+
+### Full reboot result
+
+Completed full ROCK reboot on 2026-09-20. Boot ID changed from
+3f96dd4f-6e57-4995-aa72-45d331cd9f7d to ac7699a9-fd43-484d-bfac-b5f640645526.
+User confirmed portrait and touch after boot. Runtime reports 1080x1920/90,
+network DNS plugin remains disabled, Sunshine detects h264_rkmpp, and systemd
+reports zero failed units. Prior shutdown: desktop children stopped +1606.262,
+Xorg terminated successfully (0) +1606.442, native container service deactivated
+successfully +1607.121. No aardvark transient-scope/exit125 failure in this shutdown.
+Remaining unrelated host shutdown messages include routing/DHCP teardown errors,
+/run/live/persistence unmount failure and watchdog-not-stopped warning. The kiosk
+result does not establish those issues resolved, nor image-update compatibility.
