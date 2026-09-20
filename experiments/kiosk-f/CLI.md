@@ -216,3 +216,27 @@ the dedicated network and generated Quadlet has DisableDNS=true, but the existin
 Podman network still has dns_enabled=true. Network recreation and full shutdown
 validation remain pending. External name resolution currently works. Do not
 claim the aardvark shutdown issue is fixed yet.
+
+## Startup reset correction and repeat test
+
+The portrait black screen was reproduced on direct container startup. Rotating
+normal then left after Chromium was running restored the image. Xorg started
+without -noreset, so short-lived readiness/setup clients could trigger automatic
+server resets before persistent desktop clients connected. Xorg's own -help
+confirms -noreset suppresses reset after the last client exits. The starter now
+uses that option; normal SIGTERM shutdown remains enabled.
+
+With -noreset, direct portrait startup and a subsequent native container restart
+both returned a visible picture. User confirmed portrait and touch after the
+repeat restart. Current state: saved rotation 90, 1080x1920, native service active,
+Sunshine detects h264_rkmpp. The last non-debugger teardown logged desktop-child
+cleanup, then "Server terminated successfully (0)" and service deactivation,
+without the earlier SIGSEGV. Seven tests pass and shell syntax/diff checks pass.
+This strongly implicates the startup reset sequence; it does not identify the
+underlying Xorg memory fault. GDB changed reproduction (normal exit with and
+without live rotation); no useful SIGSEGV backtrace was obtained. Temporary gdb
+packages were confined to discarded live container layers, not the image.
+
+Full router shutdown/reboot with this correction is still pending. The separate
+stale Podman network/DNS cleanup issue described above remains unresolved.
+Do not conflate successful container restart with full poweroff validation.

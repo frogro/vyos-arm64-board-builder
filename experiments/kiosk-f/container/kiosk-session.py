@@ -4,6 +4,7 @@ import importlib.util
 import os
 from pathlib import Path
 import signal
+import select
 import subprocess
 import time
 
@@ -36,6 +37,17 @@ def link(source, target):
 signal.signal(signal.SIGTERM, stop)
 signal.signal(signal.SIGINT, stop)
 try:
+    # Own the session bus directly, so the root starter signals this supervisor,
+    # not runuser/dbus-run-session which can exit before desktop cleanup finishes.
+    bus = launch(['dbus-daemon', '--session', '--nofork', '--print-address=1'],
+                 stdout=subprocess.PIPE, text=True)
+    ready, _, _ = select.select([bus.stdout], [], [], 5)
+    if not ready:
+        raise RuntimeError('Session bus did not become ready')
+    address = bus.stdout.readline().strip()
+    if not address or bus.poll() is not None:
+        raise RuntimeError('Session bus failed to start')
+    os.environ['DBUS_SESSION_BUS_ADDRESS'] = address
     _, _, url = display.settings(os.environ)
     display.configure()
     subprocess.run(['xset', 's', 'off'], check=True)
@@ -66,22 +78,31 @@ try:
                                   '--user-data-dir=/state/browser', url])
             time.sleep(.2)
 finally:
+    bus_process = children.pop(0) if children and 'bus' in globals() and children[0] is bus else None
     # A bounded stop also handles Chromium descendants and an already-exited parent.
-    for child in children:
+    for child in reversed(children):
         try:
             os.killpg(child.pid, signal.SIGTERM)
         except ProcessLookupError:
             pass
     deadline = time.monotonic() + 5
-    for child in children:
+    for child in reversed(children):
         try:
             child.wait(timeout=max(.01, deadline-time.monotonic()))
         except subprocess.TimeoutExpired:
             pass
-    for child in children:
+    for child in reversed(children):
         try:
             os.killpg(child.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
-    for child in children:
+    for child in reversed(children):
         child.wait()
+    if bus_process is not None:
+        bus_process.terminate()
+        try:
+            bus_process.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            bus_process.kill()
+            bus_process.wait()
+    print('Kiosk desktop children stopped', flush=True)

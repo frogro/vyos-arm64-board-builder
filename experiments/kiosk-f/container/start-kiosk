@@ -35,7 +35,8 @@ chown -R kiosk:kiosk /run/kiosk /state
 cookie=$(mcookie)
 xauth -f "$XAUTHORITY" add :0 MIT-MAGIC-COOKIE-1 "$cookie"
 chown kiosk:kiosk "$XAUTHORITY"
-Xorg :0 vt8 -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /etc/X11/xorg.conf -logfile /state/Xorg.log &
+# Short setup clients (xdpyinfo/xrandr/xset) must not reset Xorg between calls.
+Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /etc/X11/xorg.conf -logfile /state/Xorg.log &
 xpid=$!
 session_pid=
 cleanup() {
@@ -55,6 +56,6 @@ for n in $(seq 1 40); do
     sleep 1
 done
 xdpyinfo >/dev/null
-runuser -u kiosk -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" dbus-run-session -- /usr/local/bin/kiosk-session &
+setpriv --reuid kiosk --regid kiosk --init-groups -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
 session_pid=$!
 wait "$session_pid"
