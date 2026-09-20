@@ -5,6 +5,11 @@ router reboot; see the final result below. Earlier dated sections retain the
 investigation history and are not the current state. No image-update test or
 dedicated `service kiosk` schema has been completed.
 
+The next CLI prototype now extends the existing container owner with
+`container name NAME kiosk` rather than introducing a separate service owner.
+See [cli/README.md](cli/README.md) for source-generation tests and migration.
+It is NOT installed live yet; the working commands below remain applicable.
+
 Experimental branch only. The tested control surface uses the existing native
 VyOS `container` configuration. `service kiosk` is still a design, not an
 installed command. This avoids replacing CLI caches or changing permissions.

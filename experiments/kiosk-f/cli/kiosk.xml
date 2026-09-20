@@ -1,0 +1,21 @@
+<node name="kiosk">
+  <properties><help>Web kiosk settings for a compatible kiosk container image</help></properties>
+  <children>
+    <leafNode name="url">
+      <properties><help>Absolute HTTP, HTTPS or local file URL to display</help></properties>
+    </leafNode>
+    <leafNode name="output">
+      <properties>
+        <help>Display output name or auto for the primary or sole connected output</help>
+        <constraint><regex>[A-Za-z0-9][A-Za-z0-9_.:-]*</regex></constraint>
+      </properties>
+    </leafNode>
+    <leafNode name="rotation">
+      <properties>
+        <help>Display and touch rotation in degrees counterclockwise</help>
+        <completionHelp><list>0 90 180 270</list></completionHelp>
+        <constraint><regex>(0|90|180|270)</regex></constraint>
+      </properties>
+    </leafNode>
+  </children>
+</node>
