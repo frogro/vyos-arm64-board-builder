@@ -12,7 +12,7 @@ def environment(config):
     if 'kiosk' not in config:
         return []
     settings = config['kiosk']
-    if not isinstance(settings, dict) or set(settings) - set(KEYS):
+    if not isinstance(settings, dict) or set(settings) - (set(KEYS) | {'remote'}):
         raise ValueError('Unknown kiosk setting')
     if any(key in config.get('environment', {}) for key in KEYS.values()):
         raise ValueError('Remove KIOSK_URL/KIOSK_OUTPUT/KIOSK_ROTATION environment overrides before using kiosk settings')

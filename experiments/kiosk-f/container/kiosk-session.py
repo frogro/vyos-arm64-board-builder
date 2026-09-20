@@ -58,13 +58,20 @@ try:
         link('/state/openbox/rc.xml', config / 'openbox/rc.xml')
     link('/state/sunshine', config / 'sunshine')
     os.environ['LANG'] = 'C.UTF-8'
-    with open('/state/sunshine/runtime.log', 'w') as log:
-        sunshine = launch(['sunshine', '/state/sunshine/sunshine.conf'], stdout=log, stderr=subprocess.STDOUT)
+    with open('/state/sunshine/supervisor.log', 'w') as log:
+        sunshine = launch(['python3', '/usr/local/bin/kiosk-sunshine.py', 'serve'], stdout=log, stderr=subprocess.STDOUT)
         wm = launch(['openbox'])
         touch = launch(['python3', '/usr/local/bin/kiosk-display.py', 'watch'])
+        remote_retry = 0
         browser = None
         retry = 0
         while not stopping:
+            if sunshine is not None and sunshine.poll() is not None:
+                children.remove(sunshine)
+                sunshine = None
+                remote_retry = time.monotonic() + 5
+            if sunshine is None and time.monotonic() >= remote_retry:
+                sunshine = launch(['python3', '/usr/local/bin/kiosk-sunshine.py', 'serve'], stdout=log, stderr=subprocess.STDOUT)
             if wm.poll() is not None or touch.poll() is not None:
                 raise RuntimeError('Kiosk window manager or touch monitor stopped')
             if browser is not None and browser.poll() is not None:
@@ -85,7 +92,7 @@ finally:
             os.killpg(child.pid, signal.SIGTERM)
         except ProcessLookupError:
             pass
-    deadline = time.monotonic() + 5
+    deadline = time.monotonic() + 30
     for child in reversed(children):
         try:
             child.wait(timeout=max(.01, deadline-time.monotonic()))

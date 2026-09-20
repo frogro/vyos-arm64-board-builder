@@ -44,5 +44,19 @@
         <constraintErrorMessage>Choose 0, 90, 180 or 270 degrees</constraintErrorMessage>
       </properties>
     </leafNode>
+    <node name="remote"><properties><help>Sunshine remote access; compatible supervisor image required</help></properties><children>
+      <leafNode name="access"><properties><help>Remote access (default disabled); changing this ends current streams</help><completionHelp><list>disabled enabled</list></completionHelp>
+<valueHelp><format>disabled</format><description>Stop Sunshine; local kiosk continues; Web UI unavailable</description></valueHelp>
+<valueHelp><format>enabled</format><description>Run Sunshine; encrypted streaming required</description></valueHelp>
+<constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled or enabled</constraintErrorMessage></properties></leafNode>
+      <leafNode name="input"><properties><help>Remote input permission (default view-only); local touch is unaffected</help><completionHelp><list>view-only control</list></completionHelp>
+<valueHelp><format>view-only</format><description>Disable remote keyboard, mouse, touch and gamepad</description></valueHelp>
+<valueHelp><format>control</format><description>Allow remote keyboard, mouse and touch; gamepad stays disabled</description></valueHelp>
+<constraint><regex>(view-only|control)</regex></constraint><constraintErrorMessage>Choose view-only or control</constraintErrorMessage></properties></leafNode>
+      <leafNode name="audio"><properties><help>Stream audio (default disabled); requires a working container audio source</help><completionHelp><list>disabled enabled</list></completionHelp>
+<valueHelp><format>disabled</format><description>Do not transmit audio to Moonlight</description></valueHelp>
+<valueHelp><format>enabled</format><description>Transmit available kiosk audio to Moonlight; local HDMI audio is separate</description></valueHelp>
+<constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled or enabled</constraintErrorMessage></properties></leafNode>
+    </children></node>
   </children>
 </node>

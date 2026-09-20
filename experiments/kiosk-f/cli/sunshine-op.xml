@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+<node name="show"><children><node name="kiosk"><properties><help>Kiosk administration</help></properties><children><tagNode name="sunshine"><properties><help>Kiosk container name</help><completionHelp><path>container name</path></completionHelp></properties><children>
+<leafNode name="status"><properties><help>Sunshine supervisor, policy and encoder diagnostics</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py status "$4"</command></leafNode>
+<leafNode name="clients"><properties><help>List paired Moonlight clients; prompts for Web credentials</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py clients "$4"</command></leafNode>
+<leafNode name="pending"><properties><help>List pending pairing requests; prompts for Web credentials</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py pending "$4"</command></leafNode>
+</children></tagNode></children></node></children></node>
+<node name="request"><children><node name="kiosk"><properties><help>Kiosk administration</help></properties><children><tagNode name="sunshine"><properties><help>Kiosk container name</help><completionHelp><path>container name</path></completionHelp></properties><children>
+<leafNode name="pair"><properties><help>Approve a pending pairing; prompts for Web credentials and PIN</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py pair "$4"</command></leafNode>
+<leafNode name="revoke"><properties><help>Revoke a client UUID and end current streams; prompts for Web credentials</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py revoke "$4"</command></leafNode>
+<leafNode name="reset-credentials"><properties><help>Reset Web credentials; interrupts streams, preserves pairings</help></properties><command>${vyos_op_scripts_dir}/kiosk_sunshine.py reset-credentials "$4"</command></leafNode>
+</children></tagNode></children></node></children></node>
+</interfaceDefinition>

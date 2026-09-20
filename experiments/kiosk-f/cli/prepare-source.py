@@ -31,10 +31,10 @@ def prepare(root):
         raise ValueError('Unexpected or already patched source tree')
     anchor = '          <leafNode name="allow-host-pid">'
     checks = [
-        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment\n'),
+        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment\nfrom vyos import kiosk_remote\n'),
         ('        for name, container_config in container[\'name\'].items():\n            # Container image',
          '        for name, container_config in container[\'name\'].items():\n'
-         '            try:\n                kiosk_environment(container_config)\n'
+         '            try:\n                kiosk_environment(container_config)\n                kiosk_remote.policy(container_config)\n                kiosk_remote.verify_image(container_config)\n'
          '            except ValueError as error:\n                raise ConfigError(f\'Kiosk "{name}": {error}\') from error\n'
          '            # Container image'),
         ("    if 'health_check' in container_config:\n", "    out.extend(kiosk_environment(container_config))\n\n    if 'health_check' in container_config:\n"),
@@ -45,6 +45,27 @@ def prepare(root):
         if code.count(old) != 1:
             raise ValueError('Container owner changed; review required: ' + old[:65])
         code = code.replace(old, new)
+    extra = [
+        ("    for name in container.get('name', []):\n",
+         "    previous = conf.get_config_dict(base, effective=True, key_mangling=('-', '_'),\n"
+         "                                    no_tag_node_value_mangle=True, get_first_key=True,\n"
+         "                                    with_recursive_defaults=True)\n"
+         "    container['kiosk_remote_only'] = [name for name, item in container.get('name', {}).items()\n"
+         "        if kiosk_remote.remote_only(previous.get('name', {}).get(name, {}), item)]\n\n"
+         "    for name in container.get('name', []):\n"),
+        ("            quadlet_opts = generate_quadlet_options(name, container_config, host_ident, network_config)\n",
+         "            kiosk_remote.write_policy(name, container_config)\n"
+         "            quadlet_opts = generate_quadlet_options(name, container_config, host_ident, network_config)\n"
+         "            if 'kiosk' in container_config:\n"
+         "                quadlet_opts.append(f'Volume={kiosk_remote.directory(name)}:{kiosk_remote.DEST}:ro')\n"),
+        ("                cmdl(['systemctl', 'restart', f'vyos-container-{name}'])\n",
+         "                if name not in container.get('kiosk_remote_only', []) or not kiosk_remote.mounted_policy(name):\n"
+         "                    cmdl(['systemctl', 'restart', f'vyos-container-{name}'])\n"),
+    ]
+    for old, new in extra:
+        if code.count(old) != 1:
+            raise ValueError('Container lifecycle changed; review required')
+        code = code.replace(old, new)
     fragment = (HERE / 'kiosk.xml').read_text()
     ET.fromstring(fragment)
     xml = xml.replace(anchor, '\n'.join('          ' + line for line in fragment.splitlines()) + '\n' + anchor)
@@ -54,6 +75,11 @@ def prepare(root):
     completion.parent.mkdir(parents=True, exist_ok=True)
     completion.write_text((HERE / 'list-kiosk-outputs.py').read_text())
     completion.chmod(0o755)
+    (root / 'python/vyos/kiosk_remote.py').write_text((HERE / 'remote.py').read_text())
+    (root / 'op-mode-definitions/kiosk_sunshine.xml.in').write_text((HERE / 'sunshine-op.xml').read_text())
+    op = root / 'src/op_mode/kiosk_sunshine.py'
+    op.write_text((HERE / 'sunshine-op.py').read_text())
+    op.chmod(0o755)
     schema.write_text(xml)
     owner.write_text(code)
 
