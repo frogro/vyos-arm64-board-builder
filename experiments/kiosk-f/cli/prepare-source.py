@@ -5,9 +5,16 @@ Do not use on installed templates/caches. No normal builder profile enables this
 """
 import argparse
 from pathlib import Path
+import re
 import xml.etree.ElementTree as ET
 
 HERE = Path(__file__).resolve().parent
+
+
+def parse_template(text):
+    # Upstream .xml.in includes are expanded later by transclude-template.
+    # Inspect only this file's structure; preserve include lines in its output.
+    return ET.fromstring(re.sub(r'(?m)^[ \t]*#include <[^>\n]+>[ \t]*$', '', text))
 
 
 def prepare(root):
@@ -18,7 +25,7 @@ def prepare(root):
     completion = root / 'src/completion/list-kiosk-outputs.py'
     xml = schema.read_text()
     code = owner.read_text()
-    tree = ET.fromstring(xml)
+    tree = parse_template(xml)
     parent = tree.find("./node[@name='container']/children/tagNode[@name='name']/children")
     if parent is None or parent.find("node[@name='kiosk']") is not None or helper.exists() or completion.exists():
         raise ValueError('Unexpected or already patched source tree')
@@ -42,7 +49,7 @@ def prepare(root):
     ET.fromstring(fragment)
     xml = xml.replace(anchor, '\n'.join('          ' + line for line in fragment.splitlines()) + '\n' + anchor)
     compile(code, str(owner), 'exec')
-    ET.fromstring(xml)
+    parse_template(xml)
     helper.write_text((HERE / 'kiosk.py').read_text())
     completion.parent.mkdir(parents=True, exist_ok=True)
     completion.write_text((HERE / 'list-kiosk-outputs.py').read_text())
