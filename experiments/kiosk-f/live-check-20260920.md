@@ -217,3 +217,17 @@ empty. One-shot fallback therefore worked. Journal boot list has no intervening
 test2 boot recorded; /sys/fs/pstore empty. Cannot identify failure stage or assert
 kernel panic from this evidence. Test2 remains installed but not selected for
 next boot. Do not repeat unattended test before obtaining early boot diagnostics.
+
+## Sep21: second test2 attempt reached userspace successfully
+
+User requested retry; queued one-shot again and rebooted. Initial SSH polls
+failed, but later SSH succeeded: uname=6.18.50-vyos-f-test2, uptime about one
+minute, next_entry empty, no failed systemd units. Previous conclusion of boot
+failure must not be extended to this attempt: network readiness took longer
+than initial polls. User reported System Logging Service failure on display.
+Journal confirms rsyslog exited status1 at monotonic49.59s then started at56.93s;
+currently active. No detailed initial rsyslog error in journal, root cause open.
+Existing override uses /run/rsyslog/rsyslog.conf and automatic restart. No logging
+configuration changed. /dev/dma_heap/system exists. /dev/dri lists card0 only,
+no render node observed; GPU/video capability still requires investigation.
+Boot success is not functional acceptance of RGA/audio/touch/decoding.
