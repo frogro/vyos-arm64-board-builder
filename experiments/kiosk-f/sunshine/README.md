@@ -91,3 +91,62 @@ enabled in this kernel.
 X11 advertises MIT-SHM; active shared-memory capture needs confirming during a
 stream. The V-Sync-only Moonlight comparison is pending user feedback; resolution,
 stream frame rate, minimum FPS and frame pacing were not changed for these probes.
+
+## RGA color validation: activation blocked (2026-09-20)
+
+`probe-rga-colors.py` discovers the RGA node through sysfs and checks mem2mem,
+streaming and pixel-format capabilities before sending synthetic color bars.
+It does not open the HDMI receiver, change native container configuration or
+restart Sunshine. It requests full-range BGR0 input and limited-range NV12
+output at 1920x1080. Run with device access, e.g.:
+
+```
+sudo python3 probe-rga-colors.py
+```
+
+On ROCK 5B, kernel 6.18.50-vyos, RGA HW version 0x03.02, this test fails:
+BT.601 maximum sampled channel error 20; BT.709 error 16 (8-bit levels).
+BT.601 black/white Y is 0/255 instead of 16/235. The negotiated output reports
+quantization Default despite the explicit limited-range request. BT.709 red Y
+is 54 rather than 63, and green is 182 rather than 173. The reference formula
+was independently checked using local FFmpeg/libswscale on the same raw bars.
+Exact device output is in `test-results/rock5b-rga-colors-20260920.json`.
+
+The real Sunshine session currently requests Rec.601/MPEG (limited range), so
+using this output unchanged would mismatch stream color metadata. No RGA path
+has been activated or added to Sunshine yet. MPP hardware encoding remains in
+use; capture/color conversion remains CPU-based. Resolution, requested FPS,
+Moonlight settings, pairing and network configuration were not changed.
+
+Next investigate the kernel driver/SoC CSC register behavior and quantization
+handling, then rerun this test before integrating persistent V4L2 queues into
+Sunshine. Merely relabeling the encoded frame as another color space is not a
+fix. A future converter must validate supported color matrix/range and fall
+back to swscale for unsupported combinations or failed device operations.
+The limited test patterns here are an initial rejection gate, not proof of
+complete color correctness or performance. No speedup is claimed.
+
+Upstream source reference (not proof of the exact running build's root cause):
+https://github.com/torvalds/linux/blob/v6.18/drivers/media/platform/rockchip/rga/rga-hw.c
+
+### Follow-up source investigation
+
+The manufacturer's current librga FAQ maps RGB-to-YUV BT.601 limited range to
+mode 2, and full range to mode 1. The upstream v6.18 RGA header labels its
+BT601_R0 destination mode as 1, which the driver chooses by default. This
+matches the observed full-range BT.601 output and gives a specific driver-level
+lead. It is not sufficient to infer a tested fix for BT.709 or all supported
+SoCs. Do not change source-side YUV-to-RGB constants as part of a destination
+RGB-to-YUV correction. Quantization negotiation also needs proper implementation.
+
+Source: https://github.com/airockchip/librga/blob/main/docs/Rockchip_FAQ_RGA_EN.md
+(Q2.14). Compare drivers/media/platform/rockchip/rga/rga-hw.{c,h} in Linux v6.18.
+
+The running host has no /usr/src headers or /lib/modules/6.18.50-vyos/build.
+The matching release exposes kernel.config but not Module.symvers or a prepared
+module build tree. The local old 6.18.44 tree is not a compatible substitute.
+A live driver replacement therefore needs a matching prepared kernel build and
+symbol versions first; no force-loading or unverified binary patch was attempted.
+No kernel module, container configuration or display mode was changed by this
+investigation. Once a correctly built test module is available, preserve the
+stock module and retest both matrices/ranges before Sunshine integration.

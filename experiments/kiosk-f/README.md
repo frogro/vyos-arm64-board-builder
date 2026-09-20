@@ -59,3 +59,31 @@ No reboot or builder release was started for this experiment. Rollback: restore 
 ## Generic input requirement
 
 `discover-inputs.py` enumerates udev USB input classes, not manufacturers or model IDs. It prefers by-id, falls back to by-path, and reports unstable event-only paths explicitly. Default selection is keyboard/mouse; touch is opt-in. Read-only live discovery on the ROCK found the connected keyboard and mouse without a hardware-specific rule. Other hardware and hotplug reconciliation are not yet tested. Persist selection policy, not the current Logitech/ILITEK identifiers. For multiple devices allow explicit administrator selection. Device ACL reconciliation and restart behavior remain required before claiming automatic hotplug support.
+
+## Display orientation (concept, 2026-09-20)
+
+Provide a native-style kiosk CLI setting for display rotation: 0, 90, 180, 270
+ degrees. Example syntax (NOT implemented):
+
+```
+set service kiosk display rotation '90'
+```
+
+Resolve the selected connected output dynamically; do not assume HDMI-1 or a
+particular board. Apply rotation before launching Chromium; preserve the physical
+mode/refresh rate and derive the logical browser dimensions from the rotated
+output. Persist through native configuration and container recreation. Validate
+unsupported outputs/modes before applying and retain a recovery path.
+
+Touch devices must be mapped to the chosen output and transformed with the
+rotation, including devices attached after startup; relative mouse input must
+remain usable. Do not identify supported devices solely by the developer's USB
+IDs. Sunshine capture and remote absolute-input coordinates must be verified
+against the rotated desktop. Moonlight's selected stream aspect ratio may still
+need adjustment or letterboxing; do not silently change client resolution/FPS.
+Customer webpage layout remains the customer's responsibility.
+
+Live read-only check: Xorg on ROCK 5B advertises normal/left/inverted/right on
+its connected display (currently 1920x1080 at 60 Hz). This establishes advertised
+support only. No actual rotation, touchscreen transform or rotated streaming test
+has been performed, and the active landscape session remains unchanged.
