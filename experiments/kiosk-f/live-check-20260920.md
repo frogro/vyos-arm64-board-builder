@@ -29,3 +29,29 @@ change performed during these checks.
 Pending: built CLI package validation and interactive help/completion tests,
 USB hotplug with user hardware, second connected display, image-update/rollback
 test, and final certificate/access setup. Current working kiosk remains intact.
+
+## Sunshine CLI source/companion build follow-up
+
+Commit 98dd656 implements the separate Sunshine supervisor, native persistent
+remote access/input/audio policy and operational status/pair/revoke/credential
+recovery commands. 34 experiment tests passed, including actual subprocess
+supervision with a dummy Sunshine and an independent desktop process. Native
+VyOS config and op-mode schema/template generation passed. No claim of a new
+live CLI deployment or hardware audio/stream test.
+
+Built `localhost/vyarm-kiosk:sunshine-cli-98dd656` on ROCK without activating it:
+image ID `15360200c7ca616c21b51eba17fbe4cc1e8053d810db4c6b164f0f3b78b6d6eb`.
+An isolated unprivileged instance with no network, no host state mounts and all
+capabilities dropped successfully imported the helper and compared the actual
+Sunshine --creds output against the reset helper's reverse-byte uppercase SHA256
+format using disposable test-only credentials. No real credentials were read,
+printed or changed.
+
+Docker package snapshot prepared under tmp/kiosk-sunshine-build-20260920,
+version suffix `+kiosk-sunshine.f303bf1f1928`, pinned upstream 27383e4f1 and same
+KVM/Tailscale recipe as installed. Initial Docker startup is awaiting the local
+Ubuntu pkexec authentication dialog; no package success is implied by this note.
+Kernel service vyos-f-test-kernel continues compiling. A 10-minute thread
+heartbeat monitors both builds and reports actionable changes/completion only.
+Monitor deliberately off and modem deliberately disconnected per user; neither
+is a test failure or permission to change modem/network settings.
