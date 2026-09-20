@@ -1,5 +1,10 @@
 # Kiosk live-test CLI
 
+Current summary: portrait and local touch passed container restart and full
+router reboot; see the final result below. Earlier dated sections retain the
+investigation history and are not the current state. No image-update test or
+dedicated `service kiosk` schema has been completed.
+
 Experimental branch only. The tested control surface uses the existing native
 VyOS `container` configuration. `service kiosk` is still a design, not an
 installed command. This avoids replacing CLI caches or changing permissions.
@@ -277,3 +282,63 @@ successfully +1607.121. No aardvark transient-scope/exit125 failure in this shut
 Remaining unrelated host shutdown messages include routing/DHCP teardown errors,
 /run/live/persistence unmount failure and watchdog-not-stopped warning. The kiosk
 result does not establish those issues resolved, nor image-update compatibility.
+
+## Reproducible startup companion staging
+
+`install-startup.py --rootfs /absolute/staging/root --container CONTAINER`
+stages the address waiter and a matching systemd drop-in into an existing rootfs.
+The name is explicit, not tied to kiosk-test or a board. The helper is executable;
+the drop-in is mode 0644. Staging neither starts a service nor edits native VyOS
+configuration, permissions, firewall rules or persistent browser/pairing state.
+Symlink destinations and conflicting unmanaged files are rejected before writes.
+This is only a packaging primitive: the normal builder does not call it yet.
+Changed pre-existing helpers require explicit review instead of silent overwrite.
+
+Live migration must first back up the old helper/drop-in, review their differences,
+then install and daemon-reload under administrator control. To roll back, restore
+those two backups (or remove the newly installed drop-in and, if no other kiosk
+uses it, helper), then daemon-reload. Native container configuration and /config
+state stay intact. Do not remove readiness handling on a running installation
+without accounting for its explicit address binds at next boot.
+
+2026-09-20 continuation: all 11 experiment tests pass, including arbitrary names,
+repeat staging, invalid names, symlink escape rejection and preservation of an
+administrator's drop-in. ROCK SSH at 192.168.178.173 returned "No route to host";
+no live changes, restart, schema installation or image build performed.
+
+Next: reconnect and inspect installed upstream container/schema behavior before
+implementing a dedicated kiosk owner. Preserve one configuration owner for native
+containers; do not issue recursive commits from a conf_mode handler or patch CLI
+caches manually. Retain native-container controls as the working baseline.
+
+### Live staging and browser recovery follow-up
+
+ROCK returned after user reboot. Zero failed units; NTP synchronized. Early boot
+used April 27 before synchronization to September 20, so Podman's initial "Up 4
+months" was a wall-clock artifact, not evidence of an old running container.
+
+Installed the reproducible startup companion on the live system after confirming
+the existing waiter was byte-identical (SHA256
+d4e41e98c6c73dcf7fd17f408d70656d58a68972276fbe50d949488a635c35e1).
+Original helper/drop-in backup:
+`/config/kiosk-test/backups/startup-1789896867713182172/`.
+Installer sources reside under `/config/kiosk-test/startup-package/`, root-owned.
+These saved sources allow manual restoration after an update but do NOT install
+an automatic boot/update hook. No claim of completed image-update integration.
+
+Container restart at 11:34:39 CEST passed the address precheck; prior desktop
+children stopped and Xorg exited 0. Runtime returned 90 degrees, 1080x1920 and
+touch event4. Sunshine detected h264_rkmpp. No additional devices/capabilities or
+ports were granted. Xorg's inaccessible event2/event3/event6 correspond to
+unexposed receiver consumer/system-control interfaces and the board power key;
+host udev metadata advertises them but the container cannot open them. Standard
+keyboard/mouse and touchscreen nodes are mapped. Hotplug reconciliation remains
+open; do not broaden device access just to remove these diagnostics.
+
+Browser crash recovery: targeted SIGKILL of the sole Chromium browser parent
+(PID 40) resulted in replacement PID 687 after 2.59 seconds, still running after
+another four seconds. Display status retained portrait and touch mapping. The
+test used `ps` for process discovery after two read-only /proc discovery attempts
+found no candidate (neither attempt sent a signal). This establishes process
+recovery, not visual correctness or recovery from a hung page. Sunshine probe
+capability/audio and Chromium system-bus messages still require separate review.

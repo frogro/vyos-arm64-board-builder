@@ -1,5 +1,17 @@
 # CMS and native API boundary — initial assessment, 2026-09-20
 
+## Current scope decision (supersedes candidate implementation plans below)
+
+User deferred profile G/local CMS after evaluating its added maintenance against
+existing customer content tools. No CMS or Google synchronization implementation
+is planned now. Profile F remains a generic URL-driven browser kiosk with optional
+touch and Sunshine remote inspection/control. Content, ordering, payments and
+time schedules belong to the customer's external application. Potential uses
+include menu boards, advertising and interactive information screens; external
+ordering systems require explicit provider compatibility. Two independent URLs
+on two outputs remain a future feature, not a validated capability. The research
+below is retained as reference only.
+
 Hardware testing paused at user's request (touch monitor battery empty).
 Portrait, local touch, native container restart and complete ROCK reboot passed;
 see CLI.md for evidence, remaining warnings and image-update limitations.
