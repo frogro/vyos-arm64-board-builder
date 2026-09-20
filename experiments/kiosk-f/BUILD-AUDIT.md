@@ -67,3 +67,13 @@ The current vyos-1x CLI package build does not contain this codec change.
   a separate extension, not an already implemented feature.
 
 See DEFAULTS-AND-UPDATES.md, CLI.md and live-check-20260920.md for detail.
+
+## Required F rootfs staging: host fixes (Sep21)
+
+Before F initramfs generation run `host/install.py` as documented in
+`host/README.md`. This installs the rsyslog runtime-config start condition;
+select `--panthor-arch10-8` for a matching Mali GPU to include pinned, verified
+firmware plus licence and initramfs hook. Repeat in both first-install and update
+rootfs builds; do not rely on live overlay files migrating into a new image.
+Normal release workflows remain untouched; this is an explicit experimental F
+staging step until F image assembly is wired in.

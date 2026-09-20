@@ -231,3 +231,25 @@ Existing override uses /run/rsyslog/rsyslog.conf and automatic restart. No loggi
 configuration changed. /dev/dma_heap/system exists. /dev/dri lists card0 only,
 no render node observed; GPU/video capability still requires investigation.
 Boot success is not functional acceptance of RGA/audio/touch/decoding.
+
+## Sep21: rsyslog startup condition and Panthor firmware corrected live
+
+Cause traced in installed system_timezone.py: unconditional `systemctl restart
+rsyslog` occurs before system_syslog.py renders /run/rsyslog/rsyslog.conf.
+Added independent 50-vyarm-config-ready.conf ConditionPathExists drop-in without
+replacing existing override or generated logging config. Config validation -N1
+passes, service stays active. Transient systemd tests confirm missing config
+skips start successfully, present config permits it. Boot confirmation pending.
+
+Installed official linux-firmware arch10.8 blob and redistribution licence,
+revision and SHA256s pinned in host/install.py. Rebound previously unbound
+fb000000.gpu to panthor: successful firmware load, CSF interface1.5.0,
+Initialized panthor1.5.0; card1 and renderD128 appear. Cooling-device warning
+remains, not investigated here. This validates driver initialization, not browser
+rendering or video decoding. No modem changes. Backup original rsyslog drop-ins
+and test2 initramfs: /config/kiosk-test/backups/host-fixes-20260921.
+Initramfs regenerated successfully to temporary path, firmware inclusion verified
+with lsinitramfs, then atomically replaced /boot/initrd-f-test2.img. No reboot.
+Three host-installer tests pass (other GPU/no firmware fetch, checksum rejection,
+staging-root escape rejection); staging twice also checked. Both live corrections
+are reproducibly staged by committed installer; F build checklist updated.
