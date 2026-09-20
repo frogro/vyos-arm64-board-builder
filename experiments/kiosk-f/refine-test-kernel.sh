@@ -18,6 +18,7 @@ printf 'building test2: DMA heaps and HDMI codec dependency\n' > "$RUN/status"
 trap 'result=$?; if ((result)); then printf "failed test2: %s\n" "$result" > "$RUN/status"; fi' EXIT
 patch --batch -d "$KERNEL" -p1 < "$OUT/0001-test-dw-hdmi-qp-select-audio-codec.patch"
 "$KERNEL/scripts/config" --file "$RUN/kbuild/.config" \
+  --enable DMA_CMA --enable CMA_SIZE_SEL_MBYTES --set-val CMA_SIZE_MBYTES 0 \
   --enable DMABUF_HEAPS --enable DMABUF_HEAPS_SYSTEM --enable DMABUF_HEAPS_CMA
 KMAKE=(make -C "$KERNEL" O="$RUN/kbuild" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- LOCALVERSION=-vyos-f-test2)
 "${KMAKE[@]}" olddefconfig
