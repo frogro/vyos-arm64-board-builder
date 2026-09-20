@@ -41,3 +41,33 @@ https://account.xibosignage.com/docs/setup
 https://www.concerto-signage.org/overview
 https://anthias.screenly.io/
 https://docs.vyos.io/en/rolling/automation/vyos-api.html
+
+## Xibo browser-player follow-up
+
+Documentation review found a concrete browser integration candidate, correcting
+any blanket implication that Chromium cannot be used with Xibo:
+https://github.com/xiboplayer/xiboplayer-chromium
+This independent community project (explicitly unaffiliated with Xibo Signage
+Ltd) bundles a web/PWA player, a local Node.js CMS proxy, and launches system
+Chromium on localhost:8766. Its organization lists Chromium packages as noarch,
+PWA for modern browsers, and separate Electron/arexibo aarch64 packages:
+https://github.com/xiboplayer
+These are project claims, not tested ROCK/container compatibility. The old
+standalone xiboplayer-pwa repository is archived; use current maintained sources
+and resolve dependency versions rather than selecting that archive blindly.
+
+Official legacy Linux player documentation targets AMD/Intel 64-bit and cannot
+be used to rule out these independent ARM/browser implementations. Official
+installation docs also announce a new-generation Linux player under development:
+https://account.xibosignage.com/docs/setup/xibo-for-linux-installation
+https://account.xibosignage.com/docs/setup/can-i-run-a-xibo-player-on-my-raspberry-pi-all-variants
+
+Candidate test architecture: external Xibo CMS -> community web player/proxy ->
+existing Chromium kiosk. No routine VyOS API calls for content schedules. First
+review pinned sources, CMS compatibility, credential handling and offline cache;
+then test images, recurring schedules, portrait and existing Sunshine session in
+an isolated container variant. No installation or live changes performed.
+
+Optional smaller alternative accepted by user: supply a simple image slideshow
+web application with interval/time-window controls; customer supplies the images.
+This is an optional companion, not a requirement for arbitrary customer URLs.
