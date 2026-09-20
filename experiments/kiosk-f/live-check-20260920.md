@@ -253,3 +253,25 @@ with lsinitramfs, then atomically replaced /boot/initrd-f-test2.img. No reboot.
 Three host-installer tests pass (other GPU/no firmware fetch, checksum rejection,
 staging-root escape rejection); staging twice also checked. Both live corrections
 are reproducibly staged by committed installer; F build checklist updated.
+
+## Sep21: missing MPP traced to boot DT selection, not missing driver
+
+Read-only diagnosis: mpp_service platform driver registered, but live FDT has no
+mpp-srv or rkvenc-core nodes. Installed /boot/dtb/rockchip/rk3588-rock-5b.dtb and
+artifacts-v2 DTB both contain enabled rockchip,mpp-service and RKVENC nodes.
+Earlier boot journal (-3 at diagnosis) confirms MPP service and both encoder cores
+probed successfully. Current and preceding old-kernel boots lacked those probes.
+
+/usr/share/vyos/templates/grub/grub_vyos_version.j2 is owned by vyos-1x and lacks
+the builder-added devicetree line. Generated current version entry lacks it too;
+older version entries retain it. Strong inference: experimental CLI package
+upgrade replaced image-stage template patch; regeneration then lost DT selection.
+Kernel test entry copied this defective entry. Earlier reasoning that absence of
+a devicetree.mod meant no GRUB support was incorrect: fdt.mod exists and prior
+entries use devicetree. Existing tools/patch-vyos-grub-board-dtb.py implements
+image-stage correction, but live package deployment must also preserve/reapply it.
+
+No boot configuration changed in this analysis. Next repair: preserve template
+across package updates, explicitly select matching test2 DTB in isolated entry,
+verify boot syntax and queue a controlled test. Do not invent live MPP device
+nodes or change device grants to bypass missing hardware initialization.
