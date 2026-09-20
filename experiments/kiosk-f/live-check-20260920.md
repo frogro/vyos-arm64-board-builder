@@ -293,3 +293,12 @@ container running with Xorg, Chromium and Sunshine; portrait1080x1920 configured
 rsyslog early start skipped by condition, later starts successfully; zero failed
 systemd units. next_entry cleared, regenerated normal entry retains devicetree.
 User confirms kiosk visible, reports no touch; investigating changed input nodes.
+Touch failure diagnosed: host by-id touchscreen resolves event5 but saved
+container destination event4; mouse companion event4 mapped to event5. Xorg
+libinput rejects inconsistent udev/device-node identities. Used existing
+reconciler snapshot/apply once under native commit lock (watcher still disabled)
+to regenerate runtime mappings with identical host/container event paths and
+restart only kiosk. Xinput now lists ILITEK touch and companion; user functional
+confirmation pending. Runtime repair does not change saved destination paths:
+a later native regeneration can restore stale mapping until generic startup
+resolution is integrated. Do not claim permanent changed-number support yet.
