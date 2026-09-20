@@ -275,3 +275,21 @@ No boot configuration changed in this analysis. Next repair: preserve template
 across package updates, explicitly select matching test2 DTB in isolated entry,
 verify boot syntax and queue a controlled test. Do not invent live MPP device
 nodes or change device grants to bypass missing hardware initialization.
+
+## Sep21: repaired and protected GRUB DT selection
+
+Installed local dpkg diversion for grub_vyos_version.j2 using validated existing
+board-DTB patcher. Package payload goes to .vyarm-upstream; explicit helper
+refreshes customized template from that upstream on upgrades. Offline-root repeat
+installation and simulated diverted payload replacement checked; five existing
+GRUB DT tests pass. No normal workflow edits.
+Backups: /config/kiosk-test/backups/dtb-20260921. Restored board DT directive in
+normal 999.202609191517 entry and added dedicated test2 DTB directive in isolated
+test entry. Installed /boot/rk3588-rock-5b-f-test2.dtb SHA256
+a726e0e7076576fe68c760d73027febbdcb264703aabdcf4e79be7f95b3ff80e.
+Both entries pass grub-script-check. Queued test2 once and rebooted as authorized.
+Reboot verified: test2 running, /dev/mpp_service and renderD128 present, kiosk-test
+container running with Xorg, Chromium and Sunshine; portrait1080x1920 configured.
+rsyslog early start skipped by condition, later starts successfully; zero failed
+systemd units. next_entry cleared, regenerated normal entry retains devicetree.
+User confirms kiosk visible, reports no touch; investigating changed input nodes.
