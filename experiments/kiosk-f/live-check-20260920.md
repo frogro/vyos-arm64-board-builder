@@ -155,3 +155,25 @@ from a udev handler, expose all /dev/input, or grant arbitrary new devices.
 Keep absent-device selection persisted; runtime handling for boot while device
 is missing must be designed alongside native validation. This host reconciler
 is planned, not implemented or tested. No fixed manufacturer IDs in algorithm.
+
+## Changed-event-number experiment suspended after system trouble
+
+Experimental host reconciler implemented; seven unit tests and four installer
+tests passed. Installed service initially active. Prior-boot log shows exactly
+one successful configured-device remap/container restart at Sep20 18:35:31.
+Later log shows systemctl/podman timeouts from 18:41 onward. Kernel prior-boot
+logs include mt7921e driver-own timeouts and repeated dwmmc interrupt latency/
+CTO timeouts. User reported lost AP and performed cold boot. No conclusion
+that the helper caused hardware/driver faults, and no reboot command in helper.
+Prior boot continued through Sep21 01:00; new cold boot ID
+67f07c55-8802-4583-8c4a-8deac8c5768a.
+
+SSH briefly reachable on new boot. Stopped vyos-kiosk-inputs-kiosk-test.service;
+confirmed inactive. Restored pre-experiment kiosk-retry.conf from
+/config/kiosk-test/backups/input-reconcile-20260920, daemon-reloaded, removing
+Wants dependency so future container starts do not activate watcher. Zero failed
+units, but no WLAN interface in ip -brief address. Further SSH became unresponsive.
+Source installer restored to accepted baseline (no automatic reconciler install).
+Experimental helper/tests retained for diagnosis, NOT accepted for deployment.
+Touch same-node reconnect helper remains independently active/previously tested.
+Need diagnose system/AP and verify actual shifted mappings before acceptance.
