@@ -108,35 +108,80 @@ def configure():
     return output, rotation
 
 
-def touch_devices():
+def touch_devices(details=False):
     found = []
     for device in command(['xinput', '--list', '--id-only']).split():
         if not device.isdecimal():
             continue
-        props = command(['xinput', '--list-props', device])
+        try:
+            props = command(['xinput', '--list-props', device])
+        except subprocess.CalledProcessError:
+            continue  # X device disappeared while enumerating.
         node = re.search(r'Device Node \(\d+\):\s+"(/dev/input/event\d+)"', props)
         if not node or 'Coordinate Transformation Matrix' not in props:
             continue
-        info = command(['udevadm', 'info', '--query=property', '--name', node[1]])
+        try:
+            info = command(['udevadm', 'info', '--query=property', '--name', node[1]])
+        except subprocess.CalledProcessError:
+            continue  # Physical device unplugged; do not retain it in status.
         values = dict(line.split('=', 1) for line in info.splitlines() if '=' in line)
         if values.get('ID_INPUT_TOUCHSCREEN') == '1':
-            found.append((device, node[1]))
+            if details:
+                enabled = bool(re.search(r'Device Enabled \(\d+\):\s+1(?:\s|$)', props))
+                identity = tuple(values.get(k, '') for k in ('ID_BUS', 'ID_SERIAL', 'ID_PATH'))
+                generation = (values.get('DEVPATH', ''), values.get('USEC_INITIALIZED', ''))
+                found.append((device, node[1], identity, generation, enabled))
+            else:
+                found.append((device, node[1]))
     return found
+
+
+class TouchRecovery:
+    """Reopen an existing X device after the same USB device is re-enumerated.
+
+    Restricted to already exposed nodes and stable identities. This cannot add
+    nodes or refresh Podman device permissions when event numbers change.
+    """
+    def __init__(self):
+        self.seen = {}
+        self.retry = set()
+
+    def reconcile(self, devices):
+        recovered = False
+        for device, node, identity, generation, enabled in devices:
+            key = (device, node)
+            old = self.seen.get(key)
+            if old and old[0] != identity:
+                raise ValueError('Touch device identity changed; container device reconciliation required')
+            if (old and old[1] != generation and identity[0] == 'usb'
+                    and any(identity[1:]) and all(generation)
+                    and (enabled or key in self.retry)):
+                self.retry.add(key)
+                command(['xinput', 'disable', device])
+                command(['xinput', 'enable', device])
+                self.retry.discard(key)
+                recovered = True
+                print(f'Kiosk touch reconnected: {node}', flush=True)
+            self.seen[key] = (identity, generation)
+        return recovered
 
 
 def watch():
     rotation, requested, _ = settings(os.environ)
     previous = None
     last_error = None
+    recovery = TouchRecovery()
     while True:
         try:
             text = command(['xrandr', '--query'])
             output = select_output(text, requested)
             geom = geometry(text, output)
             rotation = active_rotation(text, output)
-            devices = touch_devices()
+            inventory = touch_devices(details=True)
+            recovered = recovery.reconcile(inventory)
+            devices = [(d[0], d[1]) for d in inventory]
             signature = (output, rotation, geom, tuple(devices))
-            if signature != previous:
+            if signature != previous or recovered:
                 matrix = [str(v) for v in touch_matrix(rotation, geom)]
                 for device, _ in devices:
                     command(['xinput', '--set-prop', device, 'Coordinate Transformation Matrix', *matrix])

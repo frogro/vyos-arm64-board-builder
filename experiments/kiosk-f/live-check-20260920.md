@@ -55,3 +55,74 @@ Kernel service vyos-f-test-kernel continues compiling. A 10-minute thread
 heartbeat monitors both builds and reports actionable changes/completion only.
 Monitor deliberately off and modem deliberately disconnected per user; neither
 is a test failure or permission to change modem/network settings.
+
+## Sunshine CLI live rollout, 18:07 CEST
+
+Installed verified vyos-1x package +kiosk-sunshine.f303bf1f1928 on ROCK.
+Postinst identical to previous package; dpkg --audit empty. Backup under
+/config/kiosk-test/backups/sunshine-cli-20260920 includes prior package
++kiosk.72cc8e8c3d84, config.boot, session helper, Sunshine state and container
+inspection, plus manual rollback notes (directory root-only).
+
+Native interactive completion verified: show kiosk sunshine offers kiosk-test;
+its commands clients/pending/status have help; remote audio offers enabled and
+disabled with explanation distinguishing stream audio from local HDMI audio.
+
+Companion migration commit failed validation because configured device input2
+(/dev/input/by-id/usb-ILITEK_ILITEK-TP_V06.00.00.00-event-if00) is absent. No
+container restart occurred. Candidate discarded; bind-mounted session helper
+restored byte-for-byte from backup. Saved config.boot unchanged (cmp).
+Current container remains localhost/vyarm-kiosk:cli-test. Asked user to reconnect
+USB touchscreen before retrying. No device/network/modem/firewall edits made.
+Sunshine runtime policy, access/input/audio changes and pairing API live tests
+remain pending; package installation and completion are not runtime acceptance.
+
+## Sunshine CLI runtime test, 18:13–18:15 CEST
+
+Touchscreen reconnected as event4/event5; native migration commit succeeded after
+restoring new session helper and selecting sunshine-cli-98dd656. User confirmed
+local touch works again after container restart. Runtime display HDMI-1/90,
+1080x1920; physical touch event4 enabled with matching rotation matrix.
+
+Native show kiosk sunshine kiosk-test status works. Tested remote access disabled
+(commit): running false; enabled (commit): running true. Tested input view-only
+and audio enabled together: Sunshine config keyboard/mouse/native_pen_touch=false,
+stream_audio=enabled. Restored control/audio disabled via native commit/save.
+Throughout remote-only commits container StartedAt stayed 18:12:57.173924765 CEST,
+Xorg host PID 734074 and Chromium host PID 734228 unchanged. No desktop restart.
+Unauthenticated local HTTPS administration returns 401 after re-enable. Full
+sunshine_state.json compares equal to backup without exposing its contents; all
+non-CLI-owned Sunshine config lines preserved.
+
+Limitations: no real audio source/playback test, no new pairing/revoke/password
+reset (existing credentials and clients preserved), no fresh Moonlight input
+test in view-only mode, no image-update test. H264 rkmpp capability found.
+Status note 'Creating = selected' is too strong: startup probes also log Creating
+for failing NVENC/VAAPI attempts. Correct wording before next package build;
+these logs alone do not prove an active stream encoder.
+
+USB reconnect did not restore old container touch until recreation; generic
+hotplug/reconciliation remains an open issue rather than being declared solved.
+
+## USB touch reconnect recovery
+
+Reproduced disconnect/reconnect with identical event4/event5 numbers. Xorg still
+listed the old touch registration; manual xinput disable/enable of the physical
+touch device restored input, confirmed by user, without restarting desktop.
+The read-only udev database exposes updated DEVPATH and USEC_INITIALIZED even
+when container Xorg does not process host hotplug removal/addition.
+
+Display watcher now compares generation and stable USB identity for already
+exposed touch devices. Reopens same-device reconnect and reapplies rotation.
+Missing devices skipped during enumeration; no fixed vendor/model IDs. Different
+identity refused, intentionally disabled inputs not enabled, failed enable retried.
+Nine display tests pass (including reconnect between polls, disconnect, identity
+change, disabled device and failed enable retry).
+
+Live companion image touch-reconnect-20260920, ID
+177f8d154126092e5ae3bf3ae81f4d2d546406edfd24cc4566b3ecdcef45a21f,
+contains changed display helper; host bind helper updated too, previous helper
+backed up in sunshine-cli-20260920. Native image commit succeeded, portrait and
+event4 reported. Post-start Xorg PID 758991, Chromium PID 759079. Awaiting user
+unplug/replug test. This is limited recovery for existing node numbers; changed
+event numbers/new devices still require host/container device reconciliation.

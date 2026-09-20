@@ -1,12 +1,51 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest.mock import patch
+import subprocess
 
 spec = importlib.util.spec_from_file_location('display', Path(__file__).resolve().parents[1] / 'container/kiosk-display.py')
 display = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(display)
 
 class DisplayTests(unittest.TestCase):
+    def touch(self, generation='1', identity=('usb', 'generic-touch', 'usb-port'), enabled=True):
+        return [('6', '/dev/input/event4', identity, ('/devices/input'+generation, generation), enabled)]
+
+    def test_reconnect_reopens_once_even_when_unplug_was_between_polls(self):
+        recovery = display.TouchRecovery()
+        with patch.object(display, 'command') as command:
+            self.assertFalse(recovery.reconcile(self.touch()))
+            self.assertTrue(recovery.reconcile(self.touch('2')))
+            self.assertFalse(recovery.reconcile(self.touch('2')))
+            self.assertEqual(command.call_args_list, [unittest.mock.call(['xinput', 'disable', '6']),
+                                                     unittest.mock.call(['xinput', 'enable', '6'])])
+
+    def test_missing_device_keeps_reconnect_history(self):
+        recovery = display.TouchRecovery()
+        with patch.object(display, 'command'):
+            recovery.reconcile(self.touch())
+            recovery.reconcile([])
+            self.assertTrue(recovery.reconcile(self.touch('2')))
+
+    def test_different_identity_and_disabled_device_are_not_enabled(self):
+        recovery = display.TouchRecovery()
+        with patch.object(display, 'command') as command:
+            recovery.reconcile(self.touch())
+            with self.assertRaises(ValueError):
+                recovery.reconcile(self.touch('2', identity=('usb', 'other-touch', 'usb-port')))
+            self.assertFalse(recovery.reconcile(self.touch('2', enabled=False)))
+            command.assert_not_called()
+
+    def test_failed_reopen_retries_even_after_disable(self):
+        recovery = display.TouchRecovery()
+        recovery.reconcile(self.touch())
+        with patch.object(display, 'command', side_effect=[None, subprocess.CalledProcessError(1, 'xinput')]):
+            with self.assertRaises(subprocess.CalledProcessError):
+                recovery.reconcile(self.touch('2'))
+        with patch.object(display, 'command'):
+            self.assertTrue(recovery.reconcile(self.touch('2', enabled=False)))
+
     def test_config_rejects_invalid_settings(self):
         for env in [{'KIOSK_ROTATION': '45'}, {'KIOSK_URL': '--incognito'},
                     {'KIOSK_URL': 'javascript:alert(1)'}, {'KIOSK_OUTPUT': '--auto'},
