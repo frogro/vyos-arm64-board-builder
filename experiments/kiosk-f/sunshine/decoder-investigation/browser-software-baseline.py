@@ -37,7 +37,12 @@ try:
   r=call('Runtime.evaluate',{'expression':'window.decodeProbe','returnByValue':True},s)
   value=r.get('result',{}).get('value',{})
   if value.get('state') in ['ended','error','timeout','play-error']:break
- print(json.dumps({'page':value,'mediaEvents':events},indent=2))
+ # Let asynchronous Media diagnostics arrive after playback errors/end.
+ for _ in range(3):
+  time.sleep(.3)
+  call('Runtime.evaluate',{'expression':'0'},s)
+ support=call('Runtime.evaluate',{'expression':"({h264:document.createElement('video').canPlayType('video/mp4; codecs=\"avc1.64001f\"'),hevc:document.createElement('video').canPlayType('video/mp4; codecs=\"hvc1.1.6.L93.B0\"')})",'returnByValue':True},s)
+ print(json.dumps({'page':value,'support':support.get('result',{}).get('value'), 'mediaEvents':events},indent=2))
 finally:
  p.terminate()
  try:p.wait(timeout=5)
