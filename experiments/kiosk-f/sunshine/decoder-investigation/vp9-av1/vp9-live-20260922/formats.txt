@@ -1,0 +1,6 @@
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Output Multiplanar
+
+	[0]: 'S265' (HEVC Parsed Slice Data, compressed)
+	[1]: 'S264' (H.264 Parsed Slice Data, compressed)
+	[2]: 'VP9F' (VP9 Frame, compressed)

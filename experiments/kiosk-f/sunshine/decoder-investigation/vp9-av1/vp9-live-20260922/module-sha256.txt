@@ -1,0 +1,1 @@
+30994f1e4525c792bc5d0ae3b592fa4f1d51fd9d7bc64b48ef0d8a4326202143  rockchip-vdec-vp9-mail.ko

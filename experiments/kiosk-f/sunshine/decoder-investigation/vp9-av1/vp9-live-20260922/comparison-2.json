@@ -1,0 +1,6 @@
+{
+  "reference_frames": 300,
+  "hardware_frames": 300,
+  "matching_frames": 300,
+  "all_match": true
+}
