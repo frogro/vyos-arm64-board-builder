@@ -58,3 +58,14 @@ Sources:
 - https://github.com/gregkh/linux/tree/v6.18.50/drivers/media/platform/rockchip/rga
 - https://github.com/airockchip/librga/blob/main/docs/Rockchip_FAQ_RGA_EN.md (Q2.14)
 - https://docs.kernel.org/admin-guide/module-signing.html
+
+## Test2 kernel result (2026-09-21)
+
+Booted 6.18.50-vyos-f-test2 with matching DTB and signed modules. Re-ran the same
+probe without altering the kiosk. RGA identified as /dev/video1 (discovered by
+driver name, not hardcoded). BT.601 limited reference: maximum sampled error1,
+improved from20. BT.709 still maximum16. Full/limited requested outputs remain
+byte-identical within each matrix and returned quantization is Default.
+Raw report: range-sweep-test2-20260921.json. Overall test exits1 intentionally:
+this is not full range negotiation/correctness. Do not switch Sunshine from
+swscale on this evidence. Driver diagnostic change benefits BT.601 only.

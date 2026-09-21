@@ -1,0 +1,20 @@
+# Isolated successor to the tested H.264 build, retaining its compilation cache.
+FROM localhost/vyarm-sunshine:mpp-candidate
+ENV PKG_CONFIG_PATH=/opt/mpp/lib/pkgconfig LD_LIBRARY_PATH=/opt/mpp/lib
+RUN cd /build/ffmpeg && ./configure --prefix=/opt/ffmpeg --disable-all --disable-autodetect \
+ --disable-programs --disable-doc --enable-gpl --enable-version3 --enable-static --disable-shared --enable-pic \
+ --enable-avcodec --enable-avutil --enable-swscale --enable-bsfs \
+ --enable-libdrm --enable-rkmpp --enable-libx264 --enable-libx265 --enable-vaapi \
+ --enable-encoder=h264_rkmpp,hevc_rkmpp,libx264,libx265,h264_vaapi,hevc_vaapi \
+ && make -j1 && make install \
+ && cp -a libavcodec/*.h /opt/ffmpeg/include/libavcodec/ \
+ && cp -a libavcodec/hevc /opt/ffmpeg/include/libavcodec/ \
+ && cp -a libavutil/*.h /opt/ffmpeg/include/libavutil/ \
+ && cp config.h /opt/ffmpeg/include/ \
+ && cp libavutil/aarch64/*.h /opt/ffmpeg/include/libavutil/aarch64/ \
+ && cp -a libavutil/arm /opt/ffmpeg/include/libavutil/ \
+ && ar rcs /opt/ffmpeg/lib/libcbs.a
+COPY 0002-enable-hevc-mpp.patch /tmp/hevc.patch
+RUN cd /build/source && patch -p1 < /tmp/hevc.patch \
+ && cmake --build /buildcache --target sunshine -j1 \
+ && cp /buildcache/sunshine /build/sunshine-build/sunshine
