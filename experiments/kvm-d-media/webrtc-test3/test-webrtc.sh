@@ -8,6 +8,8 @@ mediamtx=${7:-/usr/local/bin/mediamtx}
 [[ $media =~ ^/dev/media[0-9]+$ && -c $media ]]
 [[ -x $mediamtx ]]
 helpers=$(realpath "$(dirname -- "$0")/../../kiosk-f/sunshine/decoder-investigation")
+seconds=${WEBRTC_SECONDS:-20}
+[[ $seconds =~ ^[0-9]+$ && $seconds -ge 1 && $seconds -le 300 ]]
 mkdir "$out"; out=$(realpath "$out")
 browser=vyarm-webrtc-browser-$$
 publisher=vyarm-webrtc-publisher-$$
@@ -19,7 +21,7 @@ trap 'exit 143' TERM
 groups=()
 for n in /dev/dri/renderD*; do [[ ! -c $n ]] || groups+=(--group-add "$(stat -c %g "$n")"); done
 for codec in h264 hevc; do
- podman run -d --name "$browser" --network "$network" --memory 1g --user kiosk "${groups[@]}" \
+ podman run -d --name "$browser" --network "$network" --memory 1g -e WEBRTC_SECONDS="$seconds" --user kiosk "${groups[@]}" \
   --device /dev/dri --device "$video" --device "$media" \
   -v "$root:/fixtures:ro" -v "$mediamtx:/tmp/mediamtx:ro" \
   -v "$helpers/browser-device-probe.py:/probe.py:ro" \
@@ -28,7 +30,7 @@ for codec in h264 hevc; do
  podman run -d --name "$publisher" --network "container:$browser" --memory 256m -v "$root:/fixtures:ro" \
   "$publisher_image" \
   -hide_banner -nostdin -loglevel warning -re -r 60 -i "/fixtures/test-long.$codec" -an -c:v copy -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:18554/probe > "$out/$codec-publisher-id"
- timeout 60 podman wait "$browser" > "$out/$codec-exit"
+ timeout "$((seconds+40))" podman wait "$browser" > "$out/$codec-exit"
  podman logs "$browser" > "$out/$codec.json" 2> "$out/$codec.stderr"
  podman logs "$publisher" > "$out/$codec-publisher.log" 2>&1
  podman rm -f "$publisher" >/dev/null
@@ -43,7 +45,7 @@ from pathlib import Path
 for codec,mime in [("h264","video/H264"),("hevc","video/H265")]:
  d=json.loads((Path(sys.argv[1])/(codec+".json")).read_text())["page"]
  assert d["state"]=="ended" and d["width"]==1920 and d["height"]==1080,d.get("error")
- assert "connected" in d["connectionStates"]
+ assert "connected" in d["connectionStates"] and d["finalConnectionState"]=="connected"
  assert any(x.get("mimeType")==mime for x in d["stats"])
- assert any(x.get("framesDecoded",0)>0 for x in d["stats"])
+ assert any(x.get("framesDecoded",0)>=max(1,(d["requestedSeconds"]-2)*50) for x in d["stats"])
 PYTHON

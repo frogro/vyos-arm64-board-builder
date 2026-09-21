@@ -55,7 +55,7 @@ try:
  s=call('Target.attachToTarget',{'targetId':target,'flatten':True})['sessionId']
  call('Media.enable',session=s)
  call('Page.enable',session=s)
- call('Page.navigate',{'url':'http://127.0.0.1:'+str(server.server_port)+'/'+os.environ.get('PROBE_PAGE','browser-decode-probe.html')+'?codec='+codec+'&timeout='+str(int(float(os.environ.get('PROBE_TIMEOUT','20'))*1000))+'&width='+os.environ.get('PROBE_WIDTH','640')},s)
+ call('Page.navigate',{'url':'http://127.0.0.1:'+str(server.server_port)+'/'+os.environ.get('PROBE_PAGE','browser-decode-probe.html')+'?codec='+codec+'&timeout='+str(int(float(os.environ.get('PROBE_TIMEOUT','20'))*1000))+'&width='+os.environ.get('PROBE_WIDTH','640')+'&seconds='+os.environ.get('PROBE_SECONDS','20')},s)
  deadline=time.monotonic()+float(os.environ.get('PROBE_TIMEOUT', '20'))
  samples=[]
  while time.monotonic()<deadline:

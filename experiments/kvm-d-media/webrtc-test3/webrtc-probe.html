@@ -2,11 +2,12 @@
 <script>
 const codec=new URLSearchParams(location.search).get('codec')||'h264';
 const video=document.querySelector('video');
-const report=window.decodeProbe={codec,state:'loading',frames:[],started:performance.now()};
+const seconds=Math.min(300,Math.max(1,Number(new URLSearchParams(location.search).get('seconds'))||20));
+const report=window.decodeProbe={codec,state:'loading',frames:[],callbackCount:0,snapshots:[],started:performance.now()};
 const pc=new RTCPeerConnection({iceServers:[]});
 report.connectionStates=[];pc.onconnectionstatechange=()=>report.connectionStates.push(pc.connectionState);
 pc.ontrack=e=>{video.srcObject=e.streams[0]||new MediaStream([e.track]);video.play().catch(()=>{});};
-function frame(t,m){report.frames.push({mediaTime:m.mediaTime,presentedFrames:m.presentedFrames});if(report.state!=='ended')video.requestVideoFrameCallback(frame);}
+function frame(t,m){report.callbackCount++;report.frames.push({mediaTime:m.mediaTime,presentedFrames:m.presentedFrames});if(report.frames.length>60)report.frames.shift();if(report.state!=='ended')video.requestVideoFrameCallback(frame);}
 video.requestVideoFrameCallback(frame);
 (async()=>{
  const mime=codec==='hevc'?'video/H265':'video/H264';
@@ -24,11 +25,12 @@ video.requestVideoFrameCallback(frame);
  if(!response.ok)throw Error('WHEP '+response.status+': '+report.lastHttpError);
  const answer=await response.text();report.answerCodecs=answer.split('\r\n').filter(x=>/^a=(rtpmap|fmtp):/.test(x));
  await pc.setRemoteDescription({type:'answer',sdp:answer});report.state='playing';
- await new Promise(r=>setTimeout(r,20000));
+ for(let elapsed=0;elapsed<seconds;){const step=Math.min(10,seconds-elapsed);await new Promise(r=>setTimeout(r,step*1000));elapsed+=step;const snap=[];(await pc.getStats()).forEach(s=>{if(s.type==='inbound-rtp')snap.push(s);});report.snapshots.push(snap);}
+ report.finalConnectionState=pc.connectionState;report.requestedSeconds=seconds;
  report.stats=[];(await pc.getStats()).forEach(s=>{if(['inbound-rtp','codec'].includes(s.type))report.stats.push(s);});
  const q=video.getVideoPlaybackQuality();Object.assign(report,{state:'ended',width:video.videoWidth,height:video.videoHeight,totalFrames:q.totalVideoFrames,droppedFrames:q.droppedVideoFrames,elapsedMs:performance.now()-report.started});
  if (!q.totalVideoFrames) {report.state='error'; report.error='No video frames received';}
  // Retain last video frame for canvas validation; container cleanup ends session.
 })().catch(e=>{report.state='error';report.error=String(e);});
-setTimeout(()=>{if(!['ended','error'].includes(report.state)){report.state='timeout';report.error='WebRTC timeout';}},35000);
+setTimeout(()=>{if(!['ended','error'].includes(report.state)){report.state='timeout';report.error='WebRTC timeout';}},(seconds+15)*1000);
 </script>

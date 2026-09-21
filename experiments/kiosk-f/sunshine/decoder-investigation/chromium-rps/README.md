@@ -1,7 +1,7 @@
 # Chromium 153 HEVC SPS/RPS experiment
 
-Status 2026-09-21: **source patch and isolated tests only; no complete Chromium
-build, no browser hardware-decode result, no production integration**.
+Status 2026-09-21: **source patch and isolated tests only; no complete patched Chromium
+build or patched-browser result, no production integration**.
 
 Target: upstream Chromium tag `153.0.8010.47`, matching the kiosk browser version.
 The patch preserves short-term RPS coded syntax in the parser and sends the
@@ -44,8 +44,10 @@ as a complete Chromium unit test or a driver test.
    Default equality now includes preserved syntax; check any expected test values.
 2. Add full-project parser/accelerator tests, including long-term references,
    multiple SPS changes and request submission against the actual driver.
-3. Finish and safely boot decoder test3 kernel; confirm decoder/media nodes and
-   first run the independent GStreamer H.264/H.265 reference comparisons.
+3. DONE: test3 safely booted; V4L2 nodes confirmed. Independent GStreamer
+   H264/HEVC and SPS/LTR reference comparisons pass. Stock Chromium hardware
+   decode works for ordinary fixtures; RPS sample correctness does not pass.
+   See ../rps-conformance-test3 for kernel missing-control evidence.
 4. Build an isolated browser with Linux V4L2 enabled. Merely applying this patch
    does not ensure the distribution browser enables/selects that backend.
 5. Keep Chromium sandbox enabled; demonstrate actual hardware decoder selection,

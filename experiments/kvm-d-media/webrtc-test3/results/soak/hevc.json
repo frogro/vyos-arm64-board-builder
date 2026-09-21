@@ -1,0 +1,5096 @@
+{
+  "webrtc": {
+    "receive": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=1"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=3"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=1;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=2;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/flexfec-03",
+          "sdpFmtpLine": "repair-window=10000000"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    },
+    "send": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    }
+  },
+  "cpuSamples": [
+    {
+      "monotonic": 4834.482830841,
+      "usage_usec": 6811138,
+      "state": "loading"
+    },
+    {
+      "monotonic": 4834.984161384,
+      "usage_usec": 8347440,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4835.489692662,
+      "usage_usec": 8699614,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4835.992657292,
+      "usage_usec": 9070413,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4836.495151058,
+      "usage_usec": 9479253,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4836.99992177,
+      "usage_usec": 9842363,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4837.5028949,
+      "usage_usec": 10203200,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4838.005679034,
+      "usage_usec": 10529601,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4838.508960823,
+      "usage_usec": 10861381,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4839.013863908,
+      "usage_usec": 11206969,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4839.519637096,
+      "usage_usec": 11573780,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4840.022821221,
+      "usage_usec": 11890750,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4840.526997073,
+      "usage_usec": 12247419,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4841.030716185,
+      "usage_usec": 12600393,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4841.534097971,
+      "usage_usec": 12950577,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4842.037275513,
+      "usage_usec": 13302535,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4842.541489655,
+      "usage_usec": 13618088,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4843.043576764,
+      "usage_usec": 13976180,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4843.54776749,
+      "usage_usec": 14309927,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4844.0515876,
+      "usage_usec": 14633509,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4844.557483619,
+      "usage_usec": 14979234,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4845.060389042,
+      "usage_usec": 15340927,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4845.565795323,
+      "usage_usec": 15655307,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4846.068557083,
+      "usage_usec": 15997019,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4846.572532647,
+      "usage_usec": 16339410,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4847.075347322,
+      "usage_usec": 16658907,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4847.577910586,
+      "usage_usec": 16992655,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4848.081078337,
+      "usage_usec": 17342566,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4848.58610471,
+      "usage_usec": 17664036,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4849.090513847,
+      "usage_usec": 17960862,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4849.59312536,
+      "usage_usec": 18264517,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4850.096314027,
+      "usage_usec": 18575611,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4850.600070471,
+      "usage_usec": 18915099,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4851.103607421,
+      "usage_usec": 19258053,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4851.606508053,
+      "usage_usec": 19584103,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4852.11076861,
+      "usage_usec": 19898697,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4852.614354767,
+      "usage_usec": 20205006,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4853.119039898,
+      "usage_usec": 20551283,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4853.622607347,
+      "usage_usec": 21100815,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4854.126208296,
+      "usage_usec": 21483363,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4854.630445104,
+      "usage_usec": 21821772,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4855.134810826,
+      "usage_usec": 22154653,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4855.638081865,
+      "usage_usec": 22482884,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4856.142729456,
+      "usage_usec": 22816875,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4856.649991276,
+      "usage_usec": 23165990,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4857.155655342,
+      "usage_usec": 23499634,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4857.661094956,
+      "usage_usec": 23852349,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4858.166969851,
+      "usage_usec": 24201331,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4858.672689416,
+      "usage_usec": 24518078,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4859.176748478,
+      "usage_usec": 24876677,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4859.681047327,
+      "usage_usec": 25204936,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4860.187954031,
+      "usage_usec": 25537096,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4860.690891411,
+      "usage_usec": 25860896,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4861.194064369,
+      "usage_usec": 26225877,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4861.698699085,
+      "usage_usec": 26554053,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4862.203824289,
+      "usage_usec": 26880001,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4862.707679523,
+      "usage_usec": 27221132,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4863.212981681,
+      "usage_usec": 27627790,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4863.716314386,
+      "usage_usec": 27955781,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4864.222256779,
+      "usage_usec": 28293841,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4864.726265009,
+      "usage_usec": 28776380,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4865.232765306,
+      "usage_usec": 29272804,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4865.736674206,
+      "usage_usec": 29673642,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4866.24130138,
+      "usage_usec": 30022971,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4866.746289837,
+      "usage_usec": 30368930,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4867.254477969,
+      "usage_usec": 30732973,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4867.757705509,
+      "usage_usec": 31063428,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4868.261471162,
+      "usage_usec": 31408198,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4868.768814564,
+      "usage_usec": 31755709,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4869.272416554,
+      "usage_usec": 32087015,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4869.777134351,
+      "usage_usec": 32420389,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4870.284079054,
+      "usage_usec": 32784638,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4870.788812975,
+      "usage_usec": 33104711,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4871.292348842,
+      "usage_usec": 33453321,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4871.795835168,
+      "usage_usec": 33780186,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4872.302278633,
+      "usage_usec": 34123372,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4872.805906164,
+      "usage_usec": 34414575,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4873.310257511,
+      "usage_usec": 34751561,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4873.814326573,
+      "usage_usec": 35103948,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4874.318579298,
+      "usage_usec": 35439050,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4874.822910104,
+      "usage_usec": 35780542,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4875.32718287,
+      "usage_usec": 36147488,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4875.831104394,
+      "usage_usec": 36499250,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4876.334114106,
+      "usage_usec": 36815870,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4876.839770506,
+      "usage_usec": 37127083,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4877.344760463,
+      "usage_usec": 37447031,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4877.852022992,
+      "usage_usec": 37759771,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4878.356162386,
+      "usage_usec": 38100241,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4878.860965722,
+      "usage_usec": 38405321,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4879.365827266,
+      "usage_usec": 38743141,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4879.873424454,
+      "usage_usec": 39076654,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4880.37838887,
+      "usage_usec": 39437331,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4880.885089162,
+      "usage_usec": 39755648,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4881.388949646,
+      "usage_usec": 40107777,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4881.893333701,
+      "usage_usec": 40460498,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4882.399519546,
+      "usage_usec": 40784141,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4882.903644982,
+      "usage_usec": 41133722,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4883.408737104,
+      "usage_usec": 41495281,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4883.91370327,
+      "usage_usec": 41821693,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4884.41899347,
+      "usage_usec": 42165669,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4884.924802617,
+      "usage_usec": 42514956,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4885.428693308,
+      "usage_usec": 42843324,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4885.934330667,
+      "usage_usec": 43147993,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4886.439511369,
+      "usage_usec": 43509763,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4886.944700614,
+      "usage_usec": 43824546,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4887.44958824,
+      "usage_usec": 44150875,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4887.953218979,
+      "usage_usec": 44470863,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4888.458239311,
+      "usage_usec": 44793233,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4888.962149418,
+      "usage_usec": 45122079,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4889.468303432,
+      "usage_usec": 45481329,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4889.97423245,
+      "usage_usec": 45816178,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4890.477725651,
+      "usage_usec": 46151275,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4890.982573612,
+      "usage_usec": 46509041,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4891.489197447,
+      "usage_usec": 46838175,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4891.994466606,
+      "usage_usec": 47169219,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4892.499695599,
+      "usage_usec": 47557747,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4893.006259561,
+      "usage_usec": 47909040,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4893.51153872,
+      "usage_usec": 48267883,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4894.01798756,
+      "usage_usec": 48611022,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4894.524309694,
+      "usage_usec": 48940103,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4895.02912678,
+      "usage_usec": 49273905,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4895.537248872,
+      "usage_usec": 49662331,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4896.041018733,
+      "usage_usec": 50015648,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4896.54689817,
+      "usage_usec": 50355727,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4897.050466035,
+      "usage_usec": 50691198,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4897.558790789,
+      "usage_usec": 51027396,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4898.066636929,
+      "usage_usec": 51376316,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4898.570674534,
+      "usage_usec": 51735763,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4899.075136879,
+      "usage_usec": 52049809,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4899.580898818,
+      "usage_usec": 52378833,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4900.085127834,
+      "usage_usec": 52741055,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4900.59063453,
+      "usage_usec": 53084191,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4901.095579321,
+      "usage_usec": 53427780,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4901.600176413,
+      "usage_usec": 53775835,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4902.107190531,
+      "usage_usec": 54111233,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4902.612478189,
+      "usage_usec": 54424798,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4903.120725903,
+      "usage_usec": 54774750,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4903.626313805,
+      "usage_usec": 55194831,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4904.134287734,
+      "usage_usec": 55525443,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4904.640490912,
+      "usage_usec": 55878781,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4905.144865217,
+      "usage_usec": 56238168,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4905.650662739,
+      "usage_usec": 56559617,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4906.154910464,
+      "usage_usec": 56886920,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4906.661689462,
+      "usage_usec": 57249424,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4907.170231336,
+      "usage_usec": 57603489,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4907.675705449,
+      "usage_usec": 57947222,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4908.184246531,
+      "usage_usec": 58300364,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4908.690343128,
+      "usage_usec": 58665604,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4909.195641912,
+      "usage_usec": 58988536,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4909.700114131,
+      "usage_usec": 59352563,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4910.206661302,
+      "usage_usec": 59682125,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4910.712459407,
+      "usage_usec": 60032029,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4911.220527083,
+      "usage_usec": 60394100,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4911.726149776,
+      "usage_usec": 60739046,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4912.231510016,
+      "usage_usec": 61090411,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4912.736036734,
+      "usage_usec": 61420931,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4913.242943688,
+      "usage_usec": 61773651,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4913.750113802,
+      "usage_usec": 62115155,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4914.254977554,
+      "usage_usec": 62455103,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4914.765925996,
+      "usage_usec": 62803638,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4915.276783441,
+      "usage_usec": 63151411,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4915.78410976,
+      "usage_usec": 63499825,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4916.292749131,
+      "usage_usec": 63878015,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4916.799904996,
+      "usage_usec": 64207743,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4917.305966094,
+      "usage_usec": 64541033,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4917.811813657,
+      "usage_usec": 64896693,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4918.321046431,
+      "usage_usec": 65233977,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4918.82794801,
+      "usage_usec": 65566763,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4919.334917962,
+      "usage_usec": 65927012,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4919.84298993,
+      "usage_usec": 66259427,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4920.347483066,
+      "usage_usec": 66599526,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4920.85430548,
+      "usage_usec": 66920227,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4921.359430976,
+      "usage_usec": 67240339,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4921.866523967,
+      "usage_usec": 67580028,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4922.375233503,
+      "usage_usec": 67921204,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4922.882125249,
+      "usage_usec": 68273264,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4923.387471406,
+      "usage_usec": 68602311,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4923.893731459,
+      "usage_usec": 68951038,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4924.401318063,
+      "usage_usec": 69284197,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4924.907940315,
+      "usage_usec": 69616734,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4925.414137786,
+      "usage_usec": 69979335,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4925.920363506,
+      "usage_usec": 70293293,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4926.426380856,
+      "usage_usec": 70627507,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4926.93305094,
+      "usage_usec": 70985100,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4927.442676538,
+      "usage_usec": 71347537,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4927.947729661,
+      "usage_usec": 71652762,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4928.453512516,
+      "usage_usec": 72000184,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4928.958632887,
+      "usage_usec": 72350702,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4929.463234687,
+      "usage_usec": 72688846,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4929.970823291,
+      "usage_usec": 73023240,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4930.478071445,
+      "usage_usec": 73380860,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4930.983850259,
+      "usage_usec": 73696941,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4931.488828633,
+      "usage_usec": 74031925,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4931.99483065,
+      "usage_usec": 74393327,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4932.502547793,
+      "usage_usec": 74702456,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4933.007822535,
+      "usage_usec": 75041215,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4933.518023078,
+      "usage_usec": 75397666,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4934.022715334,
+      "usage_usec": 75739407,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4934.529707869,
+      "usage_usec": 76087544,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4935.035879424,
+      "usage_usec": 76402043,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4935.539977152,
+      "usage_usec": 76724467,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4936.044207127,
+      "usage_usec": 77042315,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4936.552675794,
+      "usage_usec": 77387521,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4937.057191013,
+      "usage_usec": 77701155,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4937.562401548,
+      "usage_usec": 78046162,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4938.070125691,
+      "usage_usec": 78376218,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4938.576843024,
+      "usage_usec": 78729388,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4939.083961932,
+      "usage_usec": 79062274,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4939.590048155,
+      "usage_usec": 79417203,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4940.096107712,
+      "usage_usec": 79744066,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4940.604328343,
+      "usage_usec": 80078080,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4941.111135924,
+      "usage_usec": 80442877,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4941.619948208,
+      "usage_usec": 80760188,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4942.125571317,
+      "usage_usec": 81095054,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4942.635103251,
+      "usage_usec": 81442254,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4943.147226416,
+      "usage_usec": 81783619,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4943.652518074,
+      "usage_usec": 82125707,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4944.158875416,
+      "usage_usec": 82497030,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4944.66550171,
+      "usage_usec": 82836496,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4945.17375184,
+      "usage_usec": 83173168,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4945.681075243,
+      "usage_usec": 83494734,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4946.190424598,
+      "usage_usec": 83844615,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4946.702249019,
+      "usage_usec": 84196441,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4947.208741649,
+      "usage_usec": 84510672,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4947.714763041,
+      "usage_usec": 84858743,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4948.222454351,
+      "usage_usec": 85167392,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4948.730180244,
+      "usage_usec": 85491945,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4949.237161696,
+      "usage_usec": 85851140,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4949.742254026,
+      "usage_usec": 86158587,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4950.250231913,
+      "usage_usec": 86477307,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4950.757025494,
+      "usage_usec": 86833539,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4951.269801144,
+      "usage_usec": 87197630,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4951.775959782,
+      "usage_usec": 87518430,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4952.281637598,
+      "usage_usec": 87886496,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4952.787238749,
+      "usage_usec": 88200258,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4953.301210162,
+      "usage_usec": 88550443,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4953.807983327,
+      "usage_usec": 88899676,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4954.318757523,
+      "usage_usec": 89244665,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4954.826422918,
+      "usage_usec": 89563053,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4955.332443601,
+      "usage_usec": 89926249,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4955.840689565,
+      "usage_usec": 90266201,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4956.347361149,
+      "usage_usec": 90612582,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4956.852927051,
+      "usage_usec": 90980233,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4957.35963726,
+      "usage_usec": 91310741,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4957.86794943,
+      "usage_usec": 91634341,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4958.37555316,
+      "usage_usec": 92012385,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4958.880156793,
+      "usage_usec": 92346832,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4959.385657446,
+      "usage_usec": 92676054,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4959.893210385,
+      "usage_usec": 93024958,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4960.402285913,
+      "usage_usec": 93374385,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4960.907802691,
+      "usage_usec": 93691842,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4961.416538352,
+      "usage_usec": 94047424,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4961.925800625,
+      "usage_usec": 94370629,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4962.438193117,
+      "usage_usec": 94722619,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4962.944593624,
+      "usage_usec": 95065591,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4963.452452555,
+      "usage_usec": 95389188,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4963.964389183,
+      "usage_usec": 95727606,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4964.473035971,
+      "usage_usec": 96061465,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4964.97983501,
+      "usage_usec": 96409861,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4965.484672805,
+      "usage_usec": 96746531,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4965.990847109,
+      "usage_usec": 97069673,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4966.501523641,
+      "usage_usec": 97425712,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4967.00691938,
+      "usage_usec": 97760426,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4967.516983635,
+      "usage_usec": 98092580,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4968.026440487,
+      "usage_usec": 98445284,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4968.535954463,
+      "usage_usec": 98793628,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4969.043254032,
+      "usage_usec": 99103893,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4969.548844934,
+      "usage_usec": 99446517,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4970.058616445,
+      "usage_usec": 99767837,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4970.56593589,
+      "usage_usec": 100112056,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4971.07289705,
+      "usage_usec": 100478898,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4971.584611058,
+      "usage_usec": 100818827,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4972.09258607,
+      "usage_usec": 101157760,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4972.599365485,
+      "usage_usec": 101497789,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4973.105274088,
+      "usage_usec": 101810024,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4973.612601906,
+      "usage_usec": 102138049,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4974.122535581,
+      "usage_usec": 102492861,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4974.62963128,
+      "usage_usec": 102837771,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4975.137396964,
+      "usage_usec": 103152612,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4975.643819096,
+      "usage_usec": 103472320,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4976.152836917,
+      "usage_usec": 103800812,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4976.662683718,
+      "usage_usec": 104149862,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4977.170284906,
+      "usage_usec": 104495357,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4977.675457317,
+      "usage_usec": 104815110,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4978.187382694,
+      "usage_usec": 105126754,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4978.696812589,
+      "usage_usec": 105454035,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4979.203646128,
+      "usage_usec": 105824335,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4979.713961918,
+      "usage_usec": 106169320,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4980.224312333,
+      "usage_usec": 106544174,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4980.731328326,
+      "usage_usec": 106873545,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4981.240282481,
+      "usage_usec": 107233560,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4981.752273274,
+      "usage_usec": 107560573,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4982.2585677,
+      "usage_usec": 107935372,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4982.766950245,
+      "usage_usec": 108266567,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4983.277215953,
+      "usage_usec": 108624920,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4983.78666018,
+      "usage_usec": 108968857,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4984.29588133,
+      "usage_usec": 109312747,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4984.802237755,
+      "usage_usec": 109644139,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4985.310577467,
+      "usage_usec": 110005240,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4985.817273759,
+      "usage_usec": 110351668,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4986.331107175,
+      "usage_usec": 110686772,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4986.841294301,
+      "usage_usec": 111035712,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4987.349260105,
+      "usage_usec": 111365290,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4987.857521486,
+      "usage_usec": 111775007,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4988.364327192,
+      "usage_usec": 112139395,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4988.873096852,
+      "usage_usec": 112489220,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4989.383335352,
+      "usage_usec": 112834090,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4989.891401362,
+      "usage_usec": 113174241,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4990.401579823,
+      "usage_usec": 113533029,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4990.911784991,
+      "usage_usec": 113857859,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4991.418188998,
+      "usage_usec": 114228024,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4991.925521483,
+      "usage_usec": 114557559,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4992.433937735,
+      "usage_usec": 114900684,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4992.940700567,
+      "usage_usec": 115238962,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4993.448251798,
+      "usage_usec": 115575484,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4993.956308058,
+      "usage_usec": 115894680,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4994.467597867,
+      "usage_usec": 116277514,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4994.978248441,
+      "usage_usec": 116637404,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4995.486603986,
+      "usage_usec": 116966282,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4995.99475891,
+      "usage_usec": 117333494,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4996.505376944,
+      "usage_usec": 117659337,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4997.012167234,
+      "usage_usec": 117988676,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4997.521656793,
+      "usage_usec": 118350796,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4998.027950137,
+      "usage_usec": 118704294,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4998.542151586,
+      "usage_usec": 119042301,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4999.052670871,
+      "usage_usec": 119377888,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4999.562389759,
+      "usage_usec": 119721980,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5000.072472763,
+      "usage_usec": 120039710,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5000.583606034,
+      "usage_usec": 120406962,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5001.091290803,
+      "usage_usec": 120725999,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5001.601134938,
+      "usage_usec": 121062632,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5002.113680967,
+      "usage_usec": 121406835,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5002.621487358,
+      "usage_usec": 121783949,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5003.128774637,
+      "usage_usec": 122123827,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5003.635440096,
+      "usage_usec": 122448926,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5004.145419103,
+      "usage_usec": 122802500,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5004.654705334,
+      "usage_usec": 123134427,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5005.164801171,
+      "usage_usec": 123489836,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5005.672225488,
+      "usage_usec": 123815063,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5006.18027129,
+      "usage_usec": 124158881,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5006.688795331,
+      "usage_usec": 124468481,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5007.195619537,
+      "usage_usec": 124840624,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5007.708268314,
+      "usage_usec": 125195078,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5008.219295837,
+      "usage_usec": 125522023,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5008.726189958,
+      "usage_usec": 125871522,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5009.235357859,
+      "usage_usec": 126204043,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5009.748640038,
+      "usage_usec": 126550593,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5010.263609635,
+      "usage_usec": 126910778,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5010.771344695,
+      "usage_usec": 127257563,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5011.280834754,
+      "usage_usec": 127628868,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5011.787318468,
+      "usage_usec": 127968804,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5012.296327289,
+      "usage_usec": 128305310,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5012.805965971,
+      "usage_usec": 128657001,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5013.314657799,
+      "usage_usec": 129006929,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5013.821547878,
+      "usage_usec": 129331896,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5014.329914381,
+      "usage_usec": 129671296,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5014.837722022,
+      "usage_usec": 130001355,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5015.347471534,
+      "usage_usec": 130358398,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5015.858158607,
+      "usage_usec": 130677518,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5016.368130489,
+      "usage_usec": 131020889,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5016.875184356,
+      "usage_usec": 131353432,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5017.386755992,
+      "usage_usec": 131713099,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5017.895255117,
+      "usage_usec": 132032525,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5018.409076075,
+      "usage_usec": 132406531,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5018.917590782,
+      "usage_usec": 132755588,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5019.426609603,
+      "usage_usec": 133103892,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5019.934305289,
+      "usage_usec": 133478426,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5020.445186524,
+      "usage_usec": 133820833,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5020.953045747,
+      "usage_usec": 134147498,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5021.462437059,
+      "usage_usec": 134511836,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5021.972052616,
+      "usage_usec": 134847629,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5022.483295134,
+      "usage_usec": 135188441,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5022.994432322,
+      "usage_usec": 135544333,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5023.503808426,
+      "usage_usec": 135869214,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5024.010079853,
+      "usage_usec": 136181959,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5024.519625954,
+      "usage_usec": 136531824,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5025.028330032,
+      "usage_usec": 136881755,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5025.540368282,
+      "usage_usec": 137225378,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5026.048755742,
+      "usage_usec": 137575798,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5026.558154263,
+      "usage_usec": 137925826,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5027.068608258,
+      "usage_usec": 138272978,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5027.576857055,
+      "usage_usec": 138612272,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5028.08530539,
+      "usage_usec": 138959455,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5028.594434916,
+      "usage_usec": 139298244,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5029.104365299,
+      "usage_usec": 139639888,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5029.616841288,
+      "usage_usec": 139981202,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5030.129792808,
+      "usage_usec": 140332336,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5030.637141002,
+      "usage_usec": 140700864,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5031.145014558,
+      "usage_usec": 141051122,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5031.657675877,
+      "usage_usec": 141399905,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5032.165562016,
+      "usage_usec": 141748251,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5032.674186512,
+      "usage_usec": 142075951,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5033.187252863,
+      "usage_usec": 142415055,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5033.694859634,
+      "usage_usec": 142769288,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5034.207447787,
+      "usage_usec": 143121782,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5034.71831244,
+      "usage_usec": 143466050,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5035.231297501,
+      "usage_usec": 143830085,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5035.742148112,
+      "usage_usec": 144169072,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5036.250825024,
+      "usage_usec": 144516913,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5036.758975282,
+      "usage_usec": 144842527,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5037.26832122,
+      "usage_usec": 145196746,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5037.779350119,
+      "usage_usec": 145518846,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5038.290953295,
+      "usage_usec": 145850241,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5038.80186528,
+      "usage_usec": 146197409,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5039.317306408,
+      "usage_usec": 146544607,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5039.829337908,
+      "usage_usec": 146888913,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5040.337599705,
+      "usage_usec": 147229012,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5040.846569694,
+      "usage_usec": 147540938,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5041.356755446,
+      "usage_usec": 147853817,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5041.865298986,
+      "usage_usec": 148193356,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5042.375375365,
+      "usage_usec": 148555978,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5042.88365937,
+      "usage_usec": 148932534,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5043.394189114,
+      "usage_usec": 149271387,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5043.910798548,
+      "usage_usec": 149621696,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5044.423260538,
+      "usage_usec": 149941697,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5044.933303209,
+      "usage_usec": 150295641,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5045.446132191,
+      "usage_usec": 150636403,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5045.957787241,
+      "usage_usec": 150976803,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5046.465703713,
+      "usage_usec": 151327256,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5046.978576443,
+      "usage_usec": 151649157,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5047.489806337,
+      "usage_usec": 151993448,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5048.006331773,
+      "usage_usec": 152354652,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5048.517765079,
+      "usage_usec": 152702422,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5049.025197979,
+      "usage_usec": 153035399,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5049.537498972,
+      "usage_usec": 153394543,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5050.04673383,
+      "usage_usec": 153731160,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5050.562137875,
+      "usage_usec": 154078258,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5051.071831055,
+      "usage_usec": 154432987,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5051.580743545,
+      "usage_usec": 154772387,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5052.092966791,
+      "usage_usec": 155098485,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5052.606161513,
+      "usage_usec": 155456343,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5053.119150991,
+      "usage_usec": 155814341,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5053.627453245,
+      "usage_usec": 156137737,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5054.134740857,
+      "usage_usec": 156448945,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5054.649083177,
+      "usage_usec": 156791479,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5055.162734181,
+      "usage_usec": 157135940,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5055.674427064,
+      "usage_usec": 157509076,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5056.18810165,
+      "usage_usec": 157845744,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5056.704899163,
+      "usage_usec": 158193338,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5057.213397788,
+      "usage_usec": 158523098,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5057.725016589,
+      "usage_usec": 158888860,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5058.234175782,
+      "usage_usec": 159237924,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5058.752455177,
+      "usage_usec": 159590350,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5059.261062507,
+      "usage_usec": 159958713,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5059.770471277,
+      "usage_usec": 160295911,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5060.281059144,
+      "usage_usec": 160650409,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5060.796568313,
+      "usage_usec": 161011237,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5061.314704211,
+      "usage_usec": 161368222,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5061.825232871,
+      "usage_usec": 161699999,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5062.340614042,
+      "usage_usec": 162087400,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5062.850335222,
+      "usage_usec": 162424373,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5063.362426554,
+      "usage_usec": 162773983,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5063.874412263,
+      "usage_usec": 163145309,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5064.385672364,
+      "usage_usec": 163500269,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5064.89491793,
+      "usage_usec": 163847872,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5065.406754476,
+      "usage_usec": 164210398,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5065.920325398,
+      "usage_usec": 164535947,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5066.439324401,
+      "usage_usec": 164906131,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5066.952289213,
+      "usage_usec": 165272408,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5067.461077622,
+      "usage_usec": 165618293,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5067.974578379,
+      "usage_usec": 165961250,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5068.487234448,
+      "usage_usec": 166339356,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5068.999456735,
+      "usage_usec": 166677217,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5069.510954373,
+      "usage_usec": 167014538,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5070.023193743,
+      "usage_usec": 167375109,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5070.536296343,
+      "usage_usec": 167719608,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5071.044772968,
+      "usage_usec": 168061649,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5071.556682887,
+      "usage_usec": 168416849,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5072.068765053,
+      "usage_usec": 168757129,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5072.584693045,
+      "usage_usec": 169140240,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5073.100537788,
+      "usage_usec": 169522595,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5073.610189511,
+      "usage_usec": 169829785,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5074.117814073,
+      "usage_usec": 170141959,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5074.627882327,
+      "usage_usec": 170502786,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5075.148871617,
+      "usage_usec": 170856314,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5075.659262988,
+      "usage_usec": 171197553,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5076.169988103,
+      "usage_usec": 171544307,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5076.67838423,
+      "usage_usec": 171899349,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5077.18678069,
+      "usage_usec": 172233280,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5077.694891074,
+      "usage_usec": 172581951,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5078.205252072,
+      "usage_usec": 172941853,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5078.720696741,
+      "usage_usec": 173292671,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5079.233086691,
+      "usage_usec": 173680111,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5079.742600376,
+      "usage_usec": 174025562,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5080.253273907,
+      "usage_usec": 174375401,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5080.764673881,
+      "usage_usec": 174710738,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5081.274979588,
+      "usage_usec": 175065283,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5081.784914554,
+      "usage_usec": 175398277,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5082.297550665,
+      "usage_usec": 175740528,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5082.805986666,
+      "usage_usec": 176086063,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5083.314960821,
+      "usage_usec": 176426303,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5083.827660305,
+      "usage_usec": 176782110,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5084.33820159,
+      "usage_usec": 177128744,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5084.846945918,
+      "usage_usec": 177467260,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5085.358475346,
+      "usage_usec": 177796044,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5085.873029412,
+      "usage_usec": 178177046,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5086.38384644,
+      "usage_usec": 178512660,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5086.898767372,
+      "usage_usec": 178849637,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5087.41047688,
+      "usage_usec": 179229450,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5087.920949125,
+      "usage_usec": 179557448,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5088.433203078,
+      "usage_usec": 179906308,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5088.950734699,
+      "usage_usec": 180278030,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5089.463237521,
+      "usage_usec": 180611591,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5089.971492776,
+      "usage_usec": 180923775,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5090.484501795,
+      "usage_usec": 181318030,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5090.992939921,
+      "usage_usec": 181657876,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5091.50310009,
+      "usage_usec": 181983550,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5092.013309883,
+      "usage_usec": 182313646,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5092.528247065,
+      "usage_usec": 182651646,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5093.041514494,
+      "usage_usec": 182995845,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5093.556514383,
+      "usage_usec": 183348999,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5094.072164256,
+      "usage_usec": 183706263,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5094.582408965,
+      "usage_usec": 184049016,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5095.092462303,
+      "usage_usec": 184406109,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5095.607981179,
+      "usage_usec": 184764156,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5096.120128176,
+      "usage_usec": 185105438,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5096.633745472,
+      "usage_usec": 185459892,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5097.144542668,
+      "usage_usec": 185802611,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5097.664261654,
+      "usage_usec": 186155043,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5098.174935103,
+      "usage_usec": 186497905,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5098.690539268,
+      "usage_usec": 186832156,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5099.210204589,
+      "usage_usec": 187176528,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5099.721391817,
+      "usage_usec": 187518247,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5100.232374717,
+      "usage_usec": 187841351,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5100.743869479,
+      "usage_usec": 188182781,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5101.253727114,
+      "usage_usec": 188536282,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5101.764908384,
+      "usage_usec": 188871728,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5102.272343575,
+      "usage_usec": 189239974,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5102.788769139,
+      "usage_usec": 189579491,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5103.298582024,
+      "usage_usec": 189925167,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5103.813364668,
+      "usage_usec": 190256892,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5104.325642454,
+      "usage_usec": 190598734,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5104.836575271,
+      "usage_usec": 190953155,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5105.347931954,
+      "usage_usec": 191280931,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5105.864348309,
+      "usage_usec": 191620609,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5106.374758222,
+      "usage_usec": 191958457,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5106.889367578,
+      "usage_usec": 192295423,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5107.402763546,
+      "usage_usec": 192651480,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5107.920762822,
+      "usage_usec": 193014972,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5108.435104851,
+      "usage_usec": 193365580,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5108.947117852,
+      "usage_usec": 193700612,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5109.460693732,
+      "usage_usec": 194062114,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5109.972160704,
+      "usage_usec": 194388902,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5110.483456554,
+      "usage_usec": 194703908,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5110.994979191,
+      "usage_usec": 195073340,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5111.507141271,
+      "usage_usec": 195440783,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5112.020018543,
+      "usage_usec": 195789831,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5112.532198415,
+      "usage_usec": 196147227,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5113.044863525,
+      "usage_usec": 196488886,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5113.555846425,
+      "usage_usec": 196829359,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5114.07198037,
+      "usage_usec": 197172792,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5114.585142635,
+      "usage_usec": 197513326,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5115.094304702,
+      "usage_usec": 197834162,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5115.604289417,
+      "usage_usec": 198176001,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5116.113142325,
+      "usage_usec": 198493945,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5116.625791269,
+      "usage_usec": 198829740,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5117.139248985,
+      "usage_usec": 199181306,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5117.651421732,
+      "usage_usec": 199526806,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5118.170918265,
+      "usage_usec": 199886319,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5118.684314191,
+      "usage_usec": 200232854,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5119.193017686,
+      "usage_usec": 200574365,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5119.707102513,
+      "usage_usec": 200896585,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5120.226260303,
+      "usage_usec": 201273078,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5120.738687086,
+      "usage_usec": 201601427,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5121.249881022,
+      "usage_usec": 201935826,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5121.764055305,
+      "usage_usec": 202290682,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5122.276400506,
+      "usage_usec": 202652975,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5122.796518316,
+      "usage_usec": 203008953,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5123.315906893,
+      "usage_usec": 203360307,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5123.834459406,
+      "usage_usec": 203706774,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5124.344474829,
+      "usage_usec": 204036346,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5124.857587928,
+      "usage_usec": 204364280,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5125.370276829,
+      "usage_usec": 204736616,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5125.882638113,
+      "usage_usec": 205074969,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5126.397056432,
+      "usage_usec": 205422871,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5126.910780892,
+      "usage_usec": 205794405,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5127.424237692,
+      "usage_usec": 206148138,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5127.934281822,
+      "usage_usec": 206453954,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5128.449920029,
+      "usage_usec": 206827321,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5128.9617667,
+      "usage_usec": 207156756,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5129.473988362,
+      "usage_usec": 207497777,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5129.98995777,
+      "usage_usec": 207828294,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5130.506337376,
+      "usage_usec": 208164127,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5131.019144816,
+      "usage_usec": 208470561,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5131.533684465,
+      "usage_usec": 208838483,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5132.046472447,
+      "usage_usec": 209170237,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5132.565605989,
+      "usage_usec": 209512491,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5133.081308277,
+      "usage_usec": 209875222,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5133.59618646,
+      "usage_usec": 210197361,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5134.112510818,
+      "usage_usec": 210543284,
+      "state": "playing"
+    },
+    {
+      "monotonic": 5134.628681845,
+      "usage_usec": 210874964,
+      "state": "ended"
+    }
+  ],
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+    "--vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2",
+    "--ozone-platform=wayland"
+  ],
+  "gpu": {
+    "gpu": {
+      "devices": [
+        {
+          "vendorId": 0,
+          "deviceId": 0,
+          "vendorString": "Google Inc. (Mesa)",
+          "deviceString": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+          "driverVendor": "Mesa",
+          "driverVersion": "25.0.7"
+        }
+      ],
+      "auxAttributes": {
+        "amdSwitchable": false,
+        "canSupportThreadedTextureMailbox": false,
+        "directRenderingVersion": "",
+        "displayType": "ANGLE_OPENGLES",
+        "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_compressed_texture_etc GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_size GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_robust_client_memory GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_translated_shader_source GL_ARM_rgba8 GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_blend_func_extended GL_EXT_blend_minmax GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_render_snorm GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_debug GL_KHR_parallel_shader_compile GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_read_depth GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth24 GL_OES_draw_buffers_indexed GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object ",
+        "glImplementationParts": "(gl=egl-angle,angle=opengles)",
+        "glRenderer": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+        "glResetNotificationStrategy": 0,
+        "glVendor": "Google Inc. (Mesa)",
+        "glVersion": "OpenGL ES 3.0 (ANGLE 2.1 git hash: unknown hash)",
+        "glWsExtensions": "EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANDROID_native_fence_sync EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_KHR_create_context_no_error EGL_EXT_image_dma_buf_import EGL_EXT_image_dma_buf_import_modifiers EGL_KHR_reusable_sync EGL_ANGLE_external_context_and_surface EGL_EXT_buffer_age EGL_ANGLE_context_virtualization EGL_ANGLE_memory_usage_report EGL_ANGLE_create_context_passthrough_shaders ",
+        "glWsVendor": "Google Inc. (Mesa)",
+        "glWsVersion": "1.5 (ANGLE 2.1 git hash: unknown hash)",
+        "hardwareSupportsVulkan": false,
+        "inProcessGpu": false,
+        "initializationTime": 0.199822,
+        "isAsan": false,
+        "isClangCoverage": false,
+        "jpegDecodeAcceleratorSupported": false,
+        "maxMsaaSamples": "4",
+        "optimus": false,
+        "passthroughCmdDecoder": true,
+        "pixelShaderVersion": "3.00",
+        "processCrashCount": 0,
+        "sandboxed": false,
+        "skiaBackendType": "GaneshGL",
+        "subpixelFontRendering": true,
+        "targetCpuBits": 64,
+        "vertexShaderVersion": "3.00",
+        "visibilityCallbackCallCount": 0
+      },
+      "featureStatus": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "enabled_on",
+        "opengl": "enabled_on",
+        "rasterization": "enabled_force",
+        "raw_draw": "disabled_off_ok",
+        "skia_graphite": "disabled_off",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "enabled",
+        "video_encode": "disabled_software",
+        "vulkan": "disabled_off",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webgpu_on_vk_via_gl_interop": "disabled_off",
+        "webnn": "disabled_off"
+      },
+      "driverBugWorkarounds": [
+        "enable_webgl_timer_query_extensions",
+        "exit_on_context_lost",
+        "disabled_extension_GL_KHR_blend_equation_advanced",
+        "disabled_extension_GL_KHR_blend_equation_advanced_coherent"
+      ],
+      "videoDecoding": [],
+      "videoEncoding": []
+    },
+    "modelName": "",
+    "modelVersion": "",
+    "commandLine": "/usr/lib/chromium/chromium --show-component-extension-options --enable-gpu-rasterization --no-default-browser-check --disable-pings --media-router=0 --disable-dev-shm-usage --enable-remote-extensions --load-extension --no-first-run --autoplay-policy=no-user-gesture-required --disable-background-networking --user-data-dir=/tmp/probe-profile --remote-debugging-pipe --enable-logging=stderr --enable-gpu --use-gl=angle --use-angle=gles --enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration --vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2 --ozone-platform=wayland --flag-switches-begin --flag-switches-end --render-node-override=/dev/dri/renderD128"
+  },
+  "page": {
+    "codec": "hevc",
+    "state": "ended",
+    "frames": [
+      {
+        "mediaTime": 298.108,
+        "presentedFrames": 17155
+      },
+      {
+        "mediaTime": 298.124,
+        "presentedFrames": 17156
+      },
+      {
+        "mediaTime": 298.141,
+        "presentedFrames": 17157
+      },
+      {
+        "mediaTime": 298.157,
+        "presentedFrames": 17158
+      },
+      {
+        "mediaTime": 298.174,
+        "presentedFrames": 17159
+      },
+      {
+        "mediaTime": 298.191,
+        "presentedFrames": 17160
+      },
+      {
+        "mediaTime": 298.207,
+        "presentedFrames": 17161
+      },
+      {
+        "mediaTime": 298.224,
+        "presentedFrames": 17162
+      },
+      {
+        "mediaTime": 298.241,
+        "presentedFrames": 17163
+      },
+      {
+        "mediaTime": 298.292,
+        "presentedFrames": 17164
+      },
+      {
+        "mediaTime": 298.325,
+        "presentedFrames": 17165
+      },
+      {
+        "mediaTime": 298.342,
+        "presentedFrames": 17166
+      },
+      {
+        "mediaTime": 298.392,
+        "presentedFrames": 17167
+      },
+      {
+        "mediaTime": 298.442,
+        "presentedFrames": 17168
+      },
+      {
+        "mediaTime": 298.458,
+        "presentedFrames": 17169
+      },
+      {
+        "mediaTime": 298.492,
+        "presentedFrames": 17171
+      },
+      {
+        "mediaTime": 298.508,
+        "presentedFrames": 17172
+      },
+      {
+        "mediaTime": 298.525,
+        "presentedFrames": 17173
+      },
+      {
+        "mediaTime": 298.542,
+        "presentedFrames": 17174
+      },
+      {
+        "mediaTime": 298.558,
+        "presentedFrames": 17175
+      },
+      {
+        "mediaTime": 298.575,
+        "presentedFrames": 17176
+      },
+      {
+        "mediaTime": 298.592,
+        "presentedFrames": 17177
+      },
+      {
+        "mediaTime": 298.658,
+        "presentedFrames": 17179
+      },
+      {
+        "mediaTime": 298.675,
+        "presentedFrames": 17180
+      },
+      {
+        "mediaTime": 298.708,
+        "presentedFrames": 17182
+      },
+      {
+        "mediaTime": 298.758,
+        "presentedFrames": 17183
+      },
+      {
+        "mediaTime": 298.775,
+        "presentedFrames": 17184
+      },
+      {
+        "mediaTime": 298.792,
+        "presentedFrames": 17185
+      },
+      {
+        "mediaTime": 298.808,
+        "presentedFrames": 17186
+      },
+      {
+        "mediaTime": 298.825,
+        "presentedFrames": 17187
+      },
+      {
+        "mediaTime": 298.842,
+        "presentedFrames": 17188
+      },
+      {
+        "mediaTime": 298.858,
+        "presentedFrames": 17189
+      },
+      {
+        "mediaTime": 298.875,
+        "presentedFrames": 17190
+      },
+      {
+        "mediaTime": 298.892,
+        "presentedFrames": 17191
+      },
+      {
+        "mediaTime": 298.908,
+        "presentedFrames": 17192
+      },
+      {
+        "mediaTime": 298.925,
+        "presentedFrames": 17193
+      },
+      {
+        "mediaTime": 298.942,
+        "presentedFrames": 17194
+      },
+      {
+        "mediaTime": 298.958,
+        "presentedFrames": 17195
+      },
+      {
+        "mediaTime": 298.975,
+        "presentedFrames": 17196
+      },
+      {
+        "mediaTime": 298.992,
+        "presentedFrames": 17197
+      },
+      {
+        "mediaTime": 299.008,
+        "presentedFrames": 17198
+      },
+      {
+        "mediaTime": 299.025,
+        "presentedFrames": 17199
+      },
+      {
+        "mediaTime": 299.042,
+        "presentedFrames": 17200
+      },
+      {
+        "mediaTime": 299.058,
+        "presentedFrames": 17201
+      },
+      {
+        "mediaTime": 299.075,
+        "presentedFrames": 17202
+      },
+      {
+        "mediaTime": 299.092,
+        "presentedFrames": 17203
+      },
+      {
+        "mediaTime": 299.108,
+        "presentedFrames": 17204
+      },
+      {
+        "mediaTime": 299.124,
+        "presentedFrames": 17205
+      },
+      {
+        "mediaTime": 299.141,
+        "presentedFrames": 17206
+      },
+      {
+        "mediaTime": 299.157,
+        "presentedFrames": 17207
+      },
+      {
+        "mediaTime": 299.174,
+        "presentedFrames": 17208
+      },
+      {
+        "mediaTime": 299.191,
+        "presentedFrames": 17209
+      },
+      {
+        "mediaTime": 299.207,
+        "presentedFrames": 17210
+      },
+      {
+        "mediaTime": 299.224,
+        "presentedFrames": 17211
+      },
+      {
+        "mediaTime": 299.257,
+        "presentedFrames": 17213
+      },
+      {
+        "mediaTime": 299.274,
+        "presentedFrames": 17214
+      },
+      {
+        "mediaTime": 299.291,
+        "presentedFrames": 17215
+      },
+      {
+        "mediaTime": 299.307,
+        "presentedFrames": 17216
+      },
+      {
+        "mediaTime": 299.324,
+        "presentedFrames": 17217
+      },
+      {
+        "mediaTime": 299.375,
+        "presentedFrames": 17218
+      }
+    ],
+    "callbackCount": 16409,
+    "snapshots": [
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001852957.563,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 9083,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 10426937,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 558,
+          "framesDecoded": 558,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 559,
+          "freezeCount": 0,
+          "headerBytesReceived": 108996,
+          "jitterBufferDelay": 4.984069,
+          "jitterBufferEmittedCount": 558,
+          "jitterBufferMinimumDelay": 7.019359,
+          "jitterBufferTargetDelay": 7.019359,
+          "keyFramesDecoded": 10,
+          "lastPacketReceivedTimestamp": 1790001852946.753,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 0.275952,
+          "totalDecodeTime": 1.710742,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 9.183,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 6.856688,
+          "totalSquaredInterFrameDelay": 0.18292300000000128,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001862960.048,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 18248,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 20948492,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 1158,
+          "framesDecoded": 1158,
+          "framesDropped": 0,
+          "framesPerSecond": 61,
+          "framesReceived": 1159,
+          "freezeCount": 0,
+          "headerBytesReceived": 218976,
+          "jitterBufferDelay": 9.810604999999999,
+          "jitterBufferEmittedCount": 1159,
+          "jitterBufferMinimumDelay": 14.565932,
+          "jitterBufferTargetDelay": 14.565932,
+          "keyFramesDecoded": 20,
+          "lastPacketReceivedTimestamp": 1790001862945.428,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 0.5248659999999999,
+          "totalDecodeTime": 3.2548589999999997,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 19.183,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 13.308627999999999,
+          "totalSquaredInterFrameDelay": 0.3844169999999948,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001872961.374,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 27403,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 31459317,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 1758,
+          "framesDecoded": 1758,
+          "framesDropped": 0,
+          "framesPerSecond": 59,
+          "framesReceived": 1759,
+          "freezeCount": 0,
+          "headerBytesReceived": 328836,
+          "jitterBufferDelay": 14.396885,
+          "jitterBufferEmittedCount": 1759,
+          "jitterBufferMinimumDelay": 22.180865,
+          "jitterBufferTargetDelay": 22.180865,
+          "keyFramesDecoded": 30,
+          "lastPacketReceivedTimestamp": 1790001872944.789,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 0.7763789999999999,
+          "totalDecodeTime": 4.879897,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 29.183,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 19.610856,
+          "totalSquaredInterFrameDelay": 0.5833289999999914,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001882962.883,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 36597,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 42014930,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 2359,
+          "framesDecoded": 2359,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 2360,
+          "freezeCount": 0,
+          "headerBytesReceived": 439164,
+          "jitterBufferDelay": 19.031591,
+          "jitterBufferEmittedCount": 2359,
+          "jitterBufferMinimumDelay": 29.539704,
+          "jitterBufferTargetDelay": 29.539704,
+          "keyFramesDecoded": 40,
+          "lastPacketReceivedTimestamp": 1790001882962.076,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 1.043053,
+          "totalDecodeTime": 6.482237,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 39.2,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 25.948833,
+          "totalSquaredInterFrameDelay": 0.7821040000000017,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001892964.352,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 45762,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 52536166,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 2959,
+          "framesDecoded": 2959,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 2960,
+          "freezeCount": 0,
+          "headerBytesReceived": 549144,
+          "jitterBufferDelay": 23.538187999999998,
+          "jitterBufferEmittedCount": 2959,
+          "jitterBufferMinimumDelay": 36.766642999999995,
+          "jitterBufferTargetDelay": 36.766642999999995,
+          "keyFramesDecoded": 50,
+          "lastPacketReceivedTimestamp": 1790001892961.8801,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 1.3142179999999999,
+          "totalDecodeTime": 8.06674,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 49.198,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 32.127082,
+          "totalSquaredInterFrameDelay": 0.9880460000000127,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001902966.691,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 54916,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 63046014,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 3559,
+          "framesDecoded": 3559,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 3560,
+          "freezeCount": 0,
+          "headerBytesReceived": 658992,
+          "jitterBufferDelay": 28.161672,
+          "jitterBufferEmittedCount": 3559,
+          "jitterBufferMinimumDelay": 43.979053,
+          "jitterBufferTargetDelay": 43.979053,
+          "keyFramesDecoded": 60,
+          "lastPacketReceivedTimestamp": 1790001902962.2961,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 1.566849,
+          "totalDecodeTime": 9.668341,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 59.198,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 38.435583,
+          "totalSquaredInterFrameDelay": 1.1907160000000065,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001912968.315,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.003,
+          "packetsLost": 0,
+          "packetsReceived": 64097,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 73586350,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 4159,
+          "framesDecoded": 4159,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 4160,
+          "freezeCount": 0,
+          "headerBytesReceived": 769164,
+          "jitterBufferDelay": 32.774341,
+          "jitterBufferEmittedCount": 4159,
+          "jitterBufferMinimumDelay": 51.439177,
+          "jitterBufferTargetDelay": 51.439177,
+          "keyFramesDecoded": 70,
+          "lastPacketReceivedTimestamp": 1790001912962.237,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 1.817855,
+          "totalDecodeTime": 11.294756999999999,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 69.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 44.765626,
+          "totalSquaredInterFrameDelay": 1.3894310000000012,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001922969.706,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 73262,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 84107586,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 4759,
+          "framesDecoded": 4759,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 4760,
+          "freezeCount": 0,
+          "headerBytesReceived": 879144,
+          "jitterBufferDelay": 37.369955999999995,
+          "jitterBufferEmittedCount": 4759,
+          "jitterBufferMinimumDelay": 59.31127,
+          "jitterBufferTargetDelay": 59.31127,
+          "keyFramesDecoded": 80,
+          "lastPacketReceivedTimestamp": 1790001922962.999,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 2.0845629999999997,
+          "totalDecodeTime": 12.942091,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 79.2,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 51.096728,
+          "totalSquaredInterFrameDelay": 1.5803819999999948,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001932970.625,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 82416,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 94617434,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 5359,
+          "framesDecoded": 5359,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 5360,
+          "freezeCount": 0,
+          "headerBytesReceived": 988992,
+          "jitterBufferDelay": 42.144057,
+          "jitterBufferEmittedCount": 5359,
+          "jitterBufferMinimumDelay": 66.80121199999999,
+          "jitterBufferTargetDelay": 66.80121199999999,
+          "keyFramesDecoded": 90,
+          "lastPacketReceivedTimestamp": 1790001932962.138,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 2.347117,
+          "totalDecodeTime": 14.534187,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 89.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 57.558108999999995,
+          "totalSquaredInterFrameDelay": 1.7731029999999877,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001942971.869,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 91597,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 105157770,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 5959,
+          "framesDecoded": 5959,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 5960,
+          "freezeCount": 0,
+          "headerBytesReceived": 1099164,
+          "jitterBufferDelay": 46.827372,
+          "jitterBufferEmittedCount": 5959,
+          "jitterBufferMinimumDelay": 74.494654,
+          "jitterBufferTargetDelay": 74.494654,
+          "keyFramesDecoded": 100,
+          "lastPacketReceivedTimestamp": 1790001942961.777,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 2.61,
+          "totalDecodeTime": 16.1464,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 99.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 63.930549,
+          "totalSquaredInterFrameDelay": 1.9687529999999807,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001952973.316,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 100762,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 115679006,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 6559,
+          "framesDecoded": 6559,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 6560,
+          "freezeCount": 0,
+          "headerBytesReceived": 1209144,
+          "jitterBufferDelay": 51.467939,
+          "jitterBufferEmittedCount": 6559,
+          "jitterBufferMinimumDelay": 82.551098,
+          "jitterBufferTargetDelay": 82.551098,
+          "keyFramesDecoded": 110,
+          "lastPacketReceivedTimestamp": 1790001952962.4631,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 2.870199,
+          "totalDecodeTime": 17.743145,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 109.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 70.254415,
+          "totalSquaredInterFrameDelay": 2.1654789999999386,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001962974.597,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 109916,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 126188854,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 7159,
+          "framesDecoded": 7159,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 7160,
+          "freezeCount": 0,
+          "headerBytesReceived": 1318992,
+          "jitterBufferDelay": 56.335645,
+          "jitterBufferEmittedCount": 7159,
+          "jitterBufferMinimumDelay": 90.772488,
+          "jitterBufferTargetDelay": 90.772488,
+          "keyFramesDecoded": 120,
+          "lastPacketReceivedTimestamp": 1790001962961.788,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 3.127448,
+          "totalDecodeTime": 19.300838,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 119.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 76.76668699999999,
+          "totalSquaredInterFrameDelay": 2.3561789999998837,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001972976.277,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 119097,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 136729190,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 7759,
+          "framesDecoded": 7759,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 7760,
+          "freezeCount": 0,
+          "headerBytesReceived": 1429164,
+          "jitterBufferDelay": 60.959171,
+          "jitterBufferEmittedCount": 7760,
+          "jitterBufferMinimumDelay": 98.795253,
+          "jitterBufferTargetDelay": 98.795253,
+          "keyFramesDecoded": 130,
+          "lastPacketReceivedTimestamp": 1790001972961.982,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 3.3871629999999997,
+          "totalDecodeTime": 20.920042,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 129.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 83.07977699999999,
+          "totalSquaredInterFrameDelay": 2.551274999999831,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001982977.654,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 128262,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 147250426,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 8359,
+          "framesDecoded": 8359,
+          "framesDropped": 0,
+          "framesPerSecond": 59,
+          "framesReceived": 8360,
+          "freezeCount": 0,
+          "headerBytesReceived": 1539144,
+          "jitterBufferDelay": 65.550907,
+          "jitterBufferEmittedCount": 8360,
+          "jitterBufferMinimumDelay": 106.23301,
+          "jitterBufferTargetDelay": 106.23301,
+          "keyFramesDecoded": 140,
+          "lastPacketReceivedTimestamp": 1790001982962.658,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 3.619207,
+          "totalDecodeTime": 22.546414,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 139.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 89.37953,
+          "totalSquaredInterFrameDelay": 2.749914999999783,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790001992978.893,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 137430,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 157776088,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 8960,
+          "framesDecoded": 8960,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 8961,
+          "freezeCount": 0,
+          "headerBytesReceived": 1649160,
+          "jitterBufferDelay": 69.909476,
+          "jitterBufferEmittedCount": 8960,
+          "jitterBufferMinimumDelay": 113.545442,
+          "jitterBufferTargetDelay": 113.545442,
+          "keyFramesDecoded": 150,
+          "lastPacketReceivedTimestamp": 1790001992978.544,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 3.8806879999999997,
+          "totalDecodeTime": 24.124167999999997,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 149.214,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 95.414155,
+          "totalSquaredInterFrameDelay": 2.9490239999997345,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002002980.341,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 146612,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 168317259,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 9560,
+          "framesDecoded": 9560,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 9561,
+          "freezeCount": 0,
+          "headerBytesReceived": 1759344,
+          "jitterBufferDelay": 74.22714599999999,
+          "jitterBufferEmittedCount": 9560,
+          "jitterBufferMinimumDelay": 121.040261,
+          "jitterBufferTargetDelay": 121.040261,
+          "keyFramesDecoded": 160,
+          "lastPacketReceivedTimestamp": 1790002002978.746,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 4.124626999999999,
+          "totalDecodeTime": 25.7836,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 159.215,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 101.48151899999999,
+          "totalSquaredInterFrameDelay": 3.153504999999691,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002012981.572,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 155776,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 178838419,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 10160,
+          "framesDecoded": 10160,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 10161,
+          "freezeCount": 0,
+          "headerBytesReceived": 1869312,
+          "jitterBufferDelay": 78.90856,
+          "jitterBufferEmittedCount": 10160,
+          "jitterBufferMinimumDelay": 129.029284,
+          "jitterBufferTargetDelay": 129.029284,
+          "keyFramesDecoded": 170,
+          "lastPacketReceivedTimestamp": 1790002012978.728,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 4.364959,
+          "totalDecodeTime": 27.393421999999997,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 169.215,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 107.85888999999999,
+          "totalSquaredInterFrameDelay": 3.3424989999996333,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002022983.59,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 164930,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 189347508,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 10760,
+          "framesDecoded": 10760,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 10761,
+          "freezeCount": 0,
+          "headerBytesReceived": 1979160,
+          "jitterBufferDelay": 83.424064,
+          "jitterBufferEmittedCount": 10760,
+          "jitterBufferMinimumDelay": 137.72581399999999,
+          "jitterBufferTargetDelay": 137.72581399999999,
+          "keyFramesDecoded": 180,
+          "lastPacketReceivedTimestamp": 1790002022978.914,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 4.6230579999999994,
+          "totalDecodeTime": 28.995136,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 179.216,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 114.075464,
+          "totalSquaredInterFrameDelay": 3.5438659999995816,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002032984.627,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 174112,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 199888679,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 11360,
+          "framesDecoded": 11360,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 11361,
+          "freezeCount": 0,
+          "headerBytesReceived": 2089344,
+          "jitterBufferDelay": 88.152024,
+          "jitterBufferEmittedCount": 11360,
+          "jitterBufferMinimumDelay": 145.806309,
+          "jitterBufferTargetDelay": 145.806309,
+          "keyFramesDecoded": 190,
+          "lastPacketReceivedTimestamp": 1790002032978.518,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 4.870928999999999,
+          "totalDecodeTime": 30.603975,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 189.214,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 120.508291,
+          "totalSquaredInterFrameDelay": 3.7426299999995325,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002042985.712,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 183276,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 210409839,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 11960,
+          "framesDecoded": 11960,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 11961,
+          "freezeCount": 0,
+          "headerBytesReceived": 2199312,
+          "jitterBufferDelay": 92.839379,
+          "jitterBufferEmittedCount": 11960,
+          "jitterBufferMinimumDelay": 153.306536,
+          "jitterBufferTargetDelay": 153.306536,
+          "keyFramesDecoded": 200,
+          "lastPacketReceivedTimestamp": 1790002042978.6,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 5.117939,
+          "totalDecodeTime": 32.227926,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 199.214,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 126.90139599999999,
+          "totalSquaredInterFrameDelay": 3.9326359999994795,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002052987.561,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 192430,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 220918928,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 12560,
+          "framesDecoded": 12560,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 12561,
+          "freezeCount": 0,
+          "headerBytesReceived": 2309160,
+          "jitterBufferDelay": 97.42125899999999,
+          "jitterBufferEmittedCount": 12560,
+          "jitterBufferMinimumDelay": 160.173363,
+          "jitterBufferTargetDelay": 160.173363,
+          "keyFramesDecoded": 210,
+          "lastPacketReceivedTimestamp": 1790002052978.3591,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 5.37957,
+          "totalDecodeTime": 33.805776,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 209.214,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 133.145831,
+          "totalSquaredInterFrameDelay": 4.1367779999995395,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002062988.846,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 201612,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 231460099,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 13160,
+          "framesDecoded": 13160,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 13161,
+          "freezeCount": 0,
+          "headerBytesReceived": 2419344,
+          "jitterBufferDelay": 101.927669,
+          "jitterBufferEmittedCount": 13160,
+          "jitterBufferMinimumDelay": 167.628611,
+          "jitterBufferTargetDelay": 167.628611,
+          "keyFramesDecoded": 220,
+          "lastPacketReceivedTimestamp": 1790002062978.669,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 5.618251,
+          "totalDecodeTime": 35.442395,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 219.216,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 139.37528799999998,
+          "totalSquaredInterFrameDelay": 4.332879999999668,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002072992.06,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 210776,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 241981259,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 13760,
+          "framesDecoded": 13760,
+          "framesDropped": 0,
+          "framesPerSecond": 59,
+          "framesReceived": 13761,
+          "freezeCount": 0,
+          "headerBytesReceived": 2529312,
+          "jitterBufferDelay": 106.609031,
+          "jitterBufferEmittedCount": 13761,
+          "jitterBufferMinimumDelay": 175.040306,
+          "jitterBufferTargetDelay": 175.040306,
+          "keyFramesDecoded": 230,
+          "lastPacketReceivedTimestamp": 1790002072979.451,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 5.854242,
+          "totalDecodeTime": 37.097834999999996,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 229.214,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 145.79412299999998,
+          "totalSquaredInterFrameDelay": 4.522807999999801,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002082993.26,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 219930,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 252490348,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 14360,
+          "framesDecoded": 14360,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 14361,
+          "freezeCount": 0,
+          "headerBytesReceived": 2639160,
+          "jitterBufferDelay": 111.049807,
+          "jitterBufferEmittedCount": 14361,
+          "jitterBufferMinimumDelay": 182.286224,
+          "jitterBufferTargetDelay": 182.286224,
+          "keyFramesDecoded": 240,
+          "lastPacketReceivedTimestamp": 1790002082979.251,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 6.097004,
+          "totalDecodeTime": 38.783121,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 239.215,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 152.01491,
+          "totalSquaredInterFrameDelay": 4.726730999999925,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002092994.677,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 229112,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 263031519,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 14961,
+          "framesDecoded": 14961,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 14961,
+          "freezeCount": 0,
+          "headerBytesReceived": 2749344,
+          "jitterBufferDelay": 115.68861799999999,
+          "jitterBufferEmittedCount": 14961,
+          "jitterBufferMinimumDelay": 190.129789,
+          "jitterBufferTargetDelay": 190.129789,
+          "keyFramesDecoded": 250,
+          "lastPacketReceivedTimestamp": 1790002092979.55,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 6.346588,
+          "totalDecodeTime": 40.414819,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 249.229,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 158.394632,
+          "totalSquaredInterFrameDelay": 4.928723000000052,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002102996.048,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 238291,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 273569533,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 15561,
+          "framesDecoded": 15561,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 15562,
+          "freezeCount": 0,
+          "headerBytesReceived": 2859492,
+          "jitterBufferDelay": 120.23269499999999,
+          "jitterBufferEmittedCount": 15561,
+          "jitterBufferMinimumDelay": 197.962867,
+          "jitterBufferTargetDelay": 197.962867,
+          "keyFramesDecoded": 260,
+          "lastPacketReceivedTimestamp": 1790002102995.039,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 6.579825,
+          "totalDecodeTime": 42.040124,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 259.232,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 164.65053699999999,
+          "totalSquaredInterFrameDelay": 5.12301600000019,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002112997.001,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.004,
+          "packetsLost": 0,
+          "packetsReceived": 247444,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 284078058,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 16161,
+          "framesDecoded": 16161,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 16162,
+          "freezeCount": 0,
+          "headerBytesReceived": 2969328,
+          "jitterBufferDelay": 124.57332299999999,
+          "jitterBufferEmittedCount": 16161,
+          "jitterBufferMinimumDelay": 205.027736,
+          "jitterBufferTargetDelay": 205.027736,
+          "keyFramesDecoded": 270,
+          "lastPacketReceivedTimestamp": 1790002112995.763,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 6.819786,
+          "totalDecodeTime": 43.67999,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 269.23,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 170.717886,
+          "totalSquaredInterFrameDelay": 5.330686000000315,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002122998.315,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 256626,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 294619516,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 16761,
+          "framesDecoded": 16761,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 16762,
+          "freezeCount": 0,
+          "headerBytesReceived": 3079512,
+          "jitterBufferDelay": 129.150912,
+          "jitterBufferEmittedCount": 16761,
+          "jitterBufferMinimumDelay": 212.85775099999998,
+          "jitterBufferTargetDelay": 212.85775099999998,
+          "keyFramesDecoded": 280,
+          "lastPacketReceivedTimestamp": 1790002122994.9001,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 7.0653559999999995,
+          "totalDecodeTime": 45.315947,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 279.23,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 177.015501,
+          "totalSquaredInterFrameDelay": 5.5331280000004455,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002132999.484,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.005,
+          "packetsLost": 0,
+          "packetsReceived": 265791,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 305140953,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 17361,
+          "framesDecoded": 17361,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 17362,
+          "freezeCount": 0,
+          "headerBytesReceived": 3189492,
+          "jitterBufferDelay": 133.36179099999998,
+          "jitterBufferEmittedCount": 17361,
+          "jitterBufferMinimumDelay": 220.068161,
+          "jitterBufferTargetDelay": 220.068161,
+          "keyFramesDecoded": 290,
+          "lastPacketReceivedTimestamp": 1790002132995.043,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 7.287782,
+          "totalDecodeTime": 46.954218,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 289.23,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 182.954081,
+          "totalSquaredInterFrameDelay": 5.741524000000564,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ],
+      [
+        {
+          "id": "IT01V2458466168",
+          "timestamp": 1790002143000.906,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2458466168,
+          "transportId": "T01",
+          "jitter": 0.002,
+          "packetsLost": 0,
+          "packetsReceived": 274903,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 315602097,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 17959,
+          "framesDecoded": 17959,
+          "framesDropped": 0,
+          "framesPerSecond": 59,
+          "framesReceived": 17959,
+          "freezeCount": 0,
+          "headerBytesReceived": 3298836,
+          "jitterBufferDelay": 137.732121,
+          "jitterBufferEmittedCount": 17959,
+          "jitterBufferMinimumDelay": 228.00321,
+          "jitterBufferTargetDelay": 228.00321,
+          "keyFramesDecoded": 300,
+          "lastPacketReceivedTimestamp": 1790002142944.9521,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2458466168",
+          "totalAssemblyTime": 7.516273999999999,
+          "totalDecodeTime": 48.551370999999996,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 299.199,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 189.009627,
+          "totalSquaredInterFrameDelay": 5.952665000000687,
+          "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+        }
+      ]
+    ],
+    "started": 591,
+    "connectionStates": [
+      "connecting",
+      "connected"
+    ],
+    "offeredCodecs": [
+      "a=rtpmap:49 H265/90000",
+      "a=fmtp:49 level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+    ],
+    "answerCodecs": [
+      "a=rtpmap:49 H265/90000",
+      "a=fmtp:49 level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+    ],
+    "stats": [
+      {
+        "id": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+        "timestamp": 1790002143000.906,
+        "type": "codec",
+        "clockRate": 90000,
+        "mimeType": "video/H265",
+        "payloadType": 49,
+        "sdpFmtpLine": "level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+        "transportId": "T01"
+      },
+      {
+        "id": "IT01V2458466168",
+        "timestamp": 1790002143000.906,
+        "type": "inbound-rtp",
+        "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+        "kind": "video",
+        "mediaType": "video",
+        "ssrc": 2458466168,
+        "transportId": "T01",
+        "jitter": 0.002,
+        "packetsLost": 0,
+        "packetsReceived": 274903,
+        "packetsReceivedWithCe": 0,
+        "packetsReceivedWithEct1": 0,
+        "bytesReceived": 315602097,
+        "firCount": 0,
+        "frameHeight": 1080,
+        "frameWidth": 1920,
+        "framesAssembledFromMultiplePackets": 17959,
+        "framesDecoded": 17959,
+        "framesDropped": 0,
+        "framesPerSecond": 59,
+        "framesReceived": 17959,
+        "freezeCount": 0,
+        "headerBytesReceived": 3298836,
+        "jitterBufferDelay": 137.732121,
+        "jitterBufferEmittedCount": 17959,
+        "jitterBufferMinimumDelay": 228.00321,
+        "jitterBufferTargetDelay": 228.00321,
+        "keyFramesDecoded": 300,
+        "lastPacketReceivedTimestamp": 1790002142944.9521,
+        "mid": "0",
+        "nackCount": 0,
+        "pauseCount": 0,
+        "pliCount": 3,
+        "remoteId": "ROV2458466168",
+        "totalAssemblyTime": 7.516273999999999,
+        "totalDecodeTime": 48.551370999999996,
+        "totalFreezesDuration": 0,
+        "totalInterFrameDelay": 299.199,
+        "totalPausesDuration": 0,
+        "totalProcessingDelay": 189.009627,
+        "totalSquaredInterFrameDelay": 5.952665000000687,
+        "trackIdentifier": "665232fe-09b3-4df4-ba50-77837a8b9d27"
+      }
+    ],
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 17959,
+    "droppedFrames": 6360,
+    "elapsedMs": 300227.0999999996
+  },
+  "support": {
+    "h264": "probably",
+    "hevc": "probably"
+  },
+  "mediaEvents": [
+    {
+      "method": "Media.playerCreated",
+      "params": {
+        "player": {
+          "playerId": "C148007249E23821C0F9A3E651510DC1"
+        }
+      },
+      "sessionId": "2E8EA8EB387FD0AB9BDCFAD352168629"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "C148007249E23821C0F9A3E651510DC1",
+        "events": [
+          {
+            "timestamp": 4834.422869,
+            "value": "{\"created\":\"2026-09-21 14:44:02.960073 UTC\",\"event\":\"kMediaLogCreated\"}"
+          },
+          {
+            "timestamp": 4834.423063,
+            "value": "{\"event\":\"kWebMediaPlayerCreated\"}"
+          },
+          {
+            "timestamp": 4834.424254,
+            "value": "{\"event\":\"kLoad\",\"url\":\"mediamtx\"}"
+          },
+          {
+            "timestamp": 4835.227722,
+            "value": "{\"event\":\"kPlay\"}"
+          }
+        ]
+      },
+      "sessionId": "2E8EA8EB387FD0AB9BDCFAD352168629"
+    }
+  ]
+}

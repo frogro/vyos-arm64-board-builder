@@ -11,10 +11,10 @@ for codec in h264 hevc; do
  ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1920x1080:rate=60 -t 3 "${opts[@]}" -b:v 8M -maxrate 8M -bufsize 8M -pix_fmt yuv420p -color_primaries bt709 -color_trc bt709 -colorspace bt709 -color_range tv "$out/test.$codec" > "$out/$codec.log" 2>&1
 done
 
-python3 - "$out" <<'PYTHON'
+python3 - "$out" "${FIXTURE_SECONDS:-30}" <<'PYTHON'
 from pathlib import Path
 import sys
-r=Path(sys.argv[1])
-for c in ["h264","hevc"]:(r/("test-long."+c)).write_bytes((r/("test."+c)).read_bytes()*10)
+r=Path(sys.argv[1]);seconds=int(sys.argv[2]);assert 3<=seconds<=330
+for c in ["h264","hevc"]:(r/("test-long."+c)).write_bytes((r/("test."+c)).read_bytes()*((seconds+2)//3))
 PYTHON
 cp "$(dirname -- "$0")"/{webrtc-probe.html,mediamtx.yml,browser-start.sh} "$out/"

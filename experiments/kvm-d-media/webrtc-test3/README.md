@@ -70,3 +70,21 @@ decoded frames/2 RTP framesDropped, reported61fps at sampling; HEVC1156frames/0
 dropped,60fps. Average decoder times4.03ms/2.85ms. This is a short local test,
 not proof of loss-free sustained operation. All temporary containers/network
 removed; production D/F active. No new kernel errors recorded during tests.
+
+## Five-minute receiver soaks (2026-09-21)
+
+1080p60, ~8Mbps synthetic source, isolated ROCK receiver. H264 decoded17915
+frames with18 RTP drops, HEVC17959 with0 RTP drops. Both had0 packet loss,
+0 freezes and0 pauses. Average decode time from RTP stats: H2643.694ms,
+HEVC2.703ms. Whole receiver cgroup memory remained within~801–830MiB
+(includes cache; not a leak-freedom proof). HTML video dropped-frame counters
+were6346/6360, while callback counts were15266/16409: these are distinct
+measurement layers, not proof of physical display smoothness.
+
+Evidence: results/soak. These runs predate the parameterized duration runner;
+latest helper uses WEBRTC_SECONDS=1..300 and make-fixtures.sh uses
+FIXTURE_SECONDS=3..330. Generate a fixture longer than the receiver interval.
+watch-memory.py RESULTS SECONDS samples cgroup memory and available thermal zones.
+No host network ports, production codec/default changes or physical-screen tests.
+
+The generalized duration runner was revalidated live with WEBRTC_SECONDS=5 for both codecs on test3; strict codec/connected/decoded-frame assertions passed, temporary network and containers removed.
