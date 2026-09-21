@@ -130,3 +130,60 @@ Final check ~00:05: host reachable, kiosk-test running, no hantro_vpu/v4l2_jpeg
 loaded, five temporary driver overrides all (null), only production container
 running. Test3 kernel still running; next normal boot uses unchanged production
 default. All experimental AV1 modules remain opt-in, no image recipe changes.
+
+## PM-stage diagnostic module, 2026-09-22 00:16 CEST
+
+Single initial load/unload followed by one reload, without opening the decoder
+or starting video playback. Kernel journal streamed over SSH to the ThinkPad;
+see pm-stage-live-transcript.txt. Matching signed test3 module, unrelated Hantro
+platform nodes blocked temporarily as in the earlier probes.
+
+* First load registered AV1 as video3. All remove-stage markers completed,
+  including reset assertion; rmmod returned. No ACK warning in this first cycle.
+* Reload 43 seconds later emitted the AV1 ACK timeout (val=0xa9eef). No AV1
+  video node appeared, and no diagnostic probe/runtime-PM marker appeared.
+* Second rmmod returned without remove-stage messages. This is NOT a second
+  successful hardware cycle: the driver had not registered the AV1 device.
+* Host remained reachable; kiosk-test remained running. Both experimental
+  modules were removed and all six checked overrides read (null). No reboot,
+  image/default changes, or further retries after the reproduced warning.
+
+This reproduces the lifecycle failure independently of Chromium, codec input,
+and decode buffers. The first probe marker is NOT at function entry: it is
+immediately before runtime-PM setup. Thus the log alone does not prove that
+hantro_probe was never entered. platform_probe attaches/powers the PM domain
+before calling the driver's probe, making domain attach a strong next suspect;
+confirm with entry/attach tracing before attributing the exact call path.
+The ACK message still omits idle direction and expected mask. Next diagnosis
+should expose those values and power-on/off context in the PM-domain driver
+(or existing kernel tracing), without changing reset/power sequencing blindly.
+The PM teardown backport remains experimental; this test is not a fix.
+
+## Existing-kernel argument tracing, 2026-09-22 00:20 CEST
+
+Used temporary kprobes in an isolated trace instance, without changing kernel
+code or power/reset behavior. ARM64 x1 records the second argument at entry;
+kretprobes record signed return values. Probe definitions:
+
+```
+p:vyarm_av1_diag/idle rockchip_pmu_set_idle_request idle=%x1:u8
+p:vyarm_av1_diag/power rockchip_pd_power power_on=%x1:u8
+r:vyarm_av1_diag/idle_return rockchip_pmu_set_idle_request ret=$retval:s32
+r:vyarm_av1_diag/power_return rockchip_pd_power ret=$retval:s32
+```
+
+First traced load registered video3 and completed remove without warning.
+Following reload reproduced the AV1 ACK warning. In that insmod task (PID 68155):
+power_on=1 -> idle=0 -> idle return -110 -> power return -110, followed by
+power_on=0 cleanup. This establishes failure while powering on/leaving idle,
+not requesting idle on power-off. Trace also contains unrelated successful
+power-domain activity; the probes did not record domain names. Association with
+AV1 is supported by the sole matching kernel ACK error and failed AV1 probe.
+See av1-power-trace-success.txt and av1-power-trace-reload.txt.
+
+A successful retry after the previous failure also shows the device is not
+permanently stuck until reboot. This does not prove a timing-only cause.
+No decode was attempted. Temporary probes and trace instance removed, modules
+unloaded, overrides restored; kiosk-test still running. No electrical supply
+measurement was made. Reset/BIU versus power-on sequencing remains the next
+causal investigation; do not treat this as a verified hardware or PSU defect.

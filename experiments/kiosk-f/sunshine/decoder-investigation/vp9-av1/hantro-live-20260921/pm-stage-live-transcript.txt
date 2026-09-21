@@ -1,0 +1,20 @@
+[ 1119.802675] vyos unknown: VYARM_TEST diagnostic load begin
+[ 1119.857836] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[ 1119.857846] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[ 1119.857850] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[ 1119.858012] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[ 1119.864729] vyos unknown: VYARM_TEST diagnostic unload begin
+[ 1119.871807] vyos kernel: hantro-vpu fdc70000.video-codec: Removing fdc70000.video-codec
+[ 1119.872234] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+[ 1119.872243] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+[ 1119.872245] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+[ 1119.872323] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+[ 1119.872325] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+[ 1119.872327] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+[ 1119.872329] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+[ 1119.872334] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+[ 1119.893455] vyos unknown: VYARM_TEST diagnostic unload returned
+[ 1163.251732] vyos unknown: VYARM_TEST diagnostic reload begin
+[ 1166.337421] vyos kernel: rockchip-pm-domain fd8d8000.power-management:power-controller: failed to get ack on domain 'av1', val=0xa9eef
+[ 1171.343442] vyos unknown: VYARM_TEST diagnostic second unload begin
+[ 1171.359057] vyos unknown: VYARM_TEST diagnostic second unload returned
