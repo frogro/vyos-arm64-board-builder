@@ -123,3 +123,17 @@ encoder cores present; no RKVDEC decoder node/compatible. QoS labels are present
 but insufficient. This confirms the missing decoder DT integration in the built
 artifact, not just the upstream DTS source. Preserve encoder DT and investigate
 a separate decoder DT addition before enabling RKVDEC2 in another test kernel.
+
+## Decoder source completeness correction, 2026-09-21
+
+Follow-up inspected actual files rather than Kconfig descriptions: test2 has
+RKVDEC2 Kconfig/Makefile entries and compatibility stubs but lacks both decoder
+C files and headers. Thus the existing patch is not a complete decoder port.
+The upstream rkvdec implementation in this tree only matches RK3399. Neither
+config switch alone supplies RK3588 decoding. Full pinned vendor/DT/reset
+comparison and next gates: sunshine/decoder-investigation/README.md.
+
+H264 and HEVC actual elementary-stream smoke tests now pass 120-frame independent
+software decode/reference checks, extending the earlier capability-only probe.
+MPP teardown warnings remain open. See sunshine/hevc/README.md and results JSON;
+this is encoding validation, not hardware video decoding or a Moonlight test.

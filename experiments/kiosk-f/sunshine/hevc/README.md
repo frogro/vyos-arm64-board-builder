@@ -46,3 +46,40 @@ host, in addition to mpp_service. This diagnostic card selection is not a generi
 SBC provisioning policy. A real Moonlight HEVC stream/quality test remains open.
 The running kiosk image was not replaced. CPU conversion remains in use.
 Remote log: /config/kiosk-test/builds/hevc-20260921/probe6.log.
+
+## Bitstream smoke test, 2026-09-21
+
+`encode-smoke.c` uses the same static FFmpeg encoder libraries and CPU NV12 input.
+Build in the pinned builder above with:
+
+```
+export PKG_CONFIG_PATH=/opt/ffmpeg/lib/pkgconfig:/opt/mpp/lib/pkgconfig
+cc -Wall -Wextra -O2 encode-smoke.c -o encode-smoke $(pkg-config --cflags --libs --static libavcodec libavutil)
+```
+
+Run the binary in the v3 runtime bundle (8b48c818...), granting mpp_service and
+card0 plus the read-only compatible file at /run/mpp/compatible as in probe.sh.
+Use a separate writable output directory and network=none, no live kiosk state.
+The unmodified builder MPP library cannot identify the SoC inside the container;
+the runtime includes the compatible-path fix and environment setting.
+
+```
+./encode-smoke h264_rkmpp test.h264
+./encode-smoke hevc_rkmpp test.hevc
+python3 verify-smoke.py test.h264 test.hevc
+```
+
+Both encoders emitted 120 packets for 120 moving gray-bar frames (1920x1080,
+60 fps metadata, 8 Mbps requested CBR). Independent host FFmpeg decoded all 120
+frames without errors. Metadata identifies limited-range BT.709. First/last
+frame luma samples away from edges and all neutral chroma bytes match the
+reference exactly. Results and stream hashes are in encode-smoke-results-20260921.json;
+raw files remain under /config/kiosk-test/builds/encode-smoke-20260921 on ROCK.
+This simple content is not a bitrate/quality comparison, speed measurement,
+RGA color test, browser hardware decode or real Moonlight-session validation.
+
+Both processes exited successfully but emitted MPP teardown warnings:
+`mpp_mem_pool_put invalid mem pool ptr ... caller mpp_frame_deinit` and
+`mpp_buffer_service_deinit cleaning misc group`. Treat cleanup/repeated-session
+stability as open; successful bitstreams do not establish clean teardown.
+The test did not replace or restart the live kiosk container.

@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/rockchip-linux/kernel",
+  "commit": "77168c8d5ab82399f65a80e9f807b50ba37cf483",
+  "files": {
+    "mpp_rkvdec2.c": "ee147c6791711a61dd47345d2817b009ad4b8f3d64c13da33ea0affc116cdbe7",
+    "mpp_rkvdec2.h": "5e9b36352cfb38ca05a5316881881ddf6753e5f3607539f7b63a4783e4126e0c",
+    "mpp_rkvdec2_link.c": "16648e5c63028520e8fface2b625fc5979c8f8a1c9bcbaf6c51c89eea0e2888c",
+    "rk3588s.dtsi": "5991b46733afaa284d0356e57ed7adb333985440c45249b793218447f89035b7"
+  }
+}
