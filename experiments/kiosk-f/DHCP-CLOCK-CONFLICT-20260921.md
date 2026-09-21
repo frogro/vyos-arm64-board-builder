@@ -22,8 +22,10 @@ The active file currently has only a header; rotated .2 contains NUC lease.
 Do not infer lost persistence from reading only the active CSV.
 Pool .51-.250, no shown reservations. Ping check false.
 
-Kea vendor unit has After=time-sync.target, but VyOS override resets After=
-and sets After=vyos-router.service. chrony-wait.service is disabled/inactive;
+Correction after inspecting effective dependencies: the VyOS drop-in contains
+an empty After= followed by After=vyos-router.service, but systemd dependency
+lists cannot be cleared by an empty drop-in assignment. The effective Kea
+After list still includes time-sync.target. chrony-wait.service is disabled/inactive;
 time-sync.target was reached before the actual clock step. Merely restoring
 After=time-sync.target does not establish an actual synchronization barrier.
 Current chronyc tracking synchronized and RTC now gives correct date.
@@ -44,3 +46,47 @@ After NUC build handoff, both clients are on the home network and no station is
 associated with ROCK AP. Kea still retains .51 for NUC. No simultaneous active
 conflict observed now, but boot time-handling defect remains uncorrected. NTP
 currently synchronized, D/F services active. No DHCP mutation or reboot done.
+
+
+## Upstream comparison and proposed boot policy (22:36 local)
+
+- OPEN CHECKPOINT: reproduce wrong RTC + delayed NTP + duplicate lease with
+  an unmodified x86 VyOS image in an isolated VM. Deferred by user. No x86
+  runtime reproduction has been performed.
+- Upstream vyos/vyos-1x rolling e559637d34e0169905ecb1c6875e8a67b38d4678
+  contains the same Kea drop-in and makestep 1.0 3 Chrony template. Package
+  architectures are amd64 and arm64. Source comparison is not a runtime proof.
+- Live effective ordering: vyos-router starts at monotonic 21.020 s,
+  Chrony at 61.818 s and Kea at 62.946 s. Chrony's generated drop-in orders it
+  AFTER vyos-router. Do not add a global wait-for-Chrony before vyos-router:
+  that risks a startup dependency cycle.
+- Proposed sequence: read RTC/persisted lower bound; configure router interfaces,
+  routing, DNS and WAN; start Chrony; check real clock readiness; release DHCP
+  only under an explicit clock policy. A monotonic bounded wait may expire but
+  must not silently authorize a later large clock step with active leases.
+- Trusted RTC can support offline operation, but a plausible date or saved lower
+  bound alone does not prove RTC accuracy after an extended power-off.
+- With unknown time, safest initial policy is to leave DHCP blocked and retain
+  static management access. Fully offline DHCP requires a separately implemented
+  no-step clock policy and a controlled transition to valid time. Not implemented.
+  This availability tradeoff must be explicit; short leases or ping checks alone
+  do not eliminate the problem.
+- set-locales must not unconditionally restart Chrony or invoke makestep. A VyOS
+  NTP commit may itself restart Chrony, so guarding only the last script lines
+  is insufficient. No production configuration changed in this investigation.
+
+## Live probe scope
+
+Transient read-only online probe `chronyc waitsync 3 0.1 0 1` succeeded against
+production Chrony (remaining correction about 79 microseconds). A missing command
+socket returned failure immediately. These verify readiness/error handling, not
+boot ordering or DHCP duplicate prevention. No clock change, DHCP restart or
+reboot was performed.
+
+A separate transient Chrony instance on the ROCK, with no sources, private network,
+non-root _chrony user, empty capability set and -x (cannot control the clock),
+reported Stratum 0 / Not synchronised. Its waitsync check failed after exactly
+three attempts as intended. The first attempt to launch this non-root instance
+failed with 'Not superuser'; adding documented -U fixed the harness. The isolated
+instance and temporary config were removed. Production Chrony remained synchronized;
+Kea and kiosk service remained active. No delayed-NTP transition or boot test yet.
