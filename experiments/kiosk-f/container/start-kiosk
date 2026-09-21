@@ -22,7 +22,7 @@ if [ -c /dev/mpp_service ]; then
     chmod 0660 /dev/mpp_service
 fi
 python3 /usr/local/bin/kiosk-display.py validate
-mkdir -p /run/kiosk /state/browser /state/sunshine
+mkdir -p /run/kiosk /state/browser /state/sunshine /state/cache
 # This profile belongs exclusively to this kiosk instance.
 exec 9>/state/kiosk-session.lock
 flock -n 9 || { echo "Kiosk profile already in use" >&2; exit 1; }
@@ -53,7 +53,7 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 0' TERM INT
 start_display() {
-    Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /run/kiosk/xorg-runtime.conf -logfile /state/Xorg.log &
+    XDG_CACHE_HOME=/run/kiosk/xorg-cache Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /run/kiosk/xorg-runtime.conf -logfile /state/Xorg.log &
     xpid=$!
     for n in $(seq 1 40); do
         if xdpyinfo >/dev/null 2>&1; then return 0; fi
@@ -80,6 +80,6 @@ fi
 [ "$ready" = yes ] || { cat /state/Xorg.log; exit 1; }
 printf '%s\n' "$graphics" > /run/kiosk/graphics-mode
 kiosk_groups=$(python3 /usr/local/bin/kiosk-graphics.py --groups)
-setpriv --reuid kiosk --regid kiosk --groups "$kiosk_groups" -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
+setpriv --reuid kiosk --regid kiosk --groups "$kiosk_groups" -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk XDG_CACHE_HOME=/state/cache HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
 session_pid=$!
 wait "$session_pid"

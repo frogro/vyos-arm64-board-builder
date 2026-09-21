@@ -75,3 +75,22 @@ and adds nonzero group IDs from explicitly granted render character devices only
 when graphics=auto. Does not chmod host devices, change /etc/group, add group0 or
 grant new devices. 57 tests pass including membership preservation/root exclusion.
 Needs updated bundle and repeat live production-browser validation.
+
+Bundle v2 built from ed2eb67, image
+81c041f773713e65a04d4f2318624ddea0b6178a25a1d513d1729d2f235aec16,
+revision label verified. Live test 02:51 UTC used bundled helpers (old helper
+mounts removed), graphics auto and scoped render grant. Actual kiosk Chromium
+now launches GPU and renderer processes; supplementary groups include the render
+group. To validate beyond the unsandboxed diagnostic, temporarily replaced the
+container-local test HTML with the WebGL probe and restarted only Chromium under
+its existing supervisor. Existing production launch flags and sandbox unchanged.
+Window title reported `ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1)` with
+pixel [255,0,0,255]. This establishes hardware WebGL rendering in the actual kiosk
+browser, not video hardware decoding or performance. Five persistent Sunshine
+files remained unchanged. Explicit rollback restored original image/Quadlet and
+normal test page; service active. Logs in bundle-v2-live-20260921.
+
+Additional nonfatal cache issue: root Xorg and user browser shared HOME/.cache.
+Source now gives Xorg a runtime cache and the user session /state/cache (created
+before existing kiosk ownership setup). Shell syntax checked; this cache cleanup
+is not yet part of the validated v2 image and needs next bundle validation.
