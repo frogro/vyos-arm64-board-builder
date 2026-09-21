@@ -1,0 +1,13 @@
+#!/bin/sh
+# Isolated decoder-test initramfs: modules AND firmware must be available early.
+# Install only in a private initramfs-tools configuration, not as a default hook.
+set -eu
+case "${1:-}" in prereqs) exit 0;; esac
+: "${version:?mkinitramfs kernel version required}"
+: "${DESTDIR:?mkinitramfs destination required}"
+test -d "/lib/modules/$version"
+mkdir -p "$DESTDIR/usr/lib/modules" "$DESTDIR/usr/lib/firmware"
+cp -a "/lib/modules/$version" "$DESTDIR/usr/lib/modules/"
+# Includes available board firmware generically, without board/USB identifiers.
+# Dereference distribution alternatives (e.g. regulatory.db) into the archive.
+cp -aL /lib/firmware/. "$DESTDIR/usr/lib/firmware/"
