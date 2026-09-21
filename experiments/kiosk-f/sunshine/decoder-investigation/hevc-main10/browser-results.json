@@ -1,0 +1,466 @@
+[
+  {
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ],
+    "page": {
+      "codec": "hevc",
+      "state": "play-error",
+      "frames": [],
+      "started": 69.19999999925494,
+      "error": "AbortError: The play() request was interrupted by a call to pause(). https://goo.gl/LdLk22"
+    },
+    "support": {
+      "h264": "probably",
+      "hevc": "probably"
+    },
+    "mediaEvents": [
+      {
+        "method": "Media.playerCreated",
+        "params": {
+          "player": {
+            "playerId": "A8139ECB28FC9DED19D5EEBDA6A07699"
+          }
+        },
+        "sessionId": "C9439CECEC89055FE3F5FAD11065EA79"
+      },
+      {
+        "method": "Media.playerEventsAdded",
+        "params": {
+          "playerId": "A8139ECB28FC9DED19D5EEBDA6A07699",
+          "events": [
+            {
+              "timestamp": 18494.525976,
+              "value": "{\"created\":\"2026-09-21 18:31:43.063180 UTC\",\"event\":\"kMediaLogCreated\"}"
+            },
+            {
+              "timestamp": 18494.54022,
+              "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"http://127.0.0.1:39029/\"}"
+            },
+            {
+              "timestamp": 18494.541036,
+              "value": "{\"event\":\"kLoad\",\"url\":\"http://127.0.0.1:39029/test-hevc.mp4\"}"
+            },
+            {
+              "timestamp": 18494.586614,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+            },
+            {
+              "timestamp": 18494.772279,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kPlaying\"}"
+            },
+            {
+              "timestamp": 18494.783752,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopping\"}"
+            },
+            {
+              "timestamp": 18494.784806,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopped\"}"
+            },
+            {
+              "timestamp": 18494.59071,
+              "value": "{\"duration\":5.0,\"event\":\"kDurationChanged\"}"
+            },
+            {
+              "timestamp": 18494.594548,
+              "value": "{\"event\":\"kPlay\"}"
+            },
+            {
+              "timestamp": 18494.783894,
+              "value": "{\"event\":\"kPause\"}"
+            }
+          ]
+        },
+        "sessionId": "C9439CECEC89055FE3F5FAD11065EA79"
+      },
+      {
+        "method": "Media.playerPropertiesChanged",
+        "params": {
+          "playerId": "A8139ECB28FC9DED19D5EEBDA6A07699",
+          "properties": [
+            {
+              "name": "kBitrate",
+              "value": "8080398"
+            },
+            {
+              "name": "kVideoDecoderName",
+              "value": "V4L2VideoDecoder"
+            },
+            {
+              "name": "kIsStreaming",
+              "value": "true"
+            },
+            {
+              "name": "kVideoTracks",
+              "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"hevc\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"hevc main 10\",\"visible rect\":\"0,0 1920x1080\"}]"
+            },
+            {
+              "name": "kIsPlatformVideoDecoder",
+              "value": "true"
+            },
+            {
+              "name": "kFrameUrl",
+              "value": "http://127.0.0.1:39029/browser-decode-probe.html?codec=hevc&timeout=50000&width=1920"
+            },
+            {
+              "name": "kIsRangeHeaderSupported",
+              "value": "false"
+            },
+            {
+              "name": "kIsVideoDecryptingDemuxerStream",
+              "value": "false"
+            },
+            {
+              "name": "kStartTime",
+              "value": "0.0"
+            },
+            {
+              "name": "kRendererName",
+              "value": "RendererImpl"
+            },
+            {
+              "name": "kTotalBytes",
+              "value": "0x4d0f89"
+            },
+            {
+              "name": "kMaxDuration",
+              "value": "5.0"
+            },
+            {
+              "name": "kIsSingleOrigin",
+              "value": "true"
+            },
+            {
+              "name": "kFrameTitle",
+              "value": "Isolated browser decode probe"
+            }
+          ]
+        },
+        "sessionId": "C9439CECEC89055FE3F5FAD11065EA79"
+      },
+      {
+        "method": "Media.playerMessagesLogged",
+        "params": {
+          "playerId": "A8139ECB28FC9DED19D5EEBDA6A07699",
+          "messages": [
+            {
+              "level": "info",
+              "message": "FFmpegDemuxer: created video stream, config codec: hevc, profile: hevc main 10, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "info",
+              "message": "Effective playback rate changed from 0 to 1"
+            },
+            {
+              "level": "info",
+              "message": "VideoDecoderPipeline |decoder_| Initialize() successful"
+            },
+            {
+              "level": "info",
+              "message": "Selected V4L2VideoDecoder for video decoding, config: codec: hevc, profile: hevc main 10, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "warning",
+              "message": "video decoder fallback after initial decode error."
+            },
+            {
+              "level": "info",
+              "message": "Cannot select DecryptingVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedEncryptionMode"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select VpxVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select Dav1dVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedCodec"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select FFmpegVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+            }
+          ]
+        },
+        "sessionId": "C9439CECEC89055FE3F5FAD11065EA79"
+      },
+      {
+        "method": "Media.playerErrorsRaised",
+        "params": {
+          "playerId": "A8139ECB28FC9DED19D5EEBDA6A07699",
+          "errors": [
+            {
+              "errorType": "PipelineStatus::PIPELINE_ERROR_DECODE",
+              "code": 3,
+              "stack": [
+                {
+                  "file": "media/renderers/video_renderer_impl.cc",
+                  "line": 613
+                }
+              ],
+              "cause": [
+                {
+                  "errorType": "DecoderStatus::1",
+                  "code": 1,
+                  "stack": [
+                    {
+                      "file": "media/gpu/v4l2/v4l2_video_decoder.cc",
+                      "line": 1398
+                    }
+                  ],
+                  "cause": [],
+                  "data": {}
+                }
+              ],
+              "data": {}
+            }
+          ]
+        },
+        "sessionId": "C9439CECEC89055FE3F5FAD11065EA79"
+      }
+    ]
+  },
+  {
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ],
+    "page": {
+      "codec": "hevc",
+      "state": "play-error",
+      "frames": [],
+      "started": 62.900000002235174,
+      "error": "AbortError: The play() request was interrupted by a call to pause(). https://goo.gl/LdLk22"
+    },
+    "support": {
+      "h264": "probably",
+      "hevc": "probably"
+    },
+    "mediaEvents": [
+      {
+        "method": "Media.playerCreated",
+        "params": {
+          "player": {
+            "playerId": "F494ACFFC883849830143F53F2B250B6"
+          }
+        },
+        "sessionId": "6EFD9E880B1FCC3D66B10CE0063902AD"
+      },
+      {
+        "method": "Media.playerEventsAdded",
+        "params": {
+          "playerId": "F494ACFFC883849830143F53F2B250B6",
+          "events": [
+            {
+              "timestamp": 18500.12339,
+              "value": "{\"created\":\"2026-09-21 18:31:48.660593 UTC\",\"event\":\"kMediaLogCreated\"}"
+            },
+            {
+              "timestamp": 18500.14487,
+              "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"http://127.0.0.1:34429/\"}"
+            },
+            {
+              "timestamp": 18500.145846,
+              "value": "{\"event\":\"kLoad\",\"url\":\"http://127.0.0.1:34429/test-hevc.mp4\"}"
+            },
+            {
+              "timestamp": 18500.206444,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+            },
+            {
+              "timestamp": 18500.406855,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kPlaying\"}"
+            },
+            {
+              "timestamp": 18500.423306,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopping\"}"
+            },
+            {
+              "timestamp": 18500.423997,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopped\"}"
+            },
+            {
+              "timestamp": 18500.209953,
+              "value": "{\"duration\":5.0,\"event\":\"kDurationChanged\"}"
+            },
+            {
+              "timestamp": 18500.210959,
+              "value": "{\"event\":\"kPlay\"}"
+            },
+            {
+              "timestamp": 18500.433039,
+              "value": "{\"event\":\"kPause\"}"
+            }
+          ]
+        },
+        "sessionId": "6EFD9E880B1FCC3D66B10CE0063902AD"
+      },
+      {
+        "method": "Media.playerPropertiesChanged",
+        "params": {
+          "playerId": "F494ACFFC883849830143F53F2B250B6",
+          "properties": [
+            {
+              "name": "kBitrate",
+              "value": "8080398"
+            },
+            {
+              "name": "kVideoDecoderName",
+              "value": "V4L2VideoDecoder"
+            },
+            {
+              "name": "kIsStreaming",
+              "value": "true"
+            },
+            {
+              "name": "kVideoTracks",
+              "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"hevc\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"hevc main 10\",\"visible rect\":\"0,0 1920x1080\"}]"
+            },
+            {
+              "name": "kIsPlatformVideoDecoder",
+              "value": "true"
+            },
+            {
+              "name": "kFrameUrl",
+              "value": "http://127.0.0.1:34429/browser-decode-probe.html?codec=hevc&timeout=50000&width=1920"
+            },
+            {
+              "name": "kIsRangeHeaderSupported",
+              "value": "false"
+            },
+            {
+              "name": "kIsVideoDecryptingDemuxerStream",
+              "value": "false"
+            },
+            {
+              "name": "kStartTime",
+              "value": "0.0"
+            },
+            {
+              "name": "kRendererName",
+              "value": "RendererImpl"
+            },
+            {
+              "name": "kTotalBytes",
+              "value": "0x4d0f89"
+            },
+            {
+              "name": "kMaxDuration",
+              "value": "5.0"
+            },
+            {
+              "name": "kIsSingleOrigin",
+              "value": "true"
+            },
+            {
+              "name": "kFrameTitle",
+              "value": "Isolated browser decode probe"
+            }
+          ]
+        },
+        "sessionId": "6EFD9E880B1FCC3D66B10CE0063902AD"
+      },
+      {
+        "method": "Media.playerMessagesLogged",
+        "params": {
+          "playerId": "F494ACFFC883849830143F53F2B250B6",
+          "messages": [
+            {
+              "level": "info",
+              "message": "FFmpegDemuxer: created video stream, config codec: hevc, profile: hevc main 10, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "info",
+              "message": "Effective playback rate changed from 0 to 1"
+            },
+            {
+              "level": "info",
+              "message": "VideoDecoderPipeline |decoder_| Initialize() successful"
+            },
+            {
+              "level": "info",
+              "message": "Selected V4L2VideoDecoder for video decoding, config: codec: hevc, profile: hevc main 10, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "warning",
+              "message": "video decoder fallback after initial decode error."
+            },
+            {
+              "level": "info",
+              "message": "Cannot select DecryptingVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedEncryptionMode"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select VpxVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select Dav1dVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedCodec"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select FFmpegVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+            }
+          ]
+        },
+        "sessionId": "6EFD9E880B1FCC3D66B10CE0063902AD"
+      },
+      {
+        "method": "Media.playerErrorsRaised",
+        "params": {
+          "playerId": "F494ACFFC883849830143F53F2B250B6",
+          "errors": [
+            {
+              "errorType": "PipelineStatus::PIPELINE_ERROR_DECODE",
+              "code": 3,
+              "stack": [
+                {
+                  "file": "media/renderers/video_renderer_impl.cc",
+                  "line": 613
+                }
+              ],
+              "cause": [
+                {
+                  "errorType": "DecoderStatus::1",
+                  "code": 1,
+                  "stack": [
+                    {
+                      "file": "media/gpu/v4l2/v4l2_video_decoder.cc",
+                      "line": 1398
+                    }
+                  ],
+                  "cause": [],
+                  "data": {}
+                }
+              ],
+              "data": {}
+            }
+          ]
+        },
+        "sessionId": "6EFD9E880B1FCC3D66B10CE0063902AD"
+      }
+    ]
+  }
+]

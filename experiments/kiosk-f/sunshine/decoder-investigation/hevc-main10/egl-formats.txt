@@ -1,0 +1,2 @@
+EGL 1.5 vendor=Mesa Project version=1.5
+format_count=52 NV15=supported

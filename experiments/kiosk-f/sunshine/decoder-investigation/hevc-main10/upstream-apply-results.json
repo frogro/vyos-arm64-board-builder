@@ -1,0 +1,20 @@
+[
+  {
+    "patch": "0001-media-add-NV15-Rockchip-packed-10-bit-4-2-0-end-to-e.patch",
+    "exit": 1,
+    "failedHunks": [
+      "Hunk #1 FAILED at 34.",
+      "1 out of 2 hunks FAILED -- saving rejects to file media/base/format_utils.cc.rej"
+    ]
+  },
+  {
+    "patch": "0002-angle-nv15-dongioia.patch",
+    "exit": 0,
+    "failedHunks": []
+  },
+  {
+    "patch": "0003-nv15-egl-import-gate.patch",
+    "exit": 0,
+    "failedHunks": []
+  }
+]

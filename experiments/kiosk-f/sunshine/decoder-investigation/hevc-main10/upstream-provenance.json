@@ -1,0 +1,20 @@
+{
+  "commit": "34519ca8fdf2f46571eda2f2240b06eff553c3cf",
+  "files": [
+    {
+      "file": "0001-media-add-NV15-Rockchip-packed-10-bit-4-2-0-end-to-e.patch",
+      "sha256": "1536a2133832f03ac522cf8b05e5dc7111f157206a11337597af918121090c0d",
+      "url": "https://raw.githubusercontent.com/sky-rk3588/rk3588-chromium-nv15/34519ca8fdf2f46571eda2f2240b06eff553c3cf/patches/0001-media-add-NV15-Rockchip-packed-10-bit-4-2-0-end-to-e.patch"
+    },
+    {
+      "file": "0002-angle-nv15-dongioia.patch",
+      "sha256": "537799bde8cba98420accc115941e94a727b3cd41c77cb399ba67f1f94acec43",
+      "url": "https://raw.githubusercontent.com/sky-rk3588/rk3588-chromium-nv15/34519ca8fdf2f46571eda2f2240b06eff553c3cf/patches/0002-angle-nv15-dongioia.patch"
+    },
+    {
+      "file": "0003-nv15-egl-import-gate.patch",
+      "sha256": "0c973bcb240c8a77a4323d322558d371998cd940e1e46b41fa7548c6e5f735ca",
+      "url": "https://raw.githubusercontent.com/sky-rk3588/rk3588-chromium-nv15/34519ca8fdf2f46571eda2f2240b06eff553c3cf/patches/0003-nv15-egl-import-gate.patch"
+    }
+  ]
+}

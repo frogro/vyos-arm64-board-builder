@@ -56,3 +56,14 @@ Dependencies were retained in `vyarm-chromium-builddeps:20260921`; retry uses
 `gn gen out/Release --threads=1`, then targets only the two modified C++ objects.
 Object compilation would be a build check, not a complete browser or live proof.
 All source/cache is outside the Git worktree. No release workflow modified.
+
+## End-of-window outcome
+
+Single-thread GN generation succeeded. Debian compiler exports were restored
+after a manual retry omitted them. Native GN/Ninja orchestration reduced QEMU
+overhead; actual Clang 22 still runs ARM64 under QEMU. The two object targets
+require 3898 dependency steps. Direct object attempts remain blocked by real
+generated Perfetto headers; the next header target alone has 426 steps.
+No modified C++ object or complete browser build succeeded in this window.
+The opt-in allocation guard is therefore not compile- or live-validated.
+Build source, dependencies and cache retained outside Git for a later builder.
