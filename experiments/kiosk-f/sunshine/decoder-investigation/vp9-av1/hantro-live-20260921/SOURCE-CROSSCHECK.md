@@ -97,3 +97,41 @@ loaded and temporary driver overrides were cleared. Future probe scripts must
 check uname -r BEFORE any device changes. Verified test3 boot Image hash and
 existing modules directory, then selected existing one-shot GRUB test3 entry
 for the follow-up; permanent production default remains unchanged.
+
+## Power-domain follow-up, 2026-09-22
+
+The ACK error originates in rockchip_pmu_set_idle_request(): the expected ACK
+depends on the requested idle direction. Existing error text omits that direction;
+therefore the log alone does not establish power-on versus power-off failure.
+The error can occur during asynchronous generic domain teardown as well as
+probe. Prior wording attributing it specifically to activation is provisional.
+
+The patched remove still asserts all AV1 resets, including A/P BIU resets,
+after disabling runtime PM. Subsequent generic domain detach/idle handshakes
+may interact with asserted bus-interface resets. This is a hypothesis, not a
+verified root cause; do not remove resets or bypass power-domain checks blindly.
+
+Relevant current sources checked:
+* https://lists.infradead.org/pipermail/linux-rockchip/2026-September/076945.html
+  Shawn Lin v3: propagate of_clk_get errors other than -ENOENT on attach.
+  Local source lacks this robustness fix. No evidence of missing/deferred AV1
+  clocks in this test, so it is not established as the ACK-timeout fix.
+* https://lists.infradead.org/pipermail/linux-rockchip/2026-September/076561.html
+  Optional domain-reset cycling, specifically motivated by RK3576 NPU.
+  Requires reset ownership/DT changes; not a drop-in RK3588 AV1 fix.
+* https://lists.infradead.org/pipermail/linux-rockchip/2026-September/076962.html
+  Follow-up review; does not validate applying this to RK3588 AV1.
+
+Read-only live check ~00:09: AV1 domain off-0, no AV1 device driver runtime-PM
+attachment, host reachable. NUC build watchdog running with zero retries.
+
+Prepared logging-only module patch hantro-pm-stage-diagnostics.patch after
+the teardown backport. Logs probe/reset and each remove PM/reset boundary;
+adds no MMIO reads or PM transitions. Exact test3 external rebuild passes.
+Not signed, loaded, installed, or integrated into production.
+
+Before the next controlled probe: capture kernel journal continuously to
+ThinkPad; wait for actual registered device; stop on any domain warning.
+Compare warning timestamps with remove stages; if outside them, instrument
+the built-in PM-domain idle direction/caller in a separate test kernel.
+A watchdog timer cannot recover a hard kernel hang; retain normal-boot fallback.

@@ -1,0 +1,41 @@
+Subject: [DIAGNOSTIC ONLY] trace Hantro PM/reset teardown stages
+
+Apply after hantro-pm-teardown-test.patch. Adds logging only; no claimed fix.
+Avoids extra MMIO/register accesses and runtime-PM operations.
+
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -1163,11 +1163,14 @@
+ 		}
+ 	}
+ 
++	dev_info(vpu->dev, "VYARM_PM probe: before runtime-PM setup\n");
+ 	pm_runtime_set_autosuspend_delay(vpu->dev, 100);
+ 	pm_runtime_use_autosuspend(vpu->dev);
+ 	pm_runtime_enable(vpu->dev);
+ 
++	dev_info(vpu->dev, "VYARM_PM probe: before reset deassert\n");
+ 	ret = reset_control_deassert(vpu->resets);
++	dev_info(vpu->dev, "VYARM_PM probe: reset deassert returned %d\n", ret);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to deassert resets\n");
+ 		goto err_pm_disable;
+@@ -1253,10 +1256,18 @@
+ 	media_device_cleanup(&vpu->mdev);
+ 	v4l2_m2m_release(vpu->m2m_dev);
+ 	v4l2_device_unregister(&vpu->v4l2_dev);
++	dev_info(vpu->dev, "VYARM_PM remove: before clock unprepare\n");
+ 	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
++	dev_info(vpu->dev, "VYARM_PM remove: after clock unprepare\n");
++	dev_info(vpu->dev, "VYARM_PM remove: before dont_use_autosuspend\n");
+ 	pm_runtime_dont_use_autosuspend(vpu->dev);
++	dev_info(vpu->dev, "VYARM_PM remove: after dont_use_autosuspend\n");
++	dev_info(vpu->dev, "VYARM_PM remove: before runtime disable\n");
+ 	pm_runtime_disable(vpu->dev);
++	dev_info(vpu->dev, "VYARM_PM remove: after runtime disable\n");
++	dev_info(vpu->dev, "VYARM_PM remove: before reset assert\n");
+ 	reset_control_assert(vpu->resets);
++	dev_info(vpu->dev, "VYARM_PM remove: after reset assert\n");
+ }
+ 
+ #ifdef CONFIG_PM
