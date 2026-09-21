@@ -5,6 +5,7 @@ Run on the host with access to its video devices and v4l2-ctl installed.
 Exit 0: sampled colors pass; 1: mismatch; 2: no suitable device or probe error.
 A pass alone does not establish latency, full color accuracy or integration.
 """
+import argparse
 import json
 import hashlib
 import math
@@ -22,15 +23,24 @@ def run(args):
                           capture_output=True, text=True).stdout
 
 
-def reference(rgb, kr, kb):
+def reference(rgb, kr, kb, full=False):
     r, g, b = rgb
     y = kr*r + (1-kr-kb)*g + kb*b
+    if full:
+        return [max(0, min(255, math.floor(v + .5))) for v in
+                (y, 128 + (b-y)/(2*(1-kb)), 128 + (r-y)/(2*(1-kr)))]
     return [math.floor(v + .5) for v in
             (16 + y*219/255, 128 + (b-y)*112/((1-kb)*255),
              128 + (r-y)*112/((1-kr)*255))]
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--extended', action='store_true',
+                        help='Add gray ramps and compare against the requested range')
+    args = parser.parse_args()
+    colors = COLORS + ([(v, v, v) for v in (16, 32, 64, 96, 128, 160, 192, 224)] if args.extended else [])
+    stripe = WIDTH // len(colors)
     # Restrict to the identified RGA driver; never probe capture/HDMI devices.
     candidates = [Path('/dev') / p.parent.name
                   for p in sorted(Path('/sys/class/video4linux').glob('video*/name'))
@@ -49,7 +59,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='kiosk-rga-colors-') as tmp:
         source = Path(tmp) / 'bars.bgr0'
         target = Path(tmp) / 'bars.nv12'
-        row = b''.join(bytes((b, g, r, 0))*(WIDTH//8) for r, g, b in COLORS)
+        row = b''.join(bytes((b, g, r, 0))*stripe for r, g, b in colors)
         source.write_bytes(row*HEIGHT)
         for space, kr, kb, output_range in [(s,k,b,q) for s,k,b in [('smpte170m', .299, .114), ('rec709', .2126, .0722)] for q in ['lim-range','full-range']]:
             fmt = f'width={WIDTH},height={HEIGHT},'
@@ -66,16 +76,16 @@ def main():
             if len(data) != WIDTH*HEIGHT*3//2:
                 raise RuntimeError('Unexpected output size')
             samples = []
-            for i, rgb in enumerate(COLORS):
-                x = i*(WIDTH//8) + WIDTH//16
+            for i, rgb in enumerate(colors):
+                x = i*stripe + stripe//2
                 y_index = (HEIGHT//2)*WIDTH+x
                 uv_index = WIDTH*HEIGHT + (HEIGHT//4)*WIDTH+x
                 actual = [data[y_index], data[uv_index], data[uv_index+1]]
-                expected = reference(rgb, kr, kb)
+                expected = reference(rgb, kr, kb, args.extended and output_range == "full-range")
                 error = max(abs(a-b) for a, b in zip(actual, expected))
                 passed &= error <= 3
                 samples.append(dict(rgb=rgb, actual=actual, expected=expected, max_error=error))
-            report['tests'].append(dict(colorspace=space, requested_range=output_range, reference_range='limited', output_sha256=hashlib.sha256(data).hexdigest(),
+            report['tests'].append(dict(colorspace=space, requested_range=output_range, reference_range=('full' if args.extended and output_range == 'full-range' else 'limited'), output_sha256=hashlib.sha256(data).hexdigest(),
                                         negotiated_format=output, samples=samples))
     report['passed'] = passed
     print(json.dumps(report, indent=2))

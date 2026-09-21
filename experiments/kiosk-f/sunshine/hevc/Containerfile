@@ -1,4 +1,4 @@
-# Isolated successor to the tested H.264 build, retaining its compilation cache.
+# Isolated successor to the tested H.264 build, configuring its own Sunshine build directory.
 FROM localhost/vyarm-sunshine:mpp-candidate
 ENV PKG_CONFIG_PATH=/opt/mpp/lib/pkgconfig LD_LIBRARY_PATH=/opt/mpp/lib
 RUN cd /build/ffmpeg && ./configure --prefix=/opt/ffmpeg --disable-all --disable-autodetect \
@@ -16,5 +16,15 @@ RUN cd /build/ffmpeg && ./configure --prefix=/opt/ffmpeg --disable-all --disable
  && ar rcs /opt/ffmpeg/lib/libcbs.a
 COPY 0002-enable-hevc-mpp.patch /tmp/hevc.patch
 RUN cd /build/source && patch -p1 < /tmp/hevc.patch \
+ && cmake -S /build/source -B /buildcache -G Ninja \
+ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+ -DSUNSHINE_ASSETS_DIR=share/sunshine \
+ -DSUNSHINE_PUBLISHER_NAME=VyARM-Experimental \
+ -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DSUNSHINE_ENABLE_TRAY=OFF \
+ -DSUNSHINE_ENABLE_CUDA=OFF -DSUNSHINE_ENABLE_VULKAN=OFF \
+ -DSUNSHINE_ENABLE_WAYLAND=OFF -DSUNSHINE_ENABLE_KWIN=OFF \
+ -DSUNSHINE_ENABLE_PORTAL=OFF -DSUNSHINE_ENABLE_X11=ON \
+ -DSUNSHINE_ENABLE_DRM=ON -DFFMPEG_PREPARED_BINARIES=/opt/ffmpeg \
+ '-DFFMPEG_PLATFORM_LIBRARIES=x264;x265;/opt/mpp/lib/librockchip_mpp.so;drm;numa;va;va-drm;va-x11;X11;m;pthread;dl;rt' \
  && cmake --build /buildcache --target sunshine -j1 \
  && cp /buildcache/sunshine /build/sunshine-build/sunshine

@@ -22,3 +22,9 @@ and publish reproducible artifacts before production workflow use.
 only X11 access with the running kiosk and granting /dev/mpp_service. It accepts
 success only when Sunshine reports both Found H.264 and Found HEVC encoders.
 It does not copy/use existing credentials or request a live client session.
+
+Build correction, 2026-09-21: FFmpeg HEVC compiled successfully, but the original
+Sunshine step failed because `/buildcache` was an external mount in the earlier
+build and is absent from the image. The candidate now explicitly configures its
+own CMake build tree with the same backend/link options before compiling. This
+reuses the cached FFmpeg layer, not the absent Sunshine cache.

@@ -69,3 +69,22 @@ byte-identical within each matrix and returned quantization is Default.
 Raw report: range-sweep-test2-20260921.json. Overall test exits1 intentionally:
 this is not full range negotiation/correctness. Do not switch Sunshine from
 swscale on this evidence. Driver diagnostic change benefits BT.601 only.
+
+## Extended gray/range diagnostic (2026-09-21)
+
+`range-sweep-probe.py --extended` adds eight neutral gray patches and compares
+full-range requests against an actual full-range reference. Legacy invocation
+retains the previous diagnostic reference for reproducibility. All patches have
+even boundaries; samples are taken at stripe centers.
+
+Test2 measured BT.601 limited max error 1; BT.601 full max error 20;
+BT.709 limited max error 16; BT.709 full max error 20. Requested full/limited
+output remains identical. BT.709 gray inputs 16,32,64,96,128,160,192,224 produced
+Y 16,32,64,96,128,159,191,223, whereas limited reference is
+30,43,71,98,126,153,181,208. Black/white still produce 16/235.
+This suggests approximately full-range luma followed by limited clipping, not
+correct limited-range scaling. It is a hypothesis, not a proven register fix.
+Vendor FAQ Q2.14 maps RGB2YUV BT.709 limited to mode 3, matching current selection;
+blindly replacing that mode is unjustified. Need compare actual RGA2 register
+programming/core revision and vendor implementation before a driver change.
+The SRC/DST BT709 macro typo is numerically harmless (both 3).

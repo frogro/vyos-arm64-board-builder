@@ -15,3 +15,8 @@ kiosk. This establishes hardware-rendered EGL/GLES with the current Mesa image,
 not Chromium acceleration, video decode, zero-copy capture or GPU performance.
 The live kiosk still maps only card0 and Xorg AccelMethod none. Next integration
 must scope render-node grants/group access and validate Xorg/Chromium separately.
+
+Repeated successfully as unprivileged container user `kiosk`, granting the
+host render node's numeric group as a supplementary group (`--group-add`).
+Same Mali-G610 renderer and red pixel result. This establishes a scoped
+non-root device permission path, but does not yet validate Chromium/Xorg.
