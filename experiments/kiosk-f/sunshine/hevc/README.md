@@ -196,3 +196,15 @@ runtime bundle 8b48c818... (full IDs above/in BUILD-INTEGRATION.md); source revi
 Status at this commit: building, not yet validated or activated. Next check build
 exit/image provenance, then isolated probe and longer repeated codec sessions
 using the binary built by this recipe. No kiosk image replacement performed.
+
+Full cleanup candidate build completed successfully. Image
+3fac48e2a9b718d0347acfa997196486963df120546a8339c4b0017fd42b6005,
+revision label 6b5d831 verified. Actual rebuilt Sunshine isolated probe found
+both H264 and HEVC encoders at 04:58 UTC. Probe used disposable state and loopback
+listeners; original kiosk still active. Image has not replaced the live kiosk.
+
+Started memory-probe.py in that exact image: 50 120-frame open/encode/drain/close
+cycles per codec in one process, sampling RSS and open file descriptor counts.
+Unit vyarm-cleanup-memory-test has CPUQuota150%, MemoryMax1G, RuntimeMaxSec500;
+per-codec deadline240 seconds. Results/logs under cleanup-candidate-20260921.
+At this commit the longer test is running; do not claim memory stability yet.
