@@ -129,3 +129,25 @@ extensions cannot add a missing native kernel decoder/backend.
 
 D remains in scope: full H265 transport/client path after successful local
 recordings, RGA fallback/status and optional CLI design. No profile replacement.
+
+## Exact Chromium153.0.8010.47 HEVC source audit
+
+Fetched upstream tag matching installed Debian version (distribution patches not
+yet audited). media/gpu/v4l2/BUILD.gn includes
+v4l2_video_decoder_delegate_h265.cc under enable_hevc_parser_and_hw_decoder.
+media_options.gni enables that by default for proprietary_codecs plus Linux,
+and enables platform HEVC demuxing accordingly. supported_types.cc additionally
+uses runtime platform HEVC feature/profile capability checks. Therefore the
+software-only rejection does not prove HEVC was compiled out.
+
+The examined H265 delegate submits standard SPS/PPS/scaling/decode controls but
+contains neither EXT_SPS_ST_RPS nor EXT_SPS_LT_RPS support. These new controls
+are present in our GStreamer1.28 and test3UAPI. This is a concrete compatibility
+question for RK3588 streams using SPS RPS; audit and test before claiming a
+complete Chromium hardware path. No Chromium patch applied yet. A newer
+version/browser alone is not established as a solution.
+Sources:
+https://chromium.googlesource.com/chromium/src/+/153.0.8010.47/media/gpu/v4l2/v4l2_video_decoder_delegate_h265.cc
+https://chromium.googlesource.com/chromium/src/+/153.0.8010.47/media/gpu/v4l2/BUILD.gn
+https://chromium.googlesource.com/chromium/src/+/153.0.8010.47/media/media_options.gni
+https://chromium.googlesource.com/chromium/src/+/153.0.8010.47/media/base/supported_types.cc
