@@ -25,6 +25,9 @@ if os.environ.get('PROBE_PERF') == '1':
  flags += ['--start-fullscreen', '--window-size='+os.environ.get('PROBE_WIDTH','1920')+','+os.environ.get('PROBE_HEIGHT','1080')]
 if os.environ.get('PROBE_PACING') == 'unlimited':
  flags += ['--disable-gpu-vsync', '--disable-frame-rate-limit']
+if os.environ.get('PROBE_ZERO_COPY') == '1':
+ flags=[f.replace('PreferV4L2VideoAcceleration','PreferV4L2VideoAcceleration,AcceleratedVideoDecodeLinuxZeroCopyGL') for f in flags]
+ flags += ['--enable-zero-copy','--enable-gpu-rasterization']
 p=subprocess.Popen(['bash','-c','exec 3<&0 4>&1; exec chromium "$@"','probe',*flags],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log)
 
 buf=b''; seq=0; events=[]
