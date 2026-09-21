@@ -1,0 +1,96 @@
+{
+  "scope": "whole disposable browser + Weston + probe cgroup; 100% = one CPU core",
+  "warmupSeconds": 5,
+  "runs": [
+    {
+      "run": "1-h264",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 723,
+      "elapsedMs": 36705.39999999991,
+      "steadySeconds": 30.09,
+      "cpuOneCorePercent": 60.67,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "1-hevc",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 673,
+      "elapsedMs": 31385.5,
+      "steadySeconds": 24.862,
+      "cpuOneCorePercent": 55.15,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "2-h264",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 741,
+      "elapsedMs": 38403.80000000028,
+      "steadySeconds": 31.587,
+      "cpuOneCorePercent": 58.13,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "2-hevc",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 670,
+      "elapsedMs": 31346.600000000093,
+      "steadySeconds": 24.845,
+      "cpuOneCorePercent": 55.62,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "3-h264",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 698,
+      "elapsedMs": 36572.299999999814,
+      "steadySeconds": 30.049,
+      "cpuOneCorePercent": 61.54,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "3-hevc",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 670,
+      "elapsedMs": 31334.600000000093,
+      "steadySeconds": 24.315,
+      "cpuOneCorePercent": 55.4,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    }
+  ],
+  "medians": {
+    "h264": {
+      "cpuOneCorePercent": 60.67,
+      "dropped": 723,
+      "elapsedMs": 36705.39999999991
+    },
+    "hevc": {
+      "cpuOneCorePercent": 55.4,
+      "dropped": 670,
+      "elapsedMs": 31346.600000000093
+    }
+  }
+}

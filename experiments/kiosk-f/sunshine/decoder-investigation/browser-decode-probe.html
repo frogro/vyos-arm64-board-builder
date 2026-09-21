@@ -6,6 +6,7 @@
 // Served only by the disposable test environment. Quality is not HW evidence:
 // collect Chromium Media/CDP playerPropertiesChanged decoder diagnostics too.
 const video = document.querySelector('#video');
+video.width = Number(new URLSearchParams(location.search).get('width')) || 640;
 const result = document.querySelector('#result');
 const name = new URLSearchParams(location.search).get('codec') || 'h264';
 if (!['h264', 'hevc'].includes(name)) throw new Error('Unsupported fixture');
@@ -33,5 +34,5 @@ video.play().then(() => {report.state='playing'; save();}).catch(e => {
 });
 setTimeout(() => {if(report.state !== 'ended' && report.state !== 'error') {
  report.state='timeout'; video.pause(); save();
-}}, 15000);
+}}, Number(new URLSearchParams(location.search).get('timeout')) || 15000);
 </script>

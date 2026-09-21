@@ -71,3 +71,19 @@ Browser-based remote viewing via WebRTC/H264 is reserved as an additional
 profileF option for later. It is not part of current implementation/tests and
 does not replace Sunshine/Moonlight. ProfileD already has the MediaMTX/WebRTC
 H264 path; distinguish that from this future F feature in user communication.
+
+## Browser evidence update, 2026-09-21 test3
+
+Unmodified Debian Chromium153 now decodes the tested H264 and HEVC Main8bit
+fixtures with V4L2VideoDecoder/platform=true using an isolated Weston/Mali
+container. Correct final image checked against FFmpeg; production X11 kiosk
+not migrated. An X11/llvmpipe comparison failed NV12 import, so device access,
+graphics backend and decoder support must be reported independently.
+
+The tested software path supports H264 but rejects this HEVC stream. Thus
+`auto` must not promise software fallback for every codec: report unsupported
+codec if no usable decoder remains. Do not infer HEVC capability merely from
+MPP encoding or a successful H264 probe. SPS-RPS stream coverage, long-playback
+performance and physical display integration remain separate acceptance items.
+The earlier Chromium SPS/RPS patch prototype is not installed and was not
+required for the tested stream; do not ship it as a proven prerequisite.
