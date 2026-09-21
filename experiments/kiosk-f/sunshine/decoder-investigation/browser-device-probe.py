@@ -11,13 +11,15 @@ log=open('/tmp/chromium-probe.log','w')
 flags=['--headless','--no-first-run','--autoplay-policy=no-user-gesture-required',
  '--disable-background-networking','--user-data-dir=/tmp/probe-profile',
  '--remote-debugging-pipe','--enable-logging=stderr']
-if len(sys.argv)>2 and sys.argv[2] in ('gpu','v4l2','wayland'):
+if len(sys.argv)>2 and sys.argv[2] in ('gpu','v4l2','wayland','wayland-native'):
  flags += ['--enable-gpu','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=gles']
-if len(sys.argv)>2 and sys.argv[2] in ('v4l2','wayland'):
+if len(sys.argv)>2 and sys.argv[2] in ('v4l2','wayland','wayland-native'):
  flags += ['--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration','--vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2']
-if len(sys.argv)>2 and sys.argv[2]=='wayland':
+if len(sys.argv)>2 and sys.argv[2] in ('wayland','wayland-native'):
  flags.remove('--headless')
  flags += ['--ozone-platform=wayland']
+if len(sys.argv)>2 and sys.argv[2]=='wayland-native':
+ flags.remove('--ignore-gpu-blocklist')
 p=subprocess.Popen(['bash','-c','exec 3<&0 4>&1; exec chromium "$@"','probe',*flags],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log)
 
 buf=b''; seq=0; events=[]

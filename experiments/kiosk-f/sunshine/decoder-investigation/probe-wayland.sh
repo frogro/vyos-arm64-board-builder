@@ -12,4 +12,4 @@ for i in $(seq 1 50); do
  sleep .1
 done
 test -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY"
-python3 /probe.py "$1" wayland
+python3 /probe.py "$1" wayland-native

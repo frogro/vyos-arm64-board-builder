@@ -22,9 +22,11 @@ Wayland container. Production X11 kiosk is unchanged.**
 
 `--ozone-platform=wayland --use-gl=angle --use-angle=gles`
 plus `--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration`.
-The experimental probe also uses --ignore-gpu-blocklist. Before production
-integration, test whether that override is necessary; do not make it a blanket
-default. Full actual flags and GPU/Media data are in the JSON results.
+The initial probe used --ignore-gpu-blocklist. The subsequent native control
+run passed BOTH codecs without this override, again with V4L2VideoDecoder and
+platform=true. Native frame RGB differences remain below one value/channel.
+The reproducible runner now uses this native mode. Full flags and GPU/Media
+data are in the JSON results; *-native files are the final control run.
 
 The source audit at Chromium tag153.0.8010.47 identified AcceleratedVideoDecoder
 and PreferV4L2VideoAcceleration as separate runtime gates. Merely enabling the
