@@ -64,3 +64,10 @@ D candidate H264/HEVC/RGA recordings and VUI passed; transport/client tests and
 fallback remain. Both profiles require configuration ownership, migration,
 update/reboot retention and old-path regression tests. No default change or
 release-workflow modification is authorized by this planning document.
+
+## Reserved future F option (user decision,2026-09-21)
+
+Browser-based remote viewing via WebRTC/H264 is reserved as an additional
+profileF option for later. It is not part of current implementation/tests and
+does not replace Sunshine/Moonlight. ProfileD already has the MediaMTX/WebRTC
+H264 path; distinguish that from this future F feature in user communication.
