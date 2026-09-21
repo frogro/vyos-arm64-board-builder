@@ -1,0 +1,15 @@
+{
+  "page": {
+    "codec": "h264",
+    "state": "ended",
+    "started": 81.90000000037253,
+    "duration": 30,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 1800,
+    "droppedFrames": 268,
+    "elapsedMs": 31457.299999998882
+  },
+  "decoder": "V4L2VideoDecoder",
+  "platformDecoder": "true"
+}

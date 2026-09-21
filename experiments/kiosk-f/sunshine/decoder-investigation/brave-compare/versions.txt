@@ -1,0 +1,2 @@
+Brave Browser 153.1.95.104
+brave-browser	1.95.104

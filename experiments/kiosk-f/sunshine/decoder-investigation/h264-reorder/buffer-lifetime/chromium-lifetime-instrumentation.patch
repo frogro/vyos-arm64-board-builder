@@ -1,0 +1,29 @@
+--- a/media/gpu/v4l2/v4l2_video_decoder_backend_stateless.cc
++++ b/media/gpu/v4l2/v4l2_video_decoder_backend_stateless.cc
+@@ -178,6 +178,8 @@
+ void V4L2StatelessVideoDecoderBackend::ReuseOutputBuffer(
+     V4L2ReadableBufferRef buffer) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
++  TRACE_EVENT_INSTANT("media", "VyarmV4L2BufferReusable",
++                      "index", buffer->BufferId());
+   DVLOGF(3) << "Reuse output surface #" << buffer->BufferId();
+
+   // Resume decoding in case of ran out of surface.
+@@ -231,6 +233,9 @@
+   auto input_buf = input_queue_->GetFreeBuffer();
+   auto output_buf = output_queue_->GetFreeBuffer();
+   if (!input_buf || !output_buf) {
++    TRACE_EVENT_INSTANT("media", "VyarmV4L2NoFreeBuffer",
++                        "input_available", static_cast<bool>(input_buf),
++                        "output_available", static_cast<bool>(output_buf));
+     DVLOGF(3) << "There is no free V4L2 buffer.";
+     return nullptr;
+   }
+@@ -484,6 +489,7 @@
+         break;
+
+       case AcceleratedVideoDecoder::kRanOutOfSurfaces:
++        TRACE_EVENT_INSTANT("media", "VyarmV4L2SurfacePause");
+         DVLOGF(3) << "Ran out of surfaces. Resume when buffer is returned.";
+         pause_reason_ = PauseReason::kRanOutOfSurfaces;
+         return true;

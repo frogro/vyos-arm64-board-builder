@@ -1,0 +1,25 @@
+{
+  "file": "first-baseline.csv",
+  "captureEvents": {
+    "v4l2_qbuf": 1800,
+    "v4l2_dqbuf": 1800
+  },
+  "dequeue_to_requeue": {
+    "count": 1794,
+    "median_ms": 80.17499999914435,
+    "p95_ms": 169.81399999895075,
+    "max_ms": 188.77400000019406
+  },
+  "queue_to_dequeue": {
+    "count": 1800,
+    "median_ms": 3.205000000889413,
+    "p95_ms": 4.0520000002288725,
+    "max_ms": 15.239000000292435
+  },
+  "submission_gaps": {
+    "count": 1799,
+    "median_ms": 16.370999999708147,
+    "p95_ms": 33.82100000089849,
+    "max_ms": 53.86299999918265
+  }
+}

@@ -1,0 +1,64 @@
+entries: 552
+overrun: 0
+commit overrun: 0
+bytes: 38380
+oldest event ts: 13739.308150
+now ts: 13772.864440
+dropped events: 0
+read events: 0
+entries: 748
+overrun: 0
+commit overrun: 0
+bytes: 51856
+oldest event ts: 13739.544438
+now ts: 13772.864565
+dropped events: 0
+read events: 0
+entries: 740
+overrun: 0
+commit overrun: 0
+bytes: 51176
+oldest event ts: 13739.341399
+now ts: 13772.864639
+dropped events: 0
+read events: 0
+entries: 470
+overrun: 0
+commit overrun: 0
+bytes: 32840
+oldest event ts: 13739.242549
+now ts: 13772.864710
+dropped events: 0
+read events: 0
+entries: 970
+overrun: 0
+commit overrun: 0
+bytes: 66984
+oldest event ts: 13739.253174
+now ts: 13772.864782
+dropped events: 0
+read events: 0
+entries: 1254
+overrun: 0
+commit overrun: 0
+bytes: 86560
+oldest event ts: 13739.258710
+now ts: 13772.864852
+dropped events: 0
+read events: 0
+entries: 1136
+overrun: 0
+commit overrun: 0
+bytes: 78548
+oldest event ts: 13739.278829
+now ts: 13772.864925
+dropped events: 0
+read events: 0
+entries: 1330
+overrun: 0
+commit overrun: 0
+bytes: 91808
+oldest event ts: 13739.491745
+now ts: 13772.864998
+dropped events: 0
+read events: 0
