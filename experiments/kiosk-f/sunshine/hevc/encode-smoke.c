@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: MIT
  * Standalone encoder bitstream probe, not a Sunshine latency benchmark.
- * Usage: encode-smoke ENCODER OUTPUT
+ * Usage: encode-smoke ENCODER OUTPUT [CYCLES]
+ * Multiple cycles reopen the codec in one process and overwrite OUTPUT.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,8 +29,7 @@ static int drain(AVCodecContext *ctx, AVPacket *packet, FILE *out) {
     return count;
 }
 
-int main(int argc, char **argv) {
-    if (argc != 3) return 2;
+static int encode_once(char **argv) {
     const AVCodec *codec = avcodec_find_encoder_by_name(argv[1]);
     if (!codec) { fprintf(stderr, "Encoder unavailable\n"); return 1; }
     AVCodecContext *ctx = avcodec_alloc_context3(codec);
@@ -74,4 +74,20 @@ int main(int argc, char **argv) {
     fprintf(stderr, "%s: 120 input frames, %d packets\n", argv[1], packets);
     av_packet_free(&packet); av_frame_free(&frame); avcodec_free_context(&ctx);
     return packets == 120 ? 0 : 1;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 3 && argc != 4) return 2;
+    int cycles = 1;
+    if (argc == 4) {
+        char *end = NULL;
+        long value = strtol(argv[3], &end, 10);
+        if (!*argv[3] || *end || value < 1 || value > 100) return 2;
+        cycles = (int)value;
+    }
+    for (int n = 0; n < cycles; n++) {
+        if (encode_once(argv)) return 1;
+        fprintf(stderr, "Completed cycle %d/%d\n", n + 1, cycles);
+    }
+    return 0;
 }

@@ -102,3 +102,29 @@ cleanup and FFmpeg each have frame cleanup paths. Exact ownership/EOS/queue
 interaction remains to be traced before changing lifetime management. This is
 not evidence of a kernel encoder or RGA fault. No warning suppression or unproven
 cleanup-order patch has been put into the runtime.
+
+### Experimental EOS correction
+
+`0003-experimental-single-eos.patch` targets pinned FFmpeg d90e3a1. The existing
+flush path resends the same end-of-stream MppFrame when output is temporarily
+unavailable, and can create another EOS marker on later drain calls. The patch
+records successful EOS submission, polls output without resubmission, and allows
+the bufferless EOS marker past the regular in-flight image limit. Frame ownership
+and teardown order are unchanged; no log message is suppressed.
+
+Built the modified static library in an isolated disposable builder, then ran
+encode-smoke with CYCLES=10 separately for H264 and HEVC on ROCK: all 20
+open/encode/drain/close cycles produced 120 packets each. No invalid-memory-pool
+warning appeared. The process-exit `cleaning misc group` message remains once per
+codec process and still needs investigation. Final-cycle files passed independent
+120-frame decode and first/last-frame gray reference checks; see
+single-eos-results-20260921.json. Logs and generated before/after source copies:
+/config/kiosk-test/builds/encode-eos-20260921. This supports duplicate EOS submission
+as the tested trigger; it is not a general proof that every MPP ownership issue
+is resolved.
+
+This is an experimental patch, NOT yet applied by Containerfile or installed
+Sunshine. Before promoting it: validate zero/short input and interrupted sessions,
+check error/timeout handling and remaining buffer cleanup, rebuild actual Sunshine,
+then exercise a real Moonlight reconnect. No decoder/RGA or default workflow
+change is involved. The running kiosk remained untouched and active.
