@@ -1,0 +1,4 @@
+FROM localhost/vyarm-kiosk:weston16-test3
+USER root
+COPY chrome.deb /tmp/chrome.deb
+RUN apt-get update && apt-get install -y --no-install-recommends /tmp/chrome.deb && rm /tmp/chrome.deb
