@@ -1,0 +1,67 @@
+{
+  "image": "3345cdf8ada5dfb3747fc51e272efb3d964d2bcaa35da8530001f8b5276542de",
+  "common_settings": {
+    "fps_requested": 60,
+    "bitrate_kbps": 8000,
+    "codec": "HEVC",
+    "decoder": "hardware",
+    "vsync": false,
+    "frame_pacing": false
+  },
+  "sessions": [
+    {
+      "name": "rga",
+      "resolution": "1080x1920",
+      "counters": {
+        "total": 1320,
+        "accelerated": 1320,
+        "cpu_fallback": 0
+      },
+      "metrics": [
+        "Incoming frame rate from network: 58.92 FPS",
+        "Decoding frame rate: 58.92 FPS",
+        "Rendering frame rate: 58.58 FPS",
+        "Host processing latency min/max/average: 23.3/197.5/27.8 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.58%",
+        "Average network latency: 1 ms (variance: 1 ms)",
+        "Average decoding time: 1.00 ms"
+      ]
+    },
+    {
+      "name": "cpu",
+      "resolution": "1080x1920",
+      "counters": null,
+      "metrics": [
+        "Incoming frame rate from network: 58.27 FPS",
+        "Decoding frame rate: 58.27 FPS",
+        "Rendering frame rate: 57.42 FPS",
+        "Host processing latency min/max/average: 26.8/333.4/31.2 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.96%",
+        "Average network latency: 2 ms (variance: 0 ms)",
+        "Average decoding time: 0.77 ms"
+      ]
+    },
+    {
+      "name": "scaled_fallback",
+      "resolution": "1920x1080",
+      "counters": {
+        "total": 720,
+        "accelerated": 0,
+        "cpu_fallback": 720
+      },
+      "metrics": [
+        "Incoming frame rate from network: 58.98 FPS",
+        "Decoding frame rate: 58.98 FPS",
+        "Rendering frame rate: 58.45 FPS",
+        "Host processing latency min/max/average: 27.8/171.9/33.0 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.65%",
+        "Average network latency: 3 ms (variance: 4 ms)",
+        "Average decoding time: 0.85 ms"
+      ]
+    }
+  ],
+  "limitations": "Single short runs including startup, static page and wireless network variability. Counts are last periodic report, not total session frames. No statistical performance claim or physical-input verification."
+}

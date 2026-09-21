@@ -50,3 +50,24 @@ armed first; explicitly removed candidate, resumed original supervisor, restored
 original kernel module, verified original Sunshine binary and active kiosk,
 then stopped timer and deleted copied private state/Xauthority. No new port
 exposure, production image setting or identity changes.
+
+## Instrumented/reuse verification, 09:20 UTC
+
+Instrumented image3345cdf8... built and live-tested. Same converter object
+reused across all8geometry/matrix/range cases, with null-input rejection before
+each case:960frames passed,maxerror1. See reuse-results-20260921.txt.
+
+Three real HEVC/VAAPI sessions with same8Mbps/60requested settings:
+- Native1080x1920 RGA: last periodic report1320/1320accelerated,0CPUfallback.
+- Native1080x1920 CPU: explicit opt-in disabled, otherwise same candidate.
+- Scaled1920x1080 with opt-in enabled:720/720CPUfallback,0accelerated.
+Thus supported same-size acceleration and intentional scaling fallback were
+both exercised in actual streaming, not inferred from capability probing.
+
+Single short same-geometry trial: average host latency27.8ms RGA vs31.2ms CPU,
+58.92vs58.27incomingFPS. Startup and wireless variability remain; no statistical
+claim or sustainedperformance guarantee. Complete reported metrics in
+counter-comparison-results-20260921.json.
+Original module/binary/supervisor restored, kiosk active; rollback timer stopped
+and copied private state/Xauthority deleted. Kernel test3 still building.
+Injected driver timeouts/error recovery and long-duration sessions remain open.
