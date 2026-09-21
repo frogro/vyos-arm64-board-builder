@@ -11,7 +11,7 @@
  
  #ifdef _WIN32
  extern "C" {
-@@ -260,7 +264,32 @@
+@@ -260,7 +264,41 @@
      sws_input_frame->linesize[3] = 0;
  
      // Perform color conversion and scaling to the final size
@@ -38,6 +38,15 @@
 +      if (rga_converted && !reported) {
 +        BOOST_LOG(info) << "Experimental V4L2 RGA conversion active (same-size BGR0 to NV12)";
 +        reported = true;
++      }
++    }
++    if (rga_enabled) {
++      static thread_local uint64_t total = 0, accelerated = 0;
++      ++total;
++      accelerated += rga_converted ? 1 : 0;
++      if (total % 120 == 0) {
++        BOOST_LOG(info) << "Experimental RGA frames total=" << total
++                        << " accelerated=" << accelerated << " cpu_fallback=" << (total - accelerated);
 +      }
 +    }
 +#endif
