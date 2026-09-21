@@ -1,6 +1,6 @@
 # Live-test layer; preserve the previously validated encoder image as rollback.
 FROM localhost/vyarm-kiosk:mpp-test
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xinput && rm -rf /var/lib/apt/lists/*
-COPY kiosk-display.py kiosk-session.py kiosk-sunshine.py /usr/local/bin/
-RUN chmod 755 /usr/local/bin/kiosk-display.py /usr/local/bin/kiosk-session.py /usr/local/bin/kiosk-sunshine.py
+COPY kiosk-display.py kiosk-session.py kiosk-sunshine.py kiosk-graphics.py start-kiosk /usr/local/bin/
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-display.py /usr/local/bin/kiosk-session.py /usr/local/bin/kiosk-sunshine.py
 LABEL io.vyarm.kiosk.sunshine-policy="1"

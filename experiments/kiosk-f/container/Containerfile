@@ -6,6 +6,7 @@ COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
 COPY xorg.conf /etc/X11/xorg.conf
 COPY input-test.html /opt/kiosk/input-test.html
 COPY start-kiosk /usr/local/bin/start-kiosk
+COPY kiosk-graphics.py /usr/local/bin/kiosk-graphics.py
 COPY kiosk-session /usr/local/bin/kiosk-session
 RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session
 ENV KIOSK_URL=file:///opt/kiosk/input-test.html DISPLAY=:0 HOME=/home/kiosk

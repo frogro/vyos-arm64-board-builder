@@ -36,8 +36,8 @@ cookie=$(mcookie)
 xauth -f "$XAUTHORITY" add :0 MIT-MAGIC-COOKIE-1 "$cookie"
 chown kiosk:kiosk "$XAUTHORITY"
 # Short setup clients (xdpyinfo/xrandr/xset) must not reset Xorg between calls.
-Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /etc/X11/xorg.conf -logfile /state/Xorg.log &
-xpid=$!
+graphics=$(python3 /usr/local/bin/kiosk-graphics.py)
+xpid=
 session_pid=
 cleanup() {
     trap '' TERM INT
@@ -45,17 +45,40 @@ cleanup() {
         kill -TERM "$session_pid" 2>/dev/null || true
         wait "$session_pid" 2>/dev/null || true
     fi
-    kill -TERM "$xpid" 2>/dev/null || true
-    wait "$xpid" 2>/dev/null || true
+    if [ -n "$xpid" ]; then
+        kill -TERM "$xpid" 2>/dev/null || true
+        wait "$xpid" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT
 trap 'exit 0' TERM INT
-for n in $(seq 1 40); do
-    if xdpyinfo >/dev/null 2>&1; then break; fi
-    kill -0 "$xpid" || { cat /state/Xorg.log; exit 1; }
-    sleep 1
-done
-xdpyinfo >/dev/null
+start_display() {
+    Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /run/kiosk/xorg-runtime.conf -logfile /state/Xorg.log &
+    xpid=$!
+    for n in $(seq 1 40); do
+        if xdpyinfo >/dev/null 2>&1; then return 0; fi
+        kill -0 "$xpid" 2>/dev/null || return 1
+        sleep 1
+    done
+    return 1
+}
+ready=no
+if start_display; then ready=yes; fi
+if [ "$graphics" = glamor ]; then
+    # Never equate a working software renderer with GPU acceleration.
+    if [ "$ready" != yes ] || ! grep -q 'glamor X acceleration enabled on' /state/Xorg.log || grep -Eiq 'glamor X acceleration enabled on.*(llvmpipe|softpipe|swrast)' /state/Xorg.log; then
+        echo 'GPU initialization unavailable; retrying Xorg with software rendering' >&2
+        kill -TERM "$xpid" 2>/dev/null || true
+        wait "$xpid" 2>/dev/null || true
+        if [ -f /state/Xorg.log ]; then cp /state/Xorg.log /state/Xorg-glamor-failed.log; fi
+        cp /etc/X11/xorg.conf /run/kiosk/xorg-runtime.conf
+        graphics=software
+        ready=no
+        if start_display; then ready=yes; fi
+    fi
+fi
+[ "$ready" = yes ] || { cat /state/Xorg.log; exit 1; }
+printf '%s\n' "$graphics" > /run/kiosk/graphics-mode
 setpriv --reuid kiosk --regid kiosk --init-groups -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
 session_pid=$!
 wait "$session_pid"

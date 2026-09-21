@@ -69,3 +69,19 @@ units. Physical touch accuracy and perceived output quality were not tested.
 Next: opt-in generic acceleration setting with scoped render-node selection,
 permissions and software fallback, plus production-browser diagnostics. Do not
 hardcode ROCK5B/card numbering into normal provisioning based on this one test.
+
+## Opt-in integration prepared (not deployed)
+
+Container startup supports KIOSK_GRAPHICS=software (unchanged default) or auto.
+Auto requests glamor only if character render nodes have already been explicitly
+granted to the container. No device access, board matching or fixed render number
+is added by this option. The display card selection remains the existing Xorg
+configuration; multi-GPU selection is not solved by this helper.
+Runtime configuration is generated under /run/kiosk, leaving templates/settings
+intact. If accelerated Xorg fails startup or lacks a hardware glamor log result,
+startup retries once with the original software template. Mode is recorded in
+/run/kiosk/graphics-mode; failed accelerated log is preserved under /state.
+Base and CLI-layer Containerfiles copy the helper/startup changes. Existing live
+images/bind mounts have NOT been changed. Five new selection/validation tests
+and all 55 kiosk tests pass. Live startup/fallback validation is the next step;
+this commit does not claim that the new fallback was exercised on hardware.
