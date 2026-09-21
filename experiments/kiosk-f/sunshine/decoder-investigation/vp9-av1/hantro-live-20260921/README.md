@@ -90,3 +90,43 @@ JSON is zero bytes after reboot, so no final comparison is recoverable from it.
 Earlier hardware/software hash files survived. Previous journal ends at 23:37:20
 without an explicit panic/unload backtrace; driver teardown remains suspected,
 not proven. No further module loading/unloading performed in this follow-up.
+
+## Corrected module live tests, 2026-09-22 00:00 onward
+
+Booted the existing one-shot test3 entry; GRUB next_entry verified empty after
+boot. Production default preserved. Signed the PM teardown backport with the
+matching existing test3 key. Prevented unrelated G1/VEPU bindings before load.
+
+* Three explicit load/unload cycles completed; further cleanup cycles also
+  completed after decode and browser probes. No repeat of the earlier freeze.
+* Hardware AV1 decoder -> direct linear NV12 caps -> fdsink: **300/300 frames
+  bit-identical to FFmpeg software reference**, including count and order.
+  See fixed-nv12-hashes.json (both complete SHA256 lists). No videoconvert.
+* Chromium diagnostic run: NV12 output candidate, 10 MMAP capture buffers,
+  V4L2VideoDecoder, platform=true, ended/300 frames, 41 dropped. Hardware
+  browser decode works in this run, but 1080p60 performance is NOT confirmed.
+* Earlier browser fallback remains incompletely explained: fresh boot changes
+  memory availability; PM patch does not itself demonstrate a decoding fix.
+* Device probing is asynchronous: udevadm settle alone did not guarantee the
+  media/video devices existed. Updated probe waits for actual nodes, derives
+  their numbers from AV1 platform device, and guards the kernel release first.
+
+Modules unloaded and unrelated driver overrides restored after each completed
+probe. Kiosk container continued running; no full-image/production integration.
+
+### Remaining power-domain failure; repeat stopped
+
+The no-verbose repeat did not start playback: AV1 device readiness failed.
+Kernel reports `failed to get ack on domain 'av1', val=0xa9eef` repeatedly
+following removal/reload. This was also present around early lifecycle probes.
+Therefore the three successful insmod/rmmod command pairs must NOT be called
+three clean hardware power cycles: binding is asynchronous and warnings remain.
+The PM backport prevented the observed system freeze in these attempts, but
+does not establish reliable remove/reprobe. Investigate reset assertion versus
+power-domain sequencing (including Collabora power-domain fixes) before more
+live churn. Readiness guard now stops before decode when nodes are absent.
+
+Final check ~00:05: host reachable, kiosk-test running, no hantro_vpu/v4l2_jpeg
+loaded, five temporary driver overrides all (null), only production container
+running. Test3 kernel still running; next normal boot uses unchanged production
+default. All experimental AV1 modules remain opt-in, no image recipe changes.

@@ -88,3 +88,12 @@ does NOT alone prove a browser patch is needed. The next live probe should
 request video/x-raw,format=NV12 directly from v4l2slav1dec (without inserting
 videoconvert), inspect negotiated buffers, and retain Chromium verbose logs
 for the first-decode failure. Allocation pressure remains another candidate.
+
+## Test prerequisite after cold boot
+
+Cold boot selected production 6.18.50-vyos, not the one-shot test3 entry.
+The test3-signed JPEG module was rejected by signature validation; no module
+loaded and temporary driver overrides were cleared. Future probe scripts must
+check uname -r BEFORE any device changes. Verified test3 boot Image hash and
+existing modules directory, then selected existing one-shot GRUB test3 entry
+for the follow-up; permanent production default remains unchanged.
