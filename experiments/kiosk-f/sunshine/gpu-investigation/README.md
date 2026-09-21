@@ -20,3 +20,16 @@ Repeated successfully as unprivileged container user `kiosk`, granting the
 host render node's numeric group as a supplementary group (`--group-add`).
 Same Mali-G610 renderer and red pixel result. This establishes a scoped
 non-root device permission path, but does not yet validate Chromium/Xorg.
+
+## Initial Chromium headless probe (2026-09-21 overnight)
+
+A disposable network-disabled container as user kiosk with render node/group,
+Chromium headless, `--enable-gpu --use-gl=angle --use-angle=gles` could not create
+WebGL2. ANGLE explicitly failed opening the default X display. This tests an
+incomplete display setup, not a broken Mali driver. Next test must provide an
+authorized X socket/Xauthority or establish a supported surfaceless Chromium
+backend. The plain EGL probe above is already surfaceless and passes.
+`webgl-probe.html` reports actual renderer and a red pixel, allowing software
+fallback to be detected rather than treating a rendered page as acceleration.
+The disposable probe used --no-sandbox only in its network-disabled container;
+this must not become a production kiosk policy.
