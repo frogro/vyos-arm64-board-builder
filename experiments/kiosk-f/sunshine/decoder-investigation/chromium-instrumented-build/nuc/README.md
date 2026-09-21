@@ -38,3 +38,22 @@ was made; stale TCP sessions were the immediate transfer problem.
 Status: docker -H unix:///run/vyarm-nuc-docker.sock ps -a
 Log: source/vyarm-build-nuc.log
 The daemon is transient and will need starting again after a NUC reboot.
+
+### Overnight watchdog, 2026-09-21
+
+User authorized overnight monitoring and bounded restart. Installed on NUC at
+`/home/photobooth/vyarm-chromium-build/monitor/watch.py`, container
+`vyarm-chromium-overnight-watch`, deadline 2026-09-22 09:00 Europe/Berlin.
+Checks every 120 seconds, pinned to the existing build container ID; up to three
+incremental restarts, ten-minute cooldown. Does not restart successful completion,
+explicit compiler errors or failed builds with less than 10 GiB disk space.
+No-log activity for 90 minutes is recorded, not treated as proof of a hang.
+Completion requires successful container exit AND the build-complete marker.
+Six decision cases were tested locally. Initial deployment permission/API issues
+were corrected (UID/GID 1000 with Docker supplementary group 127; API 1.44).
+Status: `monitor/status.json`; history: Docker logs of the watchdog container.
+It runs independently of SSH/desktop sessions but cannot recover Docker daemon
+failure, NUC reboot/suspend, source errors, or send chat notifications. It stops
+monitoring at the deadline without stopping the build. No production ROCK changes.
+Stop monitoring manually with the dedicated Docker socket and
+`docker stop vyarm-chromium-overnight-watch`.
