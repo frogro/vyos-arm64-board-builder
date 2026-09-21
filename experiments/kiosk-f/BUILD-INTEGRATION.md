@@ -94,3 +94,11 @@ Additional nonfatal cache issue: root Xorg and user browser shared HOME/.cache.
 Source now gives Xorg a runtime cache and the user session /state/cache (created
 before existing kiosk ownership setup). Shell syntax checked; this cache cleanup
 is not yet part of the validated v2 image and needs next bundle validation.
+
+Bundle v3 from 2fd1184 built as
+8b48c818a6ffe1ca03903067c95349780b5667b90fcfd799b4e69b59dfc1f5c5.
+Controlled live test 03:05 UTC confirmed glamor, normal portrait kiosk page,
+root-owned Xorg runtime cache and kiosk-owned persistent /state/cache, with no
+cache permission warnings in the test interval. Original Quadlet/image restored
+and rollback timer stopped after testing. Bundle is available locally on ROCK;
+full board image and new CLI Debian package remain unbuilt.

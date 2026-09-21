@@ -88,3 +88,16 @@ Vendor FAQ Q2.14 maps RGB2YUV BT.709 limited to mode 3, matching current selecti
 blindly replacing that mode is unjustified. Need compare actual RGA2 register
 programming/core revision and vendor implementation before a driver change.
 The SRC/DST BT709 macro typo is numerically harmless (both 3).
+
+## Vendor register comparison (2026-09-21)
+
+Examined Rockchip vendor kernel develop-6.1:
+https://github.com/rockchip-linux/kernel/blob/develop-6.1/drivers/video/rockchip/rga3/rga2_reg_info.c
+Retrieved content SHA256 bc19f97a38ce6cfb535e6c28c1dd000c4e57365f694d4904d3028dabd779af3d.
+Vendor destination setup programs CSC mode, CSC clip mode and a separate full-CSC
+enable. Its full-CSC path also writes coefficients, offsets and clipping bounds.
+Our media RGA driver has a csc_clip field but does not explicitly program it or
+those full-CSC coefficients in the inspected setup path. This is a concrete
+comparison target, not proof that a clip-bit toggle fixes BT.709. Register/core
+compatibility and supported full-CSC hardware must be checked before backporting;
+userspace API shifts are not interchangeable with hardware mode values.
