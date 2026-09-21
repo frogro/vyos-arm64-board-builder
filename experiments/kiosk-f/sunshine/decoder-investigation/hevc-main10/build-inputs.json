@@ -1,0 +1,10 @@
+{
+  "status": "source-applied-full-build-running-not-validated",
+  "upstreamCommit": "34519ca8fdf2f46571eda2f2240b06eff553c3cf",
+  "adaptedMainPatchSHA256": "9c2d7cd7e5ffae2aafa9d7936a194b74d646e71cc4e9c2bddc8b4240bc814c58",
+  "captureReserve": "feature-disabled-by-default; low_delay excluded",
+  "sourceBackup": "tmp/chromium153-instrumented/pre-nv15-sources.tar",
+  "container": "vyarm-chromium-nv15-build",
+  "productionChanged": false,
+  "containerID": "230d66b19ff0dcc5471b0e5222b6644e21e2162097f910bf854bf5d3aac80c71"
+}

@@ -62,3 +62,19 @@ outside Git under tmp/chromium-codec-probe/main10 and on the ROCK under
 chromium153-rejected-hunk-followup.patch supplies only the rejected mapping hunk
 after the pinned upstream series is partially applied. It preserves P210/P410.
 This context adaptation is uncompiled; it is not a standalone NV15 implementation.
+
+## Continued build after 21:00 authorization
+
+The pinned three-patch series is now applied to the full isolated Chromium 153
+source, alongside the disabled-by-default capture-reserve candidate and lifetime
+instrumentation. Original touched files were backed up before application.
+upstream-patch-port.diff adapts the upstream patch itself to preserve P210/P410;
+all three adapted inputs passed dry application before their respective application.
+The earlier rejected-hunk-followup.patch is an ALTERNATIVE for the scratch tree,
+not an additional fourth patch when using upstream-patch-port.diff.
+
+Full chrome + chrome_sandbox build launched via build-isolated.sh with native
+GN/Ninja orchestration and ARM64 Clang under QEMU; one compile job, 3 GiB RAM,
+4 GiB RAM+swap, 2 CPU quota. The script records exit status and only prints the
+completion marker after both targets succeed. This does not install a browser.
+No object/binary or actual NV15 browser playback proof yet.
