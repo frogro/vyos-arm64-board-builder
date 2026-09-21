@@ -148,3 +148,13 @@ Vendor CSC register definitions/programming reference:
 https://github.com/rockchip-linux/kernel/tree/77168c8d5ab82399f65a80e9f807b50ba37cf483/drivers/video/rockchip/rga3
 Additional readable userspace coefficient reference:
 https://github.com/tsukumijima/librga-rockchip/blob/master/core/NormalRgaApi.cpp
+
+## Shared profile-D/F layout extension, 2026-09-21
+
+Optional `0003-experimental-rgb-layouts.patch` follows 0002 and adds RGB24/BGR24
+input and NV12M output without a board-name condition. GStreamer selects NM12
+(two planes) for NV12 caps; that initially bypassed the correction. The extended
+candidate passes the D GStreamer synthetic comparison and a 120-frame HDMI ->
+RGA -> MPP H.264 capture. F's 960-frame reuse test still passes. See
+../../../kvm-d-media/README.md and its result files for scope/limitations.
+Normal installed modules and production default choices remain unchanged.

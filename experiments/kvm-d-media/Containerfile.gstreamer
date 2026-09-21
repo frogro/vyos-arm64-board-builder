@@ -1,0 +1,25 @@
+# Build against Bookworm's GStreamer ABI used by the live profile-D host.
+ARG HEADERS_IMAGE
+FROM ${HEADERS_IMAGE} AS headers
+FROM docker.io/library/debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+ build-essential pkg-config meson ninja-build libgstreamer1.0-dev \
+ libgstreamer-plugins-base1.0-dev libdrm-dev patch ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=headers /opt/mpp/include/ /opt/mpp/include/
+COPY --from=headers /opt/mpp/lib/pkgconfig/ /opt/mpp/lib/pkgconfig/
+# Copy the live host's matching MPP ABI library, without installing to the host.
+COPY librockchip_mpp.so /opt/mpp/lib/librockchip_mpp.so
+# Cache metadata came from a newer libc toolchain. Link the live shared ABI
+# directly; Bookworm ARM64 has no libmvec and this shared MPP does not need it.
+RUN ln -s librockchip_mpp.so /opt/mpp/lib/librockchip_mpp.so.1 \
+ && sed -i 's/ -lmvec//g' /opt/mpp/lib/pkgconfig/rockchip_mpp.pc
+COPY gst-rockchip.tar.gz /tmp/source.tar.gz
+RUN echo 'd0a0d2dc134026400fc9321d05a67355e13da597032042c943f01e6e2bdc47dd  /tmp/source.tar.gz' | sha256sum -c - \
+ && mkdir /src && tar -xzf /tmp/source.tar.gz -C /src --strip-components=1
+COPY 0001-opt-in-gstreamer-mpp-colorimetry.patch /tmp/color.patch
+RUN cd /src && patch --batch --fuzz=0 -p1 < /tmp/color.patch \
+ && PKG_CONFIG_PATH=/opt/mpp/lib/pkgconfig meson setup /build /src \
+ --buildtype=release -Drockchipmpp=enabled -Drga=disabled -Drkximage=disabled \
+ -Dkmssrc=disabled -Dvpxalphadec=disabled \
+ && ninja -C /build -j1

@@ -1,0 +1,336 @@
+{
+  "date": "2026-09-21",
+  "hardware": "ROCK 5B, RGA revision 0x03263318",
+  "kernel": "6.18.50-vyos-f-test2",
+  "tests": [
+    {
+      "name": "baseline-BGR3",
+      "passed": false,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 20
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 16
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 20
+        }
+      ]
+    },
+    {
+      "name": "baseline-RGB3",
+      "passed": false,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 20
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 16
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 20
+        }
+      ]
+    },
+    {
+      "name": "gstreamer-colors-nv12m",
+      "passed": true,
+      "cases": [
+        {
+          "format": "BGR",
+          "colorspace": "bt601",
+          "samples": {
+            "videoconvert": [
+              81,
+              90,
+              239
+            ],
+            "v4l2convert": [
+              81,
+              90,
+              240
+            ]
+          },
+          "max_error": 1
+        },
+        {
+          "format": "BGR",
+          "colorspace": "bt709",
+          "samples": {
+            "videoconvert": [
+              62,
+              102,
+              239
+            ],
+            "v4l2convert": [
+              62,
+              102,
+              240
+            ]
+          },
+          "max_error": 1
+        },
+        {
+          "format": "RGB",
+          "colorspace": "bt601",
+          "samples": {
+            "videoconvert": [
+              81,
+              90,
+              239
+            ],
+            "v4l2convert": [
+              81,
+              90,
+              240
+            ]
+          },
+          "max_error": 1
+        },
+        {
+          "format": "RGB",
+          "colorspace": "bt709",
+          "samples": {
+            "videoconvert": [
+              62,
+              102,
+              239
+            ],
+            "v4l2convert": [
+              62,
+              102,
+              240
+            ]
+          },
+          "max_error": 1
+        }
+      ]
+    },
+    {
+      "name": "gstreamer-colors",
+      "passed": false,
+      "cases": [
+        {
+          "format": "BGR",
+          "colorspace": "bt601",
+          "samples": {
+            "videoconvert": [
+              81,
+              90,
+              239
+            ],
+            "v4l2convert": [
+              82,
+              90,
+              240
+            ]
+          },
+          "max_error": 1
+        },
+        {
+          "format": "BGR",
+          "colorspace": "bt709",
+          "samples": {
+            "videoconvert": [
+              62,
+              102,
+              239
+            ],
+            "v4l2convert": [
+              54,
+              99,
+              237
+            ]
+          },
+          "max_error": 8
+        },
+        {
+          "format": "RGB",
+          "colorspace": "bt601",
+          "samples": {
+            "videoconvert": [
+              81,
+              90,
+              239
+            ],
+            "v4l2convert": [
+              82,
+              90,
+              240
+            ]
+          },
+          "max_error": 1
+        },
+        {
+          "format": "RGB",
+          "colorspace": "bt709",
+          "samples": {
+            "videoconvert": [
+              62,
+              102,
+              239
+            ],
+            "v4l2convert": [
+              54,
+              99,
+              237
+            ]
+          },
+          "max_error": 8
+        }
+      ]
+    },
+    {
+      "name": "random-BGR3",
+      "passed": true,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        }
+      ]
+    },
+    {
+      "name": "random-RGB3",
+      "passed": true,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 120,
+          "max_component_error": 1
+        }
+      ]
+    },
+    {
+      "name": "rga-BGR3",
+      "passed": true,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        }
+      ]
+    },
+    {
+      "name": "rga-RGB3",
+      "passed": true,
+      "cases": [
+        {
+          "colorspace": "smpte170m",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "smpte170m",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "lim-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        },
+        {
+          "colorspace": "rec709",
+          "range": "full-range",
+          "colors_tested": 16,
+          "max_component_error": 1
+        }
+      ]
+    }
+  ],
+  "interpretation": "Explicit-format color tests pass for BGR24/RGB24. GStreamer selects NV12M (NM12), so initial NV12-only correction did not apply; extending the candidate to NV12M fixes the tested solid-red negotiation path. No default or installed module changed."
+}

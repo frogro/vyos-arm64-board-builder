@@ -76,3 +76,15 @@ component, though capability checks and tests can be reused.
 The new rkvdec decoder primarily serves compressed video playback. A normal raw
 HDMI capture-to-encoder KVM path does not need video decoding. No D code, default,
 workflow or live configuration is changed by this audit.
+
+## Shared RGA layouts (F and D)
+
+NV12 and NV12M are memory layouts of the same semi-planar YUV 4:2:0 representation,
+not different color spaces. Select the conversion matrix from explicitly
+negotiated colorimetry/range, independently of contiguous versus separate-plane
+storage. The common experimental patch chain now has an optional third patch,
+`sunshine/rga-investigation/0003-experimental-rgb-layouts.patch`, for RGB24/BGR24
+and NV12M. It retains the verified hardware-revision gate and existing defaults.
+No board name is added. F's 32-bit reuse test and D's RGB tests have passed on
+ROCK; other revisions, default/unknown metadata, scaling and rotation remain
+outside that evidence. This is shared experimental support, not release activation.

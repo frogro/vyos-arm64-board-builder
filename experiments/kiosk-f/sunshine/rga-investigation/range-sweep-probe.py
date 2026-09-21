@@ -41,6 +41,7 @@ def main():
                         help='Add gray ramps and compare against the requested range')
     parser.add_argument('--random-colors', action='store_true',
                         help='Test 120 reproducible RGB colors against the requested range')
+    parser.add_argument('--input-format', choices=['XR24', 'BGR3', 'RGB3'], default='XR24')
     args = parser.parse_args()
     colors = COLORS + ([(v, v, v) for v in (16, 32, 64, 96, 128, 160, 192, 224)] if args.extended else [])
     if args.random_colors:
@@ -58,22 +59,24 @@ def main():
     info = run(['-d', device, '--info'])
     if 'Memory-to-Memory Multiplanar' not in info or 'Streaming' not in info:
         raise RuntimeError('Device lacks required mem2mem/streaming capabilities')
-    for option, fourcc in [('--list-formats-out', 'XR24'), ('--list-formats', 'NV12')]:
+    for option, fourcc in [('--list-formats-out', args.input_format), ('--list-formats', 'NV12')]:
         if fourcc not in run(['-d', device, option]):
             raise RuntimeError(f'Device lacks {fourcc}')
-    report = {'device': device, 'width': WIDTH, 'height': HEIGHT, 'tests': []}
+    report = {'device': device, 'width': WIDTH, 'height': HEIGHT, 'input_format': args.input_format, 'tests': []}
     if args.random_colors:
         report['random_seed'] = 20260921
     passed = True
     with tempfile.TemporaryDirectory(prefix='kiosk-rga-colors-') as tmp:
         source = Path(tmp) / 'bars.bgr0'
         target = Path(tmp) / 'bars.nv12'
-        row = b''.join(bytes((b, g, r, 0))*stripe for r, g, b in colors)
+        row = b''.join(bytes((r, g, b) if args.input_format == 'RGB3' else
+                             (b, g, r) if args.input_format == 'BGR3' else
+                             (b, g, r, 0))*stripe for r, g, b in colors)
         source.write_bytes(row*HEIGHT)
         for space, kr, kb, output_range in [(s,k,b,q) for s,k,b in [('smpte170m', .299, .114), ('rec709', .2126, .0722)] for q in ['lim-range','full-range']]:
             fmt = f'width={WIDTH},height={HEIGHT},'
             output = run(['-d', device,
-                          '--set-fmt-video-out=' + fmt + 'pixelformat=XR24,colorspace=' + space + ',quantization=full-range',
+                          '--set-fmt-video-out=' + fmt + 'pixelformat=' + args.input_format + ',colorspace=' + space + ',quantization=full-range',
                           '--set-fmt-video=' + fmt + 'pixelformat=NV12,colorspace=' + space + ',quantization=' + output_range,
                           '--get-fmt-video', '--stream-out-mmap=3', '--stream-mmap=3',
                           '--stream-count=1', '--stream-poll',
