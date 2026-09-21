@@ -1,0 +1,126 @@
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -10,6 +10,7 @@
+  * Copyright (C) 2011 Samsung Electronics Co., Ltd.
+  */
+ 
++#include <dt-bindings/reset/rockchip,rk3588-cru.h>
+ #include <linux/clk.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -29,6 +30,30 @@
+ #include "hantro_hw.h"
+ 
+ #define DRIVER_NAME "hantro-vpu"
++
++/* Diagnostic only: bit 0/1 core, bit 2/3 BIU; -1 retains normal handling. */
++static int vyarm_test_remove_reset_mask = -1;
++module_param(vyarm_test_remove_reset_mask, int, 0444);
++MODULE_PARM_DESC(vyarm_test_remove_reset_mask,
++                "TEST ONLY: RK3588 AV1 remove reset mask, -1 normal, 0..15 split");
++
++static int vyarm_test_reset(struct hantro_dev *vpu, bool assert, unsigned int mask)
++{
++	int i, ret;
++
++	if (!vpu->vyarm_test_split_resets)
++		return assert ? reset_control_assert(vpu->resets) :
++				reset_control_deassert(vpu->resets);
++	for (i = 0; i < 4; i++) {
++		if (!(mask & BIT(i)))
++			continue;
++		ret = assert ? reset_control_assert(vpu->vyarm_test_resets[i]) :
++			       reset_control_deassert(vpu->vyarm_test_resets[i]);
++		if (ret)
++			return ret;
++	}
++	return 0;
++}
+ 
+ int hantro_debug;
+ module_param_named(debug, hantro_debug, int, 0644);
+@@ -1092,9 +1117,41 @@
+ 			return PTR_ERR(vpu->clocks[0].clk);
+ 	}
+ 
+-	vpu->resets = devm_reset_control_array_get_optional_exclusive(&pdev->dev);
+-	if (IS_ERR(vpu->resets))
+-		return PTR_ERR(vpu->resets);
++	if (vyarm_test_remove_reset_mask >= 0 &&
++	    of_device_is_compatible(pdev->dev.of_node, "rockchip,rk3588-av1-vpu")) {
++		static const u32 ids[] = { SRST_A_AV1, SRST_P_AV1,
++			SRST_A_AV1_BIU, SRST_P_AV1_BIU };
++		struct of_phandle_args args;
++
++		if (vyarm_test_remove_reset_mask > 15 ||
++		    reset_control_get_count(&pdev->dev) != 4)
++			return -EINVAL;
++		/* Validate the exact reset layout before any reset operation. */
++		for (i = 0; i < 4; i++) {
++			ret = of_parse_phandle_with_args(pdev->dev.of_node,
++				"resets", "#reset-cells", i, &args);
++			if (ret)
++				return ret;
++			ret = args.args_count == 1 && args.args[0] == ids[i] &&
++				of_device_is_compatible(args.np, "rockchip,rk3588-cru") ? 0 : -EINVAL;
++			of_node_put(args.np);
++			if (ret)
++				return ret;
++		}
++		for (i = 0; i < 4; i++) {
++			vpu->vyarm_test_resets[i] = __devm_reset_control_get(
++				&pdev->dev, NULL, i, RESET_CONTROL_EXCLUSIVE);
++			if (IS_ERR(vpu->vyarm_test_resets[i]))
++				return PTR_ERR(vpu->vyarm_test_resets[i]);
++		}
++		vpu->vyarm_test_split_resets = true;
++		dev_info(vpu->dev, "VYARM_RESET split mode remove mask=%d\n",
++			 vyarm_test_remove_reset_mask);
++	} else {
++		vpu->resets = devm_reset_control_array_get_optional_exclusive(&pdev->dev);
++		if (IS_ERR(vpu->resets))
++			return PTR_ERR(vpu->resets);
++	}
+ 
+ 	num_bases = vpu->variant->num_regs ?: 1;
+ 	vpu->reg_bases = devm_kcalloc(&pdev->dev, num_bases,
+@@ -1169,7 +1226,7 @@
+ 	pm_runtime_enable(vpu->dev);
+ 
+ 	dev_info(vpu->dev, "VYARM_PM probe: before reset deassert\n");
+-	ret = reset_control_deassert(vpu->resets);
++	ret = vyarm_test_reset(vpu, false, 15);
+ 	dev_info(vpu->dev, "VYARM_PM probe: reset deassert returned %d\n", ret);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to deassert resets\n");
+@@ -1236,7 +1293,7 @@
+ err_pm_disable_assert_reset:
+ 	pm_runtime_dont_use_autosuspend(vpu->dev);
+ 	pm_runtime_disable(vpu->dev);
+-	reset_control_assert(vpu->resets);
++	vyarm_test_reset(vpu, true, 15);
+ 	return ret;
+ err_pm_disable:
+ 	pm_runtime_dont_use_autosuspend(vpu->dev);
+@@ -1266,7 +1323,9 @@
+ 	pm_runtime_disable(vpu->dev);
+ 	dev_info(vpu->dev, "VYARM_PM remove: after runtime disable\n");
+ 	dev_info(vpu->dev, "VYARM_PM remove: before reset assert\n");
+-	reset_control_assert(vpu->resets);
++	if (vyarm_test_reset(vpu, true, vpu->vyarm_test_split_resets ?
++			     vyarm_test_remove_reset_mask : 15))
++		dev_err(vpu->dev, "VYARM_RESET remove reset operation failed\n");
+ 	dev_info(vpu->dev, "VYARM_PM remove: after reset assert\n");
+ }
+ 
+--- a/drivers/media/platform/verisilicon/hantro.h
++++ b/drivers/media/platform/verisilicon/hantro.h
+@@ -202,6 +202,8 @@
+ 	struct device *dev;
+ 	struct clk_bulk_data *clocks;
+ 	struct reset_control *resets;
++	bool vyarm_test_split_resets;
++	struct reset_control *vyarm_test_resets[4];
+ 	void __iomem **reg_bases;
+ 	void __iomem *enc_base;
+ 	void __iomem *dec_base;
