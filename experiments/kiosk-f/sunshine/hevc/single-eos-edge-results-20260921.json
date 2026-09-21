@@ -1,0 +1,130 @@
+[
+  {
+    "case": "h264-0-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 0
+  },
+  {
+    "case": "h264-0-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 0
+  },
+  {
+    "case": "h264-1-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "h264-1-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 3,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "h264-2-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "h264-2-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 3,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "h264-5-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "h264-5-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 5,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-0-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 0
+  },
+  {
+    "case": "hevc-0-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 0
+  },
+  {
+    "case": "hevc-1-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-1-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 3,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-2-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-2-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 3,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-5-drain",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 0,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  },
+  {
+    "case": "hevc-5-cancel",
+    "exit_code": 0,
+    "completed_cycles": 3,
+    "invalid_pool_warnings": 5,
+    "leaked_group_warnings": 0,
+    "misc_group_cleanup": 1
+  }
+]

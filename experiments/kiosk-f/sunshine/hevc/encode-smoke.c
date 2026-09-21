@@ -1,10 +1,11 @@
 /* SPDX-License-Identifier: MIT
  * Standalone encoder bitstream probe, not a Sunshine latency benchmark.
- * Usage: encode-smoke ENCODER OUTPUT [CYCLES]
+ * Usage: encode-smoke ENCODER OUTPUT [CYCLES [FRAMES [drain|cancel]]]
  * Multiple cycles reopen the codec in one process and overwrite OUTPUT.
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
 
@@ -29,7 +30,7 @@ static int drain(AVCodecContext *ctx, AVPacket *packet, FILE *out) {
     return count;
 }
 
-static int encode_once(char **argv) {
+static int encode_once(char **argv, int frames, int flush) {
     const AVCodec *codec = avcodec_find_encoder_by_name(argv[1]);
     if (!codec) { fprintf(stderr, "Encoder unavailable\n"); return 1; }
     AVCodecContext *ctx = avcodec_alloc_context3(codec);
@@ -54,7 +55,7 @@ static int encode_once(char **argv) {
     FILE *out = fopen(argv[2], "wb");
     if (!out) return 1;
     int packets = 0;
-    for (int n = 0; n < 120; n++) {
+    for (int n = 0; n < frames; n++) {
         check(av_frame_make_writable(frame), "writable");
         /* Limited-range gray bars move every frame; neutral chroma. */
         for (int y = 0; y < ctx->height; y++)
@@ -68,25 +69,39 @@ static int encode_once(char **argv) {
         check(avcodec_send_frame(ctx, frame), "send");
         packets += drain(ctx, packet, out);
     }
-    check(avcodec_send_frame(ctx, NULL), "flush");
-    packets += drain(ctx, packet, out);
+    if (flush) {
+        check(avcodec_send_frame(ctx, NULL), "flush");
+        packets += drain(ctx, packet, out);
+    }
     if (fclose(out)) return 1;
-    fprintf(stderr, "%s: 120 input frames, %d packets\n", argv[1], packets);
+    fprintf(stderr, "%s: %d input frames, %d packets (%s)\n", argv[1], frames, packets,
+            flush ? "drain" : "cancel");
     av_packet_free(&packet); av_frame_free(&frame); avcodec_free_context(&ctx);
-    return packets == 120 ? 0 : 1;
+    return (flush ? packets == frames : packets <= frames) ? 0 : 1;
 }
 
 int main(int argc, char **argv) {
-    if (argc != 3 && argc != 4) return 2;
+    if (argc < 3 || argc > 6) return 2;
     int cycles = 1;
-    if (argc == 4) {
+    if (argc >= 4) {
         char *end = NULL;
         long value = strtol(argv[3], &end, 10);
         if (!*argv[3] || *end || value < 1 || value > 100) return 2;
         cycles = (int)value;
     }
+    int frames = 120, flush = 1;
+    if (argc >= 5) {
+        char *end = NULL;
+        long value = strtol(argv[4], &end, 10);
+        if (!*argv[4] || *end || value < 0 || value > 600) return 2;
+        frames = (int)value;
+    }
+    if (argc == 6) {
+        if (!strcmp(argv[5], "cancel")) flush = 0;
+        else if (strcmp(argv[5], "drain")) return 2;
+    }
     for (int n = 0; n < cycles; n++) {
-        if (encode_once(argv)) return 1;
+        if (encode_once(argv, frames, flush)) return 1;
         fprintf(stderr, "Completed cycle %d/%d\n", n + 1, cycles);
     }
     return 0;

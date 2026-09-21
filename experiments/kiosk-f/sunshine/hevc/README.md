@@ -128,3 +128,25 @@ Sunshine. Before promoting it: validate zero/short input and interrupted session
 check error/timeout handling and remaining buffer cleanup, rebuild actual Sunshine,
 then exercise a real Moonlight reconnect. No decoder/RGA or default workflow
 change is involved. The running kiosk remained untouched and active.
+
+### Edge cases and cancellation, 2026-09-21
+
+The smoke probe now accepts optional CYCLES FRAMES drain|cancel. Tested H264/HEVC,
+0/1/2/5 input frames, drain or direct close, three cycles in each process (48
+sessions). All processes terminated within their 12-second bounds and returned
+success for the requested packet-count semantics. Every drained case had zero
+invalid-pool warnings. **Direct close with pending frames still triggers invalid
+pool warnings** for both codecs. Thus the EOS patch fixes tested draining, not
+cancellation, and must not yet be promoted as a general Sunshine cleanup fix.
+See single-eos-edge-results-20260921.json. Exit status alone is insufficient.
+
+The remaining `cleaning misc group` message was checked in pinned MPP's
+mpp/base/mpp_buffer_impl.c, mpp_buffer_service_deinit: it is the normal legacy
+misc-group cleanup path. The separate `cleaning leaked group` branch identifies
+remaining groups; that message was absent in these tests. Therefore misc cleanup
+alone is not a diagnosed leak. This does not prove that long-running RSS is flat.
+
+Next ownership audit must cover queued frames on cancellation: MPP destruction
+can free KEY_INPUT_FRAME while FFmpeg still retains it in frame_list. Do not
+silence warnings, blindly reorder deinit, or drop references without proving
+which buffers remain owned by the caller. No production patch applied.
