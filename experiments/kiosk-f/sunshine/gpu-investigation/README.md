@@ -33,3 +33,15 @@ backend. The plain EGL probe above is already surfaceless and passes.
 fallback to be detected rather than treating a rendered page as acceleration.
 The disposable probe used --no-sandbox only in its network-disabled container;
 this must not become a production kiosk policy.
+
+## Chromium with authenticated X11 access
+
+`chromium-probe.sh` shares the live container's network/IPC namespace for the
+abstract X socket and copies its Xauthority into a temporary read-only mount.
+It grants the sole discovered render node and its numeric group, runs as kiosk,
+and uses a temporary browser profile. The live browser/config is not changed.
+Result on the HEVC candidate: `ANGLE (Mesa, llvmpipe (LLVM 19.1.7 128 bits),
+OpenGL ES 3.2)`, red pixel correct. Script correctly returns failure for software
+renderers. Current Xorg explicitly uses AccelMethod none. Thus render-node access
+alone is insufficient for this X11/ANGLE path. A controlled glamor/Xorg test with
+independent rollback is still required; no production flag was changed.
