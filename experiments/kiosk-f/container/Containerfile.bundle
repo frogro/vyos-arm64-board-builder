@@ -1,0 +1,16 @@
+# Runtime assembly over an explicitly selected, previously validated codec image.
+# Use an immutable image ID/digest. This does not select hardware by board name.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+COPY start-kiosk kiosk-session kiosk-session.py kiosk-display.py kiosk-sunshine.py kiosk-graphics.py /usr/local/bin/
+COPY xorg.conf /etc/X11/xorg.conf
+COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
+COPY input-test.html /opt/kiosk/input-test.html
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local/bin/kiosk-session.py /usr/local/bin/kiosk-display.py /usr/local/bin/kiosk-sunshine.py /usr/local/bin/kiosk-graphics.py \
+ && command -v chromium && command -v Xorg && command -v xinput && command -v sunshine \
+ && python3 -m py_compile /usr/local/bin/kiosk-*.py \
+ && bash -n /usr/local/bin/start-kiosk
+ENV KIOSK_GRAPHICS=software
+# /state is supplied by deployment. Never copy browser state, credentials or pairings.

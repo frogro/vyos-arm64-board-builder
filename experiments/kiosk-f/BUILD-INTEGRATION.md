@@ -36,3 +36,18 @@ provisioning, complete board kernel feature selection, actual full image build,
 first-install/update boot validation, and a dedicated image-release workflow.
 These changes wire the host/CLI fixes; they do not claim all of F is finished.
 No live CLI package replacement was performed by this integration change.
+
+## Combined runtime layer
+
+`container/Containerfile.bundle` assembles current startup, display/touch,
+Sunshine policy helpers and defaults over an explicitly selected codec image.
+Pass BASE_IMAGE as an immutable image ID/digest and SOURCE_REVISION as the source
+commit, with container/ as context. No host devices, saved configuration or state
+are copied. Graphics defaults to software; explicit auto remains a deployment
+choice with separate scoped device grants. The same layer is usable over other
+compatible SBC codec images; it performs no board-name dispatch.
+
+This consolidates previously separate helper layers; it does not yet make the
+experimental codec base independently reproducible from a public registry or
+complete offline first-install/update image provisioning. Do not call this a
+finished full F image pipeline.
