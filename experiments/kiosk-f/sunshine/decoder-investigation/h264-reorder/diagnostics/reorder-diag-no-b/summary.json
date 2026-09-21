@@ -1,0 +1,44 @@
+{
+  "scope": "whole disposable browser + Weston + probe cgroup; 100% = one CPU core",
+  "warmupSeconds": 5,
+  "runs": [
+    {
+      "run": "1-h264",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 8,
+      "elapsedMs": 31146,
+      "steadySeconds": 24.256,
+      "cpuOneCorePercent": 56.28,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    },
+    {
+      "run": "1-hevc",
+      "state": "ended",
+      "width": 1920,
+      "height": 1080,
+      "total": 1800,
+      "dropped": 5,
+      "elapsedMs": 31153.699999999255,
+      "steadySeconds": 24.283,
+      "cpuOneCorePercent": 56.41,
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true"
+    }
+  ],
+  "medians": {
+    "h264": {
+      "cpuOneCorePercent": 56.28,
+      "dropped": 8,
+      "elapsedMs": 31146
+    },
+    "hevc": {
+      "cpuOneCorePercent": 56.41,
+      "dropped": 5,
+      "elapsedMs": 31153.699999999255
+    }
+  }
+}

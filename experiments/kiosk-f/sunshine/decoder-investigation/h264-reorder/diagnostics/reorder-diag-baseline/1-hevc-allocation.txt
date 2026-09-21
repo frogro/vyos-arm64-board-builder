@@ -1,0 +1,4 @@
+[69:193:0921/161727.266578:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:470] InitializeBackend(): Using a stateless API for profile: hevc main and fourcc: S265
+[69:193:0921/161727.273489:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:627] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP
+[69:193:0921/161727.288089:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:660] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12
+[69:193:0921/161727.288467:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1210] ContinueChangeResolution(): Requesting: 8 CAPTURE buffers of type V4L2_MEMORY_MMAP

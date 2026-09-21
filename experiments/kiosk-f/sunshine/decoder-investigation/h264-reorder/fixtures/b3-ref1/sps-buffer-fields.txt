@@ -1,0 +1,4 @@
+41          pic_order_cnt_type                                          1 = 0
+45          max_num_ref_frames                                      00101 = 4
+217         max_num_reorder_frames                                    011 = 2
+220         max_dec_frame_buffering                                 00101 = 4
