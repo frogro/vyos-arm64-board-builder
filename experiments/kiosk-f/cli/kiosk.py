@@ -8,7 +8,7 @@ import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 
-KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION'}
+KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS'}
 
 
 def environment(config):
@@ -18,7 +18,7 @@ def environment(config):
     if not isinstance(settings, dict) or set(settings) - (set(KEYS) | {'remote'}):
         raise ValueError('Unknown kiosk setting')
     if any(key in config.get('environment', {}) for key in KEYS.values()):
-        raise ValueError('Remove KIOSK_URL/KIOSK_OUTPUT/KIOSK_ROTATION environment overrides before using kiosk settings')
+        raise ValueError('Remove conflicting KIOSK_* environment overrides before using kiosk settings')
     url = settings.get('url')
     if not isinstance(url, str) or not url:
         raise ValueError('Kiosk URL is required')
@@ -41,6 +41,10 @@ def environment(config):
     if not isinstance(output, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:-]*', output):
         raise ValueError('Invalid kiosk output name')
     values = {'url': url, 'output': output, 'rotation': rotation}
+    if 'graphics' in settings:
+        if settings['graphics'] not in ('software', 'auto'):
+            raise ValueError('Kiosk graphics must be software or auto')
+        values['graphics'] = settings['graphics']
     # Quadlet moves these into systemd ExecStart, where both specifiers (%)
     # and variable substitution ($) must remain literal URL characters.
     return [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'

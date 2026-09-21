@@ -90,3 +90,18 @@ separately, no live replacement. Browser decoding remains a separate gap:
 current test2 disables ROCKCHIP_MPP_RKVDEC2 and VIDEO_ROCKCHIP_VDEC. Enabling an
 encoder or passing EGL does not establish video decode; evaluate decoder driver,
 matching DT nodes and browser/userspace support before next kernel candidate.
+
+## Decoder and graphics follow-up, 2026-09-21 overnight
+
+GPU startup and deliberate failure recovery were live-validated (aae9bbf).
+Added source CLI graphics software|auto with completion/help and validation;
+56 kiosk tests pass. The new leaf is not yet installed on the live router.
+Local Docker package build still needs the user's offered local sudo session.
+
+Decoder audit: test2 source exposes ROCKCHIP_MPP_RKVDEC2 (VDPU381 H264/HEVC/VP9)
+under the vendor MPP driver, disabled by default; optional DEVFREQ is separate.
+The examined rk3588*.dtsi files contain RKVDEC power-domain/QoS references but
+no rkvdec decoder node. Those power references alone do not instantiate a decoder.
+Enabling Kconfig alone is not a complete solution: inspect the final compiled
+DTB and any custom overlay first, then arrange matching MPP decoder bindings and
+userspace. No decoder kernel change or browser hardware-decode success claimed.

@@ -129,3 +129,16 @@ command. Initial automated candidate was discarded and no changes committed.
 Testing continued in a fresh interactive session; no pass claim is based on that
 script's exit code. Rollback is documented as explicit interactive commands,
 not the discarded automated script.
+
+## Optional GPU rendering (source addition, 2026-09-21)
+
+The next package adds `set container name <name> kiosk graphics auto|software`.
+Default remains software. `auto` requires the updated startup/helper image and
+explicit native container grants for the appropriate render device. The CLI
+itself grants no devices and does not pick boards or GPUs. Help/completion lists
+both values; incompatible legacy KIOSK_GRAPHICS overrides are rejected.
+Absent graphics settings generate no additional environment entry, preserving
+existing container behavior. Configuration persistence uses native commit/save;
+startup writes only runtime Xorg configuration, never saved values. The startup
+and fallback have been live-tested; this new CLI leaf still needs package/schema
+build and live CLI validation before use on the router.

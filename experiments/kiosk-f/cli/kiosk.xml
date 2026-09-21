@@ -44,6 +44,16 @@
         <constraintErrorMessage>Choose 0, 90, 180 or 270 degrees</constraintErrorMessage>
       </properties>
     </leafNode>
+    <leafNode name="graphics">
+      <properties>
+        <help>Graphics acceleration (default software); updated kiosk image required</help>
+        <completionHelp><list>software auto</list></completionHelp>
+        <valueHelp><format>software</format><description>Use software display rendering</description></valueHelp>
+        <valueHelp><format>auto</format><description>Try GPU rendering using explicitly granted render devices; retry in software if initialization fails</description></valueHelp>
+        <constraint><regex>(software|auto)</regex></constraint>
+        <constraintErrorMessage>Choose software or auto; device grants remain separate container settings</constraintErrorMessage>
+      </properties>
+    </leafNode>
     <node name="remote"><properties><help>Sunshine remote access; compatible supervisor image required</help></properties><children>
       <leafNode name="access"><properties><help>Remote access (default disabled); changing this ends current streams</help><completionHelp><list>disabled enabled</list></completionHelp>
 <valueHelp><format>disabled</format><description>Stop Sunshine; local kiosk continues; Web UI unavailable</description></valueHelp>

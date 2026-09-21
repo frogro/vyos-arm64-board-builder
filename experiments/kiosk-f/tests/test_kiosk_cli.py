@@ -16,6 +16,15 @@ class KioskCLI(unittest.TestCase):
         self.assertEqual(result, ['Environment=KIOSK_URL="https://example.org/menu?a=1&b=%%20&c=$$HOME"',
                                  'Environment=KIOSK_OUTPUT="auto"', 'Environment=KIOSK_ROTATION="90"'])
 
+    def test_graphics_is_explicit_and_validated(self):
+        base = {'url': 'file:///opt/kiosk/input-test.html'}
+        self.assertFalse(any('KIOSK_GRAPHICS' in line for line in module.environment({'kiosk': base})))
+        for mode in ('software', 'auto'):
+            result = module.environment({'kiosk': {**base, 'graphics': mode}})
+            self.assertIn(f'Environment=KIOSK_GRAPHICS="{mode}"', result)
+        with self.assertRaises(ValueError):
+            module.environment({'kiosk': {**base, 'graphics': 'forced'}})
+
     def test_validation_before_generation(self):
         for setting in ({}, {'url': 'javascript:alert(1)'}, {'url': 'https://host/\nExecStart=bad'},
                         {'url': 'https://host/"bad'}, {'url': 'https://host/back\\slash'},
