@@ -208,3 +208,14 @@ cycles per codec in one process, sampling RSS and open file descriptor counts.
 Unit vyarm-cleanup-memory-test has CPUQuota150%, MemoryMax1G, RuntimeMaxSec500;
 per-codec deadline240 seconds. Results/logs under cleanup-candidate-20260921.
 At this commit the longer test is running; do not claim memory stability yet.
+
+Measured lifecycle test completed: 50 cycles per codec, 6,000 encoded frames per
+codec, both exit0, zero invalid-pool/leaked-group messages. Each process ran about
+54 seconds. After five warmup cycles H264 sampled RSS ranged 11,360–37,544 KiB
+and open FDs 8–26; HEVC 11,508–32,684 KiB and FDs7–28. Measurements sample different
+lifecycle phases. Ten-cycle-window peak RSS did not grow across the run (H264 had
+one transient higher peak); this supports bounded resource use over this short
+test, not a long-duration leak-free guarantee. Final files from the exact built
+image also passed independent 120-frame decode/reference checks. Raw measurements
+and bitstream results are committed as cleanup-image-*-results-20260921.json.
+No live deployment or real Moonlight session was performed.
