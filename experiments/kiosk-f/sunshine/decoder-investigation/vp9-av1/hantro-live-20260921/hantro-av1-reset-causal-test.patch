@@ -1,0 +1,29 @@
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -29,6 +29,13 @@
+ #include "hantro_hw.h"
+ 
+ #define DRIVER_NAME "hantro-vpu"
++
++/* Experimental causal probe only; never enable in an image recipe. */
++static bool vyarm_test_keep_av1_reset_deasserted;
++module_param_named(vyarm_test_keep_av1_reset_deasserted,
++                   vyarm_test_keep_av1_reset_deasserted, bool, 0444);
++MODULE_PARM_DESC(vyarm_test_keep_av1_reset_deasserted,
++                "TEST ONLY: omit final RK3588 AV1 remove reset assertion");
+ 
+ int hantro_debug;
+ module_param_named(debug, hantro_debug, int, 0644);
+@@ -1266,7 +1273,11 @@
+ 	pm_runtime_disable(vpu->dev);
+ 	dev_info(vpu->dev, "VYARM_PM remove: after runtime disable\n");
+ 	dev_info(vpu->dev, "VYARM_PM remove: before reset assert\n");
+-	reset_control_assert(vpu->resets);
++	if (vyarm_test_keep_av1_reset_deasserted &&
++	    of_device_is_compatible(pdev->dev.of_node, "rockchip,rk3588-av1-vpu"))
++		dev_info(vpu->dev, "VYARM_PM TEST: keeping AV1 resets deasserted\n");
++	else
++		reset_control_assert(vpu->resets);
+ 	dev_info(vpu->dev, "VYARM_PM remove: after reset assert\n");
+ }
+ 

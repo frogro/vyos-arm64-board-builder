@@ -1,0 +1,11 @@
+2026-09-22T00:35:43+02:00
+Linux vyos 6.18.50-vyos-f-test3 #1 SMP PREEMPT_DYNAMIC Mon Sep 21 13:48:05 CEST 2026 aarch64 GNU/Linux
+66e8f39313b4d96e077ca48e59815bf922de5fe5c78d768708994fe3fc8fab3d  /config/kiosk-test/kernel-test3/hantro-reset-causal/hantro-vpu.ko
+343cfe87cfe0192fa50a39d8f560eff8eccdd8829c5f4672e9c8fbfa065b259e  /config/kiosk-test/kernel-test3/hantro-reset-causal/fixtures/test-av1.webm
+b427fddf5f7f25119367de60ba234431ba2b9f2c87ba28400451b60f669772d8  /config/kiosk-test/kernel-test3/hantro-reset-causal/fixtures/test-long.obu
+vermagic:       6.18.50-vyos-f-test3 SMP preempt mod_unload modversions aarch64
+parm:           hevc_use_compression:Use reference frame compression for HEVC (bool)
+parm:           vyarm_test_keep_av1_reset_deasserted:TEST ONLY: omit final RK3588 AV1 remove reset assertion (bool)
+parm:           debug:Debug level - higher value produces more verbose messages (int)
+78d07b3207e76a06235001f8d16001d04c0c99fedd0fa8e3d8b3c89db49a631a [localhost/vyarm-kiosk:weston16-test3]
+349ba29d072c84692ffae03296999aba6f33e6c55a10fb52622725cfb53a5c9c [localhost/vyarm-kiosk:gst128-decoder-test-20260921]

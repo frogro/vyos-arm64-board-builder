@@ -1,0 +1,260 @@
+Sep 22 00:24:26 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:24:26 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:24:26 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:24:26 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:24:27 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:24:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:24:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:24:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:24:28 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:24:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:24:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:24:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:24:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:24:30 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:24:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:24:49 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:24:49 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:24:49 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:24:49 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:24:50 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:24:54 vyos kernel: rockchip-pm-domain fd8d8000.power-management:power-controller: failed to get ack on domain 'av1', val=0xa9eef
+Sep 22 00:25:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:25:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:25:28 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:25:28 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:25:29 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:25:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:25:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:25:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:25:30 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:25:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:25:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:25:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:25:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:25:32 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:25:33 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:25:34 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:25:34 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:25:34 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:25:34 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:25:35 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:25:36 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:25:36 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:25:36 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:25:36 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:25:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:27:13 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:27:13 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:27:13 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:27:13 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:34:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:35:14 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:35:14 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:35:14 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:35:14 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:37:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:37:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:37:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:37:30 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:37:30 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:37:31 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:37:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:37:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:37:32 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:37:32 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:37:37 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:37:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:37:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:37:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:37:42 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:37:57 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:38:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:38:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:38:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:38:12 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:38:42 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:39:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:39:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:39:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:39:12 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:40:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:41:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:41:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:41:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:41:12 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:43:12 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:45:24 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:45:24 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:45:24 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:45:24 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:47:59 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:48:20 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:48:20 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:48:20 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:48:20 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:48:43 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+Sep 22 00:49:03 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+Sep 22 00:49:03 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+Sep 22 00:49:03 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+Sep 22 00:49:03 vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM TEST: keeping AV1 resets deasserted
+Sep 22 00:51:15 vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert

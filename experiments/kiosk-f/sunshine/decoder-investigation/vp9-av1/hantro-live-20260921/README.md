@@ -187,3 +187,76 @@ No decode was attempted. Temporary probes and trace instance removed, modules
 unloaded, overrides restored; kiosk-test still running. No electrical supply
 measurement was made. Reset/BIU versus power-on sequencing remains the next
 causal investigation; do not treat this as a verified hardware or PSU defect.
+
+## Opt-in reset causal test, 2026-09-22 00:22–00:52 CEST test window
+
+Built a separate signed module with the existing PM-order backport and markers.
+The added module parameter `vyarm_test_keep_av1_reset_deasserted` defaults false,
+is read-only after load, and only affects rockchip,rk3588-av1-vpu remove.
+When enabled, it omits the final reset assertion. No image/autoload integration.
+This is a causal experiment, not a production-ready reset policy.
+
+Initial candidate: three clean cycles. Same binary with parameter=0: first
+cycle registered/removed, second failed device readiness with the AV1 ACK
+warning. Candidate parameter=1 again: five clean cycles. Results support the
+final reset assertion as a causal contributor. They do not isolate core versus
+BIU lines, prove all error/recovery paths, or qualify other SoCs.
+
+Three subsequent short decode runs: each 300/300 linear NV12 frame hashes match
+the existing FFmpeg reference. See reset-hash-comparison.json.
+
+Long fixture is the same five-second AV1 sample concatenated 24 times using
+FFmpeg stream copy: 119.999 seconds / 7200 frames, 1920x1080, 60fps. This exercises
+sustained/repeated use, not diverse AV1 bitstreams or 10-bit/film-grain conformance.
+
+Chromium + headless Weston GL, separate sandboxed processes: all three runs
+ended with 7200 total frames and V4L2VideoDecoder/platform=true. Drops:
+1023 (14.21%), 1096 (15.22%), 996 (13.83%). Mali-G610/Panfrost/ANGLE renderer.
+Original kiosk kept running. One brief stream-copy preparation and a failed
+Python-GI availability probe overlapped the browser series; these are practical
+live-system measurements, not controlled performance benchmarks. Temperature
+readings during playback reached approximately 89C; no CPU cooling device was
+listed, and frequency limits still showed the configured maxima. Thermal
+influence is not ruled out. Do not attribute all drops to a specific component.
+
+GStreamer same long stream, v4l2slav1dec -> NV12 -> fakesink(sync=false):
+7200 rendered, zero sink-dropped frames in each of three runs. Pipeline times
+35.914 / 36.152 / 36.120s (~199–200fps). Hardware decoding therefore has >60fps
+throughput for this fixture outside the browser output path. This does NOT
+prove Chromium's own decoder/pool path is equally fast. The ctypes helper reads
+GstBaseSink stats after EOS; it does not hash these long-run frames. `/usr/bin/time`
+on Podman measures the client, not aggregate container CPU: do not quote its
+CPU percentage as decoder CPU load. AV1 domain read off-0 after each run.
+
+See source crosscheck for vendor reset ownership. Keep this experimental until
+reset-line isolation, error recovery, reboot and other-board validation exist.
+
+Extended idle cycles: six clean register/remove/re-register cycles with 1, 5,
+15, 30, 60 and 120 second dwell both before and after remove. Every measured
+before/after power state was off-0. No ACK warning; each cycle verified a real
+AV1 device node, not just insmod exit status. See reset-idle-cycles.txt.
+
+An additional 120s browser run with --disable-gpu-vsync and
+--disable-frame-rate-limit did NOT report ended before the 150s probe deadline;
+last sampled page state was playing (hardware decoder still reported). No valid
+completed-run drop percentage is available. These flags are not an improvement
+established by this test and are not adopted. A subsequent intentional 15s
+probe closure completed and AV1 returned to off-0; full recovery playback follows.
+
+Patch replay check: applying the PM-order, stage-diagnostic and reset-causal
+patches in that order to pristine test3 hantro_drv.c produces exactly the
+compiled test source. Shell syntax and Python compilation checks passed.
+
+Final full recovery run after intentional early closure: ended, 7200 frames,
+923 dropped (12.82%), V4L2VideoDecoder/platform=true. Successful recovery does
+not resolve output pacing. Only ACK warning in this test window was the
+parameter=0 control at 00:24:54. Final live check ~00:51: no hantro_vpu or
+v4l2_jpeg loaded, all six overrides (null), AV1 off-0, only kiosk-test container
+running, GRUB next_entry empty. No reboot or persistent boot/image changes.
+
+Next: isolate the BIU reset lines from decoder-core resets in a separately
+reviewable test, then test error recovery/reboot before proposing an opt-in
+image patch. Preserve original reset handling for other compatibles. Browser
+output/pool performance remains separate; no new CLI/default is justified yet.
+The existing NUC Chromium build continued under its monitor during this test
+window; no restart was required (still unfinished).

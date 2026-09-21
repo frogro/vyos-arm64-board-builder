@@ -135,3 +135,32 @@ ThinkPad; wait for actual registered device; stop on any domain warning.
 Compare warning timestamps with remove stages; if outside them, instrument
 the built-in PM-domain idle direction/caller in a separate test kernel.
 A watchdog timer cannot recover a hard kernel hang; retain normal-boot fallback.
+
+
+### Reset assertion control experiment (2026-09-22)
+
+The original reset support commit ea71631b7129828c0da4f9d40ec172b7b2c24105
+was motivated by Allwinner H6 Hantro G2 reset lines:
+https://github.com/torvalds/linux/commit/ea71631b7129828c0da4f9d40ec172b7b2c24105
+It is not evidence that holding all four RK3588 AV1 resets across generic PM
+power-off/on is required or correct. Conversely our RK3588 results do not
+justify removing reset handling globally: other SoCs must retain their path.
+The upstream teardown-order patch remains a separate, attributed backport.
+The new keep-reset-deasserted option is a local causal experiment, default off,
+restricted by the RK3588 AV1 compatible, not an upstream patch or production fix.
+
+### Vendor AV1 reset ownership comparison
+
+Rockchip develop-6.1 inspected at 77168c8d5ab82399f65a80e9f807b50ba37cf483:
+https://github.com/rockchip-linux/kernel/blob/77168c8d5ab82399f65a80e9f807b50ba37cf483/drivers/video/rockchip/mpp/mpp_av1dec.c
+https://github.com/rockchip-linux/kernel/blob/77168c8d5ab82399f65a80e9f807b50ba37cf483/arch/arm64/boot/dts/rockchip/rk3588s.dtsi
+
+Vendor av1dec_reset requests PMU idle, asserts the two video resets, waits 5us,
+deasserts them, then leaves PMU idle. Its AV1 node declares only SRST_A_AV1 and
+SRST_P_AV1. Our mainline-style AV1 node additionally declares both AV1_BIU
+resets, and the Hantro array assertion holds all four across remove.
+This supports investigating reset ownership/BIU lines separately, but is NOT
+proof that blindly transplanting the vendor sequence into mainline is safe.
+The local opt-in test omits the entire final assertion; it cannot distinguish
+core-reset from BIU-reset effects. A subsequent targeted test must isolate
+those lines while retaining the other SoCs' reset behavior.
