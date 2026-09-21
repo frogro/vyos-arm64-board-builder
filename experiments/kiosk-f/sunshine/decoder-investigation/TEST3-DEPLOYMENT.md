@@ -41,3 +41,9 @@ identify actual video/media decoder pairs. Run explicit GStreamer stateless
 H.264/HEVC comparison fixtures (three process starts each) in the isolated image.
 No module unload/unbind experiment; previously reviewed PM/remove concerns remain.
 Chromium hardware decode is a later gate, not inferred from a GStreamer pass.
+
+Preparation completed at 12:29 UTC: initramfs service exit0, 42MiB; decoder,
+Panthor/firmware, network and root filesystem modules verified in archive.
+Version-specific boot artifacts and separate test3 menu/one-shot hook installed;
+both GRUB fragments pass syntax checking. next_entry is empty: test3 has **not**
+been selected or booted. Normal boot files/default remain unchanged.
