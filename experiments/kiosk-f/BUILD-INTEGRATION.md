@@ -102,3 +102,9 @@ root-owned Xorg runtime cache and kiosk-owned persistent /state/cache, with no
 cache permission warnings in the test interval. Original Quadlet/image restored
 and rollback timer stopped after testing. Bundle is available locally on ROCK;
 full board image and new CLI Debian package remain unbuilt.
+
+## Generic hardware support policy
+
+See [GENERIC-HARDWARE-APPROACH.md](GENERIC-HARDWARE-APPROACH.md) for the agreed
+capability-based F architecture, revision gates, Orange Pi 5 Plus candidate
+status and the distinction between experimental evidence and image integration.
