@@ -1,0 +1,22 @@
+{
+  "image": "88f2f3d742a0c3e5c72b19851ebb3ea0946900638ae7500cead3388bd072b3ac",
+  "resolution": "1080x1920",
+  "requested_fps": 60,
+  "bitrate_kbps": 8000,
+  "codec": "HEVC",
+  "client_decoder": "Intel VAAPI",
+  "actual_session_rga_success_log": "2026-09-21 09:02:48.539 Experimental V4L2 RGA conversion active (same-size BGR0 to NV12)",
+  "encrypted": true,
+  "metrics": [
+    "Incoming frame rate from network: 59.40 FPS",
+    "Decoding frame rate: 59.40 FPS",
+    "Rendering frame rate: 59.23 FPS",
+    "Host processing latency min/max/average: 24.2/165.2/28.3 ms",
+    "Frames dropped by your network connection: 0.00%",
+    "Frames dropped due to network jitter: 0.28%",
+    "Average network latency: 1 ms (variance: 0 ms)",
+    "Average decoding time: 1.97 ms"
+  ],
+  "rollback": "Original module restored, experimental container removed, original supervisor resumed, original binary SHA256 verified, temporary copied state and Xauthority deleted. Kiosk active.",
+  "limitations": "25s bounded session including startup. RGA success log records initial successful conversion, not per-frame counts. Geometry differs from previous padded HEVC trial, so not an A/B speed comparison. No user-verified physical touch, color or audio."
+}

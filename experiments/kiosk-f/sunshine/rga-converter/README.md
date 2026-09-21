@@ -31,3 +31,22 @@ These are local reproducible test dependencies, not published release artifacts.
 Actual Sunshine compilation and paired streaming validation are pending.
 Also pending: same-object geometry changes, injected timeout/error recovery,
 comparative CPU/latency measurements, complete metadata negotiation review.
+
+## Actual paired RGA + HEVC session
+
+Candidate image88f2f3d... compiled and completed a bounded Moonlight session at
+1080x1920/60requested/8Mbps, HEVC and client VAAPI. Server confirmed encryption
+and successful experimental RGA conversion during the actual client session.
+Client reported59.40incoming FPS,59.23rendered FPS,28.3ms average host latency
+with165.2ms maximum (includes startup),0.28%jitter drops. See JSON for limits;
+this is not comparable to prior differently padded1920x1080stream.
+
+Used a disposable candidate sharing existing network/IPC/Xauthority, RGA/MPP
+devices and a private copy of Sunshine state. First launch omitted
+XDG_CONFIG_HOME=/state and used empty container-private state, so no pairing
+was attempted; recreated with correct environment and existing pairing worked.
+Production supervisor paused only during the test. Independent180s rollback
+armed first; explicitly removed candidate, resumed original supervisor, restored
+original kernel module, verified original Sunshine binary and active kiosk,
+then stopped timer and deleted copied private state/Xauthority. No new port
+exposure, production image setting or identity changes.
