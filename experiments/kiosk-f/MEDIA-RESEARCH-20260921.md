@@ -96,3 +96,36 @@ https://chromium.googlesource.com/chromium/src/+/HEAD/docs/gpu/vaapi.md
 
 Next engineering tasks are RGA vendor-fix tracing and upstream decoder commit
 dependency audit. None of the researched paths is yet a validated live fix.
+
+## Chromium patch selection and official Chrome ARM64 (2026-09-21)
+
+User selected direct V4L2 first. Inspected JeffyCN/meta-rockchip tree
+59f7a466839011fdcd7324c9453b8cd242548fa2, chromium_152.0.7977 patch0001
+(stateful HEVC restoration),0002(V4L2 support), and chromium-%.bbappend.
+Patch0002 gates the legacy stateless backend/delegates under is_chromeos while
+supporting libv4l-rkmpp. This bundle is not a drop-in fix for our stateless
+upstream rkvdec path. Recipe includes --no-sandbox; do not adopt that default.
+The MPP wrapper requires a complete MPP decoder kernel, absent from our test2.
+https://github.com/JeffyCN/meta-rockchip/tree/59f7a466839011fdcd7324c9453b8cd242548fa2/dynamic-layers/recipes-browser/chromium/chromium_152.0.7977
+https://github.com/JeffyCN/libv4l-rkmpp
+
+Direct-path community reference pinned at
+2c67fd3a3fde501d3f90082ad7f1c849d4f2d6cc:
+https://github.com/dongioia/rock5bplus-rkvdec2
+Includes historical custom Chromium builds and mpv playback options. mpv is an
+external player, not proof for embedded HTML video. Current README and historical
+docs describe different generations; do not merge their success claims.
+
+Official Google help now lists ARM64 Linux support and ARM64 Debian packages:
+https://support.google.com/chrome/answer/95346?hl=de
+Official Chrome for Testing metadata queried2026-09-21 gives stable153.0.8010.52,
+revision1681091,linux-arm64:
+https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.52/linux-arm64/chrome-linux-arm64.zip
+https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json
+This is an additional isolated browser candidate, not installed/default and not
+proof of V4L2/HEVC support. Keep current Chromium153 and compare identical
+fixtures, actual decoder diagnostics and sandbox behavior. Ordinary browser
+extensions cannot add a missing native kernel decoder/backend.
+
+D remains in scope: full H265 transport/client path after successful local
+recordings, RGA fallback/status and optional CLI design. No profile replacement.
