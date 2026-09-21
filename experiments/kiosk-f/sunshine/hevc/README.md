@@ -219,3 +219,19 @@ test, not a long-duration leak-free guarantee. Final files from the exact built
 image also passed independent 120-frame decode/reference checks. Raw measurements
 and bitstream results are committed as cleanup-image-*-results-20260921.json.
 No live deployment or real Moonlight session was performed.
+
+## Paired Moonlight live test, 2026-09-21
+
+Two bounded real sessions (35s/25s client process limits) successfully connected
+and disconnected over the ROCK AP. Sunshine selected hevc_rkmpp for each actual
+client connection and enabled video encryption. Moonlight used Intel iHD VAAPI
+HEVC decoding on the ThinkPad. Requested1920x1080/60,8Mbps, no VSync/frame pacing,
+windowed. Client metrics are in moonlight-live-results-20260921.json.
+No invalid-frame-pool or leaked-group message appeared in the captured server
+log. Short tests showed network jitter and host timing spikes; these are not
+a controlled H264 comparison or a sustained60FPS result. Physical touch/audio
+and subjective image quality were not evaluated.
+The exact cleanup candidate binary was temporarily substituted under a600s
+rollback timer. Original binary SHA256 b8deb1f5f15348fb6504cc9188ac641d2fc7df4e8df09ff20eb071608e8eef22
+was explicitly restored and verified, timer cancelled, kiosk active. No native
+container image setting, persistent codec default, pairing or firewall changed.
