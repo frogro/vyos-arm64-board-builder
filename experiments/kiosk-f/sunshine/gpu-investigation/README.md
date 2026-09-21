@@ -45,3 +45,27 @@ OpenGL ES 3.2)`, red pixel correct. Script correctly returns failure for softwar
 renderers. Current Xorg explicitly uses AccelMethod none. Thus render-node access
 alone is insufficient for this X11/ANGLE path. A controlled glamor/Xorg test with
 independent rollback is still required; no production flag was changed.
+
+## Controlled live glamor test: SUCCESS (2026-09-21 01:18 UTC)
+
+Saved the runtime Quadlet, image ID, Xorg configuration and Sunshine state under
+/config/kiosk-test/builds/glamor-20260921 on the ROCK. Installed an independent
+systemd rollback timer (180 seconds) before changing anything. Temporarily added
+the render node and mounted an Xorg config changing only AccelMethod none to
+glamor; restarted the kiosk. Image, saved VyOS configuration and browser flags
+were unchanged.
+
+Xorg: `glamor X acceleration enabled on Mali-G610 (Panfrost)`.
+Disposable Chromium probe: `ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1)`,
+red pixel [255,0,0,255], exit 0. This confirms the X11/ANGLE rendering path with
+its explicit probe flags, not hardware video decoding or production browser
+performance. Production Chromium without probe flags remains to be checked.
+
+Saved Xorg log and probe log in the test directory, explicitly executed rollback,
+then cancelled the timer. Verified restored kiosk service active, Chromium running,
+1080x1920 portrait output, both ILITEK input devices enumerated, no failed systemd
+units. Physical touch accuracy and perceived output quality were not tested.
+
+Next: opt-in generic acceleration setting with scoped render-node selection,
+permissions and software fallback, plus production-browser diagnostics. Do not
+hardcode ROCK5B/card numbering into normal provisioning based on this one test.
