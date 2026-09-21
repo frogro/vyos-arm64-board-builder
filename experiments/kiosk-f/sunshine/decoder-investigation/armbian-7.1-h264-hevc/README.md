@@ -60,3 +60,17 @@ This comparison concerns video DECODE for Chromium, not Sunshine MPP ENCODE.
 For profile F it concerns kiosk video playback; for D only a playback/browser
 path using this decoder can benefit. It does not automatically accelerate
 HDMI capture or its H264/H265 encoder.
+
+## VP9 follow-up
+
+The inspected Armbian 7.1 image enables CONFIG_V4L2_VP9=m, but that helper is
+not proof of RK3588 VP9 support. At v7.1.7, rockchip,rk3588-vdec selects
+vdpu381_variant, whose coded formats are HEVC and H264 only. The existing
+rkvdec-vp9.c is byte-identical to test3 and belongs to the older supported
+variant; it is not wired to VDPU381. The pinned Armbian 7.1 patch inventory
+contains no VDPU381 VP9 addition. Thus this image/source comparison provides
+no additional RK3588 VP9 backend. Historical image runtime not tested here.
+
+The separate VDPU381 VP9 candidate and its conformance limits remain described
+in ../vp9-av1/RESEARCH-20260921.md. Follow with Profile0 8-bit reference tests,
+then Chromium, before Profile2/NV15. AV1-IOMMU test4 does not add VP9 support.
