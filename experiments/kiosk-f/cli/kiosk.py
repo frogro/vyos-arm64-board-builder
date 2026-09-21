@@ -3,6 +3,9 @@
 No service lifecycle, network changes, configuration writes or shell execution.
 """
 import re
+import os
+import stat
+from pathlib import Path
 from urllib.parse import urlsplit
 
 KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION'}
@@ -42,3 +45,30 @@ def environment(config):
     # and variable substitution ($) must remain literal URL characters.
     return [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
             for key, value in values.items()]
+
+
+def resolve_input(source):
+    node = Path(source).resolve(strict=True)
+    info = node.stat()
+    if not re.fullmatch(r'/dev/input/event[0-9]+', str(node)) or not stat.S_ISCHR(info.st_mode) or os.major(info.st_rdev) != 13:
+        raise ValueError('Stable input source must resolve to an evdev character device')
+    return str(node)
+
+
+def devices(config, resolve=resolve_input):
+    """Resolve selected kiosk inputs at generation; never modify saved config."""
+    result, destinations = [], set()
+    for item in config.get('device', {}).values():
+        source, destination = item['source'], item['destination']
+        if ('kiosk' in config and
+                re.fullmatch(r'/dev/input/by-(?:id|path)/[^/\s:%]+', source) and
+                re.fullmatch(r'/dev/input/event[0-9]+', destination)):
+            try:
+                destination = resolve(source)
+            except (OSError, ValueError) as error:
+                raise ValueError(f'Cannot resolve selected kiosk input {source}: {error}') from error
+        if 'kiosk' in config and destination in destinations:
+            raise ValueError(f'Conflicting kiosk device destination: {destination}')
+        destinations.add(destination)
+        result.append((source, destination))
+    return result

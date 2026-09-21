@@ -24,6 +24,8 @@ EXTENDED_NETWORK="${EXTENDED_NETWORK:-no}"
 TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
 BUILD_PROFILE="${BUILD_PROFILE:-base}"
 KVM_OVER_IP="${KVM_OVER_IP:-no}"
+KIOSK_F="${KIOSK_F:-no}"
+KIOSK_F_GPU_FIRMWARE="${KIOSK_F_GPU_FIRMWARE:-none}"
 KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
 KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
 KVM_HID_GADGET="${KVM_HID_GADGET:-no}"
@@ -39,6 +41,10 @@ if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$KVM_HARDWARE_SELECTION"
 fi
+
+# F is opt-in on its development branch. Existing workflow defaults are unchanged.
+[[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || { echo 'Invalid KIOSK_F' >&2; exit 1; }
+[[ "$KIOSK_F_GPU_FIRMWARE" == none || "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]] || exit 1
 
 SECTOR_SIZE=512
 
@@ -163,7 +169,7 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
 fi
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" ]]; then
     [[ -x "$KVM_CLI_INSTALLER" ]] ||
         die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
@@ -489,10 +495,10 @@ mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
-    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER"
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER"
+    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F"
 fi
 
 if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
@@ -590,6 +596,19 @@ python3 "$SYSTEM_IMAGE_DTB_PATCHER" \
     "$SQUASH_ROOT"
 
 echo
+if [[ "$KIOSK_F" == yes ]]; then
+    echo "===== STAGING PROFILE F HOST DEPENDENCIES ====="
+    firmware_args=()
+    if [[ "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]]; then
+        firmware_args+=(--panthor-arch10-8)
+    elif grep -Eq '^CONFIG_DRM_PANTHOR=[ym]$' "$KERNEL_ARTIFACTS/kernel.config"; then
+        die "F Panthor build requires an explicit supported GPU firmware selection"
+    fi
+    python3 "$ROOT/experiments/kiosk-f/host/install.py" --rootfs "$SQUASH_ROOT" \
+        --cache "$ROOT/cache/kiosk-f-firmware" "${firmware_args[@]}"
+    bash "$ROOT/experiments/kiosk-f/host/protect-grub-dtb.sh" "$SQUASH_ROOT" "$BOOT_FDT_FILE"
+fi
+
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
 
 [[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||

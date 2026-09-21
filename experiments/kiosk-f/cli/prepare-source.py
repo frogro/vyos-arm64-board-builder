@@ -31,10 +31,10 @@ def prepare(root):
         raise ValueError('Unexpected or already patched source tree')
     anchor = '          <leafNode name="allow-host-pid">'
     checks = [
-        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment\nfrom vyos import kiosk_remote\n'),
+        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment, devices as kiosk_devices\nfrom vyos import kiosk_remote\n'),
         ('        for name, container_config in container[\'name\'].items():\n            # Container image',
          '        for name, container_config in container[\'name\'].items():\n'
-         '            try:\n                kiosk_environment(container_config)\n                kiosk_remote.policy(container_config)\n                kiosk_remote.verify_image(container_config)\n'
+         '            try:\n                kiosk_environment(container_config)\n                kiosk_devices(container_config)\n                kiosk_remote.policy(container_config)\n                kiosk_remote.verify_image(container_config)\n'
          '            except ValueError as error:\n                raise ConfigError(f\'Kiosk "{name}": {error}\') from error\n'
          '            # Container image'),
         ("    if 'health_check' in container_config:\n", "    out.extend(kiosk_environment(container_config))\n\n    if 'health_check' in container_config:\n"),
@@ -45,6 +45,13 @@ def prepare(root):
         if code.count(old) != 1:
             raise ValueError('Container owner changed; review required: ' + old[:65])
         code = code.replace(old, new)
+    device_old = """        for dev, dev_config in container_config['device'].items():
+            source_dev = dev_config['source']
+            dest_dev = dev_config['destination']
+"""
+    if code.count(device_old) != 1:
+        raise ValueError('Container device generation changed; review required')
+    code = code.replace(device_old, "        for source_dev, dest_dev in kiosk_devices(container_config):\n")
     extra = [
         ("    for name in container.get('name', []):\n",
          "    previous = conf.get_config_dict(base, effective=True, key_mangling=('-', '_'),\n"

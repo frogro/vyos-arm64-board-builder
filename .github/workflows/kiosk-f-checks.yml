@@ -1,0 +1,19 @@
+name: Experimental kiosk F checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/kiosk-profile-f]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate isolated F changes and existing profile contracts
+        run: |
+          python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
+          python3 tests/test-kiosk-host-fixes.py
+          python3 tests/test-grub-board-dtb-persistence.py
+          python3 tests/test-vyos-1x-profile.py
+          bash -n tools/assemble-board-image.sh tools/install-kvm-cli.sh experiments/kiosk-f/host/protect-grub-dtb.sh

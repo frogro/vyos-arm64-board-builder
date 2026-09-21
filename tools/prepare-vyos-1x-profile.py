@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Add profile sources before the unmodified upstream generation/build targets."""
 import argparse
+import importlib.util
 import hashlib
 import json
 from pathlib import Path
@@ -55,8 +56,8 @@ def restore_operator_runner_install(source):
             'chmod u+s /usr/bin/vyos-op-run || exit 1\n', 1)
     return postinst, script
 
-def prepare(source, version, kvm, tailscale=False):
-    if not kvm and not tailscale:
+def prepare(source, version, kvm, tailscale=False, kiosk=False):
+    if not kvm and not tailscale and not kiosk:
         return None
     payload = {}
     profiles = []
@@ -75,8 +76,17 @@ def prepare(source, version, kvm, tailscale=False):
     if len(re.findall(pattern, data)) != 1:
         raise ValueError('Upstream package version rule changed; review required')
     runner_postinst, runner_postinst_text = restore_operator_runner_install(source)
-    digest = recipe(payload)
+    if kiosk:
+        profiles.append('kiosk-f')
+    recipe_files = dict(payload)
+    if kiosk:
+        recipe_files.update({str(p.relative_to(ROOT)): '' for p in
+                             (ROOT/'experiments/kiosk-f/cli').iterdir()
+                             if p.suffix in ('.py', '.xml')})
+    digest = recipe(recipe_files)
     suffix = 'kvm-tailscale' if kvm and tailscale else 'kvm' if kvm else 'tailscale'
+    if kiosk:
+        suffix = (suffix + '-kiosk') if kvm or tailscale else 'kiosk'
     output_version = version+'+'+suffix+'.'+digest[:12]
     destinations = [source/dst for dst in payload.values()]
     if any(p.exists() for p in destinations):
@@ -87,6 +97,11 @@ def prepare(source, version, kvm, tailscale=False):
         text = text.replace('/usr/local/libexec/vyos-kvm-', '/usr/libexec/vyos/vyos-kvm-')
         p = source/dst; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(text)
         p.chmod(0o755 if dst.startswith(('src/helpers/', 'src/conf_mode/', 'src/op_mode/')) else 0o644)
+    if kiosk:
+        spec = importlib.util.spec_from_file_location('kiosk_source', ROOT/'experiments/kiosk-f/cli/prepare-source.py')
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        helper.prepare(source)
     runner_postinst.write_text(runner_postinst_text)
     rules.write_text(re.sub(pattern, '\tdh_gencontrol -- -v'+output_version, data))
     metadata = {'schema':1, 'profiles':profiles, 'base_package_version':version,
@@ -97,4 +112,5 @@ def prepare(source, version, kvm, tailscale=False):
 if __name__ == '__main__':
     p=argparse.ArgumentParser(); p.add_argument('source',type=Path); p.add_argument('--version',required=True); p.add_argument('--kvm',action='store_true')
     p.add_argument('--tailscale',action='store_true')
-    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale)))
+    p.add_argument('--kiosk',action='store_true')
+    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale,a.kiosk)))

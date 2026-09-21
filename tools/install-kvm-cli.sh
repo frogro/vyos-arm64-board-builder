@@ -7,13 +7,13 @@ ARTIFACTS="$(readlink -f "${2:?Profile package artifact directory required}")"
 for item in dev proc sys run; do
     mountpoint -q "$ROOTFS/$item" || { echo "Missing chroot mount: $item" >&2; exit 1; }
 done
-python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" <<'PY'
+python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" "${5:-no}" <<'PY'
 import hashlib, json, shutil, subprocess, sys
 from pathlib import Path
 root, artifacts = map(Path,sys.argv[1:3])
-kvm, tailscale = sys.argv[3:5]
-assert kvm in ('yes','no') and tailscale in ('yes','no')
-expected = (['kvm-over-ip'] if kvm=='yes' else []) + (['tailscale-subnet-router'] if tailscale=='yes' else [])
+kvm, tailscale, kiosk = sys.argv[3:6]
+assert kvm in ('yes','no') and tailscale in ('yes','no') and kiosk in ('yes','no')
+expected = (['kvm-over-ip'] if kvm=='yes' else []) + (['tailscale-subnet-router'] if tailscale=='yes' else []) + (['kiosk-f'] if kiosk=='yes' else [])
 meta=json.loads((artifacts/'build.json').read_text())
 assert expected and meta['profiles']==expected, 'Package profiles do not match image selection'
 name=meta['package']; assert Path(name).name==name and name.endswith('.deb')
@@ -40,6 +40,7 @@ assert runner.stat().st_uid==0 and runner.stat().st_mode & 0o4000, 'Operator run
 owners=[]
 if kvm=='yes': owners.append((['service','kvm-over-ip','local-input','keyboard'],'service_kvm_over_ip'))
 if tailscale=='yes': owners.append((['service','tailscale','advertise-route'],'service_tailscale'))
+if kiosk=='yes': owners.append((['container','name','test','kiosk','rotation'],'container'))
 for path, handler in owners:
     code='from vyos.xml_ref import owner; assert owner('+repr(path)+', with_tag=True)=='+repr(handler)
     subprocess.run(['chroot',str(root),'python3','-c',code],check=True)
