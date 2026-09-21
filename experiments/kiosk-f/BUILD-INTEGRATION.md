@@ -51,3 +51,11 @@ This consolidates previously separate helper layers; it does not yet make the
 experimental codec base independently reproducible from a public registry or
 complete offline first-install/update image provisioning. Do not call this a
 finished full F image pipeline.
+
+ROCK bundle build completed (2026-09-21 02:23 UTC), source 3a8debd,
+base 33a15bdf6c0411cd8692420566e3781ccdd3a80ee5665a8f2eb9b107982398a7.
+Output localhost/vyarm-kiosk:runtime-bundle-20260921,
+ID e4130633aed1a04d033330f0c24757218078ebf524f36f0bf70732a89135eb8a.
+Build verified required binaries, Python compilation and shell syntax. Not yet
+activated; next test must remove old runtime-helper bind mounts in a temporary
+Quadlet so the bundled files are genuinely exercised, with independent rollback.
