@@ -60,3 +60,31 @@ separate V4L2/VP9/IOMMU lead.
 3. Compare appropriate upstream VSI IOMMU + DT changes and allocation needs.
 4. Continue VP9 separately; preserve production paths and gate by hardware
    capabilities/compatible revisions rather than board-name-only selection.
+
+## Teardown candidate found and compiled (~23:52)
+
+https://lists.openwall.net/linux-kernel/2026/07/22/2001
+Message-ID 20260722160820.2401-1-tharitt97@gmail.com, Tharit Tangkijwanichakul.
+Reviewed-by Benjamin Gaignard (Collabora), reply:
+https://lists.openwall.net/linux-kernel/2026/07/23/1947
+
+The report describes RK3588 SError in hantro_remove through power-domain access
+after reset assertion. Our test3 has exactly that ordering. The test backport
+moves PM cleanup before reset assertion in remove and the probe failure path.
+This is strong circumstantial evidence, not proof of our unlogged freeze.
+
+Validation: git apply --check against unmodified exact test3 source passes;
+external module rebuild with matching kernel output, MODVERSIONS, GCC15.2
+and -j2 passes. Modified only the external experimental source copy.
+Patch stored as hantro-pm-teardown-test.patch; not added to production kernel
+recipe, not signed/deployed/loaded in this follow-up. No claimed runtime fix.
+
+## Important correction to the format hypothesis
+
+Although native AV1 buffers are VT12/NV12_4L4, rk3588_vpu981_variant also
+registers rockchip_vpu981_postproc_fmts and hardware postprocessor operations.
+That list includes linear NV12 and NV15. Therefore absence of VT12 in Chromium
+does NOT alone prove a browser patch is needed. The next live probe should
+request video/x-raw,format=NV12 directly from v4l2slav1dec (without inserting
+videoconvert), inspect negotiated buffers, and retain Chromium verbose logs
+for the first-decode failure. Allocation pressure remains another candidate.

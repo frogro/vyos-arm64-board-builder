@@ -1,0 +1,43 @@
+Subject: [TEST BACKPORT] media: hantro: disable runtime PM before hardware teardown
+
+Adapted to 6.18 test3 from Tharit Tangkijwanichakul's submitted patch:
+https://lore.kernel.org/all/20260722160820.2401-1-tharitt97@gmail.com/
+Original Signed-off-by: Tharit Tangkijwanichakul <tharitt97@gmail.com>
+Not claimed merged upstream or live validated here. Test-only; no production
+autoload or kernel recipe changes.
+
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -1176,7 +1176,7 @@
+ 	ret = clk_bulk_prepare(vpu->variant->num_clocks, vpu->clocks);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to prepare clocks\n");
+-		goto err_rst_assert;
++		goto err_pm_disable_assert_reset;
+ 	}
+ 
+ 	ret = v4l2_device_register(&pdev->dev, &vpu->v4l2_dev);
+@@ -1230,8 +1230,11 @@
+ 	v4l2_device_unregister(&vpu->v4l2_dev);
+ err_clk_unprepare:
+ 	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
+-err_rst_assert:
++err_pm_disable_assert_reset:
++	pm_runtime_dont_use_autosuspend(vpu->dev);
++	pm_runtime_disable(vpu->dev);
+ 	reset_control_assert(vpu->resets);
++	return ret;
+ err_pm_disable:
+ 	pm_runtime_dont_use_autosuspend(vpu->dev);
+ 	pm_runtime_disable(vpu->dev);
+@@ -1251,9 +1254,9 @@
+ 	v4l2_m2m_release(vpu->m2m_dev);
+ 	v4l2_device_unregister(&vpu->v4l2_dev);
+ 	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
+-	reset_control_assert(vpu->resets);
+ 	pm_runtime_dont_use_autosuspend(vpu->dev);
+ 	pm_runtime_disable(vpu->dev);
++	reset_control_assert(vpu->resets);
+ }
+ 
+ #ifdef CONFIG_PM
