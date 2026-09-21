@@ -1,0 +1,41 @@
+{
+  "page": {
+    "codec": "h264",
+    "state": "timeout",
+    "started": 61.80000000074506
+  },
+  "decoderProperties": {
+    "kIsRangeHeaderSupported": "false",
+    "kIsStreaming": "true",
+    "kRendererName": "RendererImpl",
+    "kTotalBytes": "0x1cf4bdb",
+    "kFrameUrl": "http://127.0.0.1:35997/browser-decode-probe.html?codec=h264&timeout=50000&width=1920",
+    "kIsSingleOrigin": "true",
+    "kFrameTitle": "Isolated browser decode probe",
+    "kBitrate": "8096689",
+    "kVideoDecoderName": "V4L2VideoDecoder",
+    "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1920x1080\"}]",
+    "kIsPlatformVideoDecoder": "true",
+    "kIsVideoDecryptingDemuxerStream": "false",
+    "kStartTime": "0.0",
+    "kResolution": "1920x1080",
+    "kMaxDuration": "30.0"
+  },
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+    "--ozone-platform=wayland",
+    "--start-fullscreen",
+    "--window-size=1920,1080",
+    "--disable-gpu-vsync",
+    "--disable-frame-rate-limit"
+  ]
+}
