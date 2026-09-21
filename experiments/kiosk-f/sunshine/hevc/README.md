@@ -150,3 +150,32 @@ Next ownership audit must cover queued frames on cancellation: MPP destruction
 can free KEY_INPUT_FRAME while FFmpeg still retains it in frame_list. Do not
 silence warnings, blindly reorder deinit, or drop references without proving
 which buffers remain owned by the caller. No production patch applied.
+
+### Experimental cancellation ownership correction
+
+`0004-experimental-frame-ownership.patch` applies after 0003. It records successful
+MPP submission and recovers caller ownership from KEY_INPUT_FRAME on every
+received packet, including EOS. Imported-buffer references are recorded separately
+from MppFrame pointers. Before MPP destruction, still-submitted frame pointers
+are detached from FFmpeg's cleanup list: the MPP queues own/free those frames.
+The caller's imported-buffer reference and AVFrame are still released afterwards.
+Frames never submitted or already returned remain caller-owned and are deinitialized
+normally. This changes lifetime bookkeeping rather than muting warnings.
+
+The MPP source at the pinned commit confirms that input is queued by pointer,
+packet metadata returns KEY_INPUT_FRAME, and queued packet/frame destructors
+release pending frames. These observations justify the tested ownership split;
+other MPP versions or sync paths must not be assumed equivalent without testing.
+
+Isolated static-library test on ROCK: all 48 prior short/empty/cancellation
+sessions plus 20 full 120-frame sessions passed. No invalid-pool or leaked-group
+messages in any of the 18 process logs. Normal process-exit misc-group cleanup
+remains. Both final full bitstreams independently decoded 120 frames and passed
+the gray reference checks. Evidence: ownership-cycle-results-20260921.json and
+ownership-bitstream-results-20260921.json; raw logs under
+/config/kiosk-test/builds/encode-ownership-20260921.
+
+The two patches remain experimental and are not yet wired into production images.
+Next: apply the exact patch files in a fresh build, test error paths and longer
+same-process memory behavior, rebuild actual Sunshine, then real Moonlight
+connect/disconnect testing. Working kiosk image/config were not modified.
