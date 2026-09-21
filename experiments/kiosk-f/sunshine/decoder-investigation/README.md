@@ -48,3 +48,25 @@ properties cannot simply be assumed to work with our upstream IOMMU driver.
 
 No decoder activation, new test kernel, or new browser-decode claim accompanies
 this audit. CPU video decoding remains the fallback.
+
+## Isolated test3 backport, 2026-09-21
+
+0001-experimental-upstream-rkvdec-backport.patch is an experimental delta on
+the prepared 6.18.50 test2 source, not enabled by release builds. It overlays
+the pinned v7.0 rkvdec driver, adds upstream HEVC extended SPS controls, applies
+four subsequent HEVC bounds/RPS fixes, and adds RK3588 decoder/IOMMU/SRAM nodes.
+Exact input blob hashes, fix commits and before/after file hashes are in
+upstream-reference.json. The metadata-copy call retains the 6.18 third argument
+(false). Existing encoder, GPU and audio changes remain in the base tree.
+
+The complete patch passes a dry-run against the original source. Targeted
+compilation of rkvdec, V4L2 core and rk3588-rock-5b.dtb succeeds with GCC15.2.
+This is compile validation only: full link, live probe, reset/IOMMU recovery,
+actual H264/HEVC decode and browser integration remain unverified.
+
+Full build runs separately under user service vyarm-decoder-test3-build, -j1,
+MemoryHigh=2G, MemoryMax=3G, Nice=10. Workspace:
+/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/kiosk-decoder-20260921
+Config uses CONFIG_VIDEO_ROCKCHIP_VDEC=m and LOCALVERSION=-vyos-f-test3.
+No test3 installation or reboot has occurred. No private signing keys belong
+in this patch or repository.
