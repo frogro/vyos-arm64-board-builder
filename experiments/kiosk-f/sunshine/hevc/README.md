@@ -83,3 +83,22 @@ Both processes exited successfully but emitted MPP teardown warnings:
 `mpp_buffer_service_deinit cleaning misc group`. Treat cleanup/repeated-session
 stability as open; successful bitstreams do not establish clean teardown.
 The test did not replace or restart the live kiosk container.
+
+### Teardown localization
+
+A diagnostic-only rebuild of rkmppenc.o added stage logging (script
+trace-teardown-build.sh runs inside the disposable pinned builder with /probe
+bound to the smoke output directory). The traced binary ran in the same v3
+runtime, without modifying any deployed image or source layer. 120 HEVC packets
+were again produced. Two invalid-frame-pool warnings occur **inside mpp_destroy**,
+then two more in FFmpeg's clear_frame_list, after reset has returned.
+See teardown-trace-20260921.log. Therefore simply moving FFmpeg list cleanup
+before mpp_destroy is not an established fix.
+
+Pinned MPP mpp_mem_pool_put marks a returned node's check field NULL; warnings
+with check=NULL are consistent with a second release of the same pool node.
+MPP's packet-list destructor also deinitializes KEY_INPUT_FRAME; encoder task
+cleanup and FFmpeg each have frame cleanup paths. Exact ownership/EOS/queue
+interaction remains to be traced before changing lifetime management. This is
+not evidence of a kernel encoder or RGA fault. No warning suppression or unproven
+cleanup-order patch has been put into the runtime.
