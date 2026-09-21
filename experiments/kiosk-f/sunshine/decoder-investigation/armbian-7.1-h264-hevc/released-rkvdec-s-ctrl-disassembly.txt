@@ -1,0 +1,94 @@
+
+rockchip-vdec.ko:     file format elf64-littleaarch64
+
+
+Disassembly of section .text:
+
+00000000000015a0 <rkvdec_s_ctrl>:
+    15a0:	d503201f 	nop
+    15a4:	d503201f 	nop
+    15a8:	d503233f 	paciasp
+    15ac:	a9be7bfd 	stp	x29, x30, [sp, #-32]!
+    15b0:	aa0003e1 	mov	x1, x0
+    15b4:	910003fd 	mov	x29, sp
+    15b8:	a90153f3 	stp	x19, x20, [sp, #16]
+    15bc:	52815302 	mov	w2, #0xa98                 	// #2712
+    15c0:	72a01482 	movk	w2, #0xa4, lsl #16
+    15c4:	f9401014 	ldr	x20, [x0, #32]
+    15c8:	b9404800 	ldr	w0, [x0, #72]
+    15cc:	d108c293 	sub	x19, x20, #0x230
+    15d0:	f9411663 	ldr	x3, [x19, #552]
+    15d4:	6b02001f 	cmp	w0, w2
+    15d8:	54000240 	b.eq	1620 <rkvdec_s_ctrl+0x80>  // b.none
+    15dc:	11000442 	add	w2, w2, #0x1
+    15e0:	6b02001f 	cmp	w0, w2
+    15e4:	54000620 	b.eq	16a8 <rkvdec_s_ctrl+0x108>  // b.none
+    15e8:	f9401460 	ldr	x0, [x3, #40]
+    15ec:	f9401802 	ldr	x2, [x0, #48]
+    15f0:	b40000e2 	cbz	x2, 160c <rkvdec_s_ctrl+0x6c>
+    15f4:	aa1303e0 	mov	x0, x19
+    15f8:	d63f0040 	blr	x2
+    15fc:	34000080 	cbz	w0, 160c <rkvdec_s_ctrl+0x6c>
+    1600:	b9430261 	ldr	w1, [x19, #768]
+    1604:	6b01001f 	cmp	w0, w1
+    1608:	54000261 	b.ne	1654 <rkvdec_s_ctrl+0xb4>  // b.any
+    160c:	a94153f3 	ldp	x19, x20, [sp, #16]
+    1610:	52800000 	mov	w0, #0x0                   	// #0
+    1614:	a8c27bfd 	ldp	x29, x30, [sp], #32
+    1618:	d50323bf 	autiasp
+    161c:	d65f03c0 	ret
+    1620:	f9419262 	ldr	x2, [x19, #800]
+    1624:	b9403420 	ldr	w0, [x1, #52]
+    1628:	394c8261 	ldrb	w1, [x19, #800]
+    162c:	d3400042 	ubfx	x2, x2, #0, #1
+    1630:	d3420800 	ubfx	x0, x0, #2, #1
+    1634:	2a020000 	orr	w0, w0, w2
+    1638:	33000001 	bfxil	w1, w0, #0, #1
+    163c:	390c8261 	strb	w1, [x19, #800]
+    1640:	52800000 	mov	w0, #0x0                   	// #0
+    1644:	a94153f3 	ldp	x19, x20, [sp, #16]
+    1648:	a8c27bfd 	ldp	x29, x30, [sp], #32
+    164c:	d50323bf 	autiasp
+    1650:	d65f03c0 	ret
+    1654:	b9030260 	str	w0, [x19, #768]
+    1658:	2a0003e2 	mov	w2, w0
+    165c:	52800001 	mov	w1, #0x0                   	// #0
+    1660:	f85f8280 	ldur	x0, [x20, #-8]
+    1664:	97ffff33 	bl	1330 <rkvdec_enum_decoded_fmt.isra.0>
+    1668:	2a0003e1 	mov	w1, w0
+    166c:	d1036280 	sub	x0, x20, #0xd8
+    1670:	97ffff1a 	bl	12d8 <rkvdec_reset_fmt.isra.0>
+    1674:	d1402282 	sub	x2, x20, #0x8, lsl #12
+    1678:	52800120 	mov	w0, #0x9                   	// #9
+    167c:	b8128280 	stur	w0, [x20, #-216]
+    1680:	aa1403e1 	mov	x1, x20
+    1684:	aa1303e0 	mov	x0, x19
+    1688:	f97f3042 	ldr	x2, [x2, #32352]
+    168c:	f8130c22 	str	x2, [x1, #-208]!
+    1690:	97fffb8c 	bl	4c0 <rkvdec_fill_decoded_pixfmt>
+    1694:	a94153f3 	ldp	x19, x20, [sp, #16]
+    1698:	52800000 	mov	w0, #0x0                   	// #0
+    169c:	a8c27bfd 	ldp	x29, x30, [sp], #32
+    16a0:	d50323bf 	autiasp
+    16a4:	d65f03c0 	ret
+    16a8:	f9419262 	ldr	x2, [x19, #800]
+    16ac:	b9403420 	ldr	w0, [x1, #52]
+    16b0:	394c8261 	ldrb	w1, [x19, #800]
+    16b4:	d3410442 	ubfx	x2, x2, #1, #1
+    16b8:	d3420800 	ubfx	x0, x0, #2, #1
+    16bc:	2a020000 	orr	w0, w0, w2
+    16c0:	331f0001 	bfi	w1, w0, #1, #1
+    16c4:	390c8261 	strb	w1, [x19, #800]
+    16c8:	52800000 	mov	w0, #0x0                   	// #0
+    16cc:	a94153f3 	ldp	x19, x20, [sp, #16]
+    16d0:	a8c27bfd 	ldp	x29, x30, [sp], #32
+    16d4:	d50323bf 	autiasp
+    16d8:	d65f03c0 	ret
+
+Disassembly of section .init.text:
+
+Disassembly of section .exit.text:
+
+Disassembly of section .plt:
+
+Disassembly of section .text.ftrace_trampoline:
