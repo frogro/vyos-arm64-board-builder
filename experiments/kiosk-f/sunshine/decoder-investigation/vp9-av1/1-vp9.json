@@ -1,0 +1,46 @@
+{
+  "page": {
+    "codec": "vp9",
+    "state": "ended",
+    "started": 76.40000000037253,
+    "duration": 5,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 300,
+    "droppedFrames": 8,
+    "elapsedMs": 5344.5
+  },
+  "decoderProperties": {
+    "kBitrate": "6523041",
+    "kVideoDecoderName": "VpxVideoDecoder",
+    "kIsStreaming": "true",
+    "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"vp9\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"UNSPECIFIED\",\"primaries\":\"UNSPECIFIED\",\"range\":\"LIMITED\",\"transfer\":\"UNSPECIFIED\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":false,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"vp9 profile0\",\"visible rect\":\"0,0 1920x1080\"}]",
+    "kIsPlatformVideoDecoder": "false",
+    "kFrameUrl": "http://127.0.0.1:42785/browser-decode-probe.html?codec=vp9&timeout=50000&width=1920",
+    "kIsRangeHeaderSupported": "false",
+    "kIsVideoDecryptingDemuxerStream": "false",
+    "kStartTime": "0.0",
+    "kResolution": "1920x1080",
+    "kRendererName": "RendererImpl",
+    "kTotalBytes": "0x3e3565",
+    "kMaxDuration": "5.0",
+    "kIsSingleOrigin": "true",
+    "kFrameTitle": "Isolated browser decode probe"
+  },
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+    "--ozone-platform=wayland",
+    "--start-fullscreen",
+    "--window-size=1920,1080"
+  ],
+  "gpuVideoDecoding": []
+}
