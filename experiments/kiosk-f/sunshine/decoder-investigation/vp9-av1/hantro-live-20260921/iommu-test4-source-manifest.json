@@ -1,0 +1,11 @@
+{
+  "files": {
+    "arch/arm64/boot/dts/rockchip/rk3588-base.dtsi": "c7f6d07098bcdcec6e8edcc77e3aa7edd61bdeecacf6970306f82e11e8127128",
+    "drivers/iommu/Kconfig": "2f721a7006db2413e617458bc61203c2f4635008ef40aafb53dca1f89a134e90",
+    "drivers/iommu/Makefile": "58f0a27c0a6db07dce6815be730c6732c3c07541630b268a3b551245085fe71f",
+    "drivers/iommu/vsi-iommu.c": "f1890ed37de77e7b065fbdc2ad989c6acd901ce6b839270151aa9123b3a16cfd",
+    "drivers/media/platform/verisilicon/rockchip_vpu981_hw_av1_dec.c": "9eeff03a9e8b8ff11cf4b5ea008bf79ae411805a5c12ae463f81f7c28341b37c",
+    "include/linux/vsi-iommu.h": "82df291f978b8cc7532998a2ec0939917f5713610b115f288d4381bcfda89e3d"
+  },
+  "armbian_618_driver_identical": true
+}
