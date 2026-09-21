@@ -22,7 +22,24 @@
  // See http://crbug.com/255116.
  constexpr int k480pArea = 720 * 480;
  constexpr int k1080pArea = 1920 * 1088;
-@@ -1203,9 +1211,15 @@
+@@ -220,7 +228,7 @@
+ }
+
+ void V4L2VideoDecoder::Initialize(const VideoDecoderConfig& config,
+-                                  bool /*low_delay*/,
++                                  bool low_delay,
+                                   CdmContext* cdm_context,
+                                   InitCB init_cb,
+                                   const PipelineOutputCB& output_cb,
+@@ -243,6 +251,7 @@
+       return;
+   }
+
++  low_delay_ = low_delay;
+   cdm_context_ref_ = nullptr;
+
+   if (config.is_encrypted()) {
+@@ -1203,9 +1212,16 @@
    // (VIDEO_MAX_FRAME) since they are shallow allocations. Otherwise, allocate
    // |num_codec_reference_frames| plus one for the video frame being decoded,
    // and one for our client (presumably an ImageProcessor).
@@ -32,7 +49,8 @@
 +  size_t v4l2_num_buffers = use_v4l2_allocated_buffers
 +                                ? num_codec_reference_frames + 2
 +                                : VIDEO_MAX_FRAME;
-+  if (use_v4l2_allocated_buffers && input_queue_->SupportsRequests() &&
++  if (!low_delay_ && use_v4l2_allocated_buffers &&
++      input_queue_->SupportsRequests() &&
 +      base::FeatureList::IsEnabled(kV4L2ExtraCaptureBuffers) &&
 +      v4l2_num_buffers < VIDEO_MAX_FRAME) {
 +    const size_t extra = std::clamp(kExtraCaptureBuffers.Get(), 0, 8);
@@ -41,3 +59,15 @@
 
    VLOGF(1) << "Requesting: " << v4l2_num_buffers << " CAPTURE buffers of type "
             << (use_v4l2_allocated_buffers ? "V4L2_MEMORY_MMAP"
+--- a/media/gpu/v4l2/v4l2_video_decoder.h
++++ b/media/gpu/v4l2/v4l2_video_decoder.h
+@@ -188,6 +188,9 @@
+   static base::AtomicRefCount num_instances_;
+   bool can_use_decoder_ = false;
+
++  // Keep the experimental playback buffer reserve out of low-delay sessions.
++  bool low_delay_ = false;
++
+   // The V4L2 backend, i.e. the part of the decoder that sends
+   // decoding jobs to the kernel.
+   std::unique_ptr<V4L2VideoDecoderBackend> backend_;

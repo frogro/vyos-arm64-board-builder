@@ -58,8 +58,9 @@ browser metadata and allocation evidence, without embedded screenshots/large tra
 
 `0001-opt-in-extra-capture-buffers.patch` adds disabled-by-default Chromium feature
 `V4L2ExtraCaptureBuffers`; field parameter `extra_buffers` defaults to 2, clamps
-0..8 and respects VIDEO_MAX_FRAME. It applies only to stateless Request API + MMAP
-capture allocation. No board-name checks; existing DMABUF/stateful/default paths
+0..8 and respects VIDEO_MAX_FRAME. It applies only to non-low-delay stateless Request API + MMAP
+capture allocation. The source candidate now retains the original allocation
+when Initialize receives low_delay=true; this guard still needs compiled validation. No board-name checks; existing DMABUF/stateful/default paths
 remain unchanged. A compiled browser and real display/latency/resolution-change
 validation are still required. Do not install the interposer as production glue.
 
@@ -77,3 +78,58 @@ backported. Current source already has renderer-pool budgeting elsewhere, while
 the active V4L2 MMAP allocation is reference-count + 2. Our bounded opt-in isolates
 that allocation as a test variable; a permanent change needs reset, allocation
 failure, low-delay and resolution-change coverage across drivers.
+
+## Why this path differs from the general Chromium pool
+
+In matching Debian Chromium 153 source,
+`media/gpu/chromeos/video_decoder_pipeline.cc:1187` selects the Linux V4L2
+directly renderable format, resets `main_frame_pool_`, and returns early.
+The subsequent common allocation budget (`num_codec_reference_frames + 1 +
+estimated_num_buffers_for_renderer_`) is consequently not used on this path.
+`V4L2VideoDecoder::ContinueChangeResolution` then uses MMAP with references + 2.
+This source-level difference is consistent with the controlled allocation tests.
+It is not a claim that all Chromium platforms or all V4L2 drivers share the issue.
+
+Before any default promotion: compile and test the actual patch, define behavior
+when a driver returns fewer buffers or allocation fails, cover changing coded
+resolution within one stream, and measure physical display/end-to-end latency.
+The current source candidate fails allocation as before if its requested extra
+slots cannot be supplied; it does not yet implement an automatic smaller-pool
+retry. Keeping the feature disabled by default preserves the established path.
+
+## Follow-up and scope restriction
+
+- One extra slot (6→7) H.264: 7/9/8 drops in three 1800-frame runs;
+  long 7200-frame run 68 drops. Paired long 6→8 run: 60 drops.
+- Eight accurately checked seeks/pause/resumes passed for both codecs,
+  baseline and +2. H.264 HTML drops 74→9, HEVC 8→12. The first server lacked
+  HTTP Range support and silently restarted near zero; those `seek-extra-*`
+  trials are invalid seek evidence. `seek-range-*` verifies presented mediaTime
+  within 250 ms of each target and supports HTTP 206/Accept-Ranges.
+- Five source reloads 1080→720→1080→720→1080 passed for both codecs with/without
+  +2; dimensions and advancing playback checked. This is source replacement,
+  **not an in-band coded-resolution change within one stream**.
+- Higher-reference H.264 fixture: x264 ref=8,bframes=3,b-pyramid=normal,10 s,
+  1080p60/8M. SPS max_num_ref_frames=8,max_dec_frame_buffering=8,reorder=2.
+  Chromium actually requests15 capture slots here. Baseline/+1/+2 return
+  15/16/17 and drop2/4/1 of600 frames. Thus extra slots are not beneficial
+  for every input; the problem is the smaller allocation on the original input.
+- Repeated fresh instances pass. One +2 startup run has24 H264 drops while
+  test fixture preparation caused concurrent I/O; do not equate all repetitions
+  with perfectly idle-host benchmark conditions.
+
+### D receiver comparison: do not enable globally
+
+Real isolated MediaMTX WebRTC, Weston16, no-B source, 60 seconds per codec,
+then reverse-order repeat. All connect/end and all report zero packet loss.
+HTML drops (baseline vs +2): H264145/416 and120/217; HEVC242/241 and273/348.
+RTP decoder counters are distinct and mostly low (H26418/1 then0/4;
+HEVC1/0 then0/0). Some runs report a freeze. No physical end-to-end latency
+measurement and no demonstrated D benefit. Initial nominal60 runs accidentally
+omitted the seconds URL argument and only ran20; they are excluded here.
+
+The candidate feature therefore explicitly skips low-delay sessions. Do not
+change D defaults, general browser flags, or all codecs globally based on F's
+file-playback improvement. Keep H264 compatibility fallback. The live adapter
+forced extra slots regardless of low-delay mode to expose this distinction;
+it does not validate the source guard or represent a production implementation.

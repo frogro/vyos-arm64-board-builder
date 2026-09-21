@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><video muted playsinline width="1920"></video><script>
+const v=document.querySelector('video'),codec=new URLSearchParams(location.search).get('codec');
+const r=window.decodeProbe={codec,state:'loading',cycles:[],frames:[]};
+const once=(event)=>new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(Error('timeout '+event)),8000);v.addEventListener(event,()=>{clearTimeout(t);resolve();},{once:true});});
+v.onerror=()=>{r.state='error';r.error=v.error?.message;};
+(async()=>{try{
+ for(const height of [1080,720,1080,720,1080]){
+  v.pause();const loaded=once('loadeddata');v.src=height+'-'+codec+'.mp4';await loaded;
+  if(v.videoHeight!==height)throw Error('wrong dimensions');
+  const next=new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(Error('no frame')),8000);v.requestVideoFrameCallback((now,m)=>{clearTimeout(t);resolve(m.mediaTime);});});
+  await v.play();r.state='playing';await next;await new Promise(resolve=>setTimeout(resolve,1600));
+  r.cycles.push({height:v.videoHeight,width:v.videoWidth,currentTime:v.currentTime,total:v.getVideoPlaybackQuality().totalVideoFrames,dropped:v.getVideoPlaybackQuality().droppedVideoFrames});
+  if(v.currentTime<1)throw Error('playback stalled');
+ }
+ v.pause();r.state='ended';
+}catch(e){r.state='error';r.error=String(e);}})();
+</script>
