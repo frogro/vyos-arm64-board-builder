@@ -39,3 +39,8 @@ reservations as the generic fix. Audit VyOS boot time initialization and design
 bounded time readiness / persisted last-known time behavior for offline routers;
 never make AP availability depend indefinitely on Internet NTP. Verify with a
 controlled wrong-clock boot regression and two clients before enabling generally.
+
+After NUC build handoff, both clients are on the home network and no station is
+associated with ROCK AP. Kea still retains .51 for NUC. No simultaneous active
+conflict observed now, but boot time-handling defect remains uncorrected. NTP
+currently synchronized, D/F services active. No DHCP mutation or reboot done.
