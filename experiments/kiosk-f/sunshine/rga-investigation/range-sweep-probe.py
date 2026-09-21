@@ -9,6 +9,7 @@ import argparse
 import json
 import hashlib
 import math
+import random
 from pathlib import Path
 import subprocess
 import tempfile
@@ -38,8 +39,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--extended', action='store_true',
                         help='Add gray ramps and compare against the requested range')
+    parser.add_argument('--random-colors', action='store_true',
+                        help='Test 120 reproducible RGB colors against the requested range')
     args = parser.parse_args()
     colors = COLORS + ([(v, v, v) for v in (16, 32, 64, 96, 128, 160, 192, 224)] if args.extended else [])
+    if args.random_colors:
+        rng = random.Random(20260921)
+        colors = [tuple(rng.randrange(256) for _ in range(3)) for _ in range(120)]
+    matched_range = args.extended or args.random_colors
     stripe = WIDTH // len(colors)
     # Restrict to the identified RGA driver; never probe capture/HDMI devices.
     candidates = [Path('/dev') / p.parent.name
@@ -55,6 +62,8 @@ def main():
         if fourcc not in run(['-d', device, option]):
             raise RuntimeError(f'Device lacks {fourcc}')
     report = {'device': device, 'width': WIDTH, 'height': HEIGHT, 'tests': []}
+    if args.random_colors:
+        report['random_seed'] = 20260921
     passed = True
     with tempfile.TemporaryDirectory(prefix='kiosk-rga-colors-') as tmp:
         source = Path(tmp) / 'bars.bgr0'
@@ -81,11 +90,11 @@ def main():
                 y_index = (HEIGHT//2)*WIDTH+x
                 uv_index = WIDTH*HEIGHT + (HEIGHT//4)*WIDTH+x
                 actual = [data[y_index], data[uv_index], data[uv_index+1]]
-                expected = reference(rgb, kr, kb, args.extended and output_range == "full-range")
+                expected = reference(rgb, kr, kb, matched_range and output_range == "full-range")
                 error = max(abs(a-b) for a, b in zip(actual, expected))
                 passed &= error <= 3
                 samples.append(dict(rgb=rgb, actual=actual, expected=expected, max_error=error))
-            report['tests'].append(dict(colorspace=space, requested_range=output_range, reference_range=('full' if args.extended and output_range == 'full-range' else 'limited'), output_sha256=hashlib.sha256(data).hexdigest(),
+            report['tests'].append(dict(colorspace=space, requested_range=output_range, reference_range=('full' if matched_range and output_range == 'full-range' else 'limited'), output_sha256=hashlib.sha256(data).hexdigest(),
                                         negotiated_format=output, samples=samples))
     report['passed'] = passed
     print(json.dumps(report, indent=2))

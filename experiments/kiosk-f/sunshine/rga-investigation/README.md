@@ -101,3 +101,50 @@ those full-CSC coefficients in the inspected setup path. This is a concrete
 comparison target, not proof that a clip-bit toggle fixes BT.709. Register/core
 compatibility and supported full-CSC hardware must be checked before backporting;
 userspace API shifts are not interchangeable with hardware mode values.
+
+## Three-hour session: full-CSC live experiment (2026-09-21)
+
+Concrete vendor evidence: at rockchip-linux/kernel commit
+77168c8d5ab82399f65a80e9f807b50ba37cf483, rga3/rga_policy.c explicitly says RGA2E
+requires FULL_CSC for RGB-to-BT.709-limited. rga_drv.c maps revision 3.2.63318
+to rga2e_data, which advertises FULL_CSC. Our signed diagnostic module read
+exactly 0x03263318 on the ROCK. No physical board-name check is used.
+
+`0002-experimental-rga2e-full-csc.patch` applies AFTER the BT.601 diagnostic
+change already in test2. It remains isolated, not a production kernel patch.
+For explicitly requested full-range XBGR32 input and NV12 output on this known
+hardware revision, program the full-CSC matrix and offsets. Four tables cover
+BT.601/709, limited/full. Coefficients are nearest integers with ten fractional
+bits, calculated from the standard Kr/Kb values. Preserve requested metadata
+in G_FMT for these diagnostics. Full production negotiation is NOT implemented:
+other encodings/transforms still need validation/rejection and defaults need
+normalization before this can be integrated generally.
+
+The first vendor-like coefficient test reduced BT.709 limited max error 16 to
+3. Explicit matrices alone still clipped full-range values; setting clip bit
+18 alone did not fix it. Selecting the legacy full-range mode (1) together with
+full-CSC enable (19) and clip bit (18) produced max error 1 for all four cases.
+This demonstrates that the legacy mode still affects this path; the precise
+internal pipeline ordering is not established by these tests.
+
+Validation: 16 bars including gray ramp, then 120 deterministic random colors,
+each through all four matrix/range combinations at 1920x1080. Both runs passed
+with max sampled component error 1. Raw results: full-csc-bars-20260921.json,
+full-csc-random-20260921.json. Iteration summary: full-csc-iterations-20260921.json.
+This is color-correctness evidence, not scaling/rotation, concurrency, sustained
+performance or end-to-end Sunshine validation. Production remains swscale.
+
+External module built against matching test2 kbuild and signed with its trusted
+build key. Never export the private key. Live test used a separate rollback
+timer and restored the installed original module after every attempt; no module
+file on the normal boot path was replaced. Initial insmod failed because
+`modprobe -r` also unloaded dependencies; restoring original worked. Subsequent
+tests used `rmmod rockchip_rga` so dependencies remained available. No forced
+module loading, ABI bypass or signature bypass was used. Kiosk remained active.
+
+Temporary work: /tmp/kiosk-media-3h-20260921/rga-range-v2 (final v4 source).
+ROCK artifacts: /config/kiosk-test/builds/rga-fullcsc-20260921.
+Vendor CSC register definitions/programming reference:
+https://github.com/rockchip-linux/kernel/tree/77168c8d5ab82399f65a80e9f807b50ba37cf483/drivers/video/rockchip/rga3
+Additional readable userspace coefficient reference:
+https://github.com/tsukumijima/librga-rockchip/blob/master/core/NormalRgaApi.cpp
