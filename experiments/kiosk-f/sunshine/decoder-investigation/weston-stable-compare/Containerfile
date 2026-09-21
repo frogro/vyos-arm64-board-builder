@@ -1,0 +1,13 @@
+FROM localhost/vyarm-kiosk:browser-wayland-test3 AS build
+USER root
+RUN sed -i 's/Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources && apt-get update && apt-get install -y --no-install-recommends build-essential meson ninja-build dpkg-dev && apt-get build-dep -y weston
+WORKDIR /src
+COPY protocols.tar.gz /src/protocols.tar.gz
+RUN tar -xzf protocols.tar.gz && meson setup wayland-protocols-1.46/build wayland-protocols-1.46 --prefix=/usr -Dtests=false && meson install -C wayland-protocols-1.46/build
+COPY weston16.tar.gz /src/weston16.tar.gz
+RUN tar -xzf weston16.tar.gz && cd weston-16.0.0 && meson setup build --prefix=/opt/weston16 --libdir=lib -Dtests=false -Ddemo-clients=false -Dsimple-clients=[] -Dbackend-drm=false -Dbackend-rdp=false -Dbackend-vnc=false -Dbackend-pipewire=false -Dbackend-wayland=false -Dbackend-x11=false -Dbackend-default=headless -Drenderer-vulkan=false -Dxwayland=false -Dshell-lua=false -Dshell-ivi=false -Dsystemd=false && ninja -C build -j1 && DESTDIR=/stage meson install -C build
+FROM localhost/vyarm-kiosk:browser-wayland-test3
+USER root
+COPY --from=build /stage/opt/weston16 /opt/weston16
+ENV PATH=/opt/weston16/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/weston16/lib
