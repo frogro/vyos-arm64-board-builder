@@ -1,0 +1,3 @@
+[68:181:0921/183441.459718:VERBOSE2:media/gpu/v4l2/v4l2_video_decoder.cc:185] V4L2VideoDecoder():
+[68:181:0921/183441.540273:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:697] SetupOutputFormat(): Failed to pick an output format.
+[68:181:0921/183441.540479:ERROR:media/gpu/v4l2/v4l2_video_decoder.cc:123] SetupOutputFormat failed at ContinueChangeResolution@media/gpu/v4l2/v4l2_video_decoder.cc:1188 : Failed to setup output format, status= 5
