@@ -109,3 +109,14 @@ This does not establish long-duration stability or browser HEVC support.
 
 Source reference:
 https://github.com/Meonardo/gst-rockchip/blob/99c594d3090ee1b4721ef0a9c1e4a99ea3de52e9/gst/rockchipmpp/gstmppenc.c
+
+## WebRTC capability baseline,11:28UTC
+
+MediaMTXv1.20.0 confirmed. Isolated ROCK Chromium153, hardware disabled,
+sandbox retained,networknone: receiver capabilities and recvonlySDP advertise
+H264/VP8/VP9/AV1,notH265. Evidence/script saved alongside this README.
+This is not the ThinkPad receiver or an end-to-end transport test, and does not
+predict hardware-enabled Chrome. Keep H264 default pending actual client tests.
+D transport fixtures must use noBframes; F file-playback fixtures intentionally
+containBframes and are unsuitable as an unchanged WebRTC baseline.
+https://mediamtx.org/docs/features/webrtc-specific-features
