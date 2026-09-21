@@ -106,3 +106,12 @@ requires additional audit before live testing. Test3 has its upstream hardware
 soft-reset/IOMMU restore path, which is distinct from BSP reset_control patches.
 Primary discussion and correction:
 https://patchew.org/linux/20260717154505.83935-1-pavone.lawyer@gmail.com/
+
+Browser probe preparation: browser-decode-probe.html plays one synthetic MP4
+selected by ?codec=h264 or hevc, records frame callbacks, dimensions, completion
+and dropped frames, and exposes window.decodeProbe. A page result alone never
+proves hardware decode. Capture Chromium Media domain player properties/events
+in the same session, including actual decoder name/platform flag; cross-check
+kernel decoder activity. Use a temporary profile and isolated container, retain
+sandboxing, and do not expose the debugging endpoint on the network. Fixture MP4
+files are generated locally, not committed. Do not change the production kiosk.

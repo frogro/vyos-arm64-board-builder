@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8"><title>Isolated browser decode probe</title>
+<video id="video" muted playsinline width="640" controls></video>
+<pre id="result">Waiting</pre>
+<script>
+// Served only by the disposable test environment. Quality is not HW evidence:
+// collect Chromium Media/CDP playerPropertiesChanged decoder diagnostics too.
+const video = document.querySelector('#video');
+const result = document.querySelector('#result');
+const name = new URLSearchParams(location.search).get('codec') || 'h264';
+if (!['h264', 'hevc'].includes(name)) throw new Error('Unsupported fixture');
+const report = {codec:name, state:'loading', frames:[], started:performance.now()};
+window.decodeProbe = report;
+function save() { result.textContent = JSON.stringify(report, null, 2); }
+function frame(now, metadata) {
+  report.frames.push({mediaTime:metadata.mediaTime, presentedFrames:metadata.presentedFrames});
+  if (!video.ended) video.requestVideoFrameCallback(frame);
+}
+video.addEventListener('error', () => {
+  report.state='error'; report.error={code:video.error?.code, message:video.error?.message}; save();
+});
+video.addEventListener('ended', () => {
+  const q=video.getVideoPlaybackQuality();
+  report.state='ended'; report.duration=video.duration;
+  report.width=video.videoWidth; report.height=video.videoHeight;
+  report.totalFrames=q.totalVideoFrames; report.droppedFrames=q.droppedVideoFrames;
+  report.elapsedMs=performance.now()-report.started; save();
+});
+video.src='test-'+name+'.mp4';
+video.requestVideoFrameCallback(frame);
+video.play().then(() => {report.state='playing'; save();}).catch(e => {
+ report.state='play-error'; report.error=String(e); save();
+});
+setTimeout(() => {if(report.state !== 'ended' && report.state !== 'error') {
+ report.state='timeout'; video.pause(); save();
+}}, 15000);
+</script>
