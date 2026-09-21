@@ -2,7 +2,11 @@
   "baseline": "2026.09.17-0028-rolling",
   "releases": {
     "2026.09.21-0031-rolling": {
-      "boards": {},
+      "boards": {
+        "radxa-e52c": {
+          "dispatched": true
+        }
+      },
       "vyos_commit": "b5ae37645cc0630543859c4b25fb2927a91c9071"
     }
   }
