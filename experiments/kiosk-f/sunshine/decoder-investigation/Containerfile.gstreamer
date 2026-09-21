@@ -1,0 +1,8 @@
+# Isolated stateless decoder probe; does not replace kiosk/host packages.
+FROM debian:trixie-slim
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential meson ninja-build pkg-config libglib2.0-dev libgudev-1.0-dev libdrm-dev bison flex python3 xz-utils ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY *.tar.xz /src/
+COPY SHA256SUMS build-gstreamer.sh /src/
+RUN cd /src && sha256sum -c SHA256SUMS && bash build-gstreamer.sh
+ENV PATH=/opt/gst/bin:$PATH LD_LIBRARY_PATH=/opt/gst/lib GST_PLUGIN_SYSTEM_PATH_1_0=/opt/gst/lib/gstreamer-1.0
+CMD ["gst-inspect-1.0", "v4l2codecs"]

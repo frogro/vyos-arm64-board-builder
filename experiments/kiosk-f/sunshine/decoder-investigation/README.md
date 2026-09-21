@@ -70,3 +70,39 @@ MemoryHigh=2G, MemoryMax=3G, Nice=10. Workspace:
 Config uses CONFIG_VIDEO_ROCKCHIP_VDEC=m and LOCALVERSION=-vyos-f-test3.
 No test3 installation or reboot has occurred. No private signing keys belong
 in this patch or repository.
+
+## Isolated GStreamer decoder userspace
+
+Containerfile.gstreamer builds official GStreamer/core/base/bad 1.28.7 tarballs
+with SHA256SUMS, under /opt/gst inside a separate image. Fetch tarballs from
+https://gstreamer.freedesktop.org/src/{package}/{package}-1.28.7.tar.xz into the
+build context. No host/kiosk GStreamer packages are replaced. Native build uses
+-j2 and a separate memory-limited service. v4l2codecs and H264/H265 parsers are
+explicitly enabled. No decoder success is inferred from plugin compilation.
+
+The bundled HEVC EXT_SPS ST/LT RPS structures were compared with test3 UAPI and
+match field-for-field. The release contains the matching request-API support.
+Reference: https://gstreamer.freedesktop.org/releases/1.28/ .
+
+make-decode-fixtures.sh creates synthetic 720p H264/HEVC streams with B-frames
+and software-decoded I420 references. test-stateless-decode.sh explicitly uses
+v4l2slh264dec/v4l2slh265dec, checks exact output and three separate starts each.
+Run only after identifying the new decoder's matching video/media nodes; no
+hardcoded node numbering. It does not select MPP encoders or fall back to CPU.
+Any mismatch needs investigation, not silent relaxation of the reference test.
+These tests are prepared, not yet passed on hardware. Chromium integration and
+malformed-input/reset recovery remain additional work after successful decode.
+
+### Decoder remove-path caveat (source audit, not live failure)
+
+Test3 still contains the original remove order: V4L2 cleanup, PM disable,
+autosuspend disable, IOMMU-domain free. Community claims that an ordering patch
+fixed VP9 were withdrawn by the patch author. v4 instead describes a clock
+reference leak on unbind; a subsequent self-review reports an IOMMU use-after-
+free window in that reorder and proposes splitting unregister/release. Do not
+blindly import v2/v4 or claim it is an accepted VP9 fix. No such patch applied.
+Repeated process starts are safe test scope; deliberate driver unbind/reload
+requires additional audit before live testing. Test3 has its upstream hardware
+soft-reset/IOMMU restore path, which is distinct from BSP reset_control patches.
+Primary discussion and correction:
+https://patchew.org/linux/20260717154505.83935-1-pavone.lawyer@gmail.com/
