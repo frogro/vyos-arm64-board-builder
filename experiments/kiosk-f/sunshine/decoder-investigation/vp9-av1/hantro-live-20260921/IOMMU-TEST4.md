@@ -58,3 +58,27 @@ No compiler warnings in the successful targeted build log. Full Image/modules
 build started separately as user service vyarm-av1-iommu-test4-build, one job,
 MemoryHigh=1500M, MemoryMax=2500M, MemorySwapMax=256M. No auto-install or reboot.
 Live tests above remain pending the full build and fallback preparation.
+
+## Prepared packaging and boot guard
+
+`package-iommu-test4.sh RUN_DIR` requires a successful completed full-build
+status and marker, checks release/signature/IOMMU symbol, stages modules and
+writes SHA256SUMS. A bounded local packaging service waits for the running
+build; failed builds cannot be packaged. Neither service installs or reboots.
+
+Read-only live check: ROCK still runs test3, `next_entry` is empty, the normal
+VyOS default is unchanged. Existing one-shot selection clears itself in GRUB
+before entering the kernel. A hard hang still needs external reset; this is
+not a watchdog guarantee.
+
+For test4, use a separate initramfs and existing fallback pattern. Add
+`modprobe.blacklist=hantro_vpu` to ONLY the experimental entry, ensuring udev
+cannot bind Hantro before the explicit isolated test. Verify the blacklist
+is honored and Hantro absent. Do not use the kernel-wide `module_blacklist`,
+which would also prevent the deliberate manual diagnostic load.
+
+`preflight-iommu-test4.sh` is a read-only postboot guard: exact release,
+IOMMU binding, no pre-existing Hantro/device overrides, expected module ABI
+and reset parameter. Actual IOMMU group/mapping must also be checked after
+Hantro attaches. Only then proceed to controlled mask=3 decoding tests.
+The preflight has syntax validation only so far; test4 is not yet booted.
