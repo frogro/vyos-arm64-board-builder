@@ -81,3 +81,12 @@ It must NOT be reused blindly for padded buffers, other sizes, or 10-bit data.
 Next: recover/verify host state, retrieve final hashes and kernel logs, identify
 Chromium initial-decode failure precisely, then evaluate format conversion and
 contiguous-memory/IOMMU allocation. VP9 remains a separate driver investigation.
+
+## Recovery verified after user power cycle, ~23:46 CEST
+
+LAN SSH returned, kiosk-test container running. No persistent pstore crash record.
+G1 driver_override reset to (null); AV1 test video4 absent. The final untiled
+JSON is zero bytes after reboot, so no final comparison is recoverable from it.
+Earlier hardware/software hash files survived. Previous journal ends at 23:37:20
+without an explicit panic/unload backtrace; driver teardown remains suspected,
+not proven. No further module loading/unloading performed in this follow-up.
