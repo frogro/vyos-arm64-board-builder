@@ -115,3 +115,20 @@ in the same session, including actual decoder name/platform flag; cross-check
 kernel decoder activity. Use a temporary profile and isolated container, retain
 sandboxing, and do not expose the debugging endpoint on the network. Fixture MP4
 files are generated locally, not committed. Do not change the production kiosk.
+
+## TODO: Chromium HEVC extended SPS/RPS controls
+
+Explicitly requested by user on2026-09-21. Track separately from kernel and
+GStreamer decoder validation:
+- Audit installed Debian Chromium patches and candidate Google Chrome against
+  upstream153 H265 delegate for V4L2_CID_STATELESS_HEVC_EXT_SPS_ST_RPS and
+  V4L2_CID_STATELESS_HEVC_EXT_SPS_LT_RPS (absent in examined upstream delegate).
+- Check driver requirements and parser data availability; use GStreamer1.28
+  implementation/UAPI as a reference, not a blind source transplant.
+- If missing in the active path, implement capability-checked control submission
+  with validated array bounds/counts and compatible behavior on older drivers.
+  No board-name switch and no mandatory new control on unsupported hardware.
+- Test SPS short/long-term reference sets, B-frames, repeated starts and decoded
+  output against software references, then actual Chromium decoder diagnostics.
+- Keep changes isolated and preserve production browser until verified.
+Status: TODO; no browser patch implemented or hardware success claimed.
