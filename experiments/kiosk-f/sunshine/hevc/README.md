@@ -179,3 +179,20 @@ The two patches remain experimental and are not yet wired into production images
 Next: apply the exact patch files in a fresh build, test error paths and longer
 same-process memory behavior, rebuild actual Sunshine, then real Moonlight
 connect/disconnect testing. Working kiosk image/config were not modified.
+
+### Full Sunshine cleanup candidate build
+
+Containerfile.cleanup (6b5d831) applies exact 0003/0004 patch files with fuzz=0 to
+an explicitly selected immutable HEVC builder, rebuilds the FFmpeg libraries and
+Sunshine, and layers the binary over an explicitly selected runtime bundle.
+It includes the smoke probe for isolated verification. Existing candidate recipe
+and all production/release workflows remain unchanged.
+
+Build started 2026-09-21 04:36 UTC on ROCK as systemd unit vyarm-cleanup-build,
+CPUQuota=100%, MemoryMax=2G, Nice=10, podman network=none. Context and build.log:
+/config/kiosk-test/builds/cleanup-candidate-20260921. Inputs: builder a332c7a...,
+runtime bundle 8b48c818... (full IDs above/in BUILD-INTEGRATION.md); source revision
+6b5d831. Intended output localhost/vyarm-kiosk:cleanup-candidate-20260921.
+Status at this commit: building, not yet validated or activated. Next check build
+exit/image provenance, then isolated probe and longer repeated codec sessions
+using the binary built by this recipe. No kiosk image replacement performed.
