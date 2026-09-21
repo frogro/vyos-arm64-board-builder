@@ -85,3 +85,22 @@ Base and CLI-layer Containerfiles copy the helper/startup changes. Existing live
 images/bind mounts have NOT been changed. Five new selection/validation tests
 and all 55 kiosk tests pass. Live startup/fallback validation is the next step;
 this commit does not claim that the new fallback was exercised on hardware.
+
+## New startup and failure recovery live validation (2026-09-21 01:44 UTC)
+
+Tested d317d80 startup/helper via temporary read-only mounts and runtime-only
+KIOSK_GRAPHICS=auto plus the explicitly granted render node. Before changing the
+runtime Quadlet, saved it and Sunshine state in graphics-startup-20260921 and
+scheduled an independent 300-second rollback. Startup selected glamor; Chromium
+probe again returned Mali-G610 and correct red pixel.
+
+Then deliberately injected a nonexistent Xorg driver into ONLY the generated
+accelerated test configuration. Xorg reported no drivers/no screens. Startup
+preserved the failure log, retried the unchanged software template, reported
+`software`, and recovered the portrait 1080x1920 display. The injection was in a
+remote diagnostic copy, never in committed production code.
+
+Explicitly rolled back the original Quadlet and cancelled the timer. Original
+service active, both ILITEK devices enumerated, no failed units; Quadlet matches
+its saved copy. New startup is live-validated but not permanently deployed.
+Physical touch and actual Moonlight HEVC quality remain manual checks.
