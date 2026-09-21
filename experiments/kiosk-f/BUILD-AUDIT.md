@@ -105,3 +105,21 @@ no rkvdec decoder node. Those power references alone do not instantiate a decode
 Enabling Kconfig alone is not a complete solution: inspect the final compiled
 DTB and any custom overlay first, then arrange matching MPP decoder bindings and
 userspace. No decoder kernel change or browser hardware-decode success claimed.
+
+## Source/schema validation, 2026-09-21 02:10 UTC
+
+Exported pristine upstream 27383e4f1 and applied combined KVM/Tailscale/Kiosk
+preparation using current source. Generated version
+999.0-14924-g27383e4f1+kvm-tailscale-kiosk.f570e0935f36.
+Upstream transclude-template and build-command-templates accepted the complete
+container XML against interface_definition.rng; generated graphics node.def
+contains software/auto completion, descriptions and regex validation.
+Used an isolated local venv with lxml 6.1.3 (host Python lacked lxml). No root,
+installed live CLI caches or global Python package changes involved.
+Workspace: tmp/kiosk-graphics-cli-20260921. Actual Debian package build still open.
+
+Decompiled final artifacts-v2/rk3588-rock-5b.dtb: MPP service and two RKVENC
+encoder cores present; no RKVDEC decoder node/compatible. QoS labels are present
+but insufficient. This confirms the missing decoder DT integration in the built
+artifact, not just the upstream DTS source. Preserve encoder DT and investigate
+a separate decoder DT addition before enabling RKVDEC2 in another test kernel.
