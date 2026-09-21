@@ -21,6 +21,10 @@ class GraphicsTests(unittest.TestCase):
         self.assertTrue(active)
         self.assertIn('"glamor"', text)
 
+    def test_render_groups_preserve_membership_without_granting_root(self):
+        self.assertEqual(GRAPHICS.supplementary_groups([1000, 44], [107, 0, 107]), [44, 107, 1000])
+        self.assertEqual(GRAPHICS.supplementary_groups([1000, 44], []), [44, 1000])
+
     def test_invalid_mode_rejected(self):
         with self.assertRaises(ValueError):
             GRAPHICS.prepare('fast', self.template, [])

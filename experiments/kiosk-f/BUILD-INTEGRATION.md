@@ -59,3 +59,19 @@ ID e4130633aed1a04d033330f0c24757218078ebf524f36f0bf70732a89135eb8a.
 Build verified required binaries, Python compilation and shell syntax. Not yet
 activated; next test must remove old runtime-helper bind mounts in a temporary
 Quadlet so the bundled files are genuinely exercised, with independent rollback.
+
+Bundle live test (02:36 UTC): running from the assembled image with the five
+old helper/policy bind mounts removed, Xorg selected glamor, portrait and ILITEK
+enumeration remained, Sunshine found H264+HEVC, five persistent Sunshine
+config/state/certificate files were byte-identical. Separate browser probe passed.
+However the actual kiosk browser reported render-node permission denied: unlike
+the diagnostic probe, startup reset supplementary groups to the image's kiosk
+memberships. Thus this was NOT a complete production GPU success. Rolled back
+original image/Quadlet and verified service active. Logs/backups retained in
+/config/kiosk-test/builds/bundle-live-20260921.
+
+Source correction: startup now preserves kiosk's existing supplementary groups
+and adds nonzero group IDs from explicitly granted render character devices only
+when graphics=auto. Does not chmod host devices, change /etc/group, add group0 or
+grant new devices. 57 tests pass including membership preservation/root exclusion.
+Needs updated bundle and repeat live production-browser validation.

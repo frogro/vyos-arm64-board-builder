@@ -79,6 +79,7 @@ if [ "$graphics" = glamor ]; then
 fi
 [ "$ready" = yes ] || { cat /state/Xorg.log; exit 1; }
 printf '%s\n' "$graphics" > /run/kiosk/graphics-mode
-setpriv --reuid kiosk --regid kiosk --init-groups -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
+kiosk_groups=$(python3 /usr/local/bin/kiosk-graphics.py --groups)
+setpriv --reuid kiosk --regid kiosk --groups "$kiosk_groups" -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
 session_pid=$!
 wait "$session_pid"
