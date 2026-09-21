@@ -120,3 +120,12 @@ predict hardware-enabled Chrome. Keep H264 default pending actual client tests.
 D transport fixtures must use noBframes; F file-playback fixtures intentionally
 containBframes and are unsuitable as an unchanged WebRTC baseline.
 https://mediamtx.org/docs/features/webrtc-specific-features
+
+## Hardware-enabled WebRTC receiver, test3
+
+New result supersedes the scope of the software-only baseline: with the working
+V4L2/Mali path, Chromium153 advertises HEVC and actually receives/decodes both
+H264 and H265 through an isolated MediaMTX WHEP session at1080p60. See
+webrtc-test3/README.md, reproducible scripts and technical results. This is an
+additional candidate path, not a default or proof that all client browsers can
+receive HEVC. Physical rendering/color and real HDMI→client testing remain.

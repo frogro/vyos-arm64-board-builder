@@ -36,3 +36,8 @@ import/conversion separately; this is not evidence that the RGA CSC patch failed
 (RGA converter is not this browser path). Earlier720p sample pass is not a
 blanket color guarantee. Full PNG/verbose logs retained in /tmp/vyarm-browser-perf
 and live /config/kiosk-test/kernel-test3 results; committed JSON omits base64PNG.
+
+Additional diagnostic --disable-gpu-vsync + --disable-frame-rate-limit worsened
+the headless path: H264 timed out50s with only3 callbacks; HEVC ended but reported
+948droppedFrames. Not adopted. Backend source explains forcedREC601 import; see
+../BROWSER-COLOR-IMPORT.md and explicit601 reference match below1 RGB value/channel.

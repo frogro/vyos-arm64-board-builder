@@ -20,7 +20,7 @@ for run in $(seq 1 "${PERF_RUNS:-3}"); do
   cat /sys/class/thermal/thermal_zone*/temp > "$out/$run-$codec-temperature-before.txt"
   timeout -k 5 90 podman run --rm --name "$name" --network none --memory 1g \
    --user kiosk "${groups[@]}" --device /dev/dri --device "$video" --device "$media" \
-   -e PROBE_TIMEOUT=50 -e PROBE_PERF=1 -e PROBE_WIDTH="${PERF_WIDTH:-1920}" -e PROBE_HEIGHT="${PERF_HEIGHT:-1080}" \
+   -e PROBE_PACING="${PERF_PACING:-default}" -e PROBE_TIMEOUT=50 -e PROBE_PERF=1 -e PROBE_WIDTH="${PERF_WIDTH:-1920}" -e PROBE_HEIGHT="${PERF_HEIGHT:-1080}" \
    -v "$fixtures:/fixtures:ro" -v "$root/browser-device-probe.py:/probe.py:ro" \
    -v "$root/probe-wayland.sh:/probe-wayland.sh:ro" --entrypoint bash \
    "$image" /probe-wayland.sh "$codec" > "$out/$run-$codec.json" 2> "$out/$run-$codec.stderr"

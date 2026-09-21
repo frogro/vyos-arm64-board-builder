@@ -32,7 +32,7 @@ for path in sorted(root.glob('[123]-*.json')):
 result = {'scope': 'whole disposable browser + Weston + probe cgroup; 100% = one CPU core',
           'warmupSeconds': 5, 'runs': rows, 'medians': {}}
 for codec in ('h264', 'hevc'):
-    selected = [r for r in rows if r['run'].endswith(codec)]
+    selected = [r for r in rows if r['run'].endswith(codec) and r['state'] == 'ended']
     if selected:
         result['medians'][codec] = {key: statistics.median(r[key] for r in selected)
                                   for key in ('cpuOneCorePercent', 'dropped', 'elapsedMs')}

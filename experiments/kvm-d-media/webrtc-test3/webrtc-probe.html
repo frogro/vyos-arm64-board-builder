@@ -1,0 +1,34 @@
+<!doctype html><meta charset="utf-8"><video id="video" autoplay muted playsinline width="640"></video>
+<script>
+const codec=new URLSearchParams(location.search).get('codec')||'h264';
+const video=document.querySelector('video');
+const report=window.decodeProbe={codec,state:'loading',frames:[],started:performance.now()};
+const pc=new RTCPeerConnection({iceServers:[]});
+report.connectionStates=[];pc.onconnectionstatechange=()=>report.connectionStates.push(pc.connectionState);
+pc.ontrack=e=>{video.srcObject=e.streams[0]||new MediaStream([e.track]);video.play().catch(()=>{});};
+function frame(t,m){report.frames.push({mediaTime:m.mediaTime,presentedFrames:m.presentedFrames});if(report.state!=='ended')video.requestVideoFrameCallback(frame);}
+video.requestVideoFrameCallback(frame);
+(async()=>{
+ const mime=codec==='hevc'?'video/H265':'video/H264';
+ const caps=RTCRtpReceiver.getCapabilities('video').codecs.filter(c=>c.mimeType===mime && (codec==='h264' ? c.sdpFmtpLine?.includes('profile-level-id=64001f') && c.sdpFmtpLine?.includes('packetization-mode=1') : c.sdpFmtpLine?.includes('profile-id=1;')));
+ if(!caps.length)throw Error('No receiver capability for '+mime);
+ const tr=pc.addTransceiver('video',{direction:'recvonly'});tr.setCodecPreferences(caps);
+ const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+ report.offeredCodecs=offer.sdp.split('\r\n').filter(x=>/^a=(rtpmap|fmtp):/.test(x));
+ let response;
+ for(let i=0;i<30;i++){
+  response=await fetch('http://127.0.0.1:18889/probe/whep',{method:'POST',headers:{'Content-Type':'application/sdp'},body:offer.sdp});
+  if(response.ok)break;
+  report.lastHttpError=await response.text();await new Promise(r=>setTimeout(r,200));
+ }
+ if(!response.ok)throw Error('WHEP '+response.status+': '+report.lastHttpError);
+ const answer=await response.text();report.answerCodecs=answer.split('\r\n').filter(x=>/^a=(rtpmap|fmtp):/.test(x));
+ await pc.setRemoteDescription({type:'answer',sdp:answer});report.state='playing';
+ await new Promise(r=>setTimeout(r,20000));
+ report.stats=[];(await pc.getStats()).forEach(s=>{if(['inbound-rtp','codec'].includes(s.type))report.stats.push(s);});
+ const q=video.getVideoPlaybackQuality();Object.assign(report,{state:'ended',width:video.videoWidth,height:video.videoHeight,totalFrames:q.totalVideoFrames,droppedFrames:q.droppedVideoFrames,elapsedMs:performance.now()-report.started});
+ if (!q.totalVideoFrames) {report.state='error'; report.error='No video frames received';}
+ // Retain last video frame for canvas validation; container cleanup ends session.
+})().catch(e=>{report.state='error';report.error=String(e);});
+setTimeout(()=>{if(!['ended','error'].includes(report.state)){report.state='timeout';report.error='WebRTC timeout';}},35000);
+</script>

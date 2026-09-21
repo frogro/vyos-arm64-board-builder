@@ -87,3 +87,14 @@ MPP encoding or a successful H264 probe. SPS-RPS stream coverage, long-playback
 performance and physical display integration remain separate acceptance items.
 The earlier Chromium SPS/RPS patch prototype is not installed and was not
 required for the tested stream; do not ship it as a proven prerequisite.
+
+1080p60 tests: raw V4L2 decoder throughput has ample headroom, but browser
+headless dropped-frame counters and NV12 BT709 import correctness remain open.
+No automatic browser-hardware default promotion yet. Accurate status must
+distinguish codec hardware selection from verified display/color behavior.
+
+Hardware-enabled WebRTC follow-up: isolated MediaMTX→ROCK Chromium receiver now
+negotiates/decodes H264 High and HEVC Main at1080p60. Thus D HEVC transport is a
+viable optional test path for validated receivers, not blanket browser support.
+Keep H264 default; readiness must include receiver capability, actual frames and
+presentation/color validation. This does not implement the reserved F WebRTC UI.
