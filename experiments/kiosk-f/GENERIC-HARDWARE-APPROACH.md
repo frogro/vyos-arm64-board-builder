@@ -56,3 +56,23 @@ supported hardware family/revision. Preserve user configuration across updates;
 initial defaults apply to first installation or missing values, not as an
 unconditional replacement of existing settings. Landscape remains the initial
 orientation default. Anthias remains a separate future alternative test path.
+
+## Potential reuse by profile D (KVM over IP)
+
+Source audit: tools/kvm-cli/vyos-kvm-video-runner already uses ffmpeg-rockchip
+h264_rkmpp or GStreamer mpph264enc on its Rockchip provider. Its GStreamer RGB
+capture path selects v4l2convert/RGA for BGR3/RGB3; native NV12 bypasses conversion.
+Therefore the RGA color correction is relevant, but the current F numeric proof
+covers XBGR32-to-NV12, not D's packed RGB/BGR24 formats. Validate those formats,
+colorimetry/range propagation and capture output before enabling it in D.
+
+FFmpeg MPP lifecycle/ownership fixes may benefit D's FFmpeg backend if its pinned
+source contains the same affected code. They do not automatically apply to the
+separate GStreamer MPP plugin. H.265 is an optional future D path requiring codec
+selection, transport/client compatibility and latency tests; D currently builds
+its runner around H.264. Sunshine-specific converter code is not a drop-in D
+component, though capability checks and tests can be reused.
+
+The new rkvdec decoder primarily serves compressed video playback. A normal raw
+HDMI capture-to-encoder KVM path does not need video decoding. No D code, default,
+workflow or live configuration is changed by this audit.
