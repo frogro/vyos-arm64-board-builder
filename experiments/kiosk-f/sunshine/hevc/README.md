@@ -17,3 +17,8 @@ portrait/input/audio-policy regression, and encoder latency/CPU measurements.
 Keep original image and H.264 settings available for rollback. Current tags are
 local experimental dependencies, not immutable release inputs; resolve digests
 and publish reproducible artifacts before production workflow use.
+
+`probe.sh` runs with a private network namespace and disposable state, sharing
+only X11 access with the running kiosk and granting /dev/mpp_service. It accepts
+success only when Sunshine reports both Found H.264 and Found HEVC encoders.
+It does not copy/use existing credentials or request a live client session.

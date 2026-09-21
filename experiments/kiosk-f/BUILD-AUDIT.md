@@ -77,3 +77,16 @@ firmware plus licence and initramfs hook. Repeat in both first-install and updat
 rootfs builds; do not rely on live overlay files migrating into a new image.
 Normal release workflows remain untouched; this is an explicit experimental F
 staging step until F image assembly is wired in.
+
+## Integration and hardware follow-up (Sep21)
+
+BUILD-INTEGRATION.md supersedes the earlier statement that no image-assembly
+opt-in exists: KIOSK_F=yes now stages the CLI/host corrections. Full image and
+release workflow acceptance remain pending; CI checks are separate.
+Isolated EGL test proves Mali-G610 rendering with Mesa25.0.7; live Chromium
+acceleration remains unconfigured. RGA test2 improves BT.601 samples to maxerror1,
+but BT.709 remains16 and range requests ignored. H.265 candidate is being built
+separately, no live replacement. Browser decoding remains a separate gap:
+current test2 disables ROCKCHIP_MPP_RKVDEC2 and VIDEO_ROCKCHIP_VDEC. Enabling an
+encoder or passing EGL does not establish video decode; evaluate decoder driver,
+matching DT nodes and browser/userspace support before next kernel candidate.
