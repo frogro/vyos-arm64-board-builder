@@ -31,6 +31,13 @@ class OfflineImage(unittest.TestCase):
             self.assertEqual(state.read_bytes(), b'customer settings')
             self.assertTrue((root / 'etc/systemd/system/vyos.target.wants/vyarm-kiosk-runtime.service').is_symlink())
 
+    def test_import_waits_for_first_boot_partition_growth(self):
+        unit = (BASE / 'vyarm-kiosk-runtime.service').read_text()
+        self.assertIn('Wants=vyos-arm64-grow-persistence.service', unit)
+        after = next(line for line in unit.splitlines() if line.startswith('After='))
+        self.assertIn('vyos-arm64-grow-persistence.service', after.split())
+        self.assertIn('Before=vyos-router.service', unit)
+
     def test_existing_tag_collision_never_loads_or_retags(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

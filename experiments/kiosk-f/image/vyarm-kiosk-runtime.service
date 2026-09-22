@@ -1,6 +1,7 @@
 [Unit]
 Description=Import the versioned offline VyARM kiosk runtime
-After=local-fs.target
+Wants=vyos-arm64-grow-persistence.service
+After=local-fs.target vyos-arm64-grow-persistence.service
 Before=vyos-router.service
 ConditionPathExists=/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json
 
