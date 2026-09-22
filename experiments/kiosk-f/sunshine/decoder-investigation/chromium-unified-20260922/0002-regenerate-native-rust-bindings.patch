@@ -1,0 +1,13 @@
+--- a/debian/deb_pre_gen.py
++++ b/debian/deb_pre_gen.py
+@@ -63,6 +63,10 @@
+   global prev_output_key, prev_indep
+   prev_output_key, prev_indep = output_key, indep
+   if not output_key:
++    return False
++  # Native Rust build tools cannot reuse ARM64 pre-generated metadata whose
++  # output paths refer to default_for_rust_host_build_tools.
++  if output_key.startswith("host_for_rust_host_build_tools/"):
+     return False
+   if mode in ("disable", "generate"):
+     return False

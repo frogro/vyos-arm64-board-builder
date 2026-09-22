@@ -1,0 +1,12 @@
+--- a/media/gpu/v4l2/v4l2_video_decoder.cc
++++ b/media/gpu/v4l2/v4l2_video_decoder.cc
+@@ -1215,7 +1215,8 @@
+   size_t v4l2_num_buffers = use_v4l2_allocated_buffers
+                                 ? num_codec_reference_frames + 2
+                                 : VIDEO_MAX_FRAME;
+-  if (!low_delay_ && use_v4l2_allocated_buffers &&
++  if (!low_delay_ && profile_ >= H264PROFILE_MIN &&
++      profile_ <= H264PROFILE_MAX && use_v4l2_allocated_buffers &&
+       input_queue_->SupportsRequests() &&
+       base::FeatureList::IsEnabled(kV4L2ExtraCaptureBuffers) &&
+       v4l2_num_buffers < VIDEO_MAX_FRAME) {
