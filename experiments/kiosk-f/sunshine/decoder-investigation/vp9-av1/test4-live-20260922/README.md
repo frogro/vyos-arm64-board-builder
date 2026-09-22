@@ -100,3 +100,24 @@ following power transition, not this run's decoding. Exact reset/IOMMU operation
 remains unproven. Do not claim stable AV1 reuse. Requested power cycle back to
 normal kernel; no further decoder loads initiated. Files staged-*.log retain
 external evidence, including the returned removal marker.
+
+## Mask 0 control succeeds, 12:23–12:25 CEST
+
+Fresh test4 one-shot boot, same binary, IOMMU, fixtures and userspace. Only module
+parameter changed: remove_reset_mask=0 instead of 3, so removal does not assert
+core or BIU reset lines. Three complete load/decode/remove cycles succeeded;
+each 300-frame NV12 hash list exactly equals software reference. Eight-second
+post-remove observation each time, SSH responsive, next load successful.
+External logs and all hash arrays saved. No failed services, ACK failures,
+Oops/SError or IOMMU faults observed. This implicates core resets in combination
+with the test4 IOMMU path; it does not establish exact register-level cause or
+a production-correct policy. No permanent reset omission integrated.
+
+Cleanup: Hantro unloaded, temporary other-core driver overrides cleared, boot
+fallback timer disabled, next_entry empty; normal GRUB default unchanged.
+Current kernel remains test4, kiosk and input reconciler active. Next ordinary
+boot selects normal kernel. No new kernel compile or normal workflow changes.
+
+Follow-up: longer idle/reprobe, teardown with IOMMU runtime power held, reset
+ownership/order review; separately evaluate upstream runtime-PM clock patch.
+Do not combine both changes for the initial causal control.

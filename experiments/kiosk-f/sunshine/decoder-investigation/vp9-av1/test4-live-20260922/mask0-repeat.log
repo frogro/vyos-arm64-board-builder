@@ -1,0 +1,12 @@
+MASK0_CYCLE_2_LOAD
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+300/300 frames bit-exact
+MASK0_CYCLE_2_REMOVE
+ 12:25:20 up 4 min,  0 user,  load average: 7.17, 4.11, 1.72
+MASK0_CYCLE_2_OK
+MASK0_CYCLE_3_LOAD
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+300/300 frames bit-exact
+MASK0_CYCLE_3_REMOVE
+ 12:25:39 up 5 min,  0 user,  load average: 7.77, 4.45, 1.88
+MASK0_CYCLE_3_OK
