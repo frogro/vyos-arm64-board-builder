@@ -2,6 +2,13 @@
 
 Authorized window:16:32–17:32 CEST. Diagnostic only, no production defaults.
 
+## Already known boot-setup error repeated
+
+The panic=30/kexec issue in this run was already diagnosed at11:36:52 in the
+[test4 report](../sunshine/decoder-investigation/vp9-av1/test4-live-20260922/README.md).
+Reintroducing it was a repeated test-setup mistake. Follow the central
+[boot checklist](../BOOT-TEST-CHECKLIST.md) before subsequent boot experiments.
+
 ## Build and isolation
 
 Cloned test4 kbuild; private mount namespace presents the clone at its original

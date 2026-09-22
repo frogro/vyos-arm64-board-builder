@@ -2,6 +2,11 @@
 
 Development baseline: e24a9f1 from main-test (the tested builder line), not the older main branch. Branch: feature/kiosk-profile-f. E remains a separate design only. No workflow or production profile selection is changed.
 
+## Before any further testkernel boot
+
+Read [BOOT-TEST-CHECKLIST.md](BOOT-TEST-CHECKLIST.md). The unmanaged `panic=30`
+argument has already caused an unintended VyOS kexec twice; do not reintroduce it.
+
 ## Verified on ROCK 5B
 
 - Debian trixie container, native VyOS container configuration, Xorg modesetting software rendering, Chromium kiosk.

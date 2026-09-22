@@ -68,3 +68,9 @@ See av1-reset-candidates-20260922/README.md and validation.json.
 Kiosk/input/D-video active; logrotate state-lock collision remains (regular retry reproduced exit3); watchdog inactive, no diagnostic
 modules/overrides. Normal default unchanged, next_entry empty; boot timer disabled.
 ThinkPad back on homebase. Candidate tests finished within the authorized hour.
+
+User correction recorded: panic=30/kexec was already diagnosed in the11:36 test4
+boot; the16:42 occurrence repeated a known setup error. Central mandatory
+BOOT-TEST-CHECKLIST.md and profile README link now record the preflight rule,
+runtime-only alternative, actual-kernel verification and limits of boot timers.
+No live changes made for this documentation correction.
