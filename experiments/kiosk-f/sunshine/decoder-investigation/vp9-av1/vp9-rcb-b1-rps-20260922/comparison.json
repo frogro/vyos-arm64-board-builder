@@ -1,0 +1,229 @@
+{
+  "combined-browser/1-hevc.json": {
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 118.09999999962747,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 3,
+      "elapsedMs": 32605.799999998882
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      },
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  "combined-browser/1-h264.json": {
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 88.09999999962747,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 287,
+      "elapsedMs": 31701.299999998882
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      },
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  "combined-browser-vp9/1-vp9.json": {
+    "page": {
+      "codec": "vp9",
+      "state": "ended",
+      "started": 241.7999999988824,
+      "duration": 29.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 7,
+      "elapsedMs": 30370.599999999627
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      },
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  "combined-browser-no-b/1-hevc.json": {
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 412.69999999925494,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 3,
+      "elapsedMs": 31072.599999999627
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      },
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  "combined-browser-no-b/1-h264.json": {
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 86.29999999888241,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 16,
+      "elapsedMs": 31096.400000000373
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  "combined-vp9-hashes.json": {
+    "frames": 300,
+    "matches": true
+  },
+  "combined-decode/decoded.sha256": "5de09a08923bfe388c4793146e189b508b261295457a9e48959af70f22ffd538  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/h264-1.i420\n5de09a08923bfe388c4793146e189b508b261295457a9e48959af70f22ffd538  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/h264-2.i420\n5de09a08923bfe388c4793146e189b508b261295457a9e48959af70f22ffd538  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/h264-3.i420\ne1174652a97d5831f12c94bbdb5b0bdb2d6202cf27742c747feb0e6784fb34d2  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/hevc-1.i420\ne1174652a97d5831f12c94bbdb5b0bdb2d6202cf27742c747feb0e6784fb34d2  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/hevc-2.i420\ne1174652a97d5831f12c94bbdb5b0bdb2d6202cf27742c747feb0e6784fb34d2  /config/kiosk-test/kernel-test3/vp9-rcb-b1-rps-compare3/combined-decode/hevc-3.i420\n"
+}

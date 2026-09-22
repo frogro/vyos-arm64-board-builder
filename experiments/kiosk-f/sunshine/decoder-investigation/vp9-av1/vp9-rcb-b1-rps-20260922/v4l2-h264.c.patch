@@ -1,0 +1,12 @@
+--- a/drivers/media/v4l2-core/v4l2-h264.c
++++ b/drivers/media/v4l2-core/v4l2-h264.c
+@@ -440,7 +440,8 @@
+ 	}
+ 
+ 	if (builder->num_valid > 1 &&
+-	    !memcmp(b1_reflist, b0_reflist, builder->num_valid))
++	    !memcmp(b1_reflist, b0_reflist,
++			sizeof(b1_reflist[0]) * builder->num_valid))
+ 		swap(b1_reflist[0], b1_reflist[1]);
+ 
+ 	print_ref_list_b(builder, b0_reflist, 0);

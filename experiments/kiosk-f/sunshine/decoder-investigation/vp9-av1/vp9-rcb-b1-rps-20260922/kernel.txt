@@ -1,0 +1,12 @@
+Sep 22 02:23:28 vyos kernel: rockchip-rga fdb80000.rga: Removing
+Sep 22 02:23:28 vyos kernel: videodev: Linux video capture interface: v2.00
+Sep 22 02:23:28 vyos kernel: rockchip-rga fdb80000.rga: HW Version: 0x03.02
+Sep 22 02:23:28 vyos kernel: rockchip-rga fdb80000.rga: Registered rockchip-rga as /dev/video0
+Sep 22 02:23:28 vyos kernel: snps_hdmirx fdee0000.hdmi_receiver: assigned reserved memory node hdmi-receiver-cma
+Sep 22 02:23:28 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
+Sep 22 02:27:15 vyos kernel: rockchip-rga fdb80000.rga: Removing
+Sep 22 02:27:15 vyos kernel: videodev: Linux video capture interface: v2.00
+Sep 22 02:27:15 vyos kernel: rockchip-rga fdb80000.rga: HW Version: 0x03.02
+Sep 22 02:27:15 vyos kernel: rockchip-rga fdb80000.rga: Registered rockchip-rga as /dev/video0
+Sep 22 02:27:15 vyos kernel: snps_hdmirx fdee0000.hdmi_receiver: assigned reserved memory node hdmi-receiver-cma
+Sep 22 02:27:15 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
