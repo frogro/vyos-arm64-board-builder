@@ -24,6 +24,11 @@ VP9 VDPU381 series, RCB sizing, H264 B1 comparison and HEVC SPS/RPS bounds.
 Build all modules and the kernel together as 6.18.50-vyos to match the raw ABI
 contract. Never reuse incompatible external .ko files or private signing keys.
 A new build-local signing key signs this kernel's complete modules; never ship it.
+As in build.sh, modules_install uses INSTALL_MOD_STRIP=1 before signing,
+and development-only build/source links are removed. The eight official VyOS
+OOT modules are rebuilt from the matching raw source pin (accel-ppp, Jool,
+RTSP and Netflow); verify signatures/vermagic and unresolved symbols before
+assembly. Do not carry these modules over from the old kernel.
 RGA full-CSC and RGB/NV12M extensions are available behind
 rockchip_rga.experimental_full_csc=1 (default off), retaining revision gating.
 Do not promote the later experimental VSI identity/TLB/reset candidates here.
