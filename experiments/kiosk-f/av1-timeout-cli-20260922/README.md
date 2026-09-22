@@ -81,3 +81,14 @@ browser-comparison reboot or the VSI patch. Final restored test4 boot does not
 show these messages. Next bounded investigation: display/framebuffer transition
 and mapping lifetime during boot; keep AV1 decoder results separate. No extra
 kernel patch or broad stress run was started for this finding in this hour.
+
+## Native package build at end of one-hour budget
+
+Full ARM64/QEMU vyos-1x package build deliberately stopped at18:20 CEST during
+upstream pylint, before the18:25 user deadline. No completed .deb or live native
+upgrade is claimed. The68 focused tests,3 host regressions, XML checks, generated
+configuration templates and reference cache passed; full package checks remain
+incomplete. Build dependencies are cached in the dedicated local Docker image
+`vyos-profile-build:media-cli-deps-20260922`; source and a non-started resume script
+are preserved. See package-build-status.json for exact provenance and paths.
+The original ROCK kiosk/package remain active.

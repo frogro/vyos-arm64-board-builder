@@ -97,3 +97,12 @@ Final log audit found a separate combined-boot VOP display-IOMMU fault burst and
 vblank timeout before AV1 tests. Not present in final restored test4 boot. Recorded
 as an additional shipping blocker; do not describe the entire candidate kernel
 as warning-free or infer that the AV1 VSI changes caused it.
+
+### 18:21 — one-hour work closure
+
+Decoder tests finished and original test4/kiosk restored. Commit a1e7e3c contains
+CLI policy and isolated recovery patches/evidence. Native ARM64 CLI package build
+was intentionally stopped during full upstream pylint to honor18:25 deadline;
+no .deb completion or native installation claimed. Dependencies cached as
+vyos-profile-build:media-cli-deps-20260922, source and resume script preserved;
+see av1-timeout-cli-20260922/package-build-status.json. No Chromium rebuild.

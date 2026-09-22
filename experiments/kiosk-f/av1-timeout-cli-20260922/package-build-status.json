@@ -1,0 +1,23 @@
+{
+  "result": "incomplete-intentionally-stopped-at-time-budget",
+  "stopped_at": "2026-09-22T18:20:50+02:00",
+  "last_stage": "upstream pylint under ARM64 QEMU",
+  "package_installed_on_rock": false,
+  "build_source_commit": "768ddb452afb012a33300c536afffed7666915fc",
+  "dependency_image": "vyos-profile-build:media-cli-deps-20260922",
+  "dependency_image_id": "sha256:54832e3b17b47beab66460dceac3da05b6afe960a1ff7c947b2b6f9fd795a28f",
+  "build_directory": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/kiosk-media-cli-20260922",
+  "resume_script": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/kiosk-media-cli-20260922/resume-build.sh",
+  "expected_version": "999.0-14924-g27383e4f1+kvm-tailscale.e1a4f68a2e90+kiosk-sunshine.f303bf1f1928+media.20260922.1",
+  "completed_checks": [
+    "68 focused unit tests",
+    "3 host-fix regressions",
+    "upstream config/op XML validation",
+    "generated configuration templates and reference cache"
+  ],
+  "not_claimed": [
+    "completed full package lint/tests",
+    "built deb artifacts",
+    "native live upgrade"
+  ]
+}
