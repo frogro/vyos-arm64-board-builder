@@ -1,0 +1,14 @@
+[Unit]
+Description=Import the versioned offline VyARM kiosk runtime
+After=local-fs.target
+Before=vyos-router.service
+ConditionPathExists=/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vyos/vyarm-kiosk-runtime-import
+TimeoutStartSec=300
+RemainAfterExit=yes
+
+[Install]
+WantedBy=vyos.target

@@ -12,6 +12,8 @@ KVM_OVER_IP="${6:-no}"
 KVM_HARDWARE_PROVIDER="${7:-disabled}"
 KVM_CAPTURE_BACKEND="${8:-disabled}"
 KVM_HID_GADGET="${9:-no}"
+KIOSK_F="${10:-no}"
+[[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || exit 1
 
 case "${TAILSCALE_SUBNET_ROUTER,,}" in
     1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
@@ -64,6 +66,11 @@ case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}:${KVM_OVER_IP}" in
     yes:yes:yes) EXPECTED_PROFILE=network-tailscale-kvm ;;
 esac
 
+if [[ "$KIOSK_F" == yes ]]; then
+    [[ "$EXPECTED_PROFILE" != base ]] || EXPECTED_PROFILE=""
+    EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}kiosk"
+fi
+
 [[ "$BUILD_PROFILE" == "$EXPECTED_PROFILE" ]] || {
     echo "ERROR: build profile '$BUILD_PROFILE' does not match selected features; expected '$EXPECTED_PROFILE'" >&2
     exit 1
@@ -88,12 +95,12 @@ PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
     "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" \
-    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" <<'PY'
+    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale, kvm, provider, capture, hid = sys.argv[1:]
+output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 2,
     "architecture": "arm64",
@@ -103,6 +110,7 @@ Path(output).write_text(json.dumps({
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+        **({"kiosk_f": True} if kiosk == "yes" else {}),
     },
     "kvm": {
         "hardware_provider": provider,

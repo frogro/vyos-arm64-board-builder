@@ -1,0 +1,27 @@
+# Local experimental image: imported, pinned Weston/Mesa/Sunshine base.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+LABEL io.vyarm.kiosk.media-policy="2"
+LABEL io.vyarm.kiosk.media-h264-reserve="1"
+LABEL io.vyarm.kiosk.media-av1-reserve="1"
+COPY helpers/ /usr/local/bin/
+COPY sunshine-rga /opt/vyarm/experimental/sunshine-rga
+COPY chromium/ /opt/vyarm/chromium/
+COPY media-capabilities.json /usr/share/vyarm/kiosk-media-capabilities.json
+COPY xorg.conf /etc/X11/xorg.conf
+COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
+COPY input-test.html /opt/kiosk/input-test.html
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local/bin/kiosk-*.py \
+ && chmod 755 /opt/vyarm/experimental/sunshine-rga \
+ && ! ldd /opt/vyarm/experimental/sunshine-rga | grep "not found" \
+ && chmod 4755 /opt/vyarm/chromium/chrome_sandbox \
+ && echo 'd1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6  /opt/vyarm/chromium/chrome' | sha256sum -c - \
+ && python3 -m py_compile /usr/local/bin/kiosk-*.py \
+ && bash -n /usr/local/bin/start-kiosk \
+ && /opt/vyarm/chromium/chrome --version \
+ && command -v sunshine && command -v Xorg && command -v weston
+ENV KIOSK_GRAPHICS=software
+# The existing X11 session remains the default; Wayland decoder tests are opt-in.
+# No state, credentials, test fixtures, browser profiles or private keys copied.

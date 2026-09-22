@@ -1,0 +1,24 @@
+--- a/drivers/media/platform/rockchip/rga/rga-hw.c
++++ b/drivers/media/platform/rockchip/rga/rga-hw.c
+@@ -5,6 +5,11 @@
+  */
+ 
+ #include <linux/pm_runtime.h>
++#include <linux/moduleparam.h>
++
++static bool experimental_full_csc;
++module_param(experimental_full_csc, bool, 0644);
++MODULE_PARM_DESC(experimental_full_csc, "Enable tested revision-gated RGB full-CSC experiment");
+ 
+ #include "rga-hw.h"
+ #include "rga.h"
+@@ -163,6 +168,9 @@
+ 	unsigned int row, col, matrix;
+ 	bool full;
+ 	u32 value;
++
++	if (!experimental_full_csc)
++		return false;
+ 
+ 	if ((ctx->in.fmt->fourcc != V4L2_PIX_FMT_XBGR32 &&
+ 	     ctx->in.fmt->fourcc != V4L2_PIX_FMT_BGR24 &&

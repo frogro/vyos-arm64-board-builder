@@ -53,6 +53,7 @@ BUILD_PROFILE="base"
 EXTENDED_NETWORK="no"
 TAILSCALE_SUBNET_ROUTER="no"
 KVM_OVER_IP="no"
+KIOSK_F="no"
 KVM_HARDWARE_PROVIDER="disabled"
 KVM_CAPTURE_BACKEND="disabled"
 KVM_HID_GADGET="no"
@@ -205,12 +206,13 @@ python3 - \
     "$KVM_HARDWARE_PROVIDER" \
     "$KVM_CAPTURE_BACKEND" \
     "$KVM_HID_GADGET" \
+    "$KIOSK_F" \
     "${COMPATIBLE[@]}" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, kvm, kvm_provider, capture_backend, hid_gadget, *compatible = sys.argv[1:]
+output, board, name, dtb, firmware, update_provider, profile, extended_network, tailscale, kvm, kvm_provider, capture_backend, hid_gadget, kiosk, *compatible = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 3,
     "architecture": "arm64",
@@ -226,6 +228,7 @@ Path(output).write_text(json.dumps({
         "extended_network": extended_network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+        **({"kiosk_f": True} if kiosk == "yes" else {}),
     },
     "kvm": {
         "hardware_provider": kvm_provider,

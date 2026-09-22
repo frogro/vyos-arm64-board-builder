@@ -497,7 +497,12 @@ mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
 if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
-    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F"
+    if [[ -n "${VYOS_1X_PREBUILT:-}" ]]; then
+        KVM_CLI_ARTIFACTS="$(realpath "$VYOS_1X_PREBUILT")"
+        [[ -s "$KVM_CLI_ARTIFACTS/build.json" ]] || die "Prebuilt CLI provenance missing"
+    else
+        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F"
+    fi
     "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F"
 fi
 
@@ -567,7 +572,8 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$KVM_OVER_IP" \
     "$KVM_HARDWARE_PROVIDER" \
     "$KVM_CAPTURE_BACKEND" \
-    "$KVM_HID_GADGET"
+    "$KVM_HID_GADGET" \
+    "$KIOSK_F"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
@@ -607,6 +613,9 @@ if [[ "$KIOSK_F" == yes ]]; then
     python3 "$ROOT/experiments/kiosk-f/host/install.py" --rootfs "$SQUASH_ROOT" \
         --cache "$ROOT/cache/kiosk-f-firmware" "${firmware_args[@]}"
     bash "$ROOT/experiments/kiosk-f/host/protect-grub-dtb.sh" "$SQUASH_ROOT" "$BOOT_FDT_FILE"
+    if [[ -n "${KIOSK_F_RUNTIME:-}" ]]; then
+        python3 "$ROOT/experiments/kiosk-f/image/stage-runtime.py" "$SQUASH_ROOT" "$KIOSK_F_RUNTIME"
+    fi
 fi
 
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="

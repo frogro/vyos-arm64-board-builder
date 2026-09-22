@@ -131,6 +131,7 @@ main() {
         --extended-network "${extended_network}" \
         --tailscale-subnet-router "${tailscale_subnet_router}" \
         --kvm-over-ip "${kvm_over_ip}" \
+        --kiosk-f "${KIOSK_F:-no}" \
         --output-env "${selection_dir}/feature-profiles.env" \
         --output-json "${selection_dir}/feature-profile.json"
 
