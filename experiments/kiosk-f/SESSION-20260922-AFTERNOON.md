@@ -40,3 +40,14 @@ then final commit. BT709-full and BT601-preservation color regressions running.
 modifier expectations corrected in a separate test-only patch; initial failure
 logs retained. Production services and original media modules restored; Hantro
 unloaded, no pending experimental rollback/reboot timers.
+
+16:30 CEST: new AV1 reset/remove experiment completed14 successful removals.
+Powered five-microsecond core pulse (BIU unchanged) instead of held reset after
+PM teardown; separate diagnostic module, default-off, vendor-inspired, not
+production-ready. Three60s powered-off idle cycles and concurrent H2647200frames
+zero sink drops pass. Browser Main10 and killed-client/reopen pass; variable
+browser presentation drops remain documented. Original kiosk/input and D video
+running, diagnostic module/watchdog/timers removed. No reboot this turn.
+Two separate VSI identity-domain/TLB candidates compile only; no provider
+replacement. Error paths/PMU idle/decoder timeout still need validation.
+See av1-reset-research-20260922/README.md, validation.json and exact traces.

@@ -1,0 +1,1426 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 1414/1414   #P:8
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+            bash-508709  [002] ...1.  8752.682894: tracing_mark_write: LOAD_BEGIN
+          insmod-508881  [007] d..1.  8752.721543: rpm_resume: fdca0000.iommu flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.721678: rpm_idle: fdca0000.iommu flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.721678: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=-11
+          insmod-508881  [007] d..1.  8752.721678: rpm_return_int: rpm_resume+0x140/0x650:fdca0000.iommu ret=0
+          insmod-508881  [007] d..1.  8752.721853: rpm_idle: fdc70000.video-codec flags-8 cnt-0  dep-1  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.721853: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-13
+          insmod-508881  [007] d..1.  8752.721854: rpm_idle: fdc70000.video-codec flags-8 cnt-0  dep-1  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.721854: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-13
+          insmod-508881  [007] d..1.  8752.722268: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722271: rpm_resume: fdca0000.iommu flags-4 cnt-2  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722271: rpm_return_int: rpm_resume+0x140/0x650:fdca0000.iommu ret=1
+          insmod-508881  [007] d..1.  8752.722273: rpm_idle: fdc70000.video-codec flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722273: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-11
+          insmod-508881  [007] d..1.  8752.722274: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=0
+          insmod-508881  [007] d..1.  8752.722275: rpm_idle: fdc70000.video-codec flags-5 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722276: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=0
+          insmod-508881  [007] d..1.  8752.722277: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722278: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          insmod-508881  [007] d..1.  8752.722309: rpm_idle: fdc70000.video-codec flags-1 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722309: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=0
+          insmod-508881  [007] d..1.  8752.722310: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          insmod-508881  [007] d..1.  8752.722310: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+        mediamtx-3661    [007] d.h1.  8752.847284: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        mediamtx-3661    [007] dNh1.  8752.847294: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/7:1-502504  [007] d..1.  8752.847304: rpm_suspend: fdc70000.video-codec flags-a cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/7:1-502504  [007] d..1.  8752.847317: rpm_idle: fdca0000.iommu flags-1 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/7:1-502504  [007] d..1.  8752.847318: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=0
+     kworker/7:1-502504  [007] d..1.  8752.847319: rpm_suspend: fdca0000.iommu flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/7:1-502504  [007] d..1.  8752.847320: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+     kworker/7:1-502504  [007] d..1.  8752.847321: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/7:1-502504  [007] d..1.  8752.847322: rpm_suspend: fdca0000.iommu flags-a cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/7:1-502504  [007] d..1.  8752.847400: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+            bash-508709  [002] ...1.  8754.726864: tracing_mark_write: DECODE_BEGIN
+  av1parse0:sink-509187  [004] d..1.  8756.940803: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8756.940810: rpm_resume: fdca0000.iommu flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8756.940942: rpm_idle: fdca0000.iommu flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8756.940943: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=-11
+  av1parse0:sink-509187  [004] d..1.  8756.940943: rpm_return_int: rpm_resume+0x140/0x650:fdca0000.iommu ret=0
+  av1parse0:sink-509187  [004] d..1.  8756.940946: rpm_idle: fdc70000.video-codec flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8756.940946: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-11
+  av1parse0:sink-509187  [004] d..1.  8756.940946: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=0
+          vf#0:0-320058  [000] d.h1.  8756.946527: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8756.946536: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8756.947079: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8756.947081: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8756.951796: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8756.951802: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8756.951857: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8756.951859: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8756.956111: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8756.956117: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] dN.1.  8756.956388: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] dN.1.  8756.956390: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8756.960438: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8756.960441: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8756.960493: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8756.960495: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320061  [000] d.h1.  8756.964403: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320061  [000] d.h1.  8756.964410: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] dN.1.  8756.967126: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] dN.1.  8756.967130: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] dNh1.  8756.970781: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] dNh1.  8756.970786: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.041218: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.041224: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.044858: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.044863: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     in:imuxsock-2544    [000] dNh1.  8757.070573: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] dNh1.  8757.070579: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.101064: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.101069: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h1.  8757.104947: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h1.  8757.104953: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.106084: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.106088: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h2.  8757.109635: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h2.  8757.109642: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.155007: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.155012: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8757.181908: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8757.181912: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509192  [000] d.h2.  8757.185447: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509192  [000] d.h2.  8757.185452: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.231755: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.231760: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8757.242141: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8757.242146: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+  rsyslog-rotate-509193  [000] d.h1.  8757.246055: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+  rsyslog-rotate-509193  [000] d.h1.  8757.246064: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.247425: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.247428: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8757.251259: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8757.251263: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.251334: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.251336: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8757.254915: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8757.254922: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          vf#0:0-320056  [000] d.h1.  8757.309582: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8757.309589: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8757.310848: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8757.310853: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.314450: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.314456: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.357810: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.357816: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8757.367820: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8757.367825: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8757.371689: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8757.371696: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.371832: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.371834: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h2.  8757.375400: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h2.  8757.375406: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.431968: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.431974: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.437206: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.437212: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.440815: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.440820: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.475552: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.475559: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.492407: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.492411: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.h1.  8757.496718: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.h1.  8757.496725: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.496796: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.496798: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.500632: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.500637: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.500721: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.500724: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.504418: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.504423: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.504463: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.504465: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.508187: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.508193: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.508233: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.508235: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8757.511619: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8757.511627: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8757.558510: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8757.558512: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.561865: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.561869: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.564600: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.564607: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8757.612377: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8757.612383: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.616140: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.616146: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.616196: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.616198: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.619628: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.619634: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8757.672622: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8757.672624: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.675944: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.675949: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.682086: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.682093: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8757.746235: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8757.746240: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.749893: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.749897: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.749941: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.749943: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+           vbash-503051  [000] d.h1.  8757.753555: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+           vbash-503051  [000] d.h1.  8757.753558: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.754151: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.754153: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509251  [000] d.h1.  8757.757525: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509251  [000] d.h1.  8757.757529: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+         python3-509019  [000] d.h1.  8757.800581: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8757.800588: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8757.802976: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8757.802977: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8757.806383: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8757.806387: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8757.870719: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8757.870721: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h1.  8757.874345: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h1.  8757.874350: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8757.874417: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8757.874419: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8757.877873: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8757.877877: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.882515: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.882524: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8757.934045: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8757.934051: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8757.937513: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8757.937519: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8757.981435: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8757.981441: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8758.014603: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8758.014608: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.018634: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.018640: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.018688: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.018690: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.022386: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.022391: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.022494: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.022496: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8758.026085: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8758.026091: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.026665: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.026669: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8758.030198: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8758.030203: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.030245: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.030247: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.033455: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.033460: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8758.037923: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8758.037931: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8758.088850: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8758.088852: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8758.091980: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8758.091985: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8758.151437: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8758.151440: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8758.152824: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8758.152829: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+          <idle>-0       [000] d.h2.  8758.154882: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.154887: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.154975: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.154977: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.158142: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.158144: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8758.204207: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8758.204213: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.h1.  8758.207353: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.h1.  8758.207358: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8758.268645: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8758.268646: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8758.272181: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8758.272186: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.272222: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.272223: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h1.  8758.275766: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h1.  8758.275773: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.275828: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.275830: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ enc0:0:h264_rkm-320043  [000] d.h1.  8758.279011: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ enc0:0:h264_rkm-320043  [000] d.h1.  8758.279018: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          podman-509022  [002] d.h1.  8758.279596: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509022  [002] d.h1.  8758.279601: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8758.329688: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8758.329693: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+  av1parse0:sink-509187  [000] d.h1.  8758.332906: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d.h1.  8758.332911: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] d.h2.  8758.403594: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] d.h2.  8758.403600: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8758.404008: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8758.404010: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.407501: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.407504: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8758.407840: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8758.407841: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.410984: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.410989: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+   rs:main Q:Reg-509280  [002] d.h2.  8758.457597: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509280  [002] d.h2.  8758.457604: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8758.468251: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8758.468255: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         udevadm-509279  [000] d.h1.  8758.471361: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         udevadm-509279  [000] d.h1.  8758.471367: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          podman-509030  [002] d.h2.  8758.535599: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509030  [002] d.h2.  8758.535605: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8758.542774: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8758.542776: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          podman-509287  [000] d.h1.  8758.546677: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509287  [000] d.h1.  8758.546685: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.546747: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.546749: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.H4.  8758.550364: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.H4.  8758.550368: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.550438: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.550440: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.h4.  8758.553948: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.h4.  8758.553955: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.554076: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.554078: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8758.557481: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8758.557489: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.557653: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.557655: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.560483: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.560488: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8758.593077: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8758.593084: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8758.623491: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8758.623495: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+  av1parse0:sink-509187  [000] d.h1.  8758.626179: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d.h1.  8758.626183: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8758.669695: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8758.669702: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8758.679982: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8758.679984: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h1.  8758.683317: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h1.  8758.683322: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.683620: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.683623: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h1.  8758.686405: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h1.  8758.686411: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8758.729489: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8758.729498: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8758.730809: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8758.730814: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8758.733460: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8758.733466: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] dN.1.  8758.792289: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] dN.1.  8758.792292: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h3.  8758.795716: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h3.  8758.795723: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.795819: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.795821: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h1.  8758.799188: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h1.  8758.799192: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.799231: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.799233: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ dmx0:video4linu-320046  [000] d.h1.  8758.802270: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ dmx0:video4linu-320046  [000] d.h1.  8758.802275: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     in:imuxsock-2544    [002] d.h1.  8758.810610: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [002] d.h1.  8758.810615: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8758.855552: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8758.855554: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+           vbash-503051  [000] d.h1.  8758.858533: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+           vbash-503051  [000] d.h1.  8758.858539: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8758.916032: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8758.916037: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+           vbash-503051  [000] d.h1.  8758.919374: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+           vbash-503051  [000] d.h1.  8758.919380: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8758.919427: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8758.919429: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509351  [000] d.h1.  8758.922456: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509351  [000] d.h1.  8758.922461: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8758.925671: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8758.925678: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8758.987091: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8758.987097: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8758.989794: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8758.989800: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.028520: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.028528: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8759.041943: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8759.041945: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ enc0:0:h264_rkm-320043  [000] d.h1.  8759.045656: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ enc0:0:h264_rkm-320043  [000] d.h1.  8759.045661: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.045718: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.045720: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.049176: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.049180: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.049218: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.049219: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.052667: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.052670: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.052762: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.052763: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.056083: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.056086: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.056142: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.056144: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.058748: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.058751: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8759.099776: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8759.099781: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8759.102418: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8759.102424: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     in:imuxsock-2544    [002] d.h1.  8759.114618: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [002] d.h1.  8759.114625: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8759.171796: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8759.171801: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.175166: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.175172: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.175223: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.175225: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8759.177853: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8759.177860: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.225903: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.225909: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8759.237177: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8759.237181: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ dmx0:video4linu-320046  [000] d.h1.  8759.239800: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ dmx0:video4linu-320046  [000] d.h1.  8759.239803: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.296021: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.296029: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8759.319091: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8759.319093: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.H2.  8759.322496: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.H2.  8759.322501: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.322600: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.322601: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8759.325957: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8759.325963: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.327642: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.327649: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.330284: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.330290: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.345857: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.345864: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8759.389096: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8759.389098: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   kworker/u32:8-346811  [000] d.h2.  8759.391688: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   kworker/u32:8-346811  [000] d.h2.  8759.391693: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] d.h2.  8759.455286: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] d.h2.  8759.455291: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8759.458968: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8759.458969: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.462263: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.462271: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.462327: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.462329: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.464955: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.464963: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.497228: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.497234: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8759.516928: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8759.516935: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.519558: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.519565: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8759.579361: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8759.579368: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+       systemctl-509369  [000] d.h1.  8759.583150: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+       systemctl-509369  [000] d.h1.  8759.583155: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.583214: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.583216: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+       systemctl-509369  [000] d.H2.  8759.586601: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+       systemctl-509369  [000] d.H2.  8759.586606: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.586673: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.586675: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [002] d.h2.  8759.589957: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] d.h2.  8759.589961: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+       systemctl-509369  [000] d.h1.  8759.589965: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+       systemctl-509369  [000] d.h1.  8759.589968: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.590034: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.590036: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.593279: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.593282: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.593312: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.593314: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8759.595934: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8759.595937: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8759.639179: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8759.639181: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.641774: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.641779: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8759.697468: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8759.697472: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNH2.  8759.700736: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNH2.  8759.700739: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.700781: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.700782: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.703416: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.703420: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+ dmx0:video4linu-320046  [002] d.h1.  8759.714624: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ dmx0:video4linu-320046  [002] d.h1.  8759.714630: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8759.768862: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8759.768863: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.771479: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.771485: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8759.812233: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8759.812235: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.815517: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.815521: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.815575: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.815577: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h1.  8759.818882: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h1.  8759.818889: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.821791: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.821795: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8759.824432: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8759.824439: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] d.h2.  8759.827631: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] d.h2.  8759.827638: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8759.865085: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8759.865089: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.h1.  8759.867715: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.h1.  8759.867719: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8759.903283: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8759.903286: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    mpp_worker_7-93      [000] d.h1.  8759.906533: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    mpp_worker_7-93      [000] d.h1.  8759.906540: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.906611: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.906613: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.909283: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.909286: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8759.934283: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8759.934285: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.936878: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.936882: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8759.937062: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8759.937065: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8759.985478: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8759.985484: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8759.989316: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8759.989323: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.989498: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.989500: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509395  [000] d.h2.  8759.992874: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509395  [000] d.h2.  8759.992879: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.992970: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.992972: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509395  [000] d.h1.  8759.996280: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509395  [000] d.h1.  8759.996284: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.996331: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.996333: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8759.999581: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8759.999585: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8759.999649: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8759.999651: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.002274: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.002278: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8760.045521: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8760.045528: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8760.048195: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8760.048201: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] d.h2.  8760.061633: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] d.h2.  8760.061640: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.073070: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.073072: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.076311: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.076315: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.076354: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.076356: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.078982: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.078986: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8760.106178: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8760.106183: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509431  [000] d.h2.  8760.108803: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509431  [000] d.h2.  8760.108808: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.139709: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.139710: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     migration/0-18      [000] d.h2.  8760.142996: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     migration/0-18      [000] d.h2.  8760.143001: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.143043: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.143045: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.146297: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.146302: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.146340: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.146341: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.148976: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.148980: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8760.166615: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8760.166622: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8760.198931: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8760.198933: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8760.201531: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8760.201536: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8760.226134: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8760.226138: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8760.229393: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8760.229400: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.229465: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.229467: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ enc0:0:h264_rkm-320043  [000] d.h1.  8760.232118: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ enc0:0:h264_rkm-320043  [000] d.h1.  8760.232122: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8760.256420: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8760.256427: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8760.257154: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8760.257156: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320060  [000] d.h1.  8760.259759: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320060  [000] d.h1.  8760.259764: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.281552: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.281554: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.285405: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.285409: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.285455: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.285456: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.288806: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.288810: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.288850: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.288853: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h1.  8760.292122: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h1.  8760.292128: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.292405: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.292407: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h1.  8760.295605: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h1.  8760.295609: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.295677: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.295679: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h2.  8760.298305: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h2.  8760.298308: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8760.344839: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8760.344846: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h2.  8760.347499: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h2.  8760.347505: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8760.351828: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8760.351834: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8760.381161: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8760.381166: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8760.384374: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8760.384379: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.384433: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.384435: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.387074: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.387078: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.411630: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.411633: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8760.414225: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8760.414229: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8760.437916: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8760.437918: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.441214: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.441220: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.441264: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.441266: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.444506: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.444510: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.444545: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.444547: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509437  [000] d.h2.  8760.447189: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509437  [000] d.h2.  8760.447195: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          podman-509022  [002] d.h1.  8760.471652: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509022  [002] d.h1.  8760.471657: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8760.474763: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8760.474767: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509437  [000] d.h2.  8760.477383: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509437  [000] d.h2.  8760.477389: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.510652: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.510654: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ dmx0:video4linu-320046  [000] d.h1.  8760.513814: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ dmx0:video4linu-320046  [000] d.h1.  8760.513818: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.513859: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.513861: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h2.  8760.516494: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h2.  8760.516500: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.552103: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.552105: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.554701: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.554706: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          podman-509022  [002] d.h1.  8760.571655: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509022  [002] d.h1.  8760.571662: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.577983: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.577984: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8760.581598: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8760.581604: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.581733: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.581736: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.585034: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.585037: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.585074: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.585075: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.588326: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.588328: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.588376: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.588377: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8760.591480: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8760.591485: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.593670: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.593676: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.596376: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.596382: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8760.631260: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8760.631263: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    kworker/0:0H-496675  [000] d.h2.  8760.633871: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    kworker/0:0H-496675  [000] d.h2.  8760.633877: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+       systemctl-509455  [002] d.h2.  8760.679655: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+       systemctl-509455  [002] d.h2.  8760.679662: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.693142: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.693144: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     in:imuxsock-2544    [000] d.h1.  8760.696259: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     in:imuxsock-2544    [000] d.h1.  8760.696264: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.696309: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.696310: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.698934: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.698939: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.719851: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.719854: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509379  [000] d.h1.  8760.722452: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509379  [000] d.h1.  8760.722461: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [002] dNh2.  8760.735254: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [002] dNh2.  8760.735261: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.745983: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.745985: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509379  [000] d.h3.  8760.749117: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509379  [000] d.h3.  8760.749120: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.749162: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.749164: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509379  [000] d.h3.  8760.752156: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509379  [000] d.h3.  8760.752160: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.752192: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.752194: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509379  [000] d.h3.  8760.754806: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509379  [000] d.h3.  8760.754809: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.775741: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.775743: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8760.778345: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8760.778352: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8760.823658: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8760.823662: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.826691: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.826695: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.826759: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.826760: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8760.829404: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8760.829410: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          vf#0:0-320060  [002] dNh1.  8760.846660: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320060  [002] dNh1.  8760.846670: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8760.876293: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8760.876296: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ systemd-journal-791     [000] d.h1.  8760.878888: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ systemd-journal-791     [000] d.h1.  8760.878893: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8760.913411: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8760.913412: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.916973: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.916977: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.917037: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.917039: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.920222: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.920225: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.920264: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.920265: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.923206: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.923209: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.923235: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.923236: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.925954: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.925957: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.925981: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.925983: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.928581: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.928584: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8760.951170: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8760.951171: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [002] d.h1.  8760.953656: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [002] d.h1.  8760.953659: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+          <idle>-0       [000] dNh2.  8760.953814: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8760.953819: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8760.982743: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8760.982745: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+        mediamtx-3524    [000] d.h2.  8760.985479: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        mediamtx-3524    [000] d.h2.  8760.985486: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8760.985540: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8760.985543: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8760.988198: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8760.988202: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.011838: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.011841: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    mpp_worker_7-93      [000] d.h2.  8761.014430: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    mpp_worker_7-93      [000] d.h2.  8761.014434: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.033845: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.033846: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8761.036804: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8761.036809: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.036852: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.036853: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320060  [000] d.h1.  8761.039585: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320060  [000] d.h1.  8761.039591: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.042500: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.042505: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8761.045153: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8761.045159: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8761.064273: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8761.064275: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.066864: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.066868: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] d.h2.  8761.069658: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.069665: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.087197: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.087203: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.089989: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.089993: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.090036: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.090037: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8761.092664: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8761.092670: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8761.148394: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8761.148398: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.151016: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.151021: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8761.188023: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8761.188028: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8761.191544: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8761.191551: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.191615: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.191617: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     kworker/0:2-491710  [000] d.h1.  8761.191655: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d.h1.  8761.191656: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+          <idle>-0       [000] d.h2.  8761.194641: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.194648: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.194699: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.194701: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.H2.  8761.197470: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.H2.  8761.197473: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.197564: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.197566: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.200368: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.200371: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.200406: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.200408: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+      tailscaled-3612    [000] d.h1.  8761.203018: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+      tailscaled-3612    [000] d.h1.  8761.203022: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8761.224975: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8761.224981: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.227605: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.227613: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.255833: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.255838: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.258566: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.258570: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.258643: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.258645: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.261271: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.261276: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.298525: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.298527: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.301194: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.301197: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          podman-509022  [001] d.h1.  8761.318729: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509022  [001] d.h1.  8761.318737: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.331354: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.331355: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8761.334056: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8761.334060: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.334157: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.334159: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.336889: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.336894: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.336929: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.336932: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8761.339558: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8761.339563: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.370285: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.370288: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8761.372892: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8761.372902: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.397151: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.397153: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.399871: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.399876: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.399921: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.399922: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.402600: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.402608: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8761.425780: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8761.425788: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.426959: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.426963: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.429589: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.429596: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.466145: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.466146: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.469657: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.469662: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.469763: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.469765: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8761.472791: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8761.472797: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.472948: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.472950: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8761.475701: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8761.475707: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.475833: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.475835: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ enc0:0:h264_rkm-320043  [000] d.h1.  8761.478559: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ enc0:0:h264_rkm-320043  [000] d.h1.  8761.478565: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.478731: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.478734: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.481405: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.481407: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8761.508722: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8761.508724: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8761.511318: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8761.511322: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8761.524187: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8761.524194: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8761.538147: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8761.538150: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.540858: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.540864: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.540901: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.540903: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.543565: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.543568: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8761.566973: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8761.566979: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.569600: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.569606: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.596930: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.596932: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.599728: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.599735: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.599788: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.599790: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.602566: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.602570: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.602610: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.602611: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.605308: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.605312: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8761.612031: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8761.612038: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.626165: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.626172: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.628803: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.628810: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.665879: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.665881: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.668580: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.668584: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.668634: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.668636: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.671249: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.671252: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8761.695512: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8761.695514: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.698167: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.698170: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.720420: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.720422: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.724091: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.724094: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.724130: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.724132: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.727149: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.727152: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.727190: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.727192: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509534  [001] d.h1.  8761.729673: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509534  [001] d.h1.  8761.729680: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+          vf#0:0-320056  [000] d.h1.  8761.729947: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8761.729953: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.730231: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.730232: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8761.732937: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8761.732943: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.732991: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.732992: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.735665: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.735670: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8761.764068: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8761.764074: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.H2.  8761.766741: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.H2.  8761.766748: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8761.792263: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8761.792269: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8761.795006: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8761.795012: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.795074: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.795076: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8761.797704: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8761.797711: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.820845: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.820846: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.823491: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.823495: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8761.830062: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8761.830071: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8761.849708: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8761.849711: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.852512: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.852516: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.852554: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.852556: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.855333: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.855337: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.855374: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.855375: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320059  [000] d.h1.  8761.857994: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320059  [000] d.h1.  8761.858000: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.880254: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.880256: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   rs:main Q:Reg-509539  [000] d.h2.  8761.882853: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   rs:main Q:Reg-509539  [000] d.h2.  8761.882857: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.911113: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.911123: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.913938: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.913942: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.913993: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.913995: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.916681: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.916686: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8761.944886: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8761.944889: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320061  [000] d.h1.  8761.947496: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320061  [000] d.h1.  8761.947503: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          vf#0:0-320061  [000] d.h1.  8761.947682: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320061  [000] d.h1.  8761.947688: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8761.980502: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8761.980505: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+    mpp_worker_7-93      [000] d.h1.  8761.984259: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+    mpp_worker_7-93      [000] d.h1.  8761.984264: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.984424: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.984427: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.987547: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.987552: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.987599: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.987602: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8761.990377: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8761.990384: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8761.990587: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8761.990588: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8761.993300: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8761.993303: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8761.993339: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8761.993341: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8761.995951: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8761.995955: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8762.016696: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8762.016702: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.019328: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.019335: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.047355: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.047361: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.050113: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.050118: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.050165: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.050167: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.052799: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.052805: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8762.064463: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8762.064471: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.080654: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.080655: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.083325: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.083329: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.119026: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.119031: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.121863: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.121868: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.121917: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.121919: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.124732: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.124736: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.124779: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.124781: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8762.127405: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8762.127409: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.151384: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.151386: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.153983: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.153988: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8762.164359: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8762.164365: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.180925: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.180928: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.183649: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.183653: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.183697: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.183699: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.186393: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.186399: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8762.215495: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8762.215502: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.218192: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.218197: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.249233: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.249239: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.252774: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.252780: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.252853: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.252855: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509551  [000] d.h1.  8762.256098: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509551  [000] d.h1.  8762.256102: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.256231: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.256233: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.259124: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.259130: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.259182: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.259184: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.261912: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.261916: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.262874: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.262875: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.265461: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.265464: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+           vbash-509559  [000] d.h2.  8762.278690: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+           vbash-509559  [000] d.h2.  8762.278698: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.287827: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.287829: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509561  [000] d.h2.  8762.290430: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509561  [000] d.h2.  8762.290434: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8762.319477: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8762.319479: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.322259: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.322265: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.322320: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.322323: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.324964: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.324971: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.351824: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.351826: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+           vbash-509585  [000] d.h1.  8762.354422: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+           vbash-509585  [000] d.h1.  8762.354426: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.376463: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.376465: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+             cat-509594  [000] d.h1.  8762.379402: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+             cat-509594  [000] d.h1.  8762.379409: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.379463: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.379465: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+ dec0:0:rawvideo-320045  [000] d.h2.  8762.382295: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+ dec0:0:rawvideo-320045  [000] d.h2.  8762.382302: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.382352: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.382354: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8762.384993: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8762.385000: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] d.h2.  8762.389695: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.389704: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.425898: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.425901: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.428571: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.428576: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8762.450833: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8762.450835: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.453563: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.453567: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.453610: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.453612: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8762.456267: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8762.456274: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8762.479122: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8762.479124: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.481787: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.481791: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.501931: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.501932: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.505426: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.505433: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.505504: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.505506: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.508634: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.508641: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.508703: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.508705: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.509686: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.509689: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+          <idle>-0       [000] d.h2.  8762.511569: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.511576: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.511626: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.511628: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.514430: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.514435: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.514474: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.514476: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.517112: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.517115: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.542847: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.542849: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+   kworker/u32:8-346811  [000] d.h2.  8762.545449: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+   kworker/u32:8-346811  [000] d.h2.  8762.545454: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.574832: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.574837: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.577605: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.577611: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.577701: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.577704: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.580364: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.580371: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8762.604239: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8762.604241: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.606828: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.606832: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8762.615103: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8762.615110: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8762.633634: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8762.633636: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.636441: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.636444: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.636482: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.636484: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.639271: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.639273: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.639305: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.639306: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h1.  8762.641918: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h1.  8762.641922: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.666588: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.666593: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.669244: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.669250: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [007] d..1.  8762.693332: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [007] d..1.  8762.693334: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         systemd-1       [000] d.h1.  8762.696031: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         systemd-1       [000] d.h1.  8762.696035: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.697486: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.697490: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8762.700119: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8762.700125: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.720584: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.720586: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          podman-509607  [000] d.h1.  8762.723191: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509607  [000] d.h1.  8762.723195: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8762.728393: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8762.728400: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.747935: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.747937: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.751568: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.751575: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.751621: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.751622: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.754854: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.754860: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.754903: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.754904: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8762.757873: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8762.757876: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.757916: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.757917: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8762.760872: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8762.760876: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.763719: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.763725: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.766364: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.766373: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8762.787946: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8762.787952: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          podman-509613  [000] d.H1.  8762.790579: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          podman-509613  [000] d.H1.  8762.790585: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8762.820637: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8762.820643: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.823408: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.823412: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.823451: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.823452: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8762.826082: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8762.826088: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8762.834318: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8762.834324: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.862045: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.862047: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.864634: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.864637: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8762.885991: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8762.885994: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.H2.  8762.889034: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.H2.  8762.889039: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.889084: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.889086: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+     rcu_preempt-15      [000] d.h1.  8762.891848: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     rcu_preempt-15      [000] d.h1.  8762.891853: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.891899: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.891901: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.894571: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.894574: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.919260: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.919262: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8762.921854: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8762.921859: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8762.926996: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8762.927001: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.940147: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.940150: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.942936: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.942942: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.942990: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.942992: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320060  [000] d.h1.  8762.945614: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320060  [000] d.h1.  8762.945622: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8762.967236: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8762.967239: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-509019  [000] d.h1.  8762.969844: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-509019  [000] d.h1.  8762.969848: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [000] d..1.  8762.990618: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [000] d..1.  8762.990625: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320060  [000] d.h1.  8762.994347: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320060  [000] d.h1.  8762.994353: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.994402: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.994404: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8762.997590: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8762.997595: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8762.997628: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8762.997630: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.H2.  8763.000848: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.H2.  8763.000851: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.000888: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.000890: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.003864: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.003865: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.003904: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.003906: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320055  [000] d.h1.  8763.006511: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320055  [000] d.h1.  8763.006517: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8763.025463: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8763.025465: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8763.028124: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8763.028128: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [001] dNh2.  8763.030139: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [001] dNh2.  8763.030145: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8763.044446: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8763.044448: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8763.047514: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8763.047520: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.047614: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.047617: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320057  [000] d.h1.  8763.050258: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320057  [000] d.h1.  8763.050263: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8763.069226: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8763.069228: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.071852: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.071856: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8763.093660: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8763.093662: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] dNh2.  8763.096879: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8763.096885: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.097017: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.097019: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.100102: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.100105: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.100195: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.100196: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.102882: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.102886: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8763.127293: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8763.127295: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          xinput-509615  [000] d.h1.  8763.129893: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          xinput-509615  [000] d.h1.  8763.129896: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [003] d..1.  8763.151203: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [003] d..1.  8763.151209: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+            Xorg-6567    [001] d.h1.  8763.152704: rpm_suspend: fdc70000.video-codec flags-9 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+            Xorg-6567    [001] d.h1.  8763.152710: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=-11
+  fuse-overlayfs-6450    [000] d.h2.  8763.154288: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+  fuse-overlayfs-6450    [000] d.h2.  8763.154294: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.154335: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.154337: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320058  [000] d.h1.  8763.156959: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320058  [000] d.h1.  8763.156965: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [006] d..1.  8763.179875: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [006] d..1.  8763.179877: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.182531: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.182535: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8763.203773: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8763.203779: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.207466: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.207472: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.207519: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.207521: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.210767: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.210773: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.210813: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.210814: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320056  [000] d.h1.  8763.213908: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320056  [000] d.h1.  8763.213914: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.214180: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.214184: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.216871: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.216880: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [002] d..1.  8763.238616: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [002] d..1.  8763.238622: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.241254: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.241261: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8763.265575: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8763.265581: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [005] d..1.  8763.269237: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [005] d..1.  8763.269238: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.272303: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.272307: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.272350: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.272352: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          vf#0:0-320044  [000] d.h1.  8763.274976: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          vf#0:0-320044  [000] d.h1.  8763.274982: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8763.302082: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8763.302088: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         python3-6678    [000] d.h1.  8763.304953: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         python3-6678    [000] d.h1.  8763.304959: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [001] d..1.  8763.331321: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [001] d..1.  8763.331327: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.334807: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.334811: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.334849: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.334851: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+          <idle>-0       [000] d.h2.  8763.337581: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.337584: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] dNh2.  8763.353043: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8763.353050: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+  av1parse0:sink-509187  [004] d..1.  8763.360367: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+  av1parse0:sink-509187  [004] d..1.  8763.360369: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+         udevadm-509630  [000] d.h1.  8763.363131: rpm_suspend: fdc70000.video-codec flags-d cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+         udevadm-509630  [000] d.h1.  8763.363135: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] d.h2.  8763.461712: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] d.h2.  8763.461718: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+          <idle>-0       [000] d.h2.  8763.487708: rpm_suspend: fdc70000.video-codec flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [000] dNh2.  8763.487723: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.487745: rpm_suspend: fdc70000.video-codec flags-a cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.487766: rpm_idle: fdca0000.iommu flags-1 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.487767: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=0
+     kworker/0:2-491710  [000] d..1.  8763.487768: rpm_suspend: fdca0000.iommu flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.487770: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+     kworker/0:2-491710  [000] d..1.  8763.487775: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+     kworker/0:2-491710  [000] d..1.  8763.487778: rpm_suspend: fdca0000.iommu flags-a cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/0:2-491710  [000] d..1.  8763.487899: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+            bash-508709  [006] ...1.  8768.191050: tracing_mark_write: DECODE_DONE
+            bash-508709  [005] ...1.  8771.199866: tracing_mark_write: REMOVE_BEGIN
+        modprobe-510152  [004] d..1.  8771.204263: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204270: rpm_resume: fdca0000.iommu flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204400: rpm_idle: fdca0000.iommu flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204401: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=-11
+        modprobe-510152  [004] d..1.  8771.204401: rpm_return_int: rpm_resume+0x140/0x650:fdca0000.iommu ret=0
+        modprobe-510152  [004] d..1.  8771.204404: rpm_idle: fdc70000.video-codec flags-1 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204404: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-11
+        modprobe-510152  [004] d..1.  8771.204405: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=0
+        modprobe-510152  [004] d..1.  8771.204410: rpm_idle: fdc70000.video-codec flags-4 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204410: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=0
+        modprobe-510152  [004] d..1.  8771.204412: rpm_suspend: fdc70000.video-codec flags-c cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204413: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+        modprobe-510152  [004] d..1.  8771.204816: rpm_resume: fdc70000.video-codec flags-4 cnt-1  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] d..1.  8771.204818: rpm_return_int: rpm_resume+0x140/0x650:fdc70000.video-codec ret=1
+        modprobe-510152  [004] dN.1.  8771.204839: rpm_suspend: fdc70000.video-codec flags-4 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] dN.1.  8771.204847: rpm_idle: fdca0000.iommu flags-1 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] dN.1.  8771.204848: rpm_return_int: rpm_idle+0xdc/0x3c0:fdca0000.iommu ret=0
+        modprobe-510152  [004] dN.1.  8771.204849: rpm_suspend: fdca0000.iommu flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] dN.1.  8771.204850: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+        modprobe-510152  [004] dN.1.  8771.204851: rpm_return_int: rpm_suspend+0x168/0x590:fdc70000.video-codec ret=0
+        modprobe-510152  [004] dN.1.  8771.204858: rpm_idle: fdc70000.video-codec flags-8 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+        modprobe-510152  [004] dN.1.  8771.204859: rpm_return_int: rpm_idle+0xdc/0x3c0:fdc70000.video-codec ret=-11
+            bash-508709  [005] ...1.  8771.246039: tracing_mark_write: REMOVE_DONE
+          <idle>-0       [004] d.h2.  8771.328894: rpm_suspend: fdca0000.iommu flags-9 cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+          <idle>-0       [004] dNh2.  8771.328905: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+     kworker/4:1-143894  [004] d..1.  8771.328911: rpm_suspend: fdca0000.iommu flags-a cnt-0  dep-0  auto-1 p-0 irq-0 child-0
+     kworker/4:1-143894  [004] d..1.  8771.329004: rpm_return_int: rpm_suspend+0x168/0x590:fdca0000.iommu ret=0
+            bash-508709  [007] ...1.  8776.248237: tracing_mark_write: IDLE_DONE

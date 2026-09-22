@@ -1,0 +1,45 @@
+CYCLE_1
+rga30                           off-0                           0
+av1                             off-0                           0
+    fdca0000.iommu                  suspended                   0           SW
+vdpu                            off-0                           0
+                                                av1, rkvdec0, rkvdec1, rga30
+    fdb50800.iommu                  suspended                   0           SW
+    fdba0800.iommu                  suspended                   0           SW
+    fdba4800.iommu                  suspended                   0           SW
+          aclk_av1_root              0       1        0        396000000   0          0     50000      N            deviceless                      no_connection_id         
+             aclk_av1_pre            0       1        0        396000000   0          0     50000      N               deviceless                      no_connection_id         
+                aclk_av1             0       3        0        396000000   0          0     50000      N                  iommu@fdca0000                  no_connection_id         
+             pclk_av1_root           0       1        0        198000000   0          0     50000      N               deviceless                      no_connection_id         
+                pclk_av1_pre         0       1        0        198000000   0          0     50000      N                  deviceless                      no_connection_id         
+                   pclk_av1          0       3        0        198000000   0          0     50000      N                     iommu@fdca0000                  no_connection_id         
+CYCLE_2
+rga30                           off-0                           0
+av1                             off-0                           0
+    fdca0000.iommu                  suspended                   0           SW
+vdpu                            off-0                           0
+                                                av1, rkvdec0, rkvdec1, rga30
+    fdb50800.iommu                  suspended                   0           SW
+    fdba0800.iommu                  suspended                   0           SW
+    fdba4800.iommu                  suspended                   0           SW
+          aclk_av1_root              0       1        0        396000000   0          0     50000      N            deviceless                      no_connection_id         
+             aclk_av1_pre            0       1        0        396000000   0          0     50000      N               deviceless                      no_connection_id         
+                aclk_av1             0       3        0        396000000   0          0     50000      N                  iommu@fdca0000                  no_connection_id         
+             pclk_av1_root           0       1        0        198000000   0          0     50000      N               deviceless                      no_connection_id         
+                pclk_av1_pre         0       1        0        198000000   0          0     50000      N                  deviceless                      no_connection_id         
+                   pclk_av1          0       3        0        198000000   0          0     50000      N                     iommu@fdca0000                  no_connection_id         
+CYCLE_3
+rga30                           off-0                           0
+av1                             off-0                           0
+    fdca0000.iommu                  suspended                   0           SW
+vdpu                            off-0                           0
+                                                av1, rkvdec0, rkvdec1, rga30
+    fdb50800.iommu                  suspended                   0           SW
+    fdba0800.iommu                  suspended                   0           SW
+    fdba4800.iommu                  suspended                   0           SW
+          aclk_av1_root              0       1        0        396000000   0          0     50000      N            deviceless                      no_connection_id         
+             aclk_av1_pre            0       1        0        396000000   0          0     50000      N               deviceless                      no_connection_id         
+                aclk_av1             0       3        0        396000000   0          0     50000      N                  iommu@fdca0000                  no_connection_id         
+             pclk_av1_root           0       1        0        198000000   0          0     50000      N               deviceless                      no_connection_id         
+                pclk_av1_pre         0       1        0        198000000   0          0     50000      N                  deviceless                      no_connection_id         
+                   pclk_av1          0       3        0        198000000   0          0     50000      N                     iommu@fdca0000                  no_connection_id         

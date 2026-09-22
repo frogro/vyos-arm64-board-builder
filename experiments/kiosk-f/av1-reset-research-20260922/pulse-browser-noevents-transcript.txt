@@ -1,0 +1,12 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    4214132 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+BROWSER_MAIN10 {'codec': 'av1', 'state': 'ended', 'started': 88.89999999850988, 'duration': 30, 'width': 1920, 'height': 1080, 'totalFrames': 1800, 'droppedFrames': 31, 'elapsedMs': 30603.200000001118}
+TRACE_DECODE_REMOVE_OK
+Running as unit: vyarm-av1-pulse-noevents-watchdog.service
+Running timer as unit: vyarm-av1-pulse-noevents-fallback.timer
+Will run service as unit: vyarm-av1-pulse-noevents-fallback.service

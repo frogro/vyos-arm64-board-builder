@@ -1,0 +1,10 @@
+fdc70000.video-codec suspended
+fdca0000.iommu suspended
+fdc70000.video-codec suspended
+fdca0000.iommu suspended
+fdc70000.video-codec suspended
+fdca0000.iommu suspended
+fdc70000.video-codec suspended
+fdca0000.iommu suspended
+fdc70000.video-codec suspended
+fdca0000.iommu suspended

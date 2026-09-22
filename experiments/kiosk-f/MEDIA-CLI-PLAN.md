@@ -168,3 +168,14 @@ metadata. Do not enable on all boards/backends before direct-overlay and
 physical display validation. CLI should expose a supported policy, not assume
 that every receiver or graphics backend has the same overlay constraints.
 Incomplete stream color metadata remains independent of the import correction.
+
+### AV1 reset lifecycle gate (2026-09-22)
+
+Codec/format support and successful decoding do not prove safe reset, module
+removal, timeout recovery or system suspend. Keep lifecycle readiness separate
+from requested hardware-decode policy. The powered-core-pulse experiment passes
+14 removals on RK3588, but stays diagnostic/default-off until PMU-idle ownership,
+error paths and real decoder-timeout recovery are settled. Prefer a driver
+variant capability/callback; do not expose raw reset masks as a normal CLI knob.
+Other SoCs retain their established driver behavior. See
+av1-reset-research-20260922/README.md.

@@ -1,0 +1,17 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    5300068 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+e8aeccfd22921d8947794238085fd9e603aa3b2c00729b4595d98d6860931532
+Running as unit: vyarm-av1-coexistence2-watchdog.service
+Running timer as unit: vyarm-av1-coexistence2-fallback.timer
+Will run service as unit: vyarm-av1-coexistence2-fallback.service
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+Traceback (most recent call last):
+  File "/count.py", line 20, in <module>
+    if err or not pipeline: raise RuntimeError('Pipeline creation failed')
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Pipeline creation failed
