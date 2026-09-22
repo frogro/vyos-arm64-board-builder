@@ -1,0 +1,36 @@
+Sep 22 02:45:07 vyos kernel: rockchip-rga fdb80000.rga: Removing
+Sep 22 02:45:07 vyos kernel: videodev: Linux video capture interface: v2.00
+Sep 22 02:45:07 vyos kernel: rockchip-rga fdb80000.rga: HW Version: 0x03.02
+Sep 22 02:45:07 vyos kernel: rockchip-rga fdb80000.rga: Registered rockchip-rga as /dev/video0
+Sep 22 02:45:07 vyos kernel: snps_hdmirx fdee0000.hdmi_receiver: assigned reserved memory node hdmi-receiver-cma
+Sep 22 02:45:07 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492651 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492652 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492653 (systemctl) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492655 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492656 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492657 (systemctl) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492749 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492758 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492763 (systemctl) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492815 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492816 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492817 (systemctl) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492819 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492822 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492826 (systemctl) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 2541 (rsyslogd) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492877 (logrotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492878 (rsyslog-rotate) on client request.
+Sep 22 02:45:41 vyos systemd[1]: rsyslog.service: Sending signal SIGHUP to process 492879 (systemctl) on client request.
+Sep 22 02:51:27 vyos kernel: rockchip-rga fdb80000.rga: Removing
+Sep 22 02:51:27 vyos kernel: videodev: Linux video capture interface: v2.00
+Sep 22 02:51:27 vyos kernel: rockchip-rga fdb80000.rga: HW Version: 0x03.02
+Sep 22 02:51:27 vyos kernel: rockchip-rga fdb80000.rga: Registered rockchip-rga as /dev/video0
+Sep 22 02:51:27 vyos kernel: snps_hdmirx fdee0000.hdmi_receiver: assigned reserved memory node hdmi-receiver-cma
+Sep 22 02:51:27 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
