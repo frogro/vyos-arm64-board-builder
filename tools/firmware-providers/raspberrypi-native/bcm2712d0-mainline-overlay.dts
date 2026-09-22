@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2712";
+
+    fragment@0 {
+        target = <&gio>;
+        __overlay__ {
+            brcm,gpio-bank-widths = <32 4>;
+        };
+    };
+
+    fragment@1 {
+        target = <&gio_aon>;
+        __overlay__ {
+            brcm,gpio-bank-widths = <15 6>;
+        };
+    };
+
+    fragment@2 {
+        target = <&pinctrl>;
+        __overlay__ {
+            compatible = "brcm,bcm2712d0-pinctrl";
+            reg = <0x7d504100 0x20>;
+        };
+    };
+
+    fragment@3 {
+        target = <&pinctrl_aon>;
+        __overlay__ {
+            compatible = "brcm,bcm2712d0-aon-pinctrl";
+            reg = <0x7d510700 0x1c>;
+        };
+    };
+
+    fragment@4 {
+        target = <&uart10>;
+        __overlay__ {
+            interrupts = <0 120 4>;
+        };
+    };
+};

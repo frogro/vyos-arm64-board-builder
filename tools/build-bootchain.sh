@@ -9,7 +9,10 @@ HW_BRANCH="${2:-current}"
 BOOT_BRANCH_REQUESTED="${3:-auto}"
 
 BOOT_BRANCH="$(
-    "$ROOT/tools/select-uboot-branch.sh"         "$BOARD"         "$BOOT_BRANCH_REQUESTED"
+    "$ROOT/tools/select-uboot-branch.sh" \
+        "$BOARD" \
+        "$BOOT_BRANCH_REQUESTED" \
+        "$HW_BRANCH"
 )"
 
 OUT="$ROOT/work/build/$BOARD/boot"

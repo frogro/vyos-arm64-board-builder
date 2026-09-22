@@ -1,0 +1,13 @@
+[Unit]
+Description=Grow VyOS ARM64 persistence partition to installed medium
+After=local-fs.target
+Before=vyos-router.service
+ConditionPathExists=!/config/.vyos-arm64-persistence-grown
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vyos-arm64-grow-persistence.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

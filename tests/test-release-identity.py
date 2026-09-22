@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import importlib.util
+from pathlib import Path
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = ROOT / "tools" / "release-identity.py"
+SPEC = importlib.util.spec_from_file_location("release_identity", MODULE_PATH)
+MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader is not None
+SPEC.loader.exec_module(MODULE)
+
+
+class ReleaseIdentityTests(unittest.TestCase):
+    def test_nightly_style_names(self):
+        self.assertEqual(
+            MODULE.derive(
+                "1.5-rolling-202608200300",
+                "raspberry-pi-5",
+                "network-tailscale",
+            ),
+            {
+                "VYOS_VERSION": "1.5-rolling-202608200300",
+                "BUILD_PROFILE": "network-tailscale",
+                "RELEASE_BASENAME": (
+                    "vyos-1.5-rolling-202608200300-raspberry-pi-5-network-tailscale"
+                ),
+                "RELEASE_TAG": (
+                    "2026.08.20-0300-rolling-raspberry-pi-5-network-tailscale"
+                ),
+            },
+        )
+
+    def test_actual_self_build_version_is_preserved(self):
+        result = MODULE.derive('999.202609131019', 'rock-5b', 'network-tailscale-kvm')
+        self.assertEqual(result['VYOS_VERSION'], '999.202609131019')
+        self.assertEqual(result['RELEASE_BASENAME'], 'vyos-999.202609131019-rock-5b-network-tailscale-kvm')
+        self.assertEqual(result['RELEASE_TAG'], '2026.09.13-1019-selfbuilt-rock-5b-network-tailscale-kvm')
+
+    def test_invalid_self_build_date_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive('999.202613131019', 'radxa-e52c')
+
+    def test_invalid_version_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive("rolling-latest", "rock-5b")
+
+    def test_invalid_board_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive("1.5-rolling-202608200300", "Rock 5B")
+
+    def test_invalid_profile_is_rejected(self):
+        with self.assertRaises(ValueError):
+            MODULE.derive("1.5-rolling-202608200300", "rock-5b", "Tail Scale")
+
+
+if __name__ == "__main__":
+    unittest.main()

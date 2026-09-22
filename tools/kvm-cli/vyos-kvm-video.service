@@ -1,0 +1,10 @@
+[Unit]
+Description=VyOS KVM-over-IP video backend
+After=network.target
+ConditionPathExists=/run/vyos-kvm-over-ip/video.env
+
+[Service]
+Type=simple
+ExecStart=/usr/local/libexec/vyos-kvm-video-runner
+Restart=always
+RestartSec=2

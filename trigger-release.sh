@@ -3,16 +3,30 @@ set -euo pipefail
 
 BUILD_REPO="${BUILD_REPO:-frogro/vyos-arm64-board-builder}"
 WORKFLOW="${WORKFLOW:-build-board-candidate.yml}"
-WORKFLOW_REF="${WORKFLOW_REF:-main}"
+RAW_WORKFLOW="${RAW_WORKFLOW:-test-vyos-arm64-raw.yml}"
+
+SCRIPT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck source=lib/ui.sh
+source "${SCRIPT_ROOT}/lib/ui.sh"
+
+DEFAULT_WORKFLOW_REF="$(
+    git -C "$SCRIPT_ROOT"         symbolic-ref --quiet --short HEAD         2>/dev/null ||
+    printf '%s\n' main
+)"
+
+WORKFLOW_REF="${WORKFLOW_REF:-$DEFAULT_WORKFLOW_REF}"
 
 ARMBIAN_REF="${ARMBIAN_REF:-main}"
 ARMBIAN_REMOTE="${ARMBIAN_REMOTE:-https://github.com/armbian/build.git}"
 
 VYOS_BRANCH="${VYOS_BRANCH:-rolling}"
 
-RAW_RUN_ID="${RAW_RUN_ID:-32008814114}"
-PUBLISH_RELEASE="${PUBLISH_RELEASE:-true}"
+RAW_RUN_ID="${RAW_RUN_ID:-auto}"
+PUBLISH_RELEASE="${PUBLISH_RELEASE:-}"
 BOOT_BRANCH="${BOOT_BRANCH:-auto}"
+DRY_RUN="no"
+ASSUME_YES="no"
 
 CACHE_ROOT="${XDG_CACHE_HOME:-$HOME/.cache}/vyos-arm64-board-builder"
 ARMBIAN_CACHE="${CACHE_ROOT}/armbian-build"
@@ -27,7 +41,81 @@ need() {
         die "required command not found: $1"
 }
 
-for cmd in git gh grep sed sort awk mktemp; do
+usage() {
+    cat <<'EOF'
+Usage: ./trigger-release.sh [options]
+
+Interactively select a board and optional feature profiles, verify a usable
+VyOS ARM64 raw-image workflow artifact, and dispatch the board-image workflow.
+
+Options:
+  --dry-run             Validate and print the request; do not dispatch
+  --yes                 Dispatch without the final confirmation
+  --raw-run-id ID       Pin a raw run (default: newest usable run)
+  --publish-release     Publish a successful build as a GitHub release
+  --no-publish-release  Build an Actions artifact only (safe default)
+  -h, --help            Show this help
+
+Environment overrides: BUILD_REPO, WORKFLOW, WORKFLOW_REF, ARMBIAN_REF,
+RAW_WORKFLOW, RAW_RUN_ID, HW_REFERENCE, EXTENDED_NETWORK,
+TAILSCALE_SUBNET_ROUTER, KVM_OVER_IP and PUBLISH_RELEASE.
+EOF
+}
+
+while (($#)); do
+    case "$1" in
+        --dry-run) DRY_RUN="yes"; shift ;;
+        --yes) ASSUME_YES="yes"; shift ;;
+        --raw-run-id)
+            [[ $# -ge 2 ]] || die "--raw-run-id requires a value"
+            RAW_RUN_ID="$2"
+            shift 2
+            ;;
+        --publish-release) PUBLISH_RELEASE="yes"; shift ;;
+        --no-publish-release) PUBLISH_RELEASE="no"; shift ;;
+        -h|--help) usage; exit 0 ;;
+        *) die "unknown argument: $1" ;;
+    esac
+done
+
+normalize_boolean() {
+    case "${1,,}" in
+        1|true|yes|y|j|ja|on|enabled) printf 'yes\n' ;;
+        0|false|no|n|nein|off|disabled) printf 'no\n' ;;
+        *) return 1 ;;
+    esac
+}
+
+workflow_boolean() {
+    case "${1,,}" in
+        1|true|yes|y|j|ja|on|enabled) printf 'true\n' ;;
+        0|false|no|n|nein|off|disabled) printf 'false\n' ;;
+        *) return 1 ;;
+    esac
+}
+
+select_publish_release() {
+    local requested="$PUBLISH_RELEASE"
+
+    if [[ -n "$requested" ]]; then
+        normalize_boolean "$requested" ||
+            die "invalid PUBLISH_RELEASE value: $requested"
+        return
+    fi
+
+    if [[ ! -t 0 ]]; then
+        printf 'no\n'
+        return
+    fi
+
+    read -r -p \
+        'Publish a successful build as GitHub Latest Release? [y/N] ' \
+        requested
+
+    normalize_boolean "${requested:-no}" 2>/dev/null || printf 'no\n'
+}
+
+for cmd in git gh grep sed sort awk mktemp python3; do
     need "$cmd"
 done
 
@@ -163,6 +251,29 @@ discover_boards() {
 
     sort -u -o "$out" "$out"
 
+    python3 - "$SCRIPT_ROOT/profiles/board-models" >> "$out" <<'PY_MODELS'
+import json
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+if root.is_dir():
+    for path in sorted(root.glob("*.json")):
+        model = json.loads(path.read_text(encoding="utf-8"))
+        print(
+            "\t".join(
+                (
+                    model["model"],
+                    model["name"],
+                    "model",
+                    "auto",
+                )
+            )
+        )
+PY_MODELS
+
+    sort -u -o "$out" "$out"
+
     [[ -s "$out" ]] ||
         die "no usable Armbian boards found"
 }
@@ -250,78 +361,16 @@ pick_board() {
     done
 }
 
-pick_branch() {
-    local targets="$1"
-    local default=""
-    local -a branches=()
-    local item
-    local i
-    local choice
-
-    IFS=',' read -r -a branches <<< "$targets"
-
-    for item in "${branches[@]}"; do
-        if [[ "$item" == "current" ]]; then
-            default="current"
-            break
-        fi
-    done
-
-    if [[ -z "$default" ]]; then
-        default="${branches[0]}"
-    fi
-
-    if [[ "${#branches[@]}" -eq 1 ]]; then
-        printf '%s\n' "${branches[0]}"
-        return
-    fi
-
-    echo >&2
-    echo "Available Armbian hardware reference branches:" >&2
-
-    i=1
-
-    for item in "${branches[@]}"; do
-        printf '  %d) %s' "$i" "$item" >&2
-
-        if [[ "$item" == "$default" ]]; then
-            printf ' [default]' >&2
-        fi
-
-        printf '\n' >&2
-
-        ((i++))
-    done
-
-    while true; do
-        read -r -p \
-            "Select branch [$default]: " \
-            choice
-
-        if [[ -z "$choice" ]]; then
-            printf '%s\n' "$default"
-            return
-        fi
-
-        if [[ "$choice" =~ ^[0-9]+$ ]] &&
-           (( choice >= 1 && choice <= ${#branches[@]} ))
-        then
-            printf '%s\n' \
-                "${branches[$((choice - 1))]}"
-
-            return
-        fi
-
-        for item in "${branches[@]}"; do
-            if [[ "$choice" == "$item" ]]; then
-                printf '%s\n' "$item"
-                return
-            fi
-        done
-    done
-}
-
 main() {
+    gh auth status >/dev/null 2>&1 ||
+        die "GitHub CLI is not authenticated; run: gh auth login"
+
+    gh workflow view "$WORKFLOW" \
+        --repo "$BUILD_REPO" \
+        --ref "$WORKFLOW_REF" \
+        --yaml >/dev/null ||
+        die "workflow ${WORKFLOW} is unavailable at ref ${WORKFLOW_REF}"
+
     sync_armbian_metadata
 
     local board_list
@@ -329,8 +378,12 @@ main() {
     local line
     local board_name
     local status
-    local targets
-    local branch
+    local hardware_reference="${HW_REFERENCE:-auto}"
+    local extended_network
+    local tailscale_subnet_router
+    local kvm_over_ip
+    local publish_release
+    local resolved_raw_run_id
     local ans
 
     board_list="$(mktemp)"
@@ -347,6 +400,7 @@ main() {
     echo "Armbian use     : hardware reference only"
     echo "Armbian ref     : ${ARMBIAN_REF}"
     echo "Armbian commit  : ${ARMBIAN_COMMIT}"
+    echo "Workflow ref    : ${WORKFLOW_REF}"
     echo
 
     board="$(pick_board "$board_list")"
@@ -371,12 +425,19 @@ main() {
             awk -F '\t' '{print $3}'
     )"
 
-    targets="$(
-        printf '%s\n' "$line" |
-            awk -F '\t' '{print $4}'
-    )"
+    extended_network="$(select_extended_network)"
+    tailscale_subnet_router="$(select_tailscale_subnet_router)"
+    kvm_over_ip="$(select_kvm_over_ip)"
+    publish_release="$(select_publish_release)"
 
-    branch="$(pick_branch "$targets")"
+    echo
+    echo "Verifying VyOS ARM64 raw-image input..."
+    resolved_raw_run_id="$(
+        "$SCRIPT_ROOT/tools/resolve-raw-run.sh" \
+            --repo "$BUILD_REPO" \
+            --workflow "$RAW_WORKFLOW" \
+            --run-id "$RAW_RUN_ID"
+    )"
 
     echo
     echo "Selected VyOS ARM64 build"
@@ -384,34 +445,54 @@ main() {
     echo "Board           : $board"
     echo "Board name      : $board_name"
     echo "Armbian status  : $status"
-    echo "HW reference    : $branch"
+    echo "HW reference    : automatic from VyOS kernel"
+    if [[ "$hardware_reference" != "auto" ]]; then
+        echo "Developer mode  : forced $hardware_reference"
+    fi
     echo "Armbian commit  : $ARMBIAN_COMMIT"
     echo "VyOS branch     : $VYOS_BRANCH"
+    echo "Extended net    : $extended_network"
+    echo "Tailscale       : $tailscale_subnet_router"
+    echo "KVM-over-IP     : $kvm_over_ip"
+    echo "Raw workflow    : $RAW_WORKFLOW"
+    echo "Raw run ID      : $resolved_raw_run_id (verified artifact)"
+    echo "Publish release : $publish_release"
+    echo "Dispatch mode   : $([[ "$DRY_RUN" == yes ]] && echo dry-run || echo live)"
     echo
     echo "Armbian supplies hardware metadata only."
     echo "Kernel and userspace are built from the VyOS ARM64 sources."
     echo
 
-    read -r -p \
-        "Trigger GitHub Actions release build now? [y/N]: " \
-        ans
-
-    [[ "${ans,,}" == "y" ||
-       "${ans,,}" == "yes" ||
-       "${ans,,}" == "j" ||
-       "${ans,,}" == "ja" ]] || {
-        echo "Cancelled."
+    if [[ "$DRY_RUN" == "yes" ]]; then
+        echo "Dry-run complete. No workflow was dispatched."
         exit 0
-    }
+    fi
+
+    if [[ "$ASSUME_YES" != "yes" ]]; then
+        read -r -p \
+            "Trigger this GitHub Actions build now? [y/N]: " \
+            ans
+
+        [[ "${ans,,}" == "y" ||
+           "${ans,,}" == "yes" ||
+           "${ans,,}" == "j" ||
+           "${ans,,}" == "ja" ]] || {
+            echo "Cancelled."
+            exit 0
+        }
+    fi
 
     gh workflow run "$WORKFLOW" \
         --repo "$BUILD_REPO" \
         --ref "$WORKFLOW_REF" \
         -f board="$board" \
-        -f branch="$branch" \
-        -f boot_branch="$BOOT_BRANCH" \
-        -f raw_run_id="$RAW_RUN_ID" \
-        -f publish_release="$PUBLISH_RELEASE"
+        -f hardware_reference="$hardware_reference" \
+        -f extended_network="$(workflow_boolean "$extended_network")" \
+        -f tailscale_subnet_router="$(workflow_boolean "$tailscale_subnet_router")" \
+        -f kvm_over_ip="$(workflow_boolean "$kvm_over_ip")" \
+        -f armbian_ref="$ARMBIAN_COMMIT" \
+        -f raw_run_id="$resolved_raw_run_id" \
+        -f publish_release="$(workflow_boolean "$publish_release")"
 
     echo
     echo "Build dispatched."

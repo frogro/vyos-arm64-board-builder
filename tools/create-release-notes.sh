@@ -6,6 +6,10 @@ ROOT="${2:-work/build/$BOARD}"
 
 MANIFEST="$ROOT/boot/boot-manifest.env"
 KERNEL_FILE="$ROOT/artifacts/kernel.release"
+NETWORK_SELECTION="$ROOT/selection/extended-network.env"
+FEATURE_SELECTION="$ROOT/selection/feature-profiles.env"
+KVM_HARDWARE_SELECTION="$ROOT/selection/kvm-hardware.env"
+RELEASE_ENV="$ROOT/release.env"
 OUT="$ROOT/RELEASE_NOTES.md"
 
 [[ -f "$MANIFEST" ]] || {
@@ -13,95 +17,212 @@ OUT="$ROOT/RELEASE_NOTES.md"
     exit 1
 }
 
+[[ -s "$KERNEL_FILE" ]] || {
+    echo "ERROR: kernel.release missing: $KERNEL_FILE" >&2
+    exit 1
+}
+
 # shellcheck disable=SC1090
 source "$MANIFEST"
 
+EXTENDED_NETWORK="no"
+TAILSCALE_SUBNET_ROUTER="no"
+BUILD_PROFILE="base"
+KVM_OVER_IP="no"
+KVM_HARDWARE_PROVIDER="disabled"
+KVM_CAPTURE_BACKEND="disabled"
+KVM_HID_GADGET="no"
+
+if [[ -f "$NETWORK_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$NETWORK_SELECTION"
+fi
+
+if [[ -f "$FEATURE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$FEATURE_SELECTION"
+fi
+
+if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$KVM_HARDWARE_SELECTION"
+fi
+
+if [[ -f "$RELEASE_ENV" ]]; then
+    # shellcheck disable=SC1090
+    source "$RELEASE_ENV"
+fi
+
 KERNEL_RELEASE="$(cat "$KERNEL_FILE")"
 
+FIRMWARE_PROVIDER="${FIRMWARE_PROVIDER:-unknown}"
+FIRMWARE_VARIANT="${FIRMWARE_VARIANT:-}"
+FIRMWARE_RELEASE="${FIRMWARE_RELEASE:-}"
+FIRMWARE_ASSET="${FIRMWARE_ASSET:-}"
+FIRMWARE_LAYOUT_MODE="${FIRMWARE_LAYOUT_MODE:-unknown}"
+VYOS_VERSION="${VYOS_VERSION:-unknown}"
+RELEASE_BASENAME="${RELEASE_BASENAME:-vyos-${BOARD}}"
+UPDATE_PROVIDER="${UPDATE_PROVIDER:-unknown}"
+
+UBOOT_SOURCE="${UBOOT_SOURCE:-}"
+UBOOT_REF="${UBOOT_REF:-}"
+UBOOT_PATCHDIR="${UBOOT_PATCHDIR:-}"
+
+FIRMWARE_PART_START="${FIRMWARE_PART_START:-unknown}"
+FIRMWARE_PART_SECTORS="${FIRMWARE_PART_SECTORS:-unknown}"
+EFI_START_SECTOR="${EFI_START_SECTOR:-unknown}"
+
+if [[ "$FIRMWARE_PROVIDER" == "raspberrypi-native" ]]; then
+    BOOT_APPROACH="Raspberry Pi EEPROM/Boot ROM, native Raspberry Pi firmware on GPT1, config.txt, the board kernel and its matching initramfs. The original VyOS EFI/GRUB filesystem remains present on GPT2 but is not the default Pi boot path."
+    LAYOUT_DESCRIPTION="- GPT1 is a 512 MiB FAT32 \`RPICFG\` partition containing pinned Raspberry Pi firmware plus the matching kernel, initramfs and BCM2712 Device Tree
+- GPT2 is the unchanged official VyOS EFI filesystem
+- GPT3 is the unchanged VyOS persistence/system-image filesystem"
+    UPDATE_STATUS="Experimental native Pi image lifecycle hooks are included: the selected VyOS image supplies its kernel, initramfs, DTB, overlay and command line through a versioned FAT payload. This requires a fresh installation of this generation; older Pi images have no lifecycle hooks. The ISO is available for controlled update/rollback tests only. Hardware validation is pending, no automatic update feed is enabled, and a separate bootable recovery medium must be retained."
+    PROVIDER_VALIDATION="- [x] Raspberry Pi firmware-partition filesystem validation
+- [x] \`config.txt\`, \`cmdline.txt\`, kernel, initramfs and BCM2712 DTB validation
+- [x] FAT kernel equality with the built kernel artifact"
+else
+    BOOT_APPROACH="The provider-specific firmware hands off to the unchanged official VyOS EFI/GRUB path."
+    LAYOUT_DESCRIPTION="- GPT1 firmware/reserved area starts at sector \`${FIRMWARE_PART_START}\`
+- GPT1 length: \`${FIRMWARE_PART_SECTORS}\` sectors
+- GPT2 contains the original VyOS EFI filesystem
+- GPT3 contains VyOS persistence/system-image data"
+    if [[ "$UPDATE_PROVIDER" == "efi-firmware-dtb" ]]; then
+        UPDATE_STATUS="VyOS EFI/GRUB remains intact and persistence stays GPT3. The release includes an ISO for the standard \`add system image\` workflow. This provider supplies the live Device Tree through firmware; the path has been validated on ROCK 5B hardware and still requires validation for every other exact board/provider combination."
+    else
+        UPDATE_STATUS="The release includes a VyOS system-image ISO. This provider requires a per-version DTB/GRUB synchronization gate after \`add system image\`; do not treat the ISO as production-ready until that gate and this exact board have been hardware-tested."
+    fi
+    PROVIDER_VALIDATION="- [x] Provider-defined firmware integration"
+fi
+
+if [[ "$UPDATE_PROVIDER" == uboot-extlinux ]]; then
+    BOOT_APPROACH="Native vendor U-Boot loads versioned kernel/initrd/DTB payloads through extlinux. VyOS GRUB metadata remains the authoritative image/default database."
+    UPDATE_STATUS="Native extlinux lifecycle hooks are included for add/default/delete and rollback testing. First install this candidate via .img.xz; the old E52C image cannot bootstrap these hooks through its existing ISO installer. Hardware acceptance is still required. Image rename is intentionally rejected; add the ISO under a new name instead."
+fi
+
+ROLLING_REFERENCE_NOTE=""
+if [[ -n "${ROLLING_REFERENCE:-}" ]]; then
+    ROLLING_REFERENCE_NOTE="Published VyOS Rolling reference: ${ROLLING_REFERENCE}. This ARM64 image is built later from the rolling package repository, so package versions may differ from that published release. It is not an exact reproduction; board and selected profile extensions are additional intentional changes."
+fi
+
 cat > "$OUT" <<EOF_NOTES
-# VyOS ARM64 ${BOARD_NAME} test image
+# VyOS ${VYOS_VERSION} for ${BOARD_NAME}
 
-Experimental VyOS ARM64 image for the ${BOARD_NAME}.
+Experimental VyOS ARM64 initial-installation image and system-update payload for the ${BOARD_NAME}.
 
-This image is based on an official VyOS ARM64 rolling userspace and keeps the native VyOS system-image/filesystem layout as closely as possible.
+This image starts from the official VyOS ARM64 rolling userspace and keeps the native VyOS system-image/filesystem layout while adding the board-specific kernel, Device Tree, modules and firmware provider.
+
+${ROLLING_REFERENCE_NOTE}
 
 ## Build approach
 
-The image was created in several stages:
+The image was created in these stages:
 
-1. Build a generic official VyOS ARM64 raw image.
-2. Build the Linux kernel from the official VyOS/kernel.org source with the official VyOS kernel patches.
-3. Derive the ${BOARD_NAME} hardware configuration from the Armbian board/family metadata.
-4. Apply only the board-specific kernel configuration required for the ${BOARD_NAME}.
-5. Build the board-specific device tree and kernel modules.
-6. Build the Rockchip/U-Boot boot chain using the board-specific Armbian boot metadata.
-7. Assemble the board-specific boot chain together with the VyOS ARM64 filesystem/system-image layout.
-8. Validate the final GPT layout and filesystems.
-9. Compress the final image as \`.img.xz\`.
+1. Start from the official VyOS ARM64 raw image.
+2. Resolve the effective Armbian board and branch configuration.
+3. Build Linux from the official VyOS kernel source and VyOS ARM64 configuration baseline.
+4. Derive and apply the hardware delta required by ${BOARD_NAME}.
+5. Build the matching board kernel, Device Tree and module tree.
+6. Rebuild the VyOS initramfs from that final module tree.
+7. Prepare the selected firmware provider and its board-specific layout.
+8. Assemble the final GPT image with firmware on/raw around GPT1, EFI on GPT2 and VyOS persistence on GPT3.
+9. Validate GPT, filesystems, initramfs, kernel config, DTB and payload consistency.
+10. Build and checksum a standard VyOS system-image update ISO.
+11. Compress and checksum the initial-installation image as \`.img.xz\`.
 
-## Hardware-specific components
+## Hardware and build metadata
 
 - Board: ${BOARD_NAME}
+- Board identifier: \`${BOARD}\`
 - Architecture: ARM64 / aarch64
-- Board family: ${BOARD_FAMILY}
-- SoC / boot SoC: ${BOOT_SOC}
+- Board family: \`${BOARD_FAMILY}\`
+- Linux family: \`${LINUX_FAMILY:-unknown}\`
+- SoC / boot SoC: \`${BOOT_SOC:-unknown}\`
 - Device tree: \`${BOOT_FDT_FILE}\`
-- Boot configuration: \`${BOOTCONFIG}\`
-- Boot layout: \`${BOOT_LAYOUT}\`
+- Hardware reference branch: \`${HW_BRANCH}\`
+- Hardware reference selection: \`${HW_SELECTION_MODE:-unknown}\`
+- VyOS/reference kernel line: \`${VYOS_KERNEL_MAJOR_MINOR:-unknown}\` / \`${REFERENCE_KERNEL_MAJOR_MINOR:-unknown}\`
+- Boot reference branch: \`${BOOT_BRANCH}\`
 - Kernel: \`${KERNEL_RELEASE}\`
-- U-Boot source: \`${UBOOT_SOURCE}\`
-- U-Boot reference: \`${UBOOT_REF}\`
+- Build profile: \`${BUILD_PROFILE}\`
+- Extended Network drivers and firmware: \`${EXTENDED_NETWORK}\`
+- Tailscale subnet-router preparation: \`${TAILSCALE_SUBNET_ROUTER}\`
+- KVM-over-IP preparation: \`${KVM_OVER_IP}\`
+- KVM hardware provider: \`${KVM_HARDWARE_PROVIDER}\`
+- KVM capture backend: \`${KVM_CAPTURE_BACKEND}\`
+- KVM HID gadget capability: \`${KVM_HID_GADGET}\`
+- Armbian metadata commit: \`${ARMBIAN_COMMIT:-unknown}\`
+- Firmware provider: \`${FIRMWARE_PROVIDER}\`
+- Firmware variant: \`${FIRMWARE_VARIANT:-n/a}\`
+- Firmware release: \`${FIRMWARE_RELEASE:-n/a}\`
+- Firmware asset: \`${FIRMWARE_ASSET:-n/a}\`
+- Firmware layout mode: \`${FIRMWARE_LAYOUT_MODE}\`
+- U-Boot source: \`${UBOOT_SOURCE:-n/a}\`
+- U-Boot ref: \`${UBOOT_REF:-n/a}\`
+- U-Boot patch set: \`${UBOOT_PATCHDIR:-n/a}\`
 - VyOS userspace: official VyOS rolling ARM64 build
-
-## VyOS layout
-
-Unlike the earlier experimental Armbian-rootfs based approach, this image starts with an official VyOS ARM64 raw image and preserves the native VyOS filesystem and system-image structure.
-
-The board-specific kernel, DTB, kernel modules and boot chain are integrated separately.
-
-The goal is to remain compatible with the normal VyOS system-image workflow, including future use of:
-
-\`add system image\`
-
-where possible.
+- VyOS version: \`${VYOS_VERSION}\`
+- Initial installation: \`${RELEASE_BASENAME}.img.xz\`
+- System-image update: \`${RELEASE_BASENAME}.iso\`
+- System-image update provider: \`${UPDATE_PROVIDER}\`
 
 ## Image layout
 
-The final image uses a board-specific GPT layout with a reserved area at the beginning of the disk for the board boot chain, followed by:
+${BOOT_APPROACH}
 
-- EFI partition
-- VyOS persistence/system-image partition
+${LAYOUT_DESCRIPTION}
 
-The bootloader is installed using the board-specific Armbian-derived bootloader installation logic rather than assuming one generic Rockchip boot layout.
+${UPDATE_STATUS}
+
+## Kernel and initramfs consistency
+
+The board kernel, DTB and module tree are generated together.
+
+The final module tree is installed into the VyOS root filesystem, \`depmod\` is run for exactly \`${KERNEL_RELEASE}\`, and a matching VyOS initramfs is generated before the SquashFS is rebuilt.
+
+The final \`/boot/config-${KERNEL_RELEASE}\` and \`System.map-${KERNEL_RELEASE}\` are copied from the exact kernel build artifacts.
 
 ## Validation status
 
 Automated build validation:
 
-- [x] VyOS ARM64 raw image build
+- [x] Official VyOS ARM64 raw image input
+- [x] Effective board configuration resolution
 - [x] ${BOARD_NAME} kernel build
 - [x] ${BOARD_NAME} DTB build
 - [x] Kernel modules build
-- [x] U-Boot/boot-chain build
-- [x] Board image assembly
+- [x] Matching initramfs rebuild
+- [x] Final kernel config installation
+- [x] Network firmware closure/report generation
+${PROVIDER_VALIDATION}
+- [x] Provider-defined three-partition GPT assembly
+- [x] GRUB GPT3 prefix validation
 - [x] GPT validation
 - [x] Filesystem validation
 - [x] Image compression
+- [x] System-image ISO generation and checksum validation
+- [x] First-boot persistence expansion support
+- [x] Generic ARM CPU information display compatibility
 - [x] GitHub Actions artifact generation
-- [ ] Boot tested on real ${BOARD_NAME} hardware
-- [ ] Ethernet tested on real ${BOARD_NAME} hardware
-- [ ] Console tested on real ${BOARD_NAME} hardware
-- [ ] VyOS system-image update tested on real hardware
+- [ ] This exact GitHub-generated image boot tested on real ${BOARD_NAME} hardware
+- [ ] This exact GitHub-generated image Ethernet tested on real ${BOARD_NAME} hardware
+- [ ] VyOS system-image update tested on real ${BOARD_NAME} hardware
 
 ## Important
 
-This is an early experimental test image.
+This is an experimental test image.
 
-The complete automated build pipeline finished successfully, but this image has not yet been confirmed to boot on real ${BOARD_NAME} hardware.
+The firmware provider, kernel hardware delta and boot metadata are selected from the board configuration rather than being hard-coded into the generic image assembler. Real-hardware validation is still required for this exact generated image.
 
-Please test on removable media first.
+When Extended Network is enabled, the image contains the curated optional runtime modules which the selected Linux Kconfig can satisfy as modules. Exact enabled/skipped symbols and installed/missing firmware files are published beside the image in \`extended-network-report.txt\` and the network firmware manifest. Board-required drivers remain independent of this option.
 
-Feedback about boot behaviour, serial console, Ethernet, storage, USB, VyOS \`add system image\`, reboot and rollback behaviour is very welcome.
+When KVM-over-IP preparation is enabled, the image contains generic V4L2/UVC
+capture and USB HID gadget kernel capabilities, v4l-utils, GStreamer, a
+Bookworm-built µStreamer binary and a read-only runtime audit. The exact-board
+hardware provider is \`${KVM_HARDWARE_PROVIDER}\`; unregistered boards receive
+only the generic capture path. No streamer is started, no firewall port is
+opened, and HID operation remains conditional on the published provider and a
+device/OTG-capable USB controller.
 EOF_NOTES
 
 echo "$OUT"

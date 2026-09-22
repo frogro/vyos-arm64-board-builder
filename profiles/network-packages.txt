@@ -1,0 +1,8 @@
+# Common USB/PCIe modem userspace; only with Extended Network/Profile B.
+modemmanager
+libqmi-utils
+libmbim-utils
+usb-modeswitch
+usb-modeswitch-data
+ppp
+isc-dhcp-client

@@ -2,162 +2,194 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ARMBIAN="${ARMBIAN:-$ROOT/cache/armbian-build}"
 
-BOARD="${1:?Usage: $0 <board> [hardware-branch] [boot-branch]}"
+REQUESTED_BOARD="${1:?Usage: $0 <board> [hardware-branch] [boot-branch]}"
 HW_BRANCH="${2:-current}"
 BOOT_BRANCH="${3:-$HW_BRANCH}"
+EFFECTIVE_BOARD="${ARMBIAN_BOARD:-$REQUESTED_BOARD}"
 
-BOARD_CONF="$ARMBIAN/config/boards/${BOARD}.conf"
+OUT="$ROOT/work/build/$REQUESTED_BOARD/boot"
+HW_CONFIG_OUT="$ROOT/work/build/$REQUESTED_BOARD/armbian-effective"
+BOOT_CONFIG_OUT="$ROOT/work/build/$REQUESTED_BOARD/armbian-effective-boot-${BOOT_BRANCH}"
 
-[[ -f "$BOARD_CONF" ]] || {
-    echo "ERROR: board definition not found: $BOARD_CONF" >&2
-    exit 1
-}
+HW_ENV="$HW_CONFIG_OUT/config.env"
+BOOT_ENV="$BOOT_CONFIG_OUT/config.env"
 
-get_var() {
-    local file="$1"
-    local name="$2"
-
-    sed -n \
-        "s/^[[:space:]]*\\(declare[[:space:]]\\+-g[[:space:]]\\+\\)\\?${name}=[\"']\\?\\([^\"'#]*\\).*/\\2/p" \
-        "$file" |
-        head -n1 |
-        sed 's/[[:space:]]*$//'
-}
-
-BOARD_NAME="$(get_var "$BOARD_CONF" BOARD_NAME)"
-BOARD_VENDOR="$(get_var "$BOARD_CONF" BOARD_VENDOR)"
-BOARDFAMILY="$(get_var "$BOARD_CONF" BOARDFAMILY)"
-BOOTCONFIG="$(get_var "$BOARD_CONF" BOOTCONFIG)"
-BOOT_FDT_FILE="$(get_var "$BOARD_CONF" BOOT_FDT_FILE)"
-BOOT_SCENARIO="$(get_var "$BOARD_CONF" BOOT_SCENARIO)"
-IMAGE_PARTITION_TABLE="$(get_var "$BOARD_CONF" IMAGE_PARTITION_TABLE)"
-
-FAMILY_FILE="$ARMBIAN/config/sources/families/${BOARDFAMILY}.conf"
-
-if [[ ! -f "$FAMILY_FILE" ]]; then
-    echo "ERROR: family file not found: $FAMILY_FILE" >&2
-    exit 1
-fi
-
-COMMON_INCLUDE="$ARMBIAN/config/sources/families/include/rockchip64_common.inc"
-
-BOOT_SOC="$(
-    expr "${BOOTCONFIG}" : '.*\(rk[[:digit:]]\+.*\)_.*' || true
-)"
-
-BOOT_SCENARIO_EFFECTIVE="$BOOT_SCENARIO"
-DDR_BLOB=""
-BL31_BLOB=""
-UBOOT_SOURCE=""
-UBOOT_REF=""
-
-case "$BOARDFAMILY" in
-    rockchip-rk3588|rockchip64)
-        [[ -f "$COMMON_INCLUDE" ]] || {
-            echo "ERROR: Rockchip common include missing" >&2
-            exit 1
-        }
-
-        if [[ -z "$BOOT_SCENARIO_EFFECTIVE" ]]; then
-            BOOT_SCENARIO_EFFECTIVE="spl-blobs"
-        fi
-
-        if [[ "$BOOT_SOC" == "rk3588" ]]; then
-            DDR_BLOB="$(
-                sed -n \
-                    's/.*DDR_BLOB="${DDR_BLOB:-"\([^"]*\)".*/\1/p' \
-                    "$COMMON_INCLUDE" |
-                    grep 'rk3588_' |
-                    head -1
-            )"
-
-            BL31_BLOB="$(
-                sed -n \
-                    's/.*BL31_BLOB="${BL31_BLOB:-"\([^"]*\)".*/\1/p' \
-                    "$COMMON_INCLUDE" |
-                    grep 'rk3588_' |
-                    head -1
-            )"
-        fi
-
-        #
-        # Resolve U-Boot defaults from the selected board family only.
-        #
-        UBOOT_SOURCE="$(
-            sed -n                 -e 's/^[[:space:]]*BOOTSOURCE=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTSOURCE=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
-                head -1
-        )"
-
-        UBOOT_REF="$(
-            sed -n                 -e 's/^[[:space:]]*BOOTBRANCH=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTBRANCH=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
-                head -1
-        )"
-
-        UBOOT_PATCHDIR="$(
-            sed -n                 -e 's/^[[:space:]]*BOOTPATCHDIR=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 -e 's/^[[:space:]]*declare[[:space:]]\+-g[[:space:]]\+BOOTPATCHDIR=["'\'']\([^"'\'']*\)["'\''].*/\1/p'                 "$FAMILY_FILE" |
-                head -1
-        )"
-
-        ;;
-
-    *)
-        echo "ERROR: unsupported family resolver: $BOARDFAMILY" >&2
-        exit 1
-        ;;
-esac
-
-case "$BOOT_SCENARIO_EFFECTIVE" in
-    spl-blobs)
-        BOOT_LAYOUT="rockchip-idb-itb"
-        ARTIFACT_1="idbloader.img"
-        OFFSET_1=32768
-        ARTIFACT_2="u-boot.itb"
-        OFFSET_2=8388608
-        ;;
-    *)
-        echo "ERROR: unsupported boot scenario: $BOOT_SCENARIO_EFFECTIVE" >&2
-        exit 1
-        ;;
-esac
-
-OUT="$ROOT/work/build/$BOARD/boot"
 mkdir -p "$OUT"
 
+#
+# Resolve hardware/kernel metadata from the requested hardware branch.
+#
+"$ROOT/tools/resolve-armbian-effective-config.sh" \
+    "$EFFECTIVE_BOARD" \
+    "$HW_BRANCH" \
+    "$HW_CONFIG_OUT" \
+    >/dev/null
+
+[[ -s "$HW_ENV" ]] || {
+    echo "ERROR: effective hardware config missing: $HW_ENV" >&2
+    exit 1
+}
+
+# shellcheck disable=SC1090
+source "$HW_ENV"
+
+HW_BOARD_NAME="${BOARD_NAME_OVERRIDE:-${BOARD_NAME:-}}"
+HW_BOARD_VENDOR="${BOARD_VENDOR:-}"
+HW_BOARD_FAMILY="${BOARDFAMILY:-}"
+HW_LINUX_FAMILY="${LINUXFAMILY:-}"
+HW_DTB="${BOOT_FDT_FILE_OVERRIDE:-${BOOT_FDT_FILE:-}}"
+HW_DEFAULT_CONSOLE="${DEFAULT_CONSOLE:-}"
+HW_SERIALCON="${SERIALCON:-}"
+HW_PARTITION_TABLE="${IMAGE_PARTITION_TABLE:-gpt}"
+HW_IMAGE_OFFSET_MIB="${OFFSET:-}"
+HW_ARMBIAN_COMMIT="${ARMBIAN_COMMIT:-}"
+
+#
+# Resolve bootloader metadata independently from the selected boot branch.
+#
+"$ROOT/tools/resolve-armbian-effective-config.sh" \
+    "$EFFECTIVE_BOARD" \
+    "$BOOT_BRANCH" \
+    "$BOOT_CONFIG_OUT" \
+    >/dev/null
+
+[[ -s "$BOOT_ENV" ]] || {
+    echo "ERROR: effective boot config missing: $BOOT_ENV" >&2
+    exit 1
+}
+
+# shellcheck disable=SC1090
+source "$BOOT_ENV"
+
+BOOT_BOARD_NAME="${BOARD_NAME_OVERRIDE:-${BOARD_NAME:-}}"
+BOOT_BOARD_VENDOR="${BOARD_VENDOR:-}"
+BOOT_BOARD_FAMILY="${BOARDFAMILY:-}"
+BOOT_LINUX_FAMILY="${LINUXFAMILY:-}"
+
+BOOT_CONFIG="${BOOTCONFIG:-}"
+BOOT_DTB="${BOOT_FDT_FILE:-}"
+BOOT_SOC_EFFECTIVE="${BOOT_SOC:-}"
+BOOT_SCENARIO_EFFECTIVE="${BOOT_SCENARIO:-}"
+BOOT_SCRIPT_EFFECTIVE="${BOOTSCRIPT:-}"
+BOOT_WILL_BUILD_UBOOT="${ARMBIAN_WILL_BUILD_UBOOT:-}"
+
+UBOOT_SOURCE="${BOOTSOURCE:-}"
+UBOOT_REF="${BOOTBRANCH:-}"
+UBOOT_PATCHDIR="${BOOTPATCHDIR:-}"
+UBOOT_DIR="${BOOTDIR:-}"
+
+BOOT_IMAGE_OFFSET_MIB="${OFFSET:-}"
+BOOT_ARMBIAN_COMMIT="${ARMBIAN_COMMIT:-}"
+
+#
+# Board identity must not change merely because another branch is used
+# for the bootloader.
+#
+[[ "$HW_BOARD_NAME" == "$BOOT_BOARD_NAME" ]] || {
+    echo "ERROR: board-name mismatch between hardware and boot config" >&2
+    exit 1
+}
+
+[[ "$HW_BOARD_VENDOR" == "$BOOT_BOARD_VENDOR" ]] || {
+    echo "ERROR: board-vendor mismatch between hardware and boot config" >&2
+    exit 1
+}
+
+[[ -n "$HW_DTB" ]] || {
+    echo "ERROR: effective hardware DTB missing" >&2
+    exit 1
+}
+
+if [[ "$BOOT_WILL_BUILD_UBOOT" == "yes" ]]; then
+    [[ -n "$BOOT_CONFIG" && "$BOOT_CONFIG" != "none" ]] || {
+        echo "ERROR: effective U-Boot defconfig missing" >&2
+        exit 1
+    }
+
+    [[ -n "$UBOOT_SOURCE" ]] || {
+        echo "ERROR: effective U-Boot source missing" >&2
+        exit 1
+    }
+
+    [[ -n "$UBOOT_REF" ]] || {
+        echo "ERROR: effective U-Boot ref missing" >&2
+        exit 1
+    }
+
+    [[ "$BOOT_IMAGE_OFFSET_MIB" =~ ^[0-9]+$ ]] || {
+        echo "ERROR: effective Armbian OFFSET is not an integer MiB value: ${BOOT_IMAGE_OFFSET_MIB:-unset}" >&2
+        exit 1
+    }
+else
+    # Armbian may populate generic U-Boot defaults even when BOOTCONFIG=none.
+    # They are audit evidence only and must not drive the provider.
+    UBOOT_SOURCE=""
+    UBOOT_REF=""
+    UBOOT_PATCHDIR=""
+    UBOOT_DIR=""
+fi
+
+MANIFEST="$OUT/boot-manifest.env"
+
 {
-    printf 'BOARD=%q\n' "$BOARD"
-    printf 'BOARD_NAME=%q\n' "$BOARD_NAME"
-    printf 'BOARD_VENDOR=%q\n' "$BOARD_VENDOR"
-    printf 'BOARD_FAMILY=%q\n' "$BOARDFAMILY"
+    printf 'BOARD=%q\n' "$REQUESTED_BOARD"
+    printf 'ARMBIAN_BOARD=%q\n' "$EFFECTIVE_BOARD"
+    printf 'BOARD_NAME=%q\n' "$HW_BOARD_NAME"
+    printf 'BOARD_VENDOR=%q\n' "$HW_BOARD_VENDOR"
+    printf 'BOARD_FAMILY=%q\n' "$HW_BOARD_FAMILY"
+    printf 'LINUX_FAMILY=%q\n' "$HW_LINUX_FAMILY"
+    printf 'HW_DEFAULT_CONSOLE=%q\n' "$HW_DEFAULT_CONSOLE"
+    printf 'HW_SERIALCON=%q\n' "$HW_SERIALCON"
+
     printf 'BRANCH=%q\n' "$HW_BRANCH"
     printf 'HW_BRANCH=%q\n' "$HW_BRANCH"
     printf 'BOOT_BRANCH=%q\n' "$BOOT_BRANCH"
+    printf 'HW_SELECTION_MODE=%q\n' "${HW_SELECTION_MODE:-unspecified}"
+    printf 'VYOS_KERNEL_MAJOR_MINOR=%q\n' "${VYOS_KERNEL_MAJOR_MINOR:-}"
+    printf 'REFERENCE_KERNEL_MAJOR_MINOR=%q\n' "${REFERENCE_KERNEL_MAJOR_MINOR:-}"
+
     printf '\n'
 
-    printf 'BOOTCONFIG=%q\n' "$BOOTCONFIG"
-    printf 'BOOT_FDT_FILE=%q\n' "$BOOT_FDT_FILE"
-    printf 'BOOT_SOC=%q\n' "$BOOT_SOC"
+    #
+    # Kernel/hardware DTB comes from HW_BRANCH.
+    #
+    printf 'BOOT_FDT_FILE=%q\n' "$HW_DTB"
+
+    #
+    # Keep the bootloader-side DTB visible as separate metadata.
+    #
+    printf 'UBOOT_FDT_FILE=%q\n' "$BOOT_DTB"
+    printf 'BOOTCONFIG=%q\n' "$BOOT_CONFIG"
+    printf 'BOOT_SOC=%q\n' "${BOARD_SOC_OVERRIDE:-$BOOT_SOC_EFFECTIVE}"
     printf 'BOOT_SCENARIO=%q\n' "$BOOT_SCENARIO_EFFECTIVE"
-    printf 'BOOT_LAYOUT=%q\n' "$BOOT_LAYOUT"
+    printf 'UBOOT_BOOTSCRIPT=%q\n' "$BOOT_SCRIPT_EFFECTIVE"
+
     printf '\n'
 
-    printf 'PARTITION_TABLE=%q\n' "${IMAGE_PARTITION_TABLE:-gpt}"
+    printf 'PARTITION_TABLE=%q\n' 'gpt'
+    printf 'ARMBIAN_PARTITION_TABLE=%q\n' "$HW_PARTITION_TABLE"
+    printf 'HW_ARMBIAN_OFFSET_MIB=%q\n' "$HW_IMAGE_OFFSET_MIB"
+    printf 'ARMBIAN_OFFSET_MIB=%q\n' "$BOOT_IMAGE_OFFSET_MIB"
+
     printf '\n'
 
     printf 'UBOOT_SOURCE=%q\n' "$UBOOT_SOURCE"
     printf 'UBOOT_REF=%q\n' "$UBOOT_REF"
     printf 'UBOOT_PATCHDIR=%q\n' "$UBOOT_PATCHDIR"
+    printf 'UBOOT_DIR=%q\n' "$UBOOT_DIR"
+    printf 'ARMBIAN_WILL_BUILD_UBOOT=%q\n' "$BOOT_WILL_BUILD_UBOOT"
+    if [[ "$BOOT_WILL_BUILD_UBOOT" == "yes" ]]; then
+        printf 'UBOOT_METADATA_STATE=%q\n' 'active'
+    else
+        printf 'UBOOT_METADATA_STATE=%q\n' 'inactive-defaults'
+    fi
+
     printf '\n'
 
-    printf 'DDR_BLOB=%q\n' "$DDR_BLOB"
-    printf 'BL31_BLOB=%q\n' "$BL31_BLOB"
-    printf '\n'
+    printf 'ARMBIAN_COMMIT=%q\n' "$HW_ARMBIAN_COMMIT"
+    printf 'BOOT_ARMBIAN_COMMIT=%q\n' "$BOOT_ARMBIAN_COMMIT"
+    printf 'BOOT_METADATA_SOURCE=%q\n' 'armbian-config-dump'
+} > "$MANIFEST"
 
-    printf 'ARTIFACT_1=%q\n' "$ARTIFACT_1"
-    printf 'OFFSET_1=%q\n' "$OFFSET_1"
-    printf 'ARTIFACT_2=%q\n' "$ARTIFACT_2"
-    printf 'OFFSET_2=%q\n' "$OFFSET_2"
-} > "$OUT/boot-manifest.env"
-
-cat "$OUT/boot-manifest.env"
+cat "$MANIFEST"

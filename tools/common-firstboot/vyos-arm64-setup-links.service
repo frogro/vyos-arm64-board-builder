@@ -1,0 +1,12 @@
+[Unit]
+Description=Expose image-provided VyOS setup helpers in the user home
+After=vyos-router.service
+Before=vyos-arm64-dhcp-wan-firstboot.service
+
+[Service]
+Type=oneshot
+TimeoutStartSec=150
+ExecStart=/usr/local/sbin/vyos-arm64-setup-links.sh
+
+[Install]
+WantedBy=multi-user.target

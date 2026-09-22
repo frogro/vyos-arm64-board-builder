@@ -1,0 +1,4 @@
+# Existing Stock-VyOS or board-runtime network modules whose declared
+# firmware is always staged. This is intentionally separate from the
+# optional Extended Network driver list.
+r8169

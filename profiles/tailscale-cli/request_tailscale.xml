@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="request">
+    <properties><help>Make system operational requests</help></properties>
+    <children>
+      <node name="tailscale">
+        <properties><help>Tailscale operational actions</help></properties>
+        <children>
+          <leafNode name="login">
+            <properties><help>Authenticate Tailscale interactively after enabling its service</help></properties>
+            <command>sudo /usr/local/sbin/tailscale login</command>
+          </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

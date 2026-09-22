@@ -8,32 +8,17 @@ source "${ROOT_DIR}/sources/armbian.sh"
 source "${ROOT_DIR}/sources/armbian-resolver.sh"
 source "${ROOT_DIR}/sources/vyos.sh"
 
-extract_board_var() {
-    local file="$1"
-    local var="$2"
-
-    grep -m1 -E \
-        "(^|[[:space:]])(declare[[:space:]]+-g[[:space:]]+)?${var}=" \
-        "$file" \
-        2>/dev/null |
-        sed -E \
-            "s/.*${var}=[\"']?([^\"']+)[\"']?.*/\1/" ||
-        true
-}
-
 find_reference_config() {
-    local board_file="$1"
+    local linuxfamily="$1"
     local branch="$2"
     local armbian_dir
-    local family
     local candidate
 
     armbian_dir="$(armbian_source_dir)"
-    family="$(extract_board_var "$board_file" BOARDFAMILY)"
 
-    [[ -n "$family" ]] || return 1
+    [[ -n "$linuxfamily" ]] || return 1
 
-    candidate="${armbian_dir}/config/kernel/linux-${family}-${branch}.config"
+    candidate="${armbian_dir}/config/kernel/linux-${linuxfamily}-${branch}.config"
 
     if [[ -f "$candidate" ]]; then
         printf '%s\n' "$candidate"
@@ -41,10 +26,8 @@ find_reference_config() {
     fi
 
     #
-    # Never guess a reference config.  Using an unrelated Armbian
-    # kernel configuration would silently generate a bogus hardware
-    # delta.  Boards whose BOARDFAMILY differs from their kernel
-    # LINUXFAMILY will be resolved explicitly by the generic resolver.
+    # Never guess a reference config. The effective Armbian
+    # LINUXFAMILY + BRANCH combination is authoritative.
     #
     return 1
 }
@@ -62,17 +45,47 @@ main() {
     print_banner
 
     local board="${BOARD:-}"
-    local branch="${HW_BRANCH:-${BRANCH:-current}}"
+    local branch=""
+    local hardware_reference="${HW_REFERENCE:-${HW_BRANCH:-${BRANCH:-auto}}}"
+    local armbian_board=""
     local vyos_branch="${VYOS_BRANCH:-rolling}"
+    local extended_network=""
+    local tailscale_subnet_router=""
+    local kvm_over_ip=""
+
+    #
+    # Match the official VyOS kernel build. The VyOS defconfig keeps
+    # CONFIG_LOCALVERSION empty; the kernel flavor suffix is supplied
+    # to Kbuild through LOCALVERSION.
+    #
+    local kernel_flavor="${KERNEL_FLAVOR:-vyos}"
+    local kernel_localversion="${KERNEL_LOCALVERSION:-}"
+
+    if [[ -z "${kernel_localversion}" ]]; then
+        kernel_localversion="-${kernel_flavor}"
+    fi
+
+    #
+    # Requested boot-media capabilities are a build input, not
+    # board-specific generator logic. A board/profile/provider may
+    # override this later without changing the Kconfig engine.
+    #
+    local boot_media="${BOOT_MEDIA:-sd,emmc,nvme,usb}"
 
     local board_file
     local board_name
     local family
+    local linuxfamily
     local dtb
+    local effective_config_dir
+    local effective_config_env
     local reference_config
     local vyos_config
     local kernel_version
     local kernel_source
+    local selection_dir
+    local selection_env
+    local kvm_hardware_env
 
     armbian_fetch
     vyos_fetch
@@ -81,23 +94,13 @@ main() {
         board="$(select_board)"
     fi
 
-    info "Validating board '${board}' against Armbian..."
-
-    if ! board_file="$(armbian_validate_board "$board")"; then
-        echo
-        warn "Board '${board}' was not found in the current Armbian board database."
-        echo
-        echo "Some available boards:"
-        armbian_list_boards | head -30
-        echo
-        die "Unknown Armbian board identifier: ${board}"
-    fi
-
-    board_name="$(extract_board_var "$board_file" BOARD_NAME)"
-    family="$(extract_board_var "$board_file" BOARDFAMILY)"
-    dtb="$(extract_board_var "$board_file" BOOT_FDT_FILE)"
-
-    vyos_config="$(vyos_arm64_config)"
+    #
+    # This is a build-time capability choice. It deliberately does not try
+    # to detect network hardware on the GitHub runner/build host.
+    #
+    extended_network="$(select_extended_network)"
+    tailscale_subnet_router="$(select_tailscale_subnet_router)"
+    kvm_over_ip="$(select_kvm_over_ip)"
 
     kernel_version="$(
         vyos_kernel_version |
@@ -108,27 +111,169 @@ main() {
     [[ -n "$kernel_version" ]] ||
         die "Unable to determine VyOS kernel version"
 
+    selection_dir="${ROOT_DIR}/work/build/${board}/selection"
+    selection_env="${selection_dir}/selected-reference.env"
+    kvm_hardware_env="${selection_dir}/kvm-hardware.env"
+    mkdir -p "${selection_dir}"
+    {
+        printf 'VYOS_SOURCE_REF=%q\n' "${VYOS_REF:-$VYOS_BRANCH}"
+        printf 'VYOS_SOURCE_COMMIT=%q\n' "$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
+    } > "${selection_dir}/vyos-source.env"
+
+
+    {
+        printf 'EXTENDED_NETWORK=%q\n' "${extended_network}"
+        printf 'EXTENDED_NETWORK_PROFILE=%q\n' \
+            'profiles/extended-network-drivers.txt'
+    } > "${selection_dir}/extended-network.env"
+
+    python3 "${ROOT_DIR}/tools/feature-profile.py" \
+        --extended-network "${extended_network}" \
+        --tailscale-subnet-router "${tailscale_subnet_router}" \
+        --kvm-over-ip "${kvm_over_ip}" \
+        --output-env "${selection_dir}/feature-profiles.env" \
+        --output-json "${selection_dir}/feature-profile.json"
+
+    # shellcheck disable=SC1090
+    source "${selection_dir}/feature-profiles.env"
+
+    python3 "${ROOT_DIR}/tools/resolve-kvm-hardware.py" \
+        --board "${board}" \
+        --enabled "${kvm_over_ip}" \
+        --registry "${ROOT_DIR}/profiles/kvm-hardware-providers.conf" \
+        --root "${ROOT_DIR}" \
+        --output-env "${kvm_hardware_env}" \
+        --output-json "${selection_dir}/kvm-hardware.json"
+
+    # shellcheck disable=SC1090
+    source "${kvm_hardware_env}"
+
+    info "Selecting hardware reference from VyOS kernel ${kernel_version}..."
+
+    python3 "${ROOT_DIR}/tools/select_hardware_reference.py" \
+        --root "${ROOT_DIR}" \
+        --armbian "$(armbian_source_dir)" \
+        --board "${board}" \
+        --vyos-kernel "${kernel_version}${kernel_localversion}" \
+        --hardware-reference "${hardware_reference}" \
+        --output "${selection_env}"
+
+    [[ -s "${selection_env}" ]] ||
+        die "Hardware-reference selection was not generated"
+
+    # shellcheck disable=SC1090
+    source "${selection_env}"
+
+    if [[ -n "${BOARD_MODEL_PROFILE:-}" &&
+          "${BOARD_MODEL_PROFILE}" != /* ]]; then
+        BOARD_MODEL_PROFILE="${ROOT_DIR}/${BOARD_MODEL_PROFILE}"
+    fi
+
+    if [[ -n "${BOARD_MODEL_HARDWARE_CONFIG:-}" &&
+          "${BOARD_MODEL_HARDWARE_CONFIG}" != /* ]]; then
+        BOARD_MODEL_HARDWARE_CONFIG="${ROOT_DIR}/${BOARD_MODEL_HARDWARE_CONFIG}"
+    fi
+
+    armbian_board="${ARMBIAN_BOARD}"
+    branch="${HW_BRANCH}"
+
+    info "Validating Armbian BOARD '${armbian_board}' for '${board}'..."
+
+    if ! board_file="$(armbian_validate_board "$armbian_board")"; then
+        echo
+        warn "Board '${armbian_board}' was not found in the current Armbian board database."
+        echo
+        echo "Some available boards:"
+        armbian_list_boards | head -30
+        echo
+        die "Unknown Armbian board identifier: ${armbian_board}"
+    fi
+
+    #
+    # Resolve the effective Armbian BOARD + BRANCH configuration.
+    #
+    # Do not statically parse config/boards/*.conf here. Armbian
+    # board/family hooks may override DTB, LINUXFAMILY, U-Boot source,
+    # defconfig and other values depending on BRANCH.
+    #
+    effective_config_dir="${ROOT_DIR}/work/build/${board}/armbian-effective"
+    effective_config_env="${effective_config_dir}/config.env"
+
+    "${ROOT_DIR}/tools/resolve-armbian-effective-config.sh" \
+        "${armbian_board}" \
+        "${branch}" \
+        "${effective_config_dir}"
+
+    [[ -s "${effective_config_env}" ]] ||
+        die "Effective Armbian configuration was not generated"
+
+    # shellcheck disable=SC1090
+    source "${effective_config_env}"
+
+    board_name="${BOARD_NAME_OVERRIDE:-${BOARD_NAME:-}}"
+    family="${BOARDFAMILY:-}"
+    linuxfamily="${LINUXFAMILY:-${BOARDFAMILY:-}}"
+    dtb="${BOOT_FDT_FILE_OVERRIDE:-${BOOT_FDT_FILE:-}}"
+
+    vyos_config="$(vyos_arm64_config)"
+
     #
     # Prepare the exact upstream kernel version used by VyOS and apply
     # the official VyOS kernel patch set before doing any board-specific
     # Kconfig derivation. VyOS patches may themselves introduce Kconfig
     # symbols, so this must happen first.
     #
-    vyos_kernel_prepare "${kernel_version}"
+    vyos_kernel_prepare "${kernel_version}" "${KVM_HARDWARE_KERNEL_PATCH_DIR:-}"
 
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
     fi
 
-    reference_config="$(find_reference_config "$board_file" "$branch" || true)"
+    # Source-gated dependency fix, shared by every board using this helper.
+    python3 "${ROOT_DIR}/tools/patch-hdmi-audio-dependency.py" "${kernel_source}"
+
+    #
+    # Reproduce the complete official VyOS ARM64 kernel configuration:
+    #
+    #   arm64/vyos_defconfig
+    #       +
+    #   all common config/*.config fragments
+    #
+    # This is architecture-wide and intentionally contains no
+    # board-specific policy. The hardware delta is derived afterwards
+    # from DTB + reference kernel metadata.
+    #
+    local vyos_baseline_dir="${ROOT_DIR}/work/build/${board}/vyos-baseline"
+    local vyos_complete_config="${vyos_baseline_dir}/vyos-complete.config"
+
+    mkdir -p "${vyos_baseline_dir}"
+
+    vyos_arm64_complete_config \
+        "${kernel_source}" \
+        "${vyos_complete_config}"
+
+    vyos_config="${vyos_complete_config}"
+
+    reference_config="$(find_reference_config "$linuxfamily" "$branch" || true)"
 
     echo
     info "Board:          ${board}"
+    info "Armbian BOARD:  ${armbian_board}"
     info "Board name:     ${board_name:-unknown}"
     info "Board family:   ${family:-unknown}"
+    info "Linux family:   ${linuxfamily:-unknown}"
     info "HW branch:      ${branch}"
+    info "HW selection:   ${HW_SELECTION_MODE}"
     info "Board DTB:      ${dtb:-unknown}"
     info "VyOS branch:    ${vyos_branch}"
+    info "Extended net:   ${extended_network}"
+    info "Tailscale:      ${tailscale_subnet_router}"
+    info "Build profile:  ${BUILD_PROFILE}"
+    info "KVM-over-IP:    ${kvm_over_ip}"
+    info "KVM HW provider:${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
+    info "KVM capture:    ${KVM_CAPTURE_BACKEND}"
+    info "KVM DT overlay: ${KVM_HARDWARE_DT_OVERLAY:-none}"
+    info "KVM kernel patches: ${KVM_HARDWARE_KERNEL_PATCH_DIR:-none}"
     info "VyOS kernel:    ${kernel_version}"
     info "VyOS config:    ${vyos_config}"
     info "Kernel source:  ${kernel_source}"
@@ -142,12 +287,26 @@ main() {
     echo
 
     [[ -n "$dtb" ]] ||
-        die "BOOT_FDT_FILE not found in Armbian board definition"
+        die "BOOT_FDT_FILE missing from effective Armbian configuration"
 
     [[ -n "$reference_config" ]] ||
         die "Unable to resolve Armbian reference kernel config"
 
     info "Board metadata resolution successful."
+
+    #
+    # Resolve the ARM64 toolchain once and use it for every Kconfig and
+    # Kbuild phase. Compiler capability tests are part of Kconfig and
+    # must not depend on the architecture of the build host.
+    #
+    local cross=""
+
+    if [[ "$(uname -m)" != "aarch64" ]]; then
+        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
+
+        command -v "${cross}gcc" >/dev/null 2>&1 ||
+            die "ARM64 cross compiler not found: ${cross}gcc"
+    fi
 
     echo
     info "Building VyOS DTB..."
@@ -166,6 +325,7 @@ main() {
         -C "${kernel_source}" \
         O="${kbuild_out}" \
         ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
         olddefconfig
 
     info "Building board DTB from VyOS kernel source..."
@@ -174,6 +334,7 @@ main() {
         -C "${kernel_source}" \
         O="${kbuild_out}" \
         ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
         "${dtb}"
 
     local built_dtb="${kbuild_out}/arch/arm64/boot/dts/${dtb}"
@@ -189,15 +350,21 @@ main() {
     info "Extracting active DT nodes..."
 
     local nodes_json="${dtb_out}/active-nodes.json"
+    local supplier_graph="${dtb_out}/supplier-graph.json"
 
     python3 "${ROOT_DIR}/tools/dtb-active-nodes.py" \
         --dtb "${built_dtb}" \
-        --output "${nodes_json}"
+        --output "${nodes_json}" \
+        --graph-output "${supplier_graph}"
 
     [[ -s "${nodes_json}" ]] ||
         die "Active DT node extraction produced no output"
 
+    [[ -s "${supplier_graph}" ]] ||
+        die "DT supplier graph extraction produced no output"
+
     info "Active nodes written: ${nodes_json}"
+    info "Supplier graph written: ${supplier_graph}"
 
     echo
     info "Extracting active DT compatibles..."
@@ -230,12 +397,111 @@ main() {
     [[ -f "${map_out}/compatible-config-map.tsv" ]] ||
         die "Driver mapping did not produce compatible-config-map.tsv"
 
+    #
+    # Device Tree compatibles describe devices instantiated directly
+    # from DT. MFD parents can additionally create platform children
+    # which have no independent DT compatible.
+    #
+    # Resolve those children from the active parent driver's variant
+    # path and Linux MFD/Kbuild metadata. This is generic and contains
+    # no board-specific or RK806-specific policy.
+    #
+    local mfd_map="${map_out}/mfd-child-config-map.tsv"
+    local hardware_map="${map_out}/hardware-config-map.tsv"
+
+    python3 "${ROOT_DIR}/tools/mfd-child-drivers.py" \
+        --kernel "${kernel_source}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        --output "${mfd_map}"
+
+    cat \
+        "${map_out}/compatible-config-map.tsv" \
+        "${mfd_map}" |
+        sort -u > "${hardware_map}"
+
+    #
+    # Resolve the concrete DT controller nodes which can reach the
+    # requested boot media.  The discovery uses DT properties and
+    # Linux driver metadata rather than board-specific addresses.
+    #
+    local boot_dep_out="${ROOT_DIR}/work/build/${board}/boot-deps"
+    local boot_roots_out="${boot_dep_out}/roots"
+    local boot_closure_out="${boot_dep_out}/closure"
+    local mfd_services_out="${boot_dep_out}/mfd-services"
+    local boot_symbols_out="${boot_dep_out}/symbols"
+
+    rm -rf "${boot_dep_out}"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-roots.py" \
+        --dtb "${built_dtb}" \
+        --graph "${supplier_graph}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        --boot-media "${boot_media}" \
+        --output-dir "${boot_roots_out}"
+
+    local boot_roots_file="${boot_roots_out}/boot-roots.txt"
+
+    [[ -s "${boot_roots_file}" ]] ||
+        die "No DT boot roots discovered for requested media: ${boot_media}"
+
+    local boot_root_args=()
+    local boot_root
+
+    while IFS= read -r boot_root; do
+        [[ -n "${boot_root}" ]] || continue
+        boot_root_args+=(--root-node "${boot_root}")
+    done < "${boot_roots_file}"
+
+    (( ${#boot_root_args[@]} > 0 )) ||
+        die "Boot root argument list is empty"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-closure.py" \
+        --kernel "${kernel_source}" \
+        --graph "${supplier_graph}" \
+        --driver-map "${map_out}/compatible-config-map.tsv" \
+        "${boot_root_args[@]}" \
+        --output-dir "${boot_closure_out}"
+
+    local boot_final="${boot_closure_out}/final"
+
+    [[ -s "${boot_final}/supplier-closure.json" ]] ||
+        die "Boot supplier closure missing"
+
+    [[ -s "${boot_final}/driver-context.json" ]] ||
+        die "Boot driver context missing"
+
+    python3 "${ROOT_DIR}/tools/dtb-mfd-services.py" \
+        --closure "${boot_final}/supplier-closure.json" \
+        --driver-context "${boot_final}/driver-context.json" \
+        --mfd-map "${mfd_map}" \
+        --output-dir "${mfd_services_out}"
+
+    [[ -s "${mfd_services_out}/mfd-service-context.json" ]] ||
+        die "MFD boot service context missing"
+
+    python3 "${ROOT_DIR}/tools/dtb-boot-symbols.py" \
+        --driver-context "${boot_final}/driver-context.json" \
+        --mfd-services "${mfd_services_out}/mfd-service-context.json" \
+        --output-dir "${boot_symbols_out}"
+
+    local boot_symbols="${boot_symbols_out}/boot-critical-symbols.txt"
+
+    [[ -s "${boot_symbols}" ]] ||
+        die "Boot-critical symbol derivation produced no symbols"
+
     echo
     echo "===== HARDWARE DERIVATION SUMMARY ====="
     echo "Board:          ${board}"
     echo "DTB:            ${built_dtb}"
     echo "Active nodes:   ${nodes_json}"
-    echo "Driver map:     ${map_out}/compatible-config-map.tsv"
+    echo "Supplier graph: ${supplier_graph}"
+    echo "DT driver map:  ${map_out}/compatible-config-map.tsv"
+    echo "MFD child map:  ${mfd_map}"
+    echo "Hardware map:   ${hardware_map}"
+    echo "Boot roots:     ${boot_roots_file}"
+    echo "Boot closure:   ${boot_final}"
+    echo "MFD services:   ${mfd_services_out}"
+    echo "Boot symbols:   ${boot_symbols}"
     echo "Reference cfg:  ${reference_config}"
 
     echo
@@ -246,15 +512,38 @@ main() {
     rm -rf "${config_out}"
     mkdir -p "${config_out}"
 
-    python3 "${ROOT_DIR}/tools/generate-board-config.py" \
-        --kernel "${kernel_source}" \
-        --vyos-config "${vyos_config}" \
-        --reference-config "${reference_config}" \
-        --driver-map "${map_out}/compatible-config-map.tsv" \
-        --boot-profile "${ROOT_DIR}/profiles/boot-media.conf" \
-        --policy "${ROOT_DIR}/profiles/kernel-policy.conf" \
-        --boot-media sd,emmc,nvme,usb \
+    local config_args=(
+        --kernel "${kernel_source}"
+        --vyos-config "${vyos_config}"
+        --reference-config "${reference_config}"
+        --driver-map "${hardware_map}"
+        --boot-critical-symbols "${boot_symbols}"
+        --boot-profile "${ROOT_DIR}/profiles/boot-media.conf"
+        --policy "${ROOT_DIR}/profiles/kernel-policy.conf"
+        --feature-required-config "${ROOT_DIR}/profiles/base-cpufreq.config"
+        --boot-media "${boot_media}"
         --output-dir "${config_out}"
+    )
+
+    if [[ -n "${BOARD_MODEL_HARDWARE_CONFIG:-}" ]]; then
+        config_args+=(
+            --model-required-config "${BOARD_MODEL_HARDWARE_CONFIG}"
+        )
+    fi
+
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        config_args+=(
+            --feature-required-config "${ROOT_DIR}/profiles/kvm-over-ip.config"
+        )
+        if [[ -n "${KVM_HARDWARE_CONFIG}" ]]; then
+            config_args+=(
+                --feature-required-config "${ROOT_DIR}/${KVM_HARDWARE_CONFIG}"
+            )
+        fi
+    fi
+
+    python3 "${ROOT_DIR}/tools/generate-board-config.py" \
+        "${config_args[@]}"
 
     [[ -f "${config_out}/generated-board.config" ]] ||
         die "Board config generation failed"
@@ -279,11 +568,98 @@ main() {
         die "Unresolved Kconfig dependencies remain"
     fi
 
+    #
+    # Optional network drivers are a separate, fail-soft runtime layer.
+    # They are resolved after the strict board/boot configuration so they
+    # can never weaken a boot-critical requirement or make a board build
+    # fail merely because one optional symbol is unavailable.
+    #
+    local extended_config_out="${config_out}/extended-network"
+
+    python3 "${ROOT_DIR}/tools/resolve-extended-network-config.py" \
+        --kernel "${kernel_source}" \
+        --base-config "${config_out}/generated-final.config" \
+        --profile "${ROOT_DIR}/profiles/extended-network-drivers.txt" \
+        --output-dir "${extended_config_out}" \
+        --enabled "${extended_network}"
+
+    [[ -s "${extended_config_out}/generated-final.config" ]] ||
+        die "Extended Network resolver produced no final config"
+
+    [[ -s "${extended_config_out}/extended-network-report.json" ]] ||
+        die "Extended Network resolver produced no report"
+
+    cp \
+        "${extended_config_out}/generated-final.config" \
+        "${config_out}/generated-final.config"
+
+    # Base A requirements apply even when all optional profiles are disabled.
+    python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+        --kernel-config "${config_out}/generated-final.config" \
+        --requirements "${ROOT_DIR}/profiles/base-cpufreq-ready.config" \
+        --output-dir "${config_out}/base-cpufreq-ready" \
+        --report-name base-cpufreq-ready
+
+    local tailscale_ready_out="${config_out}/tailscale-ready"
+
+    if [[ "${tailscale_subnet_router}" == "yes" ]]; then
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --requirements "${ROOT_DIR}/profiles/tailscale-ready.config" \
+            --output-dir "${tailscale_ready_out}"
+    else
+        rm -rf "${tailscale_ready_out}"
+    fi
+
+    local kvm_ready_out="${config_out}/kvm-over-ip-ready"
+
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --requirements "${ROOT_DIR}/profiles/kvm-over-ip-ready.config" \
+            --output-dir "${kvm_ready_out}" \
+            --report-name kvm-over-ip-ready
+
+        if [[ -n "${KVM_HARDWARE_READY_CONFIG}" ]]; then
+            python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+                --kernel-config "${config_out}/generated-final.config" \
+                --requirements "${ROOT_DIR}/${KVM_HARDWARE_READY_CONFIG}" \
+                --output-dir "${kvm_ready_out}/hardware" \
+                --report-name kvm-hardware-ready
+        fi
+    else
+        rm -rf "${kvm_ready_out}"
+    fi
+
+    if [[ -n "${BOARD_MODEL_PROFILE:-}" ]]; then
+        info "Validating promoted board-model requirements..."
+
+        python3 "${ROOT_DIR}/tools/validate_model_requirements.py" \
+            --root "${ROOT_DIR}" \
+            --model "${BOARD_MODEL_PROFILE}" \
+            --kernel-config "${config_out}/generated-final.config" \
+            --dtb-root "${kbuild_out}/arch/arm64/boot/dts"
+    fi
+
     echo
     echo "===== BOARD CONFIG SUMMARY ====="
     echo "Board fragment: ${config_out}/generated-board.config"
     echo "Final config:    ${config_out}/generated-final.config"
     echo "Validation:      ${config_out}/validation.txt"
+    if [[ "${tailscale_subnet_router}" == "yes" ]]; then
+        echo "Tailscale ready: ${tailscale_ready_out}/tailscale-ready.txt"
+    else
+        echo "Tailscale ready: disabled"
+    fi
+    if [[ "${kvm_over_ip}" == "yes" ]]; then
+        echo "KVM ready:       ${kvm_ready_out}/kvm-over-ip-ready.txt"
+        echo "KVM provider:    ${KVM_HARDWARE_PROVIDER} (${KVM_HARDWARE_SELECTION})"
+        if [[ -n "${KVM_HARDWARE_READY_CONFIG}" ]]; then
+            echo "KVM HW ready:    ${kvm_ready_out}/hardware/kvm-hardware-ready.txt"
+        fi
+    else
+        echo "KVM ready:       disabled"
+    fi
     echo
     echo "Validation FAIL: 0"
     echo "Kconfig unresolved: 0"
@@ -306,23 +682,6 @@ main() {
     # DTB for hardware discovery. Replace its config now with the fully
     # resolved board-specific VyOS config.
     #
-    #
-    # Native ARM64 runners need no cross prefix. x86_64 builders use
-    # the standard Debian/Ubuntu AArch64 GNU toolchain.
-    #
-    # IMPORTANT: Kconfig must use the exact same toolchain as the
-    # subsequent kernel build. Compiler capability tests influence
-    # ARM64 Kconfig symbols (MTE, BTI, etc.).
-    #
-    local cross=""
-
-    if [[ "$(uname -m)" != "aarch64" ]]; then
-        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
-
-        command -v "${cross}gcc" >/dev/null 2>&1 ||
-            die "ARM64 cross compiler not found: ${cross}gcc"
-    fi
-
     cp "${final_config}" "${kbuild_out}/.config"
 
     #
@@ -333,7 +692,7 @@ main() {
     #
     "${kernel_source}/scripts/config" \
         --file "${kbuild_out}/.config" \
-        --set-str LOCALVERSION "-vyos"
+        --set-str LOCALVERSION ""
 
     "${kernel_source}/scripts/config" \
         --file "${kbuild_out}/.config" \
@@ -356,33 +715,165 @@ main() {
         O="${kbuild_out}" \
         ARCH=arm64 \
         CROSS_COMPILE="${cross}" \
+        LOCALVERSION="${kernel_localversion}" \
         -j"${jobs}" \
         Image \
+        Image.gz \
         modules \
         "${dtb}"
 
     local image="${kbuild_out}/arch/arm64/boot/Image"
+    local image_gz="${kbuild_out}/arch/arm64/boot/Image.gz"
     local final_dtb="${kbuild_out}/arch/arm64/boot/dts/${dtb}"
 
     [[ -s "${image}" ]] ||
         die "Kernel Image was not generated"
 
+    [[ -s "${image_gz}" ]] ||
+        die "Compressed kernel Image.gz was not generated"
+
     [[ -s "${final_dtb}" ]] ||
         die "Final board DTB was not generated"
 
+    #
+    # An exact-board KVM hardware provider may optionally apply a Device
+    # Tree overlay to the FINAL DTB. The stock DTB used above for generic
+    # hardware discovery deliberately remains untouched.
+    #
+    # This mechanism is generic. The provider registry decides which exact
+    # board is allowed to use which overlay.
+    #
+    if [[ -n "${KVM_HARDWARE_DT_OVERLAY:-}" ]]; then
+        command -v dtc >/dev/null 2>&1 ||
+            die "dtc required for KVM DT overlay"
+        command -v fdtoverlay >/dev/null 2>&1 ||
+            die "fdtoverlay required for KVM DT overlay"
+
+        local kvm_overlay_source="${ROOT_DIR}/${KVM_HARDWARE_DT_OVERLAY}"
+        local kvm_overlay_work="${ROOT_DIR}/work/build/${board}/kvm-dt-overlay"
+        local kvm_overlay_dtbo="${kvm_overlay_work}/provider.dtbo"
+        local kvm_overlay_result="${kvm_overlay_work}/final-patched.dtb"
+
+        [[ -f "${kvm_overlay_source}" ]] ||
+            die "KVM DT overlay not found: ${kvm_overlay_source}"
+
+        rm -rf "${kvm_overlay_work}"
+        mkdir -p "${kvm_overlay_work}"
+
+        case "${kvm_overlay_source}" in
+            *.dts)
+                dtc -@ -I dts -O dtb                     -o "${kvm_overlay_dtbo}"                     "${kvm_overlay_source}"
+                ;;
+            *.dtbo)
+                cp "${kvm_overlay_source}" "${kvm_overlay_dtbo}"
+                ;;
+            *)
+                die "Unsupported KVM DT overlay format: ${kvm_overlay_source}"
+                ;;
+        esac
+
+        fdtoverlay             -i "${final_dtb}"             -o "${kvm_overlay_result}"             "${kvm_overlay_dtbo}"
+
+        [[ -s "${kvm_overlay_result}" ]] ||
+            die "KVM DT overlay produced no final DTB"
+
+        cp "${kvm_overlay_result}" "${final_dtb}"
+
+        info "Applied KVM DT overlay: ${KVM_HARDWARE_DT_OVERLAY}"
+    fi
+
+    local kernel_release
+    kernel_release="$(
+        make -s \
+            -C "${kernel_source}" \
+            O="${kbuild_out}" \
+            ARCH=arm64 \
+            CROSS_COMPILE="${cross}" \
+            LOCALVERSION="${kernel_localversion}" \
+            kernelrelease
+    )"
+
+    [[ -n "${kernel_release}" ]] ||
+        die "Unable to determine final kernel release"
+
+    local expected_kernel_release
+    expected_kernel_release="${kernel_version}${kernel_localversion}"
+
+    [[ "${kernel_release}" == "${expected_kernel_release}" ]] ||
+        die "Kernel release mismatch: generated=${kernel_release}, expected=${expected_kernel_release}"
+
     echo
-    info "Installing kernel modules..."
+    info "Installing stripped kernel modules..."
 
     make \
         -C "${kernel_source}" \
         O="${kbuild_out}" \
         ARCH=arm64 \
         CROSS_COMPILE="${cross}" \
+        LOCALVERSION="${kernel_localversion}" \
         INSTALL_MOD_PATH="${modules_out}" \
+        INSTALL_MOD_STRIP=1 \
         modules_install
+
+    local installed_modules="${modules_out}/lib/modules/${kernel_release}"
+
+    [[ -d "${installed_modules}" ]] ||
+        die "Installed kernel module tree missing: ${installed_modules}"
+
+    #
+    # modules_install creates development-only source/build links.
+    # They do not belong in the VyOS runtime filesystem.
+    #
+    rm -f \
+        "${installed_modules}/build" \
+        "${installed_modules}/source"
+
+    #
+    # Restore the complete stock VyOS ARM64 module baseline.
+    #
+    # These are VyOS out-of-tree modules, not board-specific hardware
+    # drivers. Build them against the final board kernel so MODVERSIONS,
+    # signing and compression exactly match this kernel.
+    #
+    info "Building stock VyOS out-of-tree kernel modules..."
+
+    "${ROOT_DIR}/tools/build-vyos-oot-modules.sh" \
+        --vyos-tree "${ROOT_DIR}/cache/vyos-build" \
+        --kernel-build "${kbuild_out}" \
+        --modules-root "${modules_out}" \
+        --kernel-release "${kernel_release}" \
+        --localversion "${kernel_localversion}" \
+        --cross-compile "${cross}" \
+        --work-dir "${ROOT_DIR}/work/build/${board}/vyos-oot-modules"
+
+    #
+    # Firmware is derived from the modules that actually survived Kconfig
+    # and Kbuild. The source revision is read from VyOS' own linux-firmware
+    # package pin. Missing optional/runtime firmware is reported but does
+    # not turn into a boot failure.
+    #
+    info "Staging network firmware from the VyOS-pinned source..."
+
+    python3 "${ROOT_DIR}/tools/stage-network-firmware.py" \
+        --vyos-tree "${ROOT_DIR}/cache/vyos-build" \
+        --modules-root "${modules_out}" \
+        --kernel-release "${kernel_release}" \
+        --resolver-report \
+            "${extended_config_out}/extended-network-report.json" \
+        --module-catalog \
+            "${ROOT_DIR}/profiles/extended-network-modules.tsv" \
+        --baseline-modules \
+            "${ROOT_DIR}/profiles/baseline-network-modules.txt" \
+        --supplements \
+            "${ROOT_DIR}/profiles/extended-network-firmware-supplements.txt" \
+        --cache-dir "${ROOT_DIR}/cache/linux-firmware" \
+        --output-dir "${artifacts}/network-firmware"
 
     cp "${image}" \
         "${artifacts}/Image"
+
+    cp "${image_gz}" \
+        "${artifacts}/Image.gz"
 
     mkdir -p \
         "${artifacts}/dtb/$(dirname "${dtb}")"
@@ -392,19 +883,6 @@ main() {
 
     cp "${kbuild_out}/.config" \
         "${artifacts}/kernel.config"
-
-    local kernel_release
-    kernel_release="$(
-        make -s \
-            -C "${kernel_source}" \
-            O="${kbuild_out}" \
-            ARCH=arm64 \
-            CROSS_COMPILE="${cross}" \
-            kernelrelease
-    )"
-
-    [[ -n "${kernel_release}" ]] ||
-        die "Unable to determine final kernel release"
 
     printf '%s\n' "${kernel_release}" > "${artifacts}/kernel.release"
 
@@ -418,10 +896,16 @@ main() {
     echo "Board:          ${board}"
     echo "Kernel:         ${kernel_version}"
     echo "Image:          ${artifacts}/Image"
+    echo "Image.gz:       ${artifacts}/Image.gz"
     echo "DTB:            ${artifacts}/dtb/${dtb}"
     echo "Modules:        ${modules_out}/lib/modules"
     echo "Kernel config:  ${artifacts}/kernel.config"
     echo "Kernel release: ${kernel_release}"
+    echo "Extended net:   ${extended_network}"
+    echo "Tailscale:      ${tailscale_subnet_router}"
+    echo "Build profile:  ${BUILD_PROFILE}"
+    echo "KVM-over-IP:    ${kvm_over_ip}"
+    echo "Network report: ${artifacts}/network-firmware/extended-network-report.txt"
     echo
     info "VyOS ARM64 board kernel build completed successfully."
 }

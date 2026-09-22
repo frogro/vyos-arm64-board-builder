@@ -8,15 +8,39 @@ BRANCH="${2:?Usage: $0 <board> <branch> <vyos.raw> [output.img]}"
 RAW="${3:?Usage: $0 <board> <branch> <vyos.raw> [output.img]}"
 OUTPUT="${4:-$ROOT/work/build/$BOARD/vyos-${BOARD}.img}"
 
-BOOT="$ROOT/work/build/$BOARD/boot"
-BOOT_ARTIFACTS="$BOOT/artifacts"
-BOOT_METADATA="$BOOT/metadata"
 KERNEL_ARTIFACTS="$ROOT/work/build/$BOARD/artifacts"
 MODULES_ROOT="$ROOT/work/build/$BOARD/modules"
+BOOT="$ROOT/work/build/$BOARD/boot"
+MANIFEST="$BOOT/boot-manifest.env"
+NETWORK_ARTIFACTS="$KERNEL_ARTIFACTS/network-firmware"
+USTREAMER_ARTIFACTS="$KERNEL_ARTIFACTS/ustreamer"
+KVM_MEDIA_ARTIFACTS="$KERNEL_ARTIFACTS/kvm-media"
+KVM_CLI_ARTIFACTS="$KERNEL_ARTIFACTS/vyos-1x-profile"
+NETWORK_SELECTION="$ROOT/work/build/$BOARD/selection/extended-network.env"
+FEATURE_SELECTION="$ROOT/work/build/$BOARD/selection/feature-profiles.env"
+KVM_HARDWARE_SELECTION="$ROOT/work/build/$BOARD/selection/kvm-hardware.env"
 
-BOOT_GAP_MIB="${BOOT_GAP_MIB:-32}"
+EXTENDED_NETWORK="${EXTENDED_NETWORK:-no}"
+TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
+BUILD_PROFILE="${BUILD_PROFILE:-base}"
+KVM_OVER_IP="${KVM_OVER_IP:-no}"
+KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
+KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
+KVM_HID_GADGET="${KVM_HID_GADGET:-no}"
+if [[ -f "$NETWORK_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$NETWORK_SELECTION"
+fi
+if [[ -f "$FEATURE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$FEATURE_SELECTION"
+fi
+if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
+    # shellcheck disable=SC1090
+    source "$KVM_HARDWARE_SELECTION"
+fi
+
 SECTOR_SIZE=512
-ALIGN_SECTORS=2048
 
 die()
 {
@@ -32,6 +56,7 @@ need()
 
 for cmd in \
     losetup \
+    udevadm \
     sgdisk \
     blkid \
     blockdev \
@@ -39,14 +64,31 @@ for cmd in \
     unsquashfs \
     mksquashfs \
     depmod \
+    lsinitramfs \
     python3 \
-    dd
+    dd \
+    mount \
+    umount \
+    mountpoint \
+    fsck.vfat \
+    e2fsck \
+    sha256sum \
+    strings \
+    stat \
+    cmp \
+    chroot \
+    truncate \
+    find \
+    grep
 do
     need "$cmd"
 done
 
 [[ $EUID -eq 0 ]] ||
     die "assemble-board-image.sh must run as root"
+
+[[ "$(uname -m)" == "aarch64" ]] ||
+    die "final VyOS initramfs generation currently requires a native ARM64 runner"
 
 [[ -f "$RAW" ]] ||
     die "VyOS raw image not found: $RAW"
@@ -57,18 +99,14 @@ done
 [[ -s "$KERNEL_ARTIFACTS/kernel.release" ]] ||
     die "kernel.release missing"
 
+[[ -s "$KERNEL_ARTIFACTS/kernel.config" ]] ||
+    die "final kernel.config missing"
+
+[[ -s "$KERNEL_ARTIFACTS/System.map" ]] ||
+    die "final System.map missing"
+
 [[ -d "$MODULES_ROOT/lib/modules" ]] ||
     die "board kernel modules missing"
-
-PLATFORM_INSTALL="$BOOT_METADATA/platform_install.sh"
-
-[[ -f "$PLATFORM_INSTALL" ]] ||
-    die "Armbian platform_install.sh missing"
-
-[[ -d "$BOOT_ARTIFACTS" ]] ||
-    die "bootchain artifacts missing"
-
-MANIFEST="$BOOT/boot-manifest.env"
 
 [[ -f "$MANIFEST" ]] ||
     die "boot manifest missing"
@@ -79,6 +117,74 @@ source "$MANIFEST"
 [[ -n "${BOOT_FDT_FILE:-}" ]] ||
     die "BOOT_FDT_FILE missing from boot manifest"
 
+[[ -n "${FIRMWARE_PROVIDER:-}" ]] ||
+    die "FIRMWARE_PROVIDER missing from boot manifest"
+
+[[ -n "${FIRMWARE_LAYOUT_MODE:-}" ]] ||
+    die "FIRMWARE_LAYOUT_MODE missing from boot manifest"
+
+[[ "${PARTITION_TABLE:-gpt}" == "gpt" ]] ||
+    die "current VyOS board-image assembler requires GPT"
+
+for value_name in     FIRMWARE_PART_START     FIRMWARE_PART_SECTORS     EFI_START_SECTOR
+do
+    value="${!value_name:-}"
+
+    [[ "$value" =~ ^[0-9]+$ ]] ||
+        die "$value_name must be an integer sector count"
+done
+
+FIRMWARE_PART_END=$((FIRMWARE_PART_START + FIRMWARE_PART_SECTORS - 1))
+
+(( FIRMWARE_PART_END + 1 == EFI_START_SECTOR )) ||
+    die "firmware layout is not contiguous with EFI start"
+
+INSTALL_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/install.sh"
+ROOTFS_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/rootfs.sh"
+FINALIZE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/finalize.sh"
+VALIDATE_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/validate.sh"
+BOOTFILES_PROVIDER="$ROOT/tools/firmware-providers/$FIRMWARE_PROVIDER/bootfiles.sh"
+COMMON_ROOTFS_FINALIZER="$ROOT/tools/finalize-vyos-rootfs.sh"
+KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
+KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
+KVM_CLI_INSTALLER="$ROOT/tools/install-kvm-cli.sh"
+ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
+GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
+GRUB_BOARD_DTB_PATCHER="$ROOT/tools/patch-vyos-grub-board-dtb.py"
+SYSTEM_IMAGE_DTB_PATCHER="$ROOT/tools/patch-vyos-system-image-dtb.py"
+
+[[ -x "$INSTALL_PROVIDER" ]] ||
+    die "firmware provider installer missing: $INSTALL_PROVIDER"
+
+[[ -x "$COMMON_ROOTFS_FINALIZER" ]] ||
+    die "common VyOS rootfs finalizer missing: $COMMON_ROOTFS_FINALIZER"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
+        die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
+fi
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    [[ -x "$KVM_CLI_INSTALLER" ]] ||
+        die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    [[ -x "$KVM_MEDIA_INSTALLER" ]] || die "KVM media installer missing: $KVM_MEDIA_INSTALLER"
+    [[ -d "$KVM_MEDIA_ARTIFACTS" ]] || die "KVM media artifacts missing: $KVM_MEDIA_ARTIFACTS"
+fi
+
+[[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
+    die "VyOS ARM CPU op-mode patcher missing: $ARM_CPU_OPMODE_PATCHER"
+
+[[ -x "$GRUB_CONSOLE_TOOL" ]] ||
+    die "GRUB console-default tool missing: $GRUB_CONSOLE_TOOL"
+
+[[ -x "$GRUB_BOARD_DTB_PATCHER" ]] ||
+    die "GRUB board-DTB patcher missing: $GRUB_BOARD_DTB_PATCHER"
+
+[[ -x "$SYSTEM_IMAGE_DTB_PATCHER" ]] ||
+    die "system-image DTB patcher missing: $SYSTEM_IMAGE_DTB_PATCHER"
+
 DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 
 [[ -s "$DTB" ]] ||
@@ -87,12 +193,17 @@ DTB="$KERNEL_ARTIFACTS/dtb/$BOOT_FDT_FILE"
 KERNEL_RELEASE="$(cat "$KERNEL_ARTIFACTS/kernel.release")"
 
 echo "===== ASSEMBLY INPUT ====="
-echo "Board:          $BOARD"
-echo "Branch:         $BRANCH"
-echo "VyOS RAW:       $RAW"
-echo "Kernel release: $KERNEL_RELEASE"
-echo "DTB:            $BOOT_FDT_FILE"
-echo "Boot gap:       ${BOOT_GAP_MIB} MiB"
+echo "Board:             $BOARD"
+echo "Branch:            $BRANCH"
+echo "VyOS RAW:          $RAW"
+echo "Kernel release:    $KERNEL_RELEASE"
+echo "DTB:               $BOOT_FDT_FILE"
+echo "Firmware provider: $FIRMWARE_PROVIDER"
+echo "Firmware layout:   $FIRMWARE_LAYOUT_MODE"
+echo "Firmware GPT1:     ${FIRMWARE_PART_START}-${FIRMWARE_PART_END}"
+echo "EFI start sector:  $EFI_START_SECTOR"
+echo "KVM HW provider:   $KVM_HARDWARE_PROVIDER"
+echo "KVM capture:       $KVM_CAPTURE_BACKEND"
 echo
 
 mkdir -p "$(dirname "$OUTPUT")"
@@ -101,15 +212,35 @@ WORK="$(mktemp -d)"
 SRC_MNT="$WORK/src"
 DST_MNT="$WORK/dst"
 SQUASH_ROOT="$WORK/squash-root"
+FIRMWARE_MNT="$WORK/firmware"
 
-mkdir -p "$SRC_MNT" "$DST_MNT"
+mkdir -p "$SRC_MNT" "$DST_MNT" "$FIRMWARE_MNT"
 
 SRC_LOOP=""
 DST_LOOP=""
 
+unmount_chroot()
+{
+    mountpoint -q "$SQUASH_ROOT/run" &&
+        umount "$SQUASH_ROOT/run" || true
+    mountpoint -q "$SQUASH_ROOT/sys" &&
+        umount "$SQUASH_ROOT/sys" || true
+    mountpoint -q "$SQUASH_ROOT/proc" &&
+        umount "$SQUASH_ROOT/proc" || true
+    mountpoint -q "$SQUASH_ROOT/dev/pts" &&
+        umount "$SQUASH_ROOT/dev/pts" || true
+    mountpoint -q "$SQUASH_ROOT/dev" &&
+        umount "$SQUASH_ROOT/dev" || true
+}
+
 cleanup()
 {
     set +e
+
+    unmount_chroot
+
+    mountpoint -q "$FIRMWARE_MNT" &&
+        umount "$FIRMWARE_MNT"
 
     mountpoint -q "$DST_MNT/boot/efi" &&
         umount "$DST_MNT/boot/efi"
@@ -132,6 +263,7 @@ SRC_LOOP="$(
     losetup \
         --find \
         --show \
+        --read-only \
         --partscan \
         "$RAW"
 )"
@@ -164,45 +296,62 @@ done
 
 EFI_SECTORS="$(blockdev --getsz "$EFI_SRC")"
 ROOT_SECTORS="$(blockdev --getsz "$ROOT_SRC")"
+RAW_BYTES="$(stat -c '%s' "$RAW")"
+RAW_SECTORS=$((RAW_BYTES / SECTOR_SIZE))
+OUTPUT_EXTRA_SECTORS="${OUTPUT_EXTRA_SECTORS:-0}"
 
-BOOT_GAP_SECTORS="$((BOOT_GAP_MIB * 1024 * 1024 / SECTOR_SIZE))"
+[[ "$OUTPUT_EXTRA_SECTORS" =~ ^[0-9]+$ ]] ||
+    die "OUTPUT_EXTRA_SECTORS must be an integer"
 
-align_up()
-{
-    local value="$1"
-    local align="$2"
+OUTPUT_SECTORS=$((RAW_SECTORS + OUTPUT_EXTRA_SECTORS))
+OUTPUT_BYTES=$((OUTPUT_SECTORS * SECTOR_SIZE))
 
-    echo $(( ((value + align - 1) / align) * align ))
-}
+EFI_START="$EFI_START_SECTOR"
+EFI_END=$((EFI_START + EFI_SECTORS - 1))
+ROOT_START=$((EFI_END + 1))
+ROOT_END=$((ROOT_START + ROOT_SECTORS - 1))
 
-EFI_START="$(align_up "$BOOT_GAP_SECTORS" "$ALIGN_SECTORS")"
-EFI_END="$((EFI_START + EFI_SECTORS - 1))"
-
-ROOT_START="$(align_up $((EFI_END + 1)) "$ALIGN_SECTORS")"
-ROOT_END="$((ROOT_START + ROOT_SECTORS - 1))"
-
-TOTAL_SECTORS="$((ROOT_END + ALIGN_SECTORS + 34))"
-TOTAL_BYTES="$((TOTAL_SECTORS * SECTOR_SIZE))"
+(( ROOT_END + 34 < OUTPUT_SECTORS )) ||
+    die "VyOS filesystems do not fit in the provider-defined layout"
 
 rm -f "$OUTPUT"
-truncate -s "$TOTAL_BYTES" "$OUTPUT"
+truncate -s "$OUTPUT_BYTES" "$OUTPUT"
 
 sgdisk --zap-all "$OUTPUT"
 sgdisk --clear "$OUTPUT"
 
 sgdisk \
-    --new=1:${EFI_START}:${EFI_END} \
-    --typecode=1:ef00 \
-    --change-name=1:EFI \
+    --new=1:${FIRMWARE_PART_START}:${FIRMWARE_PART_END} \
+    --typecode=1:${FIRMWARE_PART_TYPE:-8300} \
+    --change-name=1:${FIRMWARE_PART_NAME:-uboot} \
     "$OUTPUT"
 
 sgdisk \
-    --new=2:${ROOT_START}:${ROOT_END} \
-    --typecode=2:8300 \
-    --change-name=2:persistence \
+    --new=2:${EFI_START}:${EFI_END} \
+    --typecode=2:ef00 \
+    --change-name=2:EFI \
     "$OUTPUT"
 
+sgdisk \
+    --new=3:${ROOT_START}:${ROOT_END} \
+    --typecode=3:8300 \
+    --change-name=3:persistence \
+    "$OUTPUT"
+
+echo
+echo "===== TARGET GPT ====="
 sgdisk --print "$OUTPUT"
+
+echo
+echo "===== INSTALLING FIRMWARE PROVIDER ====="
+echo "Provider: $FIRMWARE_PROVIDER"
+
+"$INSTALL_PROVIDER" \
+    "$BOARD" \
+    "$OUTPUT" \
+    "$BOOT" \
+    "$EFI_START" \
+    "$EFI_SECTORS"
 
 DST_LOOP="$(
     losetup \
@@ -214,8 +363,12 @@ DST_LOOP="$(
 
 udevadm settle
 
-EFI_DST="${DST_LOOP}p1"
-ROOT_DST="${DST_LOOP}p2"
+FIRMWARE_DST="${DST_LOOP}p1"
+EFI_DST="${DST_LOOP}p2"
+ROOT_DST="${DST_LOOP}p3"
+
+[[ -b "$FIRMWARE_DST" ]] ||
+    die "target firmware partition missing"
 
 [[ -b "$EFI_DST" ]] ||
     die "target EFI partition missing"
@@ -287,13 +440,19 @@ MODULE_SOURCE="$MODULES_ROOT/lib/modules/$KERNEL_RELEASE"
     die "module tree missing: $MODULE_SOURCE"
 
 echo
-echo "===== INSTALLING BOARD KERNEL ====="
+echo "===== INSTALLING BOARD KERNEL + METADATA ====="
 
 cp "$KERNEL_ARTIFACTS/Image" \
     "$VERSION_DIR/vmlinuz"
 
 cp "$KERNEL_ARTIFACTS/Image" \
     "$VERSION_DIR/vmlinuz-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/kernel.config" \
+    "$VERSION_DIR/config-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/System.map" \
+    "$VERSION_DIR/System.map-$KERNEL_RELEASE"
 
 DTB_TARGET="$VERSION_DIR/dtb/$BOOT_FDT_FILE"
 
@@ -321,18 +480,245 @@ unsquashfs \
     -d "$SQUASH_ROOT" \
     "$SQUASH"
 
-rm -rf "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE"
+# Install the profile package before any board-specific rootfs patches.
+# Later finalizers must win over the original files shipped by vyos-1x.
+mkdir -p "$SQUASH_ROOT"/{dev/pts,proc,sys,run,boot}
+mount --bind /dev "$SQUASH_ROOT/dev"
+mount --bind /dev/pts "$SQUASH_ROOT/dev/pts"
+mount -t proc proc "$SQUASH_ROOT/proc"
+mount -t sysfs sysfs "$SQUASH_ROOT/sys"
+mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-mkdir -p "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE"
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
+    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER"
+fi
+
+if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+    python3 "$ROOT/tools/install-tailscale.py" "$SQUASH_ROOT"
+fi
+
+SQUASH_MODULE_DIR="$SQUASH_ROOT/usr/lib/modules/$KERNEL_RELEASE"
+
+rm -rf "$SQUASH_MODULE_DIR"
+mkdir -p "$SQUASH_MODULE_DIR"
 
 rsync \
     -aHAX \
+    --numeric-ids \
     "$MODULE_SOURCE/" \
-    "$SQUASH_ROOT/lib/modules/$KERNEL_RELEASE/"
+    "$SQUASH_MODULE_DIR/"
 
 depmod \
     -b "$SQUASH_ROOT" \
     "$KERNEL_RELEASE"
+
+echo
+echo "===== INSTALLING NETWORK FIRMWARE CLOSURE ====="
+
+bash "$ROOT/tools/install-network-firmware.sh" \
+    "$BOARD" \
+    "$SQUASH_ROOT" \
+    "$NETWORK_ARTIFACTS"
+
+# Bundle the optional modem boot image only with Additional/Extended Network.
+# Keep it outside the kernel firmware search path for manual installation.
+if [[ "$EXTENDED_NETWORK" == yes ]]; then
+    bash "$KVM_USERSPACE_INSTALLER" "$SQUASH_ROOT" "$ROOT/profiles/network-packages.txt" network
+    python3 "$ROOT/tools/check-modem-image.py" "$SQUASH_ROOT" "$KERNEL_ARTIFACTS/kernel.config"
+    QUECTEL_ASSET="$ROOT/firmware/quectel-rm505q-ae/a04"
+    (
+        cd "$QUECTEL_ASSET"
+        sha256sum --check SHA256SUMS
+    )
+    install -D -m 0644 "$QUECTEL_ASSET/sbl1.mbn" \
+        "$SQUASH_ROOT/usr/share/quectel-rm505q-ae/a04/sbl1.mbn"
+    install -m 0644 "$QUECTEL_ASSET/README.md" "$QUECTEL_ASSET/SHA256SUMS" \
+        "$SQUASH_ROOT/usr/share/quectel-rm505q-ae/a04/"
+fi
+
+if [[ -x "$ROOTFS_PROVIDER" ]]; then
+    echo
+    echo "===== FINALIZING BOARD ROOT FILESYSTEM ====="
+
+    "$ROOTFS_PROVIDER" \
+        "$BOARD" \
+        "$SQUASH_ROOT" \
+        "$BOOT" \
+        "$MANIFEST"
+fi
+
+echo
+echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
+
+"$COMMON_ROOTFS_FINALIZER" \
+    "$BOARD" \
+    "$SQUASH_ROOT" \
+    "$TAILSCALE_SUBNET_ROUTER" \
+    "$EXTENDED_NETWORK" \
+    "$BUILD_PROFILE" \
+    "$KVM_OVER_IP" \
+    "$KVM_HARDWARE_PROVIDER" \
+    "$KVM_CAPTURE_BACKEND" \
+    "$KVM_HID_GADGET"
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING PROFILE-SCOPED USTREAMER ====="
+    bash "$ROOT/tools/install-ustreamer.sh" \
+        "$SQUASH_ROOT" \
+        "$USTREAMER_ARTIFACTS"
+fi
+
+echo
+echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="
+
+python3 "$ARM_CPU_OPMODE_PATCHER" "$SQUASH_ROOT"
+
+echo
+echo "===== ADDING BOARD DTB TO VYOS GRUB TEMPLATE ====="
+
+python3 "$GRUB_BOARD_DTB_PATCHER" \
+    "$SQUASH_ROOT" \
+    "$BOOT_FDT_FILE"
+
+echo
+echo "===== ADDING BOARD DTB SUPPORT TO VYOS SYSTEM IMAGE UPDATES ====="
+
+python3 "$SYSTEM_IMAGE_DTB_PATCHER" \
+    "$SQUASH_ROOT"
+
+echo
+echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
+
+[[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||
+    die "VyOS root filesystem does not provide update-initramfs"
+
+mkdir -p \
+    "$SQUASH_ROOT/boot" \
+    "$SQUASH_ROOT/dev" \
+    "$SQUASH_ROOT/dev/pts" \
+    "$SQUASH_ROOT/proc" \
+    "$SQUASH_ROOT/sys" \
+    "$SQUASH_ROOT/run"
+
+cp "$KERNEL_ARTIFACTS/kernel.config" \
+    "$SQUASH_ROOT/boot/config-$KERNEL_RELEASE"
+
+cp "$KERNEL_ARTIFACTS/System.map" \
+    "$SQUASH_ROOT/boot/System.map-$KERNEL_RELEASE"
+
+
+if [[ "$KVM_OVER_IP" == "yes" ]]; then
+    echo
+    echo "===== INSTALLING KVM-OVER-IP USERSPACE ====="
+    "$KVM_USERSPACE_INSTALLER" \
+        "$SQUASH_ROOT" \
+        "$ROOT/profiles/kvm-over-ip-packages.txt"
+fi
+
+if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hdmirx" ]]; then
+    echo
+    echo "===== INSTALLING RK3588 KVM MEDIA STACK ====="
+    "$KVM_MEDIA_INSTALLER" "$SQUASH_ROOT" "$KVM_MEDIA_ARTIFACTS"
+fi
+
+chroot "$SQUASH_ROOT" /bin/bash -c "
+    set -e
+    export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+    depmod '$KERNEL_RELEASE'
+    rm -f \
+        '/boot/initrd.img-$KERNEL_RELEASE' \
+        /boot/initrd.img
+    update-initramfs -c -k '$KERNEL_RELEASE'
+    test -s '/boot/initrd.img-$KERNEL_RELEASE'
+"
+
+INITRD_BUILT="$SQUASH_ROOT/boot/initrd.img-$KERNEL_RELEASE"
+
+[[ -s "$INITRD_BUILT" ]] ||
+    die "matching initramfs was not generated"
+
+cp "$INITRD_BUILT" \
+    "$VERSION_DIR/initrd.img"
+
+cp "$INITRD_BUILT" \
+    "$VERSION_DIR/initrd.img-$KERNEL_RELEASE"
+
+echo
+echo "===== INITRAMFS VALIDATION ====="
+
+ls -lh \
+    "$VERSION_DIR/initrd.img" \
+    "$VERSION_DIR/initrd.img-$KERNEL_RELEASE"
+
+lsinitramfs "$VERSION_DIR/initrd.img" \
+    > "$WORK/initrd.list"
+
+grep -q "usr/lib/modules/$KERNEL_RELEASE/" \
+    "$WORK/initrd.list" ||
+    die "initramfs does not contain modules for $KERNEL_RELEASE"
+
+for required in loop ext4 overlay squashfs; do
+    grep -Eq "/${required}\.ko(\.(xz|zst|gz))?$" \
+        "$WORK/initrd.list" ||
+        die "initramfs missing live-root module: $required"
+done
+
+
+# Native provider defaults and lifecycle runtime are installed only for its
+# verified boot contract. Existing ROCK/Pi providers do not enter this block.
+source "$ROOT/tools/firmware-providers/armbian-uboot/native-env.sh"
+if native_extlinux_enabled; then
+    NATIVE_METADATA="$VERSION_DIR/board-boot.json"
+    python3 "$ROOT/tools/audit-interrupt-dtb.py" "$DTB" "$KERNEL_ARTIFACTS/interrupt-dtb-audit.json"
+    python3 - "$NATIVE_METADATA" "$BOARD" "$BOOT_FDT_FILE" "$BUILD_PROFILE" "${HW_SERIALCON}" "${HW_DEFAULT_CONSOLE}" <<'PYMETA'
+import json, sys
+from pathlib import Path
+output, board, dtb, profile, console, mode = sys.argv[1:]
+Path(output).write_text(json.dumps(dict(schema=1, architecture='arm64', board=board,
+    device_tree=dtb, profile=profile, firmware_provider='armbian-uboot',
+    update_provider='uboot-extlinux', firmware_partition=2, console=console,
+    baud=1500000, display_console=mode == 'both'), indent=2) + '\n')
+PYMETA
+    python3 "$ROOT/tools/install-native-boot.py" "$SQUASH_ROOT" "$NATIVE_METADATA"
+    python3 "$ROOT/tools/patch-board-console.py" "$SQUASH_ROOT"
+    install -m 0755 "$ROOT/tools/configure-board-console.py" "$SQUASH_ROOT/tmp/board-console.py"
+    CONSOLE_CONFIGS=(/usr/share/vyos/config.boot.default)
+    # The raw image may already carry config.boot in its writable layer.
+    while IFS= read -r -d '' CONFIG_FILE; do
+        cp "$CONFIG_FILE" "$SQUASH_ROOT/tmp/board-initial.boot"
+        chroot "$SQUASH_ROOT" python3 /tmp/board-console.py "$HW_SERIALCON" 1500000 /tmp/board-initial.boot
+        cp "$SQUASH_ROOT/tmp/board-initial.boot" "$CONFIG_FILE"
+    done < <(find "$VERSION_DIR/rw" -type f -name config.boot -print0)
+    chroot "$SQUASH_ROOT" python3 /tmp/board-console.py "$HW_SERIALCON" 1500000 "${CONSOLE_CONFIGS[@]}"
+    rm -f "$SQUASH_ROOT/tmp/board-console.py" "$SQUASH_ROOT/tmp/board-initial.boot"
+fi
+
+if [[ "$FIRMWARE_PROVIDER" == raspberrypi-native ]]; then
+    python3 - "$VERSION_DIR/board-boot.json" "$BOARD" "$BOOT_FDT_FILE" "$BUILD_PROFILE" <<'PYPI'
+import json, sys
+from pathlib import Path
+output, board, dtb, profile = sys.argv[1:]
+Path(output).write_text(json.dumps(dict(schema=1, architecture='arm64', board=board,
+    device_tree=dtb, profile=profile, firmware_provider='raspberrypi-native',
+    update_provider='firmware-files', firmware_partition=1, console='ttyAMA10',
+    baud=115200, display_console=True), indent=2) + '\n')
+PYPI
+    python3 "$ROOT/tools/install-native-boot.py" "$SQUASH_ROOT" "$VERSION_DIR/board-boot.json"
+fi
+
+unmount_chroot
+
+# These files were only staged inside the chroot so update-initramfs could
+# build against the final kernel. The persistent /boot copies above are the
+# authoritative VyOS system-image files.
+rm -f \
+    "$SQUASH_ROOT/boot/initrd.img" \
+    "$SQUASH_ROOT/boot/initrd.img-$KERNEL_RELEASE" \
+    "$SQUASH_ROOT/boot/config-$KERNEL_RELEASE" \
+    "$SQUASH_ROOT/boot/System.map-$KERNEL_RELEASE"
 
 NEW_SQUASH="$WORK/new.squashfs"
 
@@ -391,8 +777,87 @@ if dtb_line not in text:
 
 cfg.write_text(text)
 
-print(f"Added GRUB devicetree: /boot/{version}/dtb/{dtb}")
+print(f"GRUB devicetree: /boot/{version}/dtb/{dtb}")
 PY
+
+if native_extlinux_enabled; then
+    python3 - "$DST_MNT/boot/grub/grub.cfg.d/20-vyos-defaults-autoload.cfg" "$HW_SERIALCON" <<'PYCONSOLE'
+from pathlib import Path
+import re, sys
+path = Path(sys.argv[1]); match = re.fullmatch(r'(ttyS|ttyAMA)([0-9]+)', sys.argv[2])
+if not match: raise SystemExit('Invalid native console')
+s = path.read_text()
+for key, value in dict(console_type=match[1], console_num=match[2], console_speed='1500000').items():
+    s, count = re.subn(r'^set ' + key + r'=.*$', 'set ' + key + '="' + value + '"', s, flags=re.M)
+    if count != 1: raise SystemExit('Missing/duplicate console variable: ' + key)
+path.write_text(s)
+PYCONSOLE
+fi
+
+if [[ -x "$BOOTFILES_PROVIDER" ]]; then
+    echo
+    echo "===== INSTALLING PROVIDER BOOT FILES ====="
+
+    "$BOOTFILES_PROVIDER" \
+        "$BOARD" \
+        "$DST_MNT/boot/efi" \
+        "$VERSION_DIR" \
+        "$GRUB_VERSION_CFG" \
+        "$MANIFEST"
+fi
+
+echo
+echo "===== SELECTING GRAPHICAL VYOS CONSOLE ====="
+
+if ! native_extlinux_enabled; then
+    python3 "$GRUB_CONSOLE_TOOL" "$DST_MNT/boot/grub" --console-type tty
+fi
+
+if [[ -x "$FINALIZE_PROVIDER" ]]; then
+    echo
+    echo "===== FINALIZING FIRMWARE FILESYSTEM ====="
+
+    mount "$FIRMWARE_DST" "$FIRMWARE_MNT"
+
+    "$FINALIZE_PROVIDER" \
+        "$BOARD" \
+        "$FIRMWARE_MNT" \
+        "$VERSION_DIR" \
+        "$KERNEL_ARTIFACTS" \
+        "$GRUB_VERSION_CFG" \
+        "$MANIFEST"
+
+    sync
+    umount "$FIRMWARE_MNT"
+fi
+
+echo
+echo "===== RELEASE PAYLOAD VALIDATION ====="
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/kernel.config" \
+    "$VERSION_DIR/config-$KERNEL_RELEASE" ||
+    die "installed /boot kernel config does not match the built kernel"
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/System.map" \
+    "$VERSION_DIR/System.map-$KERNEL_RELEASE" ||
+    die "installed /boot System.map does not match the built kernel"
+
+cmp -s \
+    "$KERNEL_ARTIFACTS/Image" \
+    "$VERSION_DIR/vmlinuz" ||
+    die "installed kernel does not match build artifact"
+
+"$ROOT/tools/verify-installed-dtb.sh" "$FIRMWARE_PROVIDER" "$DTB" "$DTB_TARGET"
+
+GRUB_CORE="$DST_MNT/boot/grub/arm64-efi/core.efi"
+
+if [[ -f "$GRUB_CORE" ]]; then
+    strings "$GRUB_CORE" > "$WORK/grub-core.strings"
+    grep -Fq '(,gpt3)/boot/grub' "$WORK/grub-core.strings" ||
+        die "VyOS GRUB core does not target persistence on GPT partition 3"
+fi
 
 sync
 
@@ -404,21 +869,6 @@ DST_LOOP=""
 
 losetup -d "$SRC_LOOP"
 SRC_LOOP=""
-
-echo
-echo "===== INSTALLING ARMBIAN-DERIVED BOARD BOOTCHAIN ====="
-
-# shellcheck disable=SC1090
-source "$PLATFORM_INSTALL"
-
-declare -F write_uboot_platform >/dev/null ||
-    die "write_uboot_platform() not supplied by Armbian package"
-
-write_uboot_platform \
-    "$BOOT_ARTIFACTS" \
-    "$OUTPUT"
-
-sync
 
 echo
 echo "===== FINAL IMAGE VALIDATION ====="
@@ -436,14 +886,25 @@ CHECK_LOOP="$(
 
 udevadm settle
 
-fsck.vfat -n "${CHECK_LOOP}p1"
-e2fsck -fn "${CHECK_LOOP}p2"
+[[ "$(blockdev --getsz "${CHECK_LOOP}p1")" -eq "$FIRMWARE_PART_SECTORS" ]] ||
+    die "firmware partition size mismatch"
+
+if [[ -x "$VALIDATE_PROVIDER" ]]; then
+    "$VALIDATE_PROVIDER" \
+        "$BOARD" \
+        "${CHECK_LOOP}p1" \
+        "$KERNEL_ARTIFACTS"
+fi
+
+fsck.vfat -n "${CHECK_LOOP}p2"
+e2fsck -fn "${CHECK_LOOP}p3"
 
 losetup -d "$CHECK_LOOP"
 
 echo
 echo "===== FINAL IMAGE ====="
 ls -lh "$OUTPUT"
+sha256sum "$OUTPUT"
 
 echo
 echo "Board image assembled successfully:"

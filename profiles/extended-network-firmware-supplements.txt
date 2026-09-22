@@ -1,0 +1,7 @@
+# Optional module-specific firmware supplements.
+# Format: module<TAB>linux-firmware glob
+#
+# The normal path is always module -> modinfo -F firmware -> exact files.
+# Add entries here only for a proven driver requirement which modinfo cannot
+# express (for example board/calibration files). A bare firmware-family glob
+# must never be added merely to make the image comprehensive.

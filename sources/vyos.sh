@@ -8,22 +8,19 @@ vyos_source_dir() {
 }
 
 vyos_fetch() {
-    local dir
+    local dir ref
     dir="$(vyos_source_dir)"
-
-    if [[ -d "${dir}/.git" ]]; then
-        info "Updating VyOS build repository..."
-        git -C "${dir}" fetch --depth=1 origin "${VYOS_BRANCH}"
-        git -C "${dir}" reset --hard FETCH_HEAD
-    else
-        info "Cloning VyOS build repository..."
-        rm -rf "${dir}"
-        git clone \
-            --depth=1 \
-            --branch "${VYOS_BRANCH}" \
-            "${VYOS_BUILD_REPO}" \
-            "${dir}"
+    ref="${VYOS_REF:-${VYOS_BRANCH}}"
+    [[ -n "$ref" && "$ref" != -* && "$ref" != *[[:space:]]* ]] ||
+        die "Invalid VyOS source ref"
+    if [[ ! -d "$dir/.git" ]]; then
+        mkdir -p "$dir"
+        git -C "$dir" init -q
+        git -C "$dir" remote add origin "$VYOS_BUILD_REPO"
     fi
+    info "Fetching VyOS source ref: $ref"
+    git -C "$dir" fetch --depth=1 origin "$ref"
+    git -C "$dir" checkout --detach --force FETCH_HEAD
 }
 
 vyos_arm64_config() {
@@ -35,6 +32,76 @@ vyos_arm64_config() {
     [[ -f "${config}" ]] || die "VyOS ARM64 kernel config not found: ${config}"
 
     printf '%s\n' "${config}"
+}
+
+vyos_arm64_complete_config() {
+    local kernel_source="$1"
+    local output="$2"
+
+    local dir
+    local config_dir
+    local base
+    local outdir
+    local cross=""
+
+    dir="$(vyos_source_dir)"
+    config_dir="${dir}/scripts/package-build/linux-kernel/config"
+    base="${config_dir}/arm64/vyos_defconfig"
+    outdir="$(dirname "${output}")/kconfig"
+
+    [[ -f "${base}" ]] ||
+        die "VyOS ARM64 base config not found: ${base}"
+
+    if [[ "$(uname -m)" != "aarch64" ]]; then
+        cross="${CROSS_COMPILE:-aarch64-linux-gnu-}"
+
+        command -v "${cross}gcc" >/dev/null 2>&1 ||
+            die "ARM64 cross compiler not found: ${cross}gcc"
+    fi
+
+    local -a fragments=()
+
+    mapfile -t fragments < <(
+        find "${config_dir}" \
+            -maxdepth 1 \
+            -type f \
+            -name '*.config' \
+            -print |
+        sort
+    )
+
+    [[ "${#fragments[@]}" -gt 0 ]] ||
+        die "No common VyOS kernel config fragments found"
+
+    rm -rf "${outdir}"
+    mkdir -p "${outdir}" "$(dirname "${output}")"
+
+    info "Generating complete official VyOS ARM64 kernel baseline..."
+
+    (
+        cd "${kernel_source}"
+
+        ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
+        scripts/kconfig/merge_config.sh \
+            -O "${outdir}" \
+            "${base}" \
+            "${fragments[@]}"
+    )
+
+    make -s \
+        -C "${kernel_source}" \
+        O="${outdir}" \
+        ARCH=arm64 \
+        CROSS_COMPILE="${cross}" \
+        olddefconfig
+
+    [[ -s "${outdir}/.config" ]] ||
+        die "Complete VyOS ARM64 kernel config was not generated"
+
+    cp "${outdir}/.config" "${output}"
+
+    info "Complete VyOS ARM64 baseline: ${output}"
 }
 
 vyos_kernel_version() {
@@ -53,24 +120,65 @@ vyos_kernel_source_dir() {
     printf '%s\n' "${ROOT_DIR}/cache/linux-vyos/linux-${version}"
 }
 
+vyos_patch_dir_hash() {
+    local dir="$1"
+
+    {
+        if [[ -n "${dir}" && -d "${dir}" ]]; then
+            while IFS= read -r -d '' patch_file; do
+                sha256sum "${patch_file}" | awk '{print $1}'
+            done < <(
+                find "${dir}" \
+                    -maxdepth 1 \
+                    -type f \
+                    -name '*.patch' \
+                    -print0 | sort -z
+            )
+        fi
+    } | sha256sum | awk '{print $1}'
+}
+
 vyos_kernel_prepare() {
     local version="$1"
+    local provider_patch_dir="${2:-}"
+    local provider_patch_id="${2:-none}"
 
     local cache="${ROOT_DIR}/cache/linux-vyos"
     local source="${cache}/linux-${version}"
     local archive="${cache}/linux-${version}.tar.xz"
     local signature="${cache}/linux-${version}.tar.sign"
     local patch_dir
+    local local_patch_dir
     local stamp
     local vyos_commit
+    local builder_commit
+    local local_patch_hash
+    local provider_patch_hash
 
     patch_dir="$(vyos_source_dir)/scripts/package-build/linux-kernel/patches/kernel"
+    local_patch_dir="${ROOT_DIR}/patches/kernel"
+
+    if [[ -n "${provider_patch_dir}" && "${provider_patch_dir}" != /* ]]; then
+        provider_patch_dir="${ROOT_DIR}/${provider_patch_dir}"
+    fi
+
+    if [[ -n "${provider_patch_dir}" && ! -d "${provider_patch_dir}" ]]; then
+        die "Hardware-provider kernel patch directory not found: ${provider_patch_dir}"
+    fi
+
     stamp="${source}/.vyos-kernel-prepared"
     vyos_commit="$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
+    builder_commit="$(git -C "${ROOT_DIR}" rev-parse HEAD 2>/dev/null || printf 'unknown')"
+    local_patch_hash="$(vyos_patch_dir_hash "${local_patch_dir}")"
+    provider_patch_hash="$(vyos_patch_dir_hash "${provider_patch_dir}")"
 
     if [[ -f "${stamp}" ]] &&
        grep -qx "kernel_version=${version}" "${stamp}" &&
-       grep -qx "vyos_commit=${vyos_commit}" "${stamp}"; then
+       grep -qx "vyos_commit=${vyos_commit}" "${stamp}" &&
+       grep -qx "builder_commit=${builder_commit}" "${stamp}" &&
+       grep -qx "local_patch_hash=${local_patch_hash}" "${stamp}" &&
+       grep -Fqx "provider_patch_id=${provider_patch_id}" "${stamp}" &&
+       grep -Fqx "provider_patch_hash=${provider_patch_hash}" "${stamp}"; then
         info "VyOS kernel source already prepared: ${source}"
         return 0
     fi
@@ -79,10 +187,10 @@ vyos_kernel_prepare() {
 
     #
     # Existing trees from previous/manual builds may already contain
-    # VyOS patches. Never blindly patch an unknown existing tree.
+    # VyOS or board-builder patches. Never blindly patch an unknown tree.
     #
     if [[ -d "${source}" ]]; then
-        warn "Kernel source exists without preparation stamp."
+        warn "Kernel source exists without matching preparation stamp."
         warn "Recreating it from the verified upstream archive."
         rm -rf "${source}"
     fi
@@ -90,8 +198,19 @@ vyos_kernel_prepare() {
     command -v curl >/dev/null 2>&1 ||
         die "curl is required"
 
-    command -v gpg2 >/dev/null 2>&1 ||
-        die "gpg2 is required"
+    #
+    # GnuPG is installed as either "gpg" or "gpg2" depending on the
+    # distribution. Do not make the build host distribution-specific.
+    #
+    local gpg_cmd=""
+
+    if command -v gpg2 >/dev/null 2>&1; then
+        gpg_cmd="gpg2"
+    elif command -v gpg >/dev/null 2>&1; then
+        gpg_cmd="gpg"
+    else
+        die "GnuPG is required (gpg or gpg2)"
+    fi
 
     command -v xz >/dev/null 2>&1 ||
         die "xz is required"
@@ -102,27 +221,47 @@ vyos_kernel_prepare() {
     info "Fetching Linux ${version} from kernel.org..."
 
     if [[ ! -s "${archive}" ]]; then
-        curl -fL \
-            "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz" \
-            -o "${archive}"
+        rm -f "${archive}.part"
+
+        curl --http1.1 \
+            --fail \
+            --location \
+            --retry 10 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --connect-timeout 30 \
+            "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.xz" \
+            -o "${archive}.part"
+
+        mv "${archive}.part" "${archive}"
     fi
 
     if [[ ! -s "${signature}" ]]; then
-        curl -fL \
-            "https://www.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.sign" \
-            -o "${signature}"
+        rm -f "${signature}.part"
+
+        curl --http1.1 \
+            --fail \
+            --location \
+            --retry 10 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --connect-timeout 30 \
+            "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${version}.tar.sign" \
+            -o "${signature}.part"
+
+        mv "${signature}.part" "${signature}"
     fi
 
     info "Importing kernel.org signing keys..."
 
-    gpg2 --locate-keys \
+    "${gpg_cmd}" --locate-keys \
         torvalds@kernel.org \
         gregkh@kernel.org
 
     info "Verifying Linux ${version} source signature..."
 
     xz -cd "${archive}" |
-        gpg2 --verify "${signature}" -
+        "${gpg_cmd}" --verify "${signature}" -
 
     info "Extracting Linux ${version}..."
 
@@ -153,6 +292,50 @@ vyos_kernel_prepare() {
             sort
     )
 
+    if [[ -d "${local_patch_dir}" ]]; then
+        info "Applying board-builder kernel patches..."
+
+        while IFS= read -r patch_file; do
+            [[ -f "${patch_file}" ]] || continue
+
+            info "Applying $(basename "${patch_file}")"
+
+            patch \
+                -d "${source}" \
+                -p1 \
+                < "${patch_file}"
+        done < <(
+            find "${local_patch_dir}" \
+                -maxdepth 1 \
+                -type f \
+                -name '*.patch' \
+                -printf '%p\n' |
+                sort
+        )
+    fi
+
+    if [[ -n "${provider_patch_dir}" ]]; then
+        info "Applying hardware-provider kernel patches..."
+
+        while IFS= read -r patch_file; do
+            [[ -f "${patch_file}" ]] || continue
+
+            info "Applying $(basename "${patch_file}")"
+
+            patch \
+                -d "${source}" \
+                -p1 \
+                < "${patch_file}"
+        done < <(
+            find "${provider_patch_dir}" \
+                -maxdepth 1 \
+                -type f \
+                -name '*.patch' \
+                -printf '%p\n' |
+                sort
+        )
+    fi
+
     #
     # Match the VyOS kernel builder's certificate identity adjustment.
     #
@@ -166,6 +349,10 @@ vyos_kernel_prepare() {
         echo "kernel_version=${version}"
         echo "vyos_branch=${VYOS_BRANCH}"
         echo "vyos_commit=${vyos_commit}"
+        echo "builder_commit=${builder_commit}"
+        echo "local_patch_hash=${local_patch_hash}"
+        echo "provider_patch_id=${provider_patch_id}"
+        echo "provider_patch_hash=${provider_patch_hash}"
     } > "${stamp}"
 
     info "VyOS kernel source prepared successfully."

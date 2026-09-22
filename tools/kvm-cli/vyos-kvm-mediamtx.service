@@ -1,0 +1,12 @@
+[Unit]
+Description=VyOS KVM-over-IP MediaMTX transport
+After=network.target
+ConditionPathExists=/run/vyos-kvm-over-ip/mediamtx.yml
+
+[Service]
+Type=simple
+WorkingDirectory=/run/vyos-kvm-over-ip
+UMask=0077
+ExecStart=/usr/bin/python3 /usr/libexec/vyos/vyos-kvm-mediamtx-supervisor.py /run/vyos-kvm-over-ip/mediamtx.yml
+Restart=on-failure
+RestartSec=2

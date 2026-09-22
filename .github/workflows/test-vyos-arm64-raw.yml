@@ -2,11 +2,29 @@ name: Test VyOS ARM64 raw image
 
 on:
   workflow_dispatch:
+    inputs:
+      vyos_ref:
+        description: Official VyOS source ref (use the same commit for the board candidate)
+        required: false
+        default: rolling
+        type: string
+
+  workflow_call:
+    inputs:
+      vyos_ref:
+        required: true
+        type: string
+    outputs:
+      raw_run_id:
+        description: Run containing the completed raw artifact
+        value: ${{ jobs.vyos-arm64-raw.outputs.raw_run_id }}
 
 jobs:
   vyos-arm64-raw:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    outputs:
+      raw_run_id: ${{ github.run_id }}
 
     steps:
       - name: Checkout board builder
@@ -18,12 +36,19 @@ jobs:
           docker info
 
       - name: Checkout official VyOS build
+        env:
+          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
         run: |
-          git clone \
-            --depth=1 \
-            --branch rolling \
-            https://github.com/vyos/vyos-build.git \
-            cache/vyos-build
+          set -euo pipefail
+          ROOT_DIR="$PWD"
+          info() { echo "$*"; }
+          die() { echo "$*" >&2; exit 1; }
+          source sources/vyos.sh
+          vyos_fetch
+          mkdir -p work/raw-provenance
+          python3 tools/resolve-rolling-base.py --recipe-only > work/raw-provenance/raw-recipe-sha256.txt
+          git -C cache/vyos-build rev-parse HEAD > work/raw-provenance/vyos-source-commit.txt
+          cp cache/vyos-build/data/defaults.toml work/raw-provenance/vyos-defaults.toml
 
       - name: Apply ARM64 VyOS raw image patch
         shell: bash
@@ -44,6 +69,7 @@ jobs:
       - name: Pull official VyOS build container
         run: |
           docker pull vyos/vyos-build:rolling
+          docker image inspect vyos/vyos-build:rolling --format '{{json .RepoDigests}}' > work/raw-provenance/build-container.json
 
       - name: Configure build swap
         shell: bash
@@ -56,7 +82,7 @@ jobs:
           sudo swapoff -a || true
           sudo rm -f /swapfile
 
-          sudo fallocate -l 8G /swapfile
+          sudo fallocate -l 16G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -84,6 +110,14 @@ jobs:
               ./build-vyos-image \
                 --architecture arm64 \
                 arm64-raw
+
+      - name: Diagnose failed raw build
+        if: failure()
+        run: |
+          free -h
+          swapon --show
+          df -h
+          sudo dmesg | tail -80 || true
 
       - name: Show generated images
         shell: bash
@@ -130,3 +164,11 @@ jobs:
           path: ${{ steps.raw.outputs.path }}
           if-no-files-found: error
           compression-level: 1
+
+      - name: Upload raw source provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyos-arm64-raw-provenance
+          path: work/raw-provenance/
+          if-no-files-found: warn

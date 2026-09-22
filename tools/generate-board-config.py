@@ -141,6 +141,30 @@ def load_driver_symbols(path):
     return symbols
 
 
+def read_symbol_list(path):
+    symbols = set()
+
+    with open(path, encoding="utf-8") as f:
+        for lineno, line in enumerate(f, 1):
+            line = line.strip()
+
+            if not line or line.startswith("#"):
+                continue
+
+            if not re.fullmatch(
+                r"CONFIG_[A-Za-z0-9_]+",
+                line
+            ):
+                raise SystemExit(
+                    f"Invalid CONFIG symbol in {path}:"
+                    f"{lineno}: {line}"
+                )
+
+            symbols.add(line)
+
+    return symbols
+
+
 def write_fragment(path, values):
     lines = []
 
@@ -158,6 +182,29 @@ def write_fragment(path, values):
     )
 
 
+def validation_state(symbol, want, got, strict_symbols):
+    """Classify Kconfig's final value for one requested symbol.
+
+    Boot-critical symbols and their dependency closure must retain the exact
+    requested value.  Runtime-only hardware may be normalized between module
+    and built-in by Kconfig as long as the driver remains available.
+    """
+
+    if want == got:
+        return "OK"
+
+    if symbol in strict_symbols:
+        return "FAIL"
+
+    if want == "y" and got == "m":
+        return "OK-MODULE"
+
+    if want == "m" and got == "y":
+        return "OK-BUILTIN"
+
+    return "FAIL"
+
+
 def run_merge(kernel, vyos_config, fragment, output_config):
     kernel = Path(kernel)
 
@@ -169,6 +216,17 @@ def run_merge(kernel, vyos_config, fragment, output_config):
         env = dict(**__import__("os").environ)
         env["ARCH"] = "arm64"
         env["KCONFIG_CONFIG"] = str(temp_config)
+
+        #
+        # Kconfig compiler capability tests must use the same ARM64
+        # toolchain as the final kernel build. This is generic for all
+        # ARM64 boards and contains no board-specific assumptions.
+        #
+        if __import__("platform").machine() != "aarch64":
+            env.setdefault(
+                "CROSS_COMPILE",
+                "aarch64-linux-gnu-"
+            )
 
         subprocess.run(
             [
@@ -207,13 +265,19 @@ def run_merge(kernel, vyos_config, fragment, output_config):
         )
 
 
-def run_kconfig_closure(kernel, vyos_config, raw_fragment, out):
+def run_kconfig_closure(
+    kernel,
+    vyos_config,
+    raw_fragment,
+    out,
+    directory="kconfig-closure",
+):
     closure_tool = (
         Path(__file__).resolve().parent
         / "kconfig-closure.py"
     )
 
-    closure_dir = out / "kconfig-closure"
+    closure_dir = out / directory
 
     if closure_dir.exists():
         import shutil
@@ -393,6 +457,57 @@ def resolve_visible_frontend(symbol, defs, reverse_select):
 
     return symbol
 
+
+def add_model_runtime_requirements(
+    selected,
+    requirements,
+    vyos_values,
+    reference_values,
+):
+    """Promote model-declared runtime hardware into the board fragment."""
+
+    for symbol, expected in sorted(requirements.items()):
+        current = vyos_values.get(symbol, "n")
+
+        if expected in ("y", "m"):
+            if current in ("y", "m"):
+                continue
+
+            reference = reference_values.get(symbol, "n")
+            selected[symbol] = (
+                reference if reference in ("y", "m") else expected
+            )
+        elif current != expected:
+            selected[symbol] = expected
+
+
+def add_feature_requirements(
+    selected,
+    requirements,
+    vyos_values,
+    kconfig_defs,
+    reverse_select,
+):
+    """Add opt-in feature capabilities and explicit choice overrides."""
+
+    for symbol, value in requirements.items():
+        resolved = resolve_visible_frontend(
+            symbol,
+            kconfig_defs,
+            reverse_select,
+        )
+        current = vyos_values.get(resolved, "n")
+
+        if value == "n" and current != "n":
+            # An exact-board feature provider may need to replace a mutually
+            # exclusive stock choice, for example DWC3 host-only with dual
+            # role. Explicit disables are never inferred from hardware.
+            selected[resolved] = "n"
+        elif value == "y" and current != "y":
+            selected[resolved] = "y"
+        elif value == "m" and current == "n":
+            selected[resolved] = "m"
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a boot-oriented board Kconfig fragment"
@@ -401,7 +516,10 @@ def main():
     parser.add_argument("--kernel", required=True)
     parser.add_argument("--vyos-config", required=True)
     parser.add_argument("--reference-config")
+    parser.add_argument("--model-required-config")
+    parser.add_argument("--feature-required-config", action="append", default=[])
     parser.add_argument("--driver-map", required=True)
+    parser.add_argument("--boot-critical-symbols")
     parser.add_argument("--boot-profile", required=True)
     parser.add_argument("--policy", required=True)
     parser.add_argument("--boot-media", required=True)
@@ -444,6 +562,31 @@ def main():
 
     driver_symbols = load_driver_symbols(driver_map)
 
+    explicit_boot_symbols = set()
+
+    if args.boot_critical_symbols:
+        explicit_boot_symbols = read_symbol_list(
+            Path(args.boot_critical_symbols)
+        )
+
+    model_required_values = {}
+
+    if args.model_required_config:
+        model_required_values = read_config(
+            Path(args.model_required_config)
+        )
+
+    feature_required_values = {}
+    for config_path in args.feature_required_config:
+        for symbol, value in read_config(Path(config_path)).items():
+            previous = feature_required_values.get(symbol)
+            if previous is not None and previous != value:
+                raise SystemExit(
+                    f"Conflicting feature requirement for {symbol}: "
+                    f"{previous} versus {value}"
+                )
+            feature_required_values[symbol] = value
+
     #
     # Current VyOS state is needed not only for final validation but
     # also for runtime hardware policy.  Active DTB hardware whose
@@ -476,13 +619,42 @@ def main():
 
     driver_symbols = resolved_driver_symbols
 
+    #
+    # Apply the same visible-Kconfig frontend resolution to explicit
+    # boot-critical symbols as to normal DT-derived driver symbols.
+    #
+    resolved_boot_symbols = set()
+
+    for symbol in explicit_boot_symbols:
+        resolved_boot_symbols.add(
+            resolve_visible_frontend(
+                symbol,
+                kconfig_defs,
+                reverse_select
+            )
+        )
+
+    explicit_boot_symbols = resolved_boot_symbols
+
+    resolved_model_requirements = {}
+
+    for symbol, value in model_required_values.items():
+        resolved = resolve_visible_frontend(
+            symbol,
+            kconfig_defs,
+            reverse_select
+        )
+        resolved_model_requirements[resolved] = value
+
     selected = {}
+    strict_roots = set()
 
     for symbol in sorted(endpoint_symbols):
         selected[symbol] = policy.get(
             "BOOT_CRITICAL_MODE",
             "y"
         )
+        strict_roots.add(symbol)
 
     boot_mode = policy.get(
         "BOOT_CRITICAL_MODE",
@@ -503,6 +675,7 @@ def main():
         #
         if classes & required_classes:
             selected[symbol] = boot_mode
+            strict_roots.add(symbol)
             continue
 
         #
@@ -560,6 +733,28 @@ def main():
             )
 
     #
+    # A model profile may require hardware that is not discoverable from
+    # active DT nodes alone (for example display/render drivers). Treat these
+    # as runtime-availability requirements: preserve an existing VyOS y/m,
+    # otherwise prefer the known-good reference tristate and finally the
+    # model's requested value.
+    #
+    add_model_runtime_requirements(
+        selected,
+        resolved_model_requirements,
+        vyos_values,
+        reference_values,
+    )
+
+    add_feature_requirements(
+        selected,
+        feature_required_values,
+        vyos_values,
+        kconfig_defs,
+        reverse_select,
+    )
+
+    #
     # Add small generic infrastructure symbols where a boot class
     # logically requires them.
     #
@@ -571,12 +766,57 @@ def main():
             "CONFIG_MMC_SDHCI_PLTFM",
         ]:
             selected[symbol] = boot_mode
+            strict_roots.add(symbol)
 
     if "usb-phy" in required_classes:
         selected["CONFIG_TYPEC"] = boot_mode
+        strict_roots.add("CONFIG_TYPEC")
+
+    #
+    # The DT supplier graph provides explicit proof that these
+    # symbols are required on the path to the selected boot medium.
+    #
+    # Apply them after runtime-policy processing so RUNTIME_MODE
+    # cannot preserve a boot dependency as a module.
+    #
+    for symbol in sorted(explicit_boot_symbols):
+        selected[symbol] = boot_mode
+        strict_roots.add(symbol)
 
     raw_fragment = out / "generated-board.raw.config"
     write_fragment(raw_fragment, selected)
+
+    #
+    # Resolve the boot-only dependency closure separately.  This preserves
+    # provenance: a y -> m normalization is safe for runtime Bluetooth/Wi-Fi
+    # support, but remains fatal anywhere on the path to the root filesystem.
+    #
+    strict_raw_fragment = (
+        out /
+        "generated-board.strict.raw.config"
+    )
+
+    write_fragment(
+        strict_raw_fragment,
+        {
+            symbol: selected[symbol]
+            for symbol in sorted(strict_roots)
+        },
+    )
+
+    strict_resolved_fragment = run_kconfig_closure(
+        kernel=kernel,
+        vyos_config=vyos_config,
+        raw_fragment=strict_raw_fragment,
+        out=out,
+        directory="strict-kconfig-closure",
+    )
+
+    strict_symbols = set(
+        read_config(
+            strict_resolved_fragment
+        )
+    )
 
     resolved_fragment = run_kconfig_closure(
         kernel=kernel,
@@ -607,21 +847,29 @@ def main():
     report = []
 
     ok = 0
+    adjusted = 0
     bad = 0
 
     for symbol in sorted(requested):
         want = requested[symbol]
         got = final.get(symbol, "n")
 
-        state = "OK" if want == got else "FAIL"
+        state = validation_state(
+            symbol,
+            want,
+            got,
+            strict_symbols,
+        )
 
         if state == "OK":
             ok += 1
+        elif state.startswith("OK-"):
+            adjusted += 1
         else:
             bad += 1
 
         report.append(
-            f"{state:5} {symbol:45} requested={want:3} final={got}"
+            f"{state:10} {symbol:45} requested={want:3} final={got}"
         )
 
     report_path = out / "validation.txt"
@@ -636,8 +884,11 @@ def main():
     print(f"Boot media:       {','.join(requested_media)}")
     print(f"Required classes: {','.join(sorted(required_classes))}")
     print(f"Driver symbols:   {len(driver_symbols)}")
+    print(f"Explicit boot:    {len(explicit_boot_symbols)}")
     print(f"Selected symbols: {len(selected)}")
+    print(f"Strict symbols:   {len(strict_symbols)}")
     print(f"Validation OK:    {ok}")
+    print(f"Adjusted y/m:     {adjusted}")
     print(f"Validation FAIL:  {bad}")
     print()
     print(f"Fragment:   {fragment}")

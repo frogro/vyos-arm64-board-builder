@@ -7,8 +7,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Verify existing release credential can publish to E52C repository
+      - name: Verify existing release credential can publish to board repositories
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          gh api repos/VyARM-Community/radxa-e52c --jq '.permissions.push' | grep -qx true
+          for board in radxa-e52c rock-5b raspberry-pi-5; do
+            gh api "repos/VyARM-Community/$board" --jq '.permissions.push' | grep -qx true
+          done

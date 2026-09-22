@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 if [[ $# -ne 4 ]]; then
     echo "Usage: $0 <kernel-src> <compatibles-file> <candidate-config> <output-dir>" >&2
     exit 1
@@ -18,12 +20,23 @@ CONFIG_MAP="$OUT/compatible-config-map.tsv"
 SYMBOLS="$OUT/dtb-config-symbols.txt"
 BOARD_CONFIG="$OUT/dtb-config-candidates.config"
 UNRESOLVED="$OUT/unresolved-compatibles.txt"
+EARLY_OF_MAP="$OUT/early-of-declarations.tsv"
 
 : > "$SOURCE_MAP"
 : > "$CONFIG_MAP"
 : > "$SYMBOLS"
 : > "$BOARD_CONFIG"
 : > "$UNRESOLVED"
+
+#
+# Build one source-wide index for drivers registered through early OF APIs.
+# These drivers do not expose a conventional .of_match_table and would
+# otherwise be invisible to the strict mapper.  The indexer parses only
+# explicit Linux declaration macros and records their exact compatible.
+#
+python3 "$SCRIPT_DIR/linux_early_of_declarations.py" \
+    --kernel "$KERNEL" \
+    --output "$EARLY_OF_MAP"
 
 #
 # Find CONFIG symbols controlling a source file.
@@ -137,18 +150,17 @@ while IFS= read -r compat; do
     found="no"
 
     #
-    # Search ONLY real OF compatible assignments:
+    # Search ONLY real OF compatible assignments or explicit early OF
+    # registrations:
     #
     # .compatible = "vendor,device"
+    # IRQCHIP_DECLARE(name, "vendor,device", init_fn)
     #
     # This deliberately ignores arbitrary occurrences in comments,
     # documentation and unrelated source code.
     #
-    while IFS= read -r match; do
-        [[ -n "$match" ]] || continue
-
-        src="${match%%:*}"
-
+    while IFS= read -r src; do
+        [[ -n "$src" ]] || continue
         [[ "$src" == *.c ]] || continue
 
         found="yes"
@@ -172,12 +184,22 @@ while IFS= read -r compat; do
         )
 
     done < <(
-        grep -RnsE \
-            --include='*.c' \
-            "\.compatible[[:space:]]*=[[:space:]]*\"${escaped}\"" \
-            "$KERNEL/drivers" \
-            "$KERNEL/sound" \
-            2>/dev/null || true
+        {
+            grep -RlsE \
+                --include='*.c' \
+                "\.compatible[[:space:]]*=[[:space:]]*\"${escaped}\"" \
+                "$KERNEL/drivers" \
+                "$KERNEL/sound" \
+                2>/dev/null || true
+
+            awk -F '\t' \
+                -v compatible="$compat" \
+                -v kernel="$KERNEL" '
+                    $1 == compatible {
+                        print kernel "/" $2
+                    }
+                ' "$EARLY_OF_MAP"
+        } | sort -u
     )
 
     if [[ "$found" == "no" ]]; then

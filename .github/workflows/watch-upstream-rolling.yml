@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main-test
+          ref: main
       - name: Test release selection
         run: python3 tests/test-watch-upstream-rolling.py
       - name: Dispatch new official Rolling builds
