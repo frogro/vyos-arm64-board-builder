@@ -15,4 +15,4 @@ RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local
 ENV KIOSK_GRAPHICS=software
 # /state is supplied by deployment. Never copy browser state, credentials or pairings.
 
-LABEL io.vyarm.kiosk.media-policy="1"
+LABEL io.vyarm.kiosk.media-policy="2"

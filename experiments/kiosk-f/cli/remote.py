@@ -80,8 +80,8 @@ def verify_image(config):
                                 capture_output=True, text=True, check=True, timeout=3)
         image = json.loads(result.stdout)[0]
         labels = image.get('Labels') or image.get('Config', {}).get('Labels') or {}
-        if media and labels.get('io.vyarm.kiosk.media-policy') != '1':
-            raise ValueError('Kiosk image lacks media CLI policy support (version 1)')
+        if media and labels.get('io.vyarm.kiosk.media-policy') != '2':
+            raise ValueError('Kiosk image lacks media CLI policy support (version 2)')
         for codec in ('h264', 'av1'):
             if settings.get(f'video_{codec}_buffers') == 'enabled' and labels.get(f'io.vyarm.kiosk.media-{codec}-reserve') != '1':
                 raise ValueError(f'Kiosk image lacks validated {codec} capture reserve support')

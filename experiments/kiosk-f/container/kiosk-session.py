@@ -83,9 +83,7 @@ try:
                 retry = time.monotonic() + 2
             if browser is None and time.monotonic() >= retry:
                 media_args, media_status = media.browser_policy(os.environ)
-                enabled = media_status['active_features']
-                if enabled:
-                    media_args.append('--enable-features=' + ','.join(enabled))
+                media_args = media.merge_arguments([], media_args, media_status)
                 browser = launch([media_status['executable'], '--kiosk', '--no-first-run',
                                   '--disable-session-crashed-bubble',
                                   '--disable-features=Translate,TranslateUI',

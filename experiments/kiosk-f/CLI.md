@@ -397,3 +397,15 @@ its stock browser. The tested custom Chromium/Wayland recipe is recorded under
 `av1-timeout-cli-20260922/media-capabilities.json`; its `/candidate-p010` path is
 specific to that isolated runtime. Packaging a production Wayland/browser runtime
 and physical display validation remain separate from these CLI changes.
+
+### Rendering-policy correction, 2026-09-22
+
+Media policy version2 preserves the verified rendering recipe across auto/software
+switches. `video-h264-buffers` and `video-av1-buffers` may remain enabled in
+software mode; they are hardware-capture preferences, not software frame buffers.
+Absent buffer leaves use the verified image recipe defaults (both enabled for
+the tested RK3588 browser), while explicit disabled overrides only that codec.
+NativePixmapAccurateYuvMatrix is a rendering feature and remains enabled in the
+reference recipe. The CLI no longer discards it when changing decoder policy.
+Old policy1 images are rejected for new media settings; legacy remains unchanged.
+See media-policy-reference-20260922. Full native package/install still pending.

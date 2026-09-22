@@ -22,36 +22,64 @@ def plan(env, capabilities, devices):
         raise ValueError('video-decode must be auto or software')
     if any(v not in (None, 'disabled', 'enabled') for v in reserves.values()):
         raise ValueError('Capture buffer reserve must be disabled or enabled')
-    if any(v == 'enabled' for v in reserves.values()) and mode != 'auto':
-        raise ValueError('Capture buffer reserves require explicit video-decode auto')
+    if any(v == 'enabled' for v in reserves.values()) and mode is None:
+        raise ValueError('Capture buffer reserves require explicit video-decode auto or software')
     status = {'requested': mode or 'legacy', 'actual_decoder': 'unknown: requires per-video browser evidence',
               'hardware_confirmed': False, 'devices': devices, 'active_features': [],
+              'graphics_features': [], 'buffer_policy': {}, 'recipe_applied': False,
               'fallback_reason': None, 'software_fallback': 'codec/profile dependent; HEVC may be unsupported'}
-    args = []
+    args = ['--disable-accelerated-video-decode'] if mode == 'software' else []
     if mode is None:
         return args, status
-    if mode == 'software':
-        return ['--disable-accelerated-video-decode'], status
-    backend = capabilities.get('backend')
-    if backend != 'v4l2-request' or not capabilities.get('verified_binary'):
-        status['fallback_reason'] = 'No verified hardware browser/runtime recipe; keep browser automatic selection'
+    if capabilities.get('backend') != 'v4l2-request' or not capabilities.get('verified_binary'):
+        status['fallback_reason'] = 'No verified hardware browser/runtime recipe; keep browser automatic selection' if mode == 'auto' else 'Software decode; no verified rendering recipe'
         return args, status
     if capabilities.get('graphics_backend') == 'wayland' and not env.get('WAYLAND_DISPLAY'):
-        status['fallback_reason'] = 'Validated recipe requires Wayland; keep browser automatic selection'
+        status['fallback_reason'] = 'Validated recipe requires Wayland; rendering recipe not applied'
         return args, status
-    if not devices.get('decoder') or not devices.get('media') or not devices.get('render'):
-        status['fallback_reason'] = 'Decoder/media/render access missing; keep browser automatic selection'
+    if not devices.get('render'):
+        status['fallback_reason'] = 'Render access missing; rendering recipe not applied'
         return args, status
-    # Only the tested runtime recipe may select a backend. Never infer it from a board name.
+    # Rendering policy belongs to the verified image, not to the decoder toggle.
     args += capabilities.get('arguments', [])
+    status['graphics_features'] = list(capabilities.get('graphics_features', []))
+    status['active_features'] += status['graphics_features']
+    if mode == 'auto' and (not devices.get('decoder') or not devices.get('media')):
+        status['fallback_reason'] = 'Decoder/media access missing; preserve rendering policy and allow browser fallback'
+        return args, status
+    # In software mode preserve the reference feature list; the explicit disable
+    # switch prevents hardware decode. Buffer preferences survive switching modes.
     status['active_features'] += capabilities.get('base_features', [])
     for codec, value in reserves.items():
+        value = value or capabilities.get('buffer_defaults', {}).get(codec, 'disabled')
+        status['buffer_policy'][codec] = value
         if value == 'enabled':
             feature = FEATURES[codec]
             if feature not in capabilities.get('features', []):
                 raise ValueError('Browser does not support ' + feature)
             status['active_features'].append(feature)
+    status['active_features'] = list(dict.fromkeys(status['active_features']))
+    status['recipe_applied'] = True
     return args, status
+
+
+def merge_arguments(existing, args, status):
+    """Keep unrelated rendering features; replace only recipe-owned preferences."""
+    enabled = []
+    result = []
+    for arg in existing:
+        if arg.startswith('--enable-features='):
+            enabled.extend(arg.split('=', 1)[1].split(','))
+        elif arg != '--disable-accelerated-video-decode' or status['requested'] == 'legacy':
+            result.append(arg)
+    if status['requested'] != 'legacy':
+        disabled = {FEATURES[c] for c, v in status['buffer_policy'].items() if v == 'disabled'}
+        enabled = [f for f in enabled if f not in disabled]
+    enabled += status['active_features']
+    result += args
+    if enabled:
+        result.append('--enable-features=' + ','.join(dict.fromkeys(enabled)))
+    return list(dict.fromkeys(result))
 
 
 def probe():
@@ -95,7 +123,7 @@ def probe():
 def capabilities():
     try:
         data = json.loads(MANIFEST.read_text())
-        if data.get('version') != 1:
+        if data.get('version') != 2:
             return {}
         binary = Path(data['binary'])
         # Root-owned image manifest selects the executable, never saved user configuration.
@@ -106,6 +134,12 @@ def capabilities():
         data['verified_binary'] = digest == data['sha256']
         if not isinstance(data.get('arguments', []), list) or not all(isinstance(a, str) and a.startswith('--') and not a.startswith(('--enable-features=', '--disable-features=')) for a in data.get('arguments', [])):
             return {}
+        for key in ('base_features', 'graphics_features', 'features'):
+            if not isinstance(data.get(key, []), list) or not all(isinstance(x, str) and x and ',' not in x for x in data.get(key, [])):
+                return {}
+        defaults = data.get('buffer_defaults', {})
+        if not isinstance(defaults, dict) or any(k not in FEATURES or v not in ('enabled', 'disabled') for k, v in defaults.items()):
+            return {}
         return data
     except (OSError, ValueError, KeyError):
         return {}
@@ -113,7 +147,7 @@ def capabilities():
 
 def browser_policy(env):
     caps = capabilities() if env.get('KIOSK_VIDEO_DECODE') in ('auto', 'software') else {}
-    devices = probe() if env.get('KIOSK_VIDEO_DECODE') == 'auto' else {}
+    devices = probe() if env.get('KIOSK_VIDEO_DECODE') in ('auto', 'software') else {}
     args, status = plan(env, caps, devices)
     status['executable'] = caps['binary'] if caps.get('verified_binary') else 'chromium'
     status['runtime_version'] = caps.get('version')

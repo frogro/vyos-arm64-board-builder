@@ -52,8 +52,8 @@ def environment(config):
             if settings[key] not in choices:
                 raise ValueError(f'Invalid kiosk {key}')
             values[key] = settings[key]
-    if any(settings.get(key) == 'enabled' for key in ('video_h264_buffers', 'video_av1_buffers')) and settings.get('video_decode') != 'auto':
-        raise ValueError('Capture buffer reserves require explicit video-decode auto')
+    if any(settings.get(key) == 'enabled' for key in ('video_h264_buffers', 'video_av1_buffers')) and settings.get('video_decode') not in ('auto', 'software'):
+        raise ValueError('Capture buffer reserves require explicit video-decode auto or software')
     # Quadlet moves these into systemd ExecStart, where both specifiers (%)
     # and variable substitution ($) must remain literal URL characters.
     return [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'

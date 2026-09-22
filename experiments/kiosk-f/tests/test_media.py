@@ -37,7 +37,7 @@ class MediaTests(unittest.TestCase):
             self.assertEqual(status['active_features'],['AcceleratedVideoDecoder',feature])
             self.assertFalse(status['hardware_confirmed'])
     def test_reject_unsupported_strict_and_invalid_combination(self):
-        for env in ({'KIOSK_VIDEO_DECODE':'hardware-required'}, {'KIOSK_VIDEO_AV1_BUFFERS':'enabled'}, {'KIOSK_VIDEO_DECODE':'software','KIOSK_VIDEO_H264_BUFFERS':'enabled'}):
+        for env in ({'KIOSK_VIDEO_DECODE':'hardware-required'}, {'KIOSK_VIDEO_AV1_BUFFERS':'enabled'}, {'KIOSK_VIDEO_DECODE':'software','KIOSK_VIDEO_H264_BUFFERS':'invalid'}):
             with self.assertRaises(ValueError): media.plan(env,self.caps,self.devices)
     def test_native_preserves_unrelated_and_absent(self):
         self.assertEqual(cli.environment({'image':'unrelated'}),[])
@@ -49,13 +49,13 @@ class MediaTests(unittest.TestCase):
         config={'image':'test','kiosk':{'url':'file:///a','video_decode':'auto'}}
         with patch.object(remote.subprocess,'run',return_value=subprocess.CompletedProcess([],0,json.dumps([{'Labels':{}}]),'')):
             with self.assertRaises(ValueError):remote.verify_image(config)
-        labels={'io.vyarm.kiosk.media-policy':'1'}
+        labels={'io.vyarm.kiosk.media-policy':'2'}
         with patch.object(remote.subprocess,'run',return_value=subprocess.CompletedProcess([],0,json.dumps([{'Labels':labels}]),'')):
             remote.verify_image(config)
             config['kiosk']['video_av1_buffers']='enabled'
             with self.assertRaises(ValueError):remote.verify_image(config)
     def test_supported_image_accepts_explicit_reserve(self):
-        labels={'io.vyarm.kiosk.media-policy':'1','io.vyarm.kiosk.media-av1-reserve':'1'}
+        labels={'io.vyarm.kiosk.media-policy':'2','io.vyarm.kiosk.media-av1-reserve':'1'}
         config={'image':'test','kiosk':{'url':'file:///a','video_decode':'auto','video_av1_buffers':'enabled'}}
         with patch.object(remote.subprocess,'run',return_value=subprocess.CompletedProcess([],0,json.dumps([{'Labels':labels}]),'')):
             remote.verify_image(config)
@@ -64,6 +64,38 @@ class MediaTests(unittest.TestCase):
         args,status=media.plan({'KIOSK_VIDEO_DECODE':'auto','DISPLAY':':0'},caps,self.devices)
         self.assertEqual(args,[]);self.assertEqual(status['active_features'],[])
         self.assertIn('Wayland',status['fallback_reason'])
+
+    def test_reference_flags_preserved_when_toggling_decode(self):
+        caps=json.loads((ROOT/'media-policy-reference-20260922/media-capabilities.json').read_text())
+        caps['verified_binary']=True
+        reference=json.loads((ROOT/'chromium-nuc-live-20260922/av1-main10-software.json').read_text())['flags']
+        expected=set(next(x.split('=',1)[1] for x in reference if x.startswith('--enable-features=')).split(','))
+        for mode in ('auto','software'):
+            args,status=media.plan({'KIOSK_VIDEO_DECODE':mode,'WAYLAND_DISPLAY':'test'},caps,self.devices)
+            self.assertEqual(set(status['active_features']),expected)
+            self.assertEqual('--disable-accelerated-video-decode' in args,mode=='software')
+            self.assertTrue(status['recipe_applied'])
+    def test_explicit_disable_overrides_recipe_default_only(self):
+        caps=dict(self.caps,graphics_features=['NativePixmapAccurateYuvMatrix'],buffer_defaults={'h264':'enabled','av1':'enabled'})
+        args,status=media.plan({'KIOSK_VIDEO_DECODE':'software','KIOSK_VIDEO_AV1_BUFFERS':'disabled'},caps,self.devices)
+        merged=media.merge_arguments(['--enable-features=Unrelated,V4L2ExtraAV1CaptureBuffers'],args,status)
+        features=next(x for x in merged if x.startswith('--enable-features='))
+        self.assertNotIn('V4L2ExtraAV1CaptureBuffers',features)
+        for feature in ('Unrelated','NativePixmapAccurateYuvMatrix','V4L2ExtraCaptureBuffers'):
+            self.assertIn(feature,features)
+    def test_software_keeps_buffer_preferences_in_native_cli(self):
+        config={'kiosk':{'url':'file:///a','video_decode':'software','video_av1_buffers':'enabled'}}
+        self.assertIn('Environment=KIOSK_VIDEO_AV1_BUFFERS="enabled"',cli.environment(config))
+    def test_rendering_retained_when_decoder_missing(self):
+        caps=dict(self.caps,graphics_features=['NativePixmapAccurateYuvMatrix'])
+        args,status=media.plan({'KIOSK_VIDEO_DECODE':'auto'},caps,dict(self.devices,decoder=[]))
+        self.assertEqual(status['active_features'],['NativePixmapAccurateYuvMatrix'])
+        self.assertTrue(status['fallback_reason'])
+    def test_old_runtime_image_rejected(self):
+        config={'image':'test','kiosk':{'url':'file:///a','video_decode':'software'}}
+        labels={'io.vyarm.kiosk.media-policy':'1'}
+        with patch.object(remote.subprocess,'run',return_value=subprocess.CompletedProcess([],0,json.dumps([{'Labels':labels}]),'')):
+            with self.assertRaises(ValueError):remote.verify_image(config)
 
     def test_no_false_remote_only_for_media_change(self):
         old={'kiosk':{'url':'file:///a','remote':{'audio':'disabled'}}}
