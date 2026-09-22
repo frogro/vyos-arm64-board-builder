@@ -79,3 +79,24 @@ journal on ROCK as kernel-test4/journal-after-hang.txt. Thus no exact failing
 kernel operation can be established from preserved logs. A subsequent test must
 stream logs off-host and split module attachment, first decode, and removal into
 separate stages rather than rerun the same combined probe blindly.
+
+## Staged attempt, 12:09–12:12 CEST
+
+Rebooted one-shot test4 with normal default preserved and 15-minute boot
+fallback enabled. Automatic kiosk reconciliation restarted the kiosk once and
+restored touch (user confirmed); both kiosk services active.
+
+Kernel log streamed over a separate SSH connection to ThinkPad with fsync per
+line; AV1_CAPTURE_READY marker verified before loading. Staged outcomes:
+- Module attach with remove mask 3 succeeded, exposing video3/media1.
+- First-frame GStreamer hardware decode reached EOS and returned successfully.
+- Complete 300-frame NV12 hardware output matched software hashes exactly.
+- Separate modprobe -r returned (STAGE_REMOVE_RETURNED captured externally),
+  then SSH stopped responding before the subsequent uptime check. Kernel
+  stream ends at REMOVE_BEGIN; finer remove diagnostics did not arrive.
+
+This strongly localizes the loss of reachability to removal or the immediately
+following power transition, not this run's decoding. Exact reset/IOMMU operation
+remains unproven. Do not claim stable AV1 reuse. Requested power cycle back to
+normal kernel; no further decoder loads initiated. Files staged-*.log retain
+external evidence, including the returned removal marker.
