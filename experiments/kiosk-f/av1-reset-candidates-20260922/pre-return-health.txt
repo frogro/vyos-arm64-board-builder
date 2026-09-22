@@ -1,0 +1,20 @@
+Tue Sep 22 17:05:44 CEST 2026
+6.18.50-vyos-f-test4-av1-iommu
+BOOT_IMAGE=/boot/999.202609191517/vmlinuz-f-av1-candidates boot=live rootdelay=5 noautologin net.ifnames=0 biosdevname=0 vyos-union=/boot/999.202609191517 console=tty0 modprobe.blacklist=hantro_vpu vyarm_av1_candidates=1
+Y
+Y
+inactive
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+0 loaded units listed.
+  UNIT                                      LOAD   ACTIVE   SUB  DESCRIPTION
+  vyarm-av1-candidate-boot-fallback.service loaded inactive dead Return from unconfirmed AV1 candidate boot
+  vyarm-av1-candidate-boot-fallback.timer   loaded inactive dead AV1 candidate boot confirmation deadline
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+2 loaded units listed.
+To show all installed unit files use 'systemctl list-unit-files'.
+kiosk-test Up 12 minutes
+DMA
+auto

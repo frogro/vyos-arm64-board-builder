@@ -1,0 +1,62 @@
+--- a/drivers/iommu/vsi-iommu.c
++++ b/drivers/iommu/vsi-iommu.c
+@@ -183,6 +183,14 @@
+ 	return (iova & VSI_IOVA_PAGE_MASK) >> VSI_IOVA_PAGE_SHIFT;
+ }
+ 
++/* Diagnostic A/B switches: change only with all AV1 clients stopped. */
++static bool vyarm_identity_guard;
++module_param(vyarm_identity_guard, bool, 0644);
++MODULE_PARM_DESC(vyarm_identity_guard, "TEST ONLY: guard identity-domain runtime resume");
++static bool vyarm_nonsleeping_tlb;
++module_param(vyarm_nonsleeping_tlb, bool, 0644);
++MODULE_PARM_DESC(vyarm_nonsleeping_tlb, "TEST ONLY: active-only TLB invalidation");
++
+ static void vsi_iommu_flush_tlb_all(struct iommu_domain *domain)
+ {
+ 	struct vsi_iommu_domain *vsi_domain = to_vsi_domain(domain);
+@@ -196,9 +204,17 @@
+ 		int ret;
+ 
+ 		iommu = list_entry(pos, struct vsi_iommu, node);
+-		ret = pm_runtime_resume_and_get(iommu->dev);
+-		if (ret < 0)
+-			continue;
++		if (READ_ONCE(vyarm_nonsleeping_tlb)) {
++			ret = pm_runtime_get_if_active(iommu->dev);
++			dev_info_ratelimited(iommu->dev,
++				"VYARM_TLB active-only ret=%d\n", ret);
++			if (ret <= 0)
++				continue;
++		} else {
++			ret = pm_runtime_resume_and_get(iommu->dev);
++			if (ret < 0)
++				continue;
++		}
+ 
+ 		spin_lock(&iommu->lock);
+ 
+@@ -536,6 +552,11 @@
+ 	writel(VSI_MMU_OUT_OF_BOUND, iommu->regs + VSI_MMU_CONFIG1_BASE);
+ 	writel(VSI_MMU_BIT_ENABLE, iommu->regs + VSI_MMU_AHB_EXCEPTION_BASE);
+ 	writel(VSI_MMU_BIT_ENABLE, iommu->regs + VSI_MMU_AHB_CONTROL_BASE);
++	if (READ_ONCE(vyarm_nonsleeping_tlb)) {
++		writel(VSI_MMU_BIT_FLUSH, iommu->regs + VSI_MMU_FLUSH_BASE);
++		writel(0, iommu->regs + VSI_MMU_FLUSH_BASE);
++		dev_info_ratelimited(iommu->dev, "VYARM_TLB enable flush\n");
++	}
+ }
+ 
+ void vsi_iommu_restore_ctx(struct iommu_domain *domain)
+@@ -774,6 +795,11 @@
+ 	if (ret)
+ 		return ret;
+ 
++	if (READ_ONCE(vyarm_identity_guard) &&
++	    iommu->domain == &vsi_identity_domain) {
++		dev_info_ratelimited(iommu->dev, "VYARM_IDENTITY resume guard hit\n");
++		return 0;
++	}
+ 	if (iommu->domain) {
+ 		struct vsi_iommu_domain *vsi_domain = to_vsi_domain(iommu->domain);
+ 

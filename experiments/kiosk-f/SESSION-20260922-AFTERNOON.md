@@ -51,3 +51,20 @@ running, diagnostic module/watchdog/timers removed. No reboot this turn.
 Two separate VSI identity-domain/TLB candidates compile only; no provider
 replacement. Error paths/PMU idle/decoder timeout still need validation.
 See av1-reset-research-20260922/README.md, validation.json and exact traces.
+
+17:08 CEST: IOMMU candidates built into separate incremental Image with default-off
+A/B switches. Identity guard directly exercised via three DMA→identity→resume→DMA
+cycles, six guard hits. Active-only TLB path tested explicitly three times each
+suspended/active, then decode. Fifteen total powered-pulse removals pass;14×300
+frames bit-exact, Chromium Main10 hardware1800/8drops, concurrent H2647200/0drops,
+SIGKILL client recovery exact. Captured kernel log has no BUG/Oops/SError.
+First candidate boot was replaced by normal kernel because VyOS system_option.py
+removed unmanaged panic=30 and kexec'd /boot/vmlinuz. Retried without that boot
+argument, setting runtime panic only after config load. Do not trust BOOT_IMAGE
+alone after kexec. Original test4 return in progress; candidates not defaults.
+See av1-reset-candidates-20260922/README.md and validation.json.
+
+17:11 CEST: returned to previous test4 kernel, candidate parameters absent;
+Kiosk/input/D-video active; logrotate state-lock collision remains (regular retry reproduced exit3); watchdog inactive, no diagnostic
+modules/overrides. Normal default unchanged, next_entry empty; boot timer disabled.
+ThinkPad back on homebase. Candidate tests finished within the authorized hour.

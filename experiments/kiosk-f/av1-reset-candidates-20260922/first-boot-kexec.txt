@@ -1,0 +1,271 @@
+Sep 22 16:42:36 vyos tailscaled[3544]: portmapper: UPnP meta changed: [{Location:http://192.168.178.21:1400/rootDesc.xml Server:Netgear_Switch UPnP/1.1 GS105Ev2/V1.6.0.25 USN:uuid:c7c3f6a8-1e3d-ab95-a822-a063916e92b0::urn:schemas-upnp-org:device:InternetGatewayDevice:1} {Location:http://192.168.178.1:49000/igd2desc.xml Server:FRITZ!Box 6690 Cable UPnP/1.0 AVM FRITZ!Box 6690 Cable 267.08.25 USN:uuid:75802409-bccb-40e7-9f6c-D424DDB07581::urn:schemas-upnp-org:device:InternetGatewayDevice:2} {Location:http://192.168.178.1:49000/igddesc.xml Server:FRITZ!Box 6690 Cable UPnP/1.0 AVM FRITZ!Box 6690 Cable 267.08.25 USN:uuid:75802409-bccb-40e7-8e6c-D424DDB07581::urn:schemas-upnp-org:device:InternetGatewayDevice:1}]
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: home DERP changing from derp-0 [0ms] to derp-14 [28ms] (forced=false)
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: home is now derp-14 (ams)
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: adding connection to derp-14 for home-keep-alive
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: 1 active derp conns: derp-14=cr0s,wr0s
+Sep 22 16:42:36 vyos tailscaled[3544]: derphttp.Client.Connect: connecting to derp-14 (ams)
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: endpoints changed: 94.139.28.245:53726 (stun), 10.3.141.50:42213 (local), 10.89.50.1:42213 (local), 192.168.178.173:42213 (local)
+Sep 22 16:42:36 vyos systemd[1]: Reloading.
+Sep 22 16:42:36 vyos tailscaled[3544]: magicsock: derp-14 connected; connGen=1
+Sep 22 16:42:36 vyos systemd-gpt-auto-generator[3914]: EFI loader partition unknown, exiting.
+Sep 22 16:42:36 vyos systemd-gpt-auto-generator[3914]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 16:42:36 vyos systemd[1]: Configuration file /etc/systemd/system/modem-unlock.service is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.
+Sep 22 16:42:36 vyos systemd[1]: Configuration file /etc/systemd/system/modem-connect.service is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.
+Sep 22 16:42:36 vyos tailscaled[3544]: router: enabling connmark-based rp_filter workaround
+Sep 22 16:42:36 vyos pdns-recursor[3350]: msg="Not validating response for security status update, this is a non-release version" subsystem="housekeeping" level="0" prio="Warning" tid="0" ts="1790088156.322" query="recursor-4.8.8-1_deb12u1.Debian.security-status.secpoll.powerdns.com" version="4.8.8-1+deb12u1.Debian"
+Sep 22 16:42:36 vyos pdns-recursor[3350]: msg="Read changed Trust Anchors from file, updating" subsystem="housekeeping" level="0" prio="Info" tid="0" ts="1790088156.323"
+Sep 22 16:42:36 vyos systemd[1]: Started VyOS HTTP API service.
+Sep 22 16:42:36 vyos tailscaled[3544]: wgengine: Reconfig: user dialer
+Sep 22 16:42:36 vyos tailscaled[3544]: tsdial: bart table size: 7
+Sep 22 16:42:36 vyos tailscaled[3544]: wgengine: Reconfig: configuring DNS
+Sep 22 16:42:36 vyos tailscaled[3544]: dns: Set: {DefaultResolvers:[] Routes:{} SearchDomains:[] Hosts:0}
+Sep 22 16:42:36 vyos tailscaled[3544]: dns: Resolvercfg: {Routes:{} Hosts:0 LocalDomains:[]}
+Sep 22 16:42:36 vyos tailscaled[3544]: dns: OScfg: {}
+Sep 22 16:42:36 vyos tailscaled[3544]: peerapi: serving on http://100.82.142.68:37760
+Sep 22 16:42:36 vyos tailscaled[3544]: peerapi: serving on http://[fd7a:115c:a1e0::562e:8e45]:45602
+Sep 22 16:42:36 vyos tailscaled[3544]: cannot fetch existing TKA state; no state directory for tailnet-lock
+Sep 22 16:42:36 vyos tailscaled[3544]: control: NetInfo: NetInfo{varies=false ipv6=false ipv6os=true udp=true icmpv4=false derp=#14 portmap=U link="" firewallmode="ipt-default"}
+Sep 22 16:42:36 vyos tailscaled[3544]: Switching ipn state Starting -> Running (WantRunning=true, nm=true)
+Sep 22 16:42:36 vyos tailscaled[3544]: update netmap cache: profile local data storage unavailable
+Sep 22 16:42:36 vyos tailscaled[3544]: health(warnable=warming-up): ok
+Sep 22 16:42:36 vyos tailscaled[3544]: control: NetInfo: NetInfo{varies=false ipv6=false ipv6os=true udp=true icmpv4=false derp=#14 portmap=UC link="" firewallmode="ipt-default"}
+Sep 22 16:42:37 vyos systemd[1]: Starting A high performance web server and a reverse proxy server...
+Sep 22 16:42:37 vyos systemd[1]: Started A high performance web server and a reverse proxy server.
+Sep 22 16:42:37 vyos vyos-configd[801]: [service_https]
+Sep 22 16:42:37 vyos vyos-configd[801]: Sending reply: SUCCESS with output
+Sep 22 16:42:37 vyos vyos-configd[801]: Received message: {"type": "node", "last": true, "data": "/usr/libexec/vyos/conf_mode/system_option.py"}
+Sep 22 16:42:37 vyos kea-dhcp4[3270]: WARN  DHCPSRV_OPEN_SOCKET_FAIL failed to open socket: the interface pim6reg has no usable IPv4 addresses configured
+Sep 22 16:42:37 vyos kea-dhcp4[3270]: WARN  DHCPSRV_OPEN_SOCKET_FAIL failed to open socket: the interface veth-kiosk-test has no usable IPv4 addresses configured
+Sep 22 16:42:38 vyos kernel: PEFILE: Unsigned PE binary
+Sep 22 16:42:39 vyos systemd[1]: systemd-timedated.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd-logind[1127]: The system will kexec now!
+Sep 22 16:42:41 vyos systemd-logind[1127]: System is rebooting with kexec.
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found ordering cycle on frr.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on network.target/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on chrony.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on time-sync.target/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on vyos-router.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Job frr.service/stop deleted to break ordering cycle starting with vyos-router.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found ordering cycle on chrony.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on time-sync.target/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Found dependency on vyos-router.service/stop
+Sep 22 16:42:41 vyos systemd[1]: vyos-router.service: Job chrony.service/stop deleted to break ordering cycle starting with vyos-router.service/stop
+Sep 22 16:42:41 vyos systemd[1]: Removed slice Slice /system/modprobe.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Local Encrypted Volumes.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Local Integrity Protected Volumes.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Sound Card.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Timer Units.
+Sep 22 16:42:41 vyos systemd[1]: e2scrub_all.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Periodic ext4 Online Metadata Check for All Filesystems.
+Sep 22 16:42:41 vyos systemd[1]: fstrim.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Discard unused blocks once a week.
+Sep 22 16:42:41 vyos systemd[1]: logrotate.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Daily rotation of log files.
+Sep 22 16:42:41 vyos systemd[1]: systemd-tmpfiles-clean.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Daily Cleanup of Temporary Directories.
+Sep 22 16:42:41 vyos systemd[1]: vyarm-av1-candidate-boot-fallback.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped AV1 candidate boot confirmation deadline.
+Sep 22 16:42:41 vyos systemd[1]: vyos-arm64-dhcp-wan-firstboot.timer: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Delay VyOS ARM64 wired DHCP WAN first-boot setup.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Hardware activated USB gadget.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Local Verity Protected Volumes.
+Sep 22 16:42:41 vyos systemd[1]: systemd-rfkill.socket: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Closed Load/Save RF Kill Switch Status /dev/rfkill Watch.
+Sep 22 16:42:41 vyos systemd[1]: Stopping Save/Restore Sound Card State...
+Sep 22 16:42:41 vyos systemd[1]: Stopping DHCP client on eth0...
+Sep 22 16:42:41 vyos dhclient[4063]: Killed old client process
+Sep 22 16:42:41 vyos systemd[1]: Stopping Access point and authentication server for Wi-Fi and Ethernet (wlan0)...
+Sep 22 16:42:41 vyos kea-dhcp4[3270]: INFO  COMMAND_RECEIVED Received command 'shutdown'
+Sep 22 16:42:41 vyos kea-dhcp4[3270]: INFO  DHCP4_SHUTDOWN server shutdown
+Sep 22 16:42:41 vyos dhclient[4063]: Killed old client process
+Sep 22 16:42:41 vyos systemd[1]: Stopping Kea DHCPv4 Service...
+Sep 22 16:42:41 vyos sshd[3382]: Received signal 15; terminating.
+Sep 22 16:42:41 vyos systemd[1]: Stopping A high performance web server and a reverse proxy server...
+Sep 22 16:42:41 vyos systemd[1]: Stopping System Logging Service...
+Sep 22 16:42:41 vyos systemd[1]: Stopping OpenBSD Secure Shell server...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Set Up Additional Binary Formats...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Hostname Service...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Load/Save Random Seed...
+Sep 22 16:42:41 vyos mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c004048 node 0xffff9c004020 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos kea-dhcp4[3270]: INFO  LEASE_CMDS_DEINIT_OK unloading Lease Commands hooks library successful
+Sep 22 16:42:41 vyos kea-dhcp4[3270]: INFO  HOOKS_LIBRARY_CLOSED hooks library /usr/lib/aarch64-linux-gnu/kea/hooks/libdhcp_lease_cmds.so successfully closed
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF shutting down gracefully
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF [WebRTC] closing
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF [RTSP] closing
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF [RTSP] [conn 127.0.0.1:41882] closed: terminated
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF [RTSP] [session 07235fa0] destroyed: terminated
+Sep 22 16:42:41 vyos python3[3407]: 2026/09/22 16:42:41 INF waiting for running hooks
+Sep 22 16:42:41 vyos tailscaled[3544]: tailscaled got signal terminated; shutting down
+Sep 22 16:42:41 vyos tailscaled[3544]: control: client.Shutdown ...
+Sep 22 16:42:41 vyos tailscaled[3544]: control: authRoutine: exiting
+Sep 22 16:42:41 vyos tailscaled[3544]: control: updateRoutine: exiting
+Sep 22 16:42:41 vyos tailscaled[3544]: control: mapRoutine: exiting
+Sep 22 16:42:41 vyos tailscaled[3544]: control: Client.Shutdown done.
+Sep 22 16:42:41 vyos tailscaled[3544]: ipnext: work queue shutdown failed: execqueue shut down
+Sep 22 16:42:41 vyos tailscaled[3544]: magicsock: closing connection to derp-14 (conn-close), age 6s
+Sep 22 16:42:41 vyos tailscaled[3544]: magicsock: 0 active derp conns
+Sep 22 16:42:41 vyos tailscaled[3544]: dns: inotify: context canceled
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [1.5K blob data]
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [vost#0:0/h264_rkmpp @ 0xaaaaf8422810] Error submitting a packet to the muxer: Broken pipe
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]:     Last message repeated 1 times
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [out#0/rtsp @ 0xaaaaf8420090] Error muxing a packet
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [out#0/rtsp @ 0xaaaaf8420090] Task finished with error code: -32 (Broken pipe)
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [out#0/rtsp @ 0xaaaaf8420090] Terminating thread with return code -32 (Broken pipe)
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: [out#0/rtsp @ 0xaaaaf8420090] video:2254KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+Sep 22 16:42:41 vyos systemd[1]: systemd-sysctl.service: Deactivated successfully.
+Sep 22 16:42:41 vyos mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c002c88 node 0xffff9c002c60 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: frame=  424 fps= 61 q=2.0 Lsize=N/A time=00:00:07.05 bitrate=N/A dup=21 drop=0 speed=1.01x elapsed=0:00:07.00
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c004048 node 0xffff9c004020 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c002c88 node 0xffff9c002c60 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c0021c8 node 0xffff9c0021a0 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c000f28 node 0xffff9c000f00 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: Exiting normally, received signal 15.
+Sep 22 16:42:41 vyos vyos-kvm-video-runner.sh[3611]: mpp[3611]: mpp_buffer: mpp_buffer_service_deinit cleaning misc group
+Sep 22 16:42:41 vyos systemd[1]: Stopped Apply Kernel Variables.
+Sep 22 16:42:41 vyos mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c0021c8 node 0xffff9c0021a0 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Login Prompts.
+Sep 22 16:42:41 vyos mpp[3611]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xffff9c000f28 node 0xffff9c000f00 check (nil) caller mpp_frame_deinit
+Sep 22 16:42:41 vyos systemd[1]: Stopped target TLS tunnels for network services - per-config-file target.
+Sep 22 16:42:41 vyos mpp[3611]: mpp_buffer: mpp_buffer_service_deinit cleaning misc group
+Sep 22 16:42:41 vyos systemd[1]: Stopping ACPI event daemon...
+Sep 22 16:42:41 vyos acpid[1112]: exiting
+Sep 22 16:42:41 vyos systemd[1]: Stopping Deferred execution scheduler...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Atop advanced performance monitor...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Regular background program processing daemon...
+Sep 22 16:42:41 vyos systemd[1]: Stopping LSB: Load kernel image with kexec...
+Sep 22 16:42:41 vyos systemd[1]: Stopping User Login Management...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Record System Boot/Shutdown in UTMP...
+Sep 22 16:42:41 vyos systemd[1]: Stopping User Manager for UID 1002...
+Sep 22 16:42:41 vyos systemd[1]: Stopping LSB: Start vmtouch daemon...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Image-provided Tailscale daemon for VyOS ARM64...
+Sep 22 16:42:41 vyos systemd[1]: Stopping VyOS HTTP API service...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Reconcile configured kiosk USB input mappings...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Release VyOS KVM USB gadget before unmounting persistent storage...
+Sep 22 16:42:41 vyos systemd[1]: Stopping VyOS KVM-over-IP MediaMTX transport...
+Sep 22 16:42:41 vyos systemd[1]: Stopping VyOS KVM-over-IP video backend...
+Sep 22 16:42:41 vyos systemd[1]: run-credentials-systemd\x2dsysctl.service.mount: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Unmounted /run/credentials/systemd-sysctl.service.
+Sep 22 16:42:41 vyos systemd[1]: cron.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Regular background program processing daemon.
+Sep 22 16:42:41 vyos systemd[1]: systemd-logind.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped User Login Management.
+Sep 22 16:42:41 vyos systemd[1]: atd.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Deferred execution scheduler.
+Sep 22 16:42:41 vyos systemd[1]: modem-unlock.service: Main process exited, code=killed, status=15/TERM
+Sep 22 16:42:41 vyos systemd[1]: modem-unlock.service: Failed with result 'signal'.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Prepare modem FCC unlock only when required.
+Sep 22 16:42:41 vyos systemd[1]: modem-unlock.service: Consumed 1.126s CPU time.
+Sep 22 16:42:41 vyos systemd[1]: vyos-modem-restore.service: Main process exited, code=killed, status=15/TERM
+Sep 22 16:42:41 vyos systemd[1]: vyos-modem-restore.service: Failed with result 'signal'.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Restore configured modem services from current image.
+Sep 22 16:42:41 vyos systemd[1]: getty@tty1.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Getty on tty1.
+Sep 22 16:42:41 vyos systemd[1]: systemd-hostnamed.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Hostname Service.
+Sep 22 16:42:41 vyos systemd[3582]: Activating special unit exit.target...
+Sep 22 16:42:41 vyos systemd[3582]: Stopped target default.target - Main User Target.
+Sep 22 16:42:41 vyos systemd[3582]: Stopped target basic.target - Basic System.
+Sep 22 16:42:41 vyos systemd[3582]: Stopped target paths.target - Paths.
+Sep 22 16:42:41 vyos systemd[3582]: Stopped target sockets.target - Sockets.
+Sep 22 16:42:41 vyos systemd[3582]: Stopped target timers.target - Timers.
+Sep 22 16:42:41 vyos systemd[1]: vyos-kiosk-inputs-kiosk-test.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[3582]: Closed dbus.socket - D-Bus User Message Bus Socket.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Reconcile configured kiosk USB input mappings.
+Sep 22 16:42:41 vyos systemd[3582]: Removed slice app.slice - User Application Slice.
+Sep 22 16:42:41 vyos systemd[3582]: Reached target shutdown.target - Shutdown.
+Sep 22 16:42:41 vyos systemd[3582]: Finished systemd-exit.service - Exit the Session.
+Sep 22 16:42:41 vyos systemd[3582]: Reached target exit.target - Exit the Session.
+Sep 22 16:42:41 vyos systemd[1]: isc-kea-dhcp4-server.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Kea DHCPv4 Service.
+Sep 22 16:42:41 vyos systemd[1]: ssh@default.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped OpenBSD Secure Shell server.
+Sep 22 16:42:41 vyos systemd[1]: vyos-http-api.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped VyOS HTTP API service.
+Sep 22 16:42:41 vyos systemd[1]: systemd-binfmt.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Set Up Additional Binary Formats.
+Sep 22 16:42:41 vyos systemd[1]: Reloading.
+Sep 22 16:42:41 vyos systemd-gpt-auto-generator[4117]: EFI loader partition unknown, exiting.
+Sep 22 16:42:41 vyos systemd-gpt-auto-generator[4117]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: RTM_NEWROUTE: src=10.3.141.50/0, dst=10.3.141.255/32, gw=, outif=3, table=255
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: RTM_NEWROUTE: src=10.3.141.50/0, dst=10.3.141.0/24, gw=, outif=3, table=254
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: ip rule deleted: {Family:2 DstLength:0 SrcLength:0 Tos:0 Table:254 Protocol:0 Scope:0 Type:1 Flags:0 Attributes:{Dst:<nil> Src:<nil> Gateway:<nil> OutIface:0 Priority:5210 Table:254 Mark:16711680 Pref:<nil> Expires:<nil> Metrics:<nil> Multipath:[]}}
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: ip rule deleted: {Family:2 DstLength:0 SrcLength:0 Tos:0 Table:253 Protocol:0 Scope:0 Type:1 Flags:0 Attributes:{Dst:<nil> Src:<nil> Gateway:<nil> OutIface:0 Priority:5230 Table:253 Mark:16711680 Pref:<nil> Expires:<nil> Metrics:<nil> Multipath:[]}}
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: ip rule deleted: {Family:2 DstLength:0 SrcLength:0 Tos:0 Table:0 Protocol:0 Scope:0 Type:7 Flags:0 Attributes:{Dst:<nil> Src:<nil> Gateway:<nil> OutIface:0 Priority:5250 Table:0 Mark:16711680 Pref:<nil> Expires:<nil> Metrics:<nil> Multipath:[]}}
+Sep 22 16:42:41 vyos tailscaled[3544]: monitor: ip rule deleted: {Family:2 DstLength:0 SrcLength:0 Tos:0 Table:52 Protocol:0 Scope:0 Type:1 Flags:0 Attributes:{Dst:<nil> Src:<nil> Gateway:<nil> OutIface:0 Priority:5270 Table:52 Mark:0 Pref:<nil> Expires:<nil> Metrics:<nil> Multipath:[]}}
+Sep 22 16:42:41 vyos systemd[1]: Configuration file /etc/systemd/system/modem-unlock.service is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.
+Sep 22 16:42:41 vyos systemd[1]: Configuration file /etc/systemd/system/modem-connect.service is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.
+Sep 22 16:42:41 vyos systemd[1]: acpid.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped ACPI event daemon.
+Sep 22 16:42:41 vyos systemd[1]: atop.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Atop advanced performance monitor.
+Sep 22 16:42:41 vyos systemd[1]: hostapd@wlan0.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Access point and authentication server for Wi-Fi and Ethernet (wlan0).
+Sep 22 16:42:41 vyos systemd[1]: vyos-kvm-video.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped VyOS KVM-over-IP video backend.
+Sep 22 16:42:41 vyos systemd[1]: vyos-kvm-video.service: Consumed 17.258s CPU time.
+Sep 22 16:42:41 vyos systemd[1]: alsa-restore.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Save/Restore Sound Card State.
+Sep 22 16:42:41 vyos systemd[1]: vyos-kvm-gadget-cleanup.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Release VyOS KVM USB gadget before unmounting persistent storage.
+Sep 22 16:42:41 vyos systemd[1]: user@1002.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped User Manager for UID 1002.
+Sep 22 16:42:41 vyos systemd[1]: nginx.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped A high performance web server and a reverse proxy server.
+Sep 22 16:42:41 vyos systemd[1]: systemd-update-utmp.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Record System Boot/Shutdown in UTMP.
+Sep 22 16:42:41 vyos systemd[1]: Removed slice Slice /system/getty.
+Sep 22 16:42:41 vyos systemd[1]: Removed slice Slice /system/hostapd.
+Sep 22 16:42:41 vyos systemd[1]: Removed slice Slice /system/ssh.
+Sep 22 16:42:41 vyos systemd[1]: proc-sys-fs-binfmt_misc.automount: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Unset automount Arbitrary Executable File Formats File System Automount Point.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Host and Network Name Lookups.
+Sep 22 16:42:41 vyos systemd[1]: Stopping Atop process accounting daemon...
+Sep 22 16:42:41 vyos systemd[1]: Stopping Security Auditing Service...
+Sep 22 16:42:41 vyos atopacctd[1141]: Terminated by signal 15
+Sep 22 16:42:41 vyos systemd[1]: Stopping PowerDNS Recursor...
+Sep 22 16:42:41 vyos systemd[1]: systemd-modules-load.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Load Kernel Modules.
+Sep 22 16:42:41 vyos vmtouch[4073]: Stopping: vmtouch.
+Sep 22 16:42:41 vyos systemd[1]: Stopping Permit User Sessions...
+Sep 22 16:42:41 vyos systemd[1]: Stopping User Runtime Directory /run/user/1002...
+Sep 22 16:42:41 vyos systemd[1]: Stopping VyOS Container kiosk-test...
+Sep 22 16:42:41 vyos systemd[1]: proc-sys-fs-binfmt_misc.mount: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: atopacct.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Atop process accounting daemon.
+Sep 22 16:42:41 vyos systemd[1]: pdns-recursor.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped PowerDNS Recursor.
+Sep 22 16:42:41 vyos systemd[1]: vmtouch.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped LSB: Start vmtouch daemon.
+Sep 22 16:42:41 vyos systemd[1]: systemd-user-sessions.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Permit User Sessions.
+Sep 22 16:42:41 vyos systemd[1]: run-user-1002.mount: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Unmounted /run/user/1002.
+Sep 22 16:42:41 vyos systemd[1]: user-runtime-dir@1002.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped User Runtime Directory /run/user/1002.
+Sep 22 16:42:41 vyos systemd[1]: systemd-random-seed.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Load/Save Random Seed.
+Sep 22 16:42:41 vyos systemd[1]: kexec-load.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped LSB: Load kernel image with kexec.
+Sep 22 16:42:41 vyos systemd[1]: Removed slice User Slice of UID 1002.
+Sep 22 16:42:41 vyos systemd[1]: user-1002.slice: Consumed 1.586s CPU time.
+Sep 22 16:42:41 vyos systemd[1]: Stopped target Remote File Systems.
+Sep 22 16:42:41 vyos systemd[1]: Stopping D-Bus System Message Bus...
+Sep 22 16:42:41 vyos systemd[1]: dbus.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped D-Bus System Message Bus.
+Sep 22 16:42:41 vyos systemd[1]: dbus.service: Consumed 1.607s CPU time.
+Sep 22 16:42:41 vyos tailscaled[3544]: flushing log.
+Sep 22 16:42:41 vyos tailscaled[3544]: logger closing down
+Sep 22 16:42:41 vyos systemd[1]: vyos-arm64-tailscaled.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Image-provided Tailscale daemon for VyOS ARM64.
+Sep 22 16:42:41 vyos systemd[1]: vyos-arm64-tailscaled.service: Consumed 4.572s CPU time.
+Sep 22 16:42:41 vyos auditd[1031]: The audit daemon is exiting.
+Sep 22 16:42:41 vyos kernel: audit: type=1305 audit(1790088161.961:686): op=set audit_pid=0 old=1031 auid=4294967295 ses=4294967295 res=1
+Sep 22 16:42:41 vyos systemd[1]: auditd.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Security Auditing Service.
+Sep 22 16:42:41 vyos systemd[1]: systemd-tmpfiles-setup.service: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Stopped Create System Files and Directories.
+Sep 22 16:42:41 vyos kernel: audit: type=1131 audit(1790088161.963:687): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=auditd comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Sep 22 16:42:41 vyos kernel: audit: type=1131 audit(1790088161.964:688): pid=1 uid=0 auid=4294967295 ses=4294967295 msg='unit=systemd-tmpfiles-setup comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
+Sep 22 16:42:41 vyos systemd[1]: run-credentials-systemd\x2dtmpfiles\x2dsetup.service.mount: Deactivated successfully.
+Sep 22 16:42:41 vyos systemd[1]: Unmounted /run/credentials/systemd-tmpfiles-setup.service.
+Sep 22 16:42:41 vyos systemd[1]: Reloading.

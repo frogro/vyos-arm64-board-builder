@@ -179,3 +179,9 @@ error paths and real decoder-timeout recovery are settled. Prefer a driver
 variant capability/callback; do not expose raw reset masks as a normal CLI knob.
 Other SoCs retain their established driver behavior. See
 av1-reset-research-20260922/README.md.
+
+The follow-up VSI tests now cover identity-domain resume and active/suspended
+TLB callbacks live, including subsequent exact decode and client-abort recovery.
+Keep this lifecycle evidence separate from full timeout recovery. Kernel A/B
+parameters are diagnostic only and must not become normal CLI reset switches.
+Candidate results: av1-reset-candidates-20260922/README.md.

@@ -1,0 +1,1 @@
+BOOT_IMAGE=/boot/999.202609191517/vmlinuz-f-test4 boot=live rootdelay=5 noautologin net.ifnames=0 biosdevname=0 vyos-union=/boot/999.202609191517 console=tty0 modprobe.blacklist=hantro_vpu
