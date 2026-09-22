@@ -1,0 +1,318 @@
+[
+  {
+    "codec": "h264",
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 96.69999999995343,
+      "duration": 10,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 600,
+      "droppedFrames": 4,
+      "elapsedMs": 10260.20000000007
+    },
+    "media_policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video2"
+        ],
+        "media": [
+          "/dev/media0",
+          "/dev/media1",
+          "/dev/media2",
+          "/dev/media3"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "NativePixmapAccurateYuvMatrix",
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraCaptureBuffers",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "graphics_features": [
+        "NativePixmapAccurateYuvMatrix"
+      ],
+      "buffer_policy": {
+        "h264": "enabled",
+        "av1": "enabled"
+      },
+      "recipe_applied": true,
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/opt/vyarm/chromium/chrome",
+      "runtime_version": 2,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,NativePixmapAccurateYuvMatrix,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers"
+    ]
+  },
+  {
+    "codec": "hevc",
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 59.29999999993015,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 1,
+      "elapsedMs": 5308.400000000023
+    },
+    "media_policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video2"
+        ],
+        "media": [
+          "/dev/media0",
+          "/dev/media1",
+          "/dev/media2",
+          "/dev/media3"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "NativePixmapAccurateYuvMatrix",
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraCaptureBuffers",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "graphics_features": [
+        "NativePixmapAccurateYuvMatrix"
+      ],
+      "buffer_policy": {
+        "h264": "enabled",
+        "av1": "enabled"
+      },
+      "recipe_applied": true,
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/opt/vyarm/chromium/chrome",
+      "runtime_version": 2,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,NativePixmapAccurateYuvMatrix,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers"
+    ]
+  },
+  {
+    "codec": "vp9",
+    "page": {
+      "codec": "vp9",
+      "state": "ended",
+      "started": 79.5,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 4,
+      "elapsedMs": 5234.5
+    },
+    "media_policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video2"
+        ],
+        "media": [
+          "/dev/media0",
+          "/dev/media1",
+          "/dev/media2",
+          "/dev/media3"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "NativePixmapAccurateYuvMatrix",
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraCaptureBuffers",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "graphics_features": [
+        "NativePixmapAccurateYuvMatrix"
+      ],
+      "buffer_policy": {
+        "h264": "enabled",
+        "av1": "enabled"
+      },
+      "recipe_applied": true,
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/opt/vyarm/chromium/chrome",
+      "runtime_version": 2,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,NativePixmapAccurateYuvMatrix,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers"
+    ]
+  },
+  {
+    "codec": "av1",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 153.59999999997672,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 2,
+      "elapsedMs": 5309.5
+    },
+    "media_policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video5"
+        ],
+        "media": [
+          "/dev/media0",
+          "/dev/media1",
+          "/dev/media2",
+          "/dev/media3"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "NativePixmapAccurateYuvMatrix",
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraCaptureBuffers",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "graphics_features": [
+        "NativePixmapAccurateYuvMatrix"
+      ],
+      "buffer_policy": {
+        "h264": "enabled",
+        "av1": "enabled"
+      },
+      "recipe_applied": true,
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/opt/vyarm/chromium/chrome",
+      "runtime_version": 2,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ],
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,NativePixmapAccurateYuvMatrix,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers"
+    ]
+  }
+]
