@@ -1,0 +1,36 @@
+--- a/drivers/media/platform/verisilicon/rockchip_vpu981_hw_av1_dec.c
++++ b/drivers/media/platform/verisilicon/rockchip_vpu981_hw_av1_dec.c
+@@ -10,6 +10,10 @@
+ 
+ #include <media/v4l2-mem2mem.h>
+ #include "hantro.h"
++
++static int vyarm_test_av1_prepare_error;
++module_param(vyarm_test_av1_prepare_error, int, 0644);
++MODULE_PARM_DESC(vyarm_test_av1_prepare_error, "TEST ONLY: fail one AV1 preparation before starting hardware");
+ #include "hantro_v4l2.h"
+ #include "rockchip_vpu981_regs.h"
+ 
+@@ -2148,6 +2152,12 @@
+ 	rockchip_vpu981_av1_restore_iommu(ctx);
+ 
+ 	hantro_start_prepare_run(ctx);
++	if (xchg(&vyarm_test_av1_prepare_error, 0)) {
++		dev_info(vpu->dev, "VYARM_PREPARE: injected preparation error\n");
++		ret = -EIO;
++		goto prepare_error;
++	}
++
+ 
+ 	ret = rockchip_vpu981_av1_dec_prepare_run(ctx);
+ 	if (ret)
+@@ -2207,8 +2217,8 @@
+ 	return 0;
+ 
+ prepare_error:
++	/* device_run owns error completion and PM/clock unwinding. */
+ 	hantro_end_prepare_run(ctx);
+-	hantro_irq_done(vpu, VB2_BUF_STATE_ERROR);
+ 	return ret;
+ }
+ 

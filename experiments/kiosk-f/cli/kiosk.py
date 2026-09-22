@@ -8,7 +8,7 @@ import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 
-KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS'}
+KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
 
 
 def environment(config):
@@ -45,6 +45,15 @@ def environment(config):
         if settings['graphics'] not in ('software', 'auto'):
             raise ValueError('Kiosk graphics must be software or auto')
         values['graphics'] = settings['graphics']
+    for key, choices in {'video_decode': ('software', 'auto'),
+                         'video_h264_buffers': ('disabled', 'enabled'),
+                         'video_av1_buffers': ('disabled', 'enabled')}.items():
+        if key in settings:
+            if settings[key] not in choices:
+                raise ValueError(f'Invalid kiosk {key}')
+            values[key] = settings[key]
+    if any(settings.get(key) == 'enabled' for key in ('video_h264_buffers', 'video_av1_buffers')) and settings.get('video_decode') != 'auto':
+        raise ValueError('Capture buffer reserves require explicit video-decode auto')
     # Quadlet moves these into systemd ExecStart, where both specifiers (%)
     # and variable substitution ($) must remain literal URL characters.
     return [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'

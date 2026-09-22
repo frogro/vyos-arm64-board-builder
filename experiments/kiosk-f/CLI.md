@@ -347,3 +347,53 @@ test used `ps` for process discovery after two read-only /proc discovery attempt
 found no candidate (neither attempt sent a signal). This establishes process
 recovery, not visual correctness or recovery from a hung page. Sunshine probe
 capability/audio and Chromium system-bus messages still require separate review.
+
+## Experimental browser media policy (2026-09-22)
+
+The new source extension adds these native container settings (requires the new
+vyos-1x package **and** a companion image advertising media-policy version1):
+
+```text
+set container name kiosk-test kiosk video-decode auto
+set container name kiosk-test kiosk video-decode software
+set container name kiosk-test kiosk video-h264-buffers enabled
+set container name kiosk-test kiosk video-av1-buffers enabled
+show kiosk media kiosk-test
+```
+
+Choose one decoder mode. Buffer settings also accept `disabled`; enabling them
+requires explicit `video-decode auto` and an image advertising the corresponding
+validated feature. A stock Chromium image is rejected for enabled reserves.
+No hardware-required mode is exposed: strict per-stream enforcement has not been
+implemented. Graphics rendering, local video decoding and Sunshine encoding are
+independent. These controls do not alter profile D or the remote viewer's browser.
+
+Absent nodes emit no new environment variables, preserving existing behavior and
+stored configuration. Explicit values persist through native `save`/image updates
+provided the target image/package still supports the policy. Commit rejects an
+incompatible companion image. Native container lifecycle owns these settings:
+a media change currently restarts the **container**, including remote sessions;
+Sunshine-only policy changes retain their existing narrower restart behavior.
+No rewrite of saved URLs, Sunshine encoder tuning, credentials or pairings occurs.
+
+`auto` permits the browser's codec-dependent software fallback; it does not make
+unsupported HEVC profiles playable in software. A root-owned image manifest at
+`/usr/share/vyarm/kiosk-media-capabilities.json` binds an opt-in backend recipe to
+the SHA256 of the actual browser executable. The runtime enumerates accessible
+V4L2 stateless OUTPUT formats, media and render nodes as the kiosk user. It uses
+no board names or persistent videoN assumptions. A Wayland-only validated recipe
+is not forced into the current X11 kiosk. Missing recipe/devices produces an
+explicit fallback reason and preserves browser automatic selection.
+
+Status reports requested policy, device availability, verified runtime and active
+features. **Actual per-video decoder remains unknown in this startup report**;
+it must come from browser media diagnostics. In the isolated live test, separate
+CDP evidence confirmed V4L2 for auto and Dav1d for software/no-device fallback.
+A startup probe alone is never marked as confirmed hardware decoding.
+
+The companion `media-cli-20260922` image adds the generic policy to the existing
+runtime, but intentionally has no reserve-support labels or hardware recipe for
+its stock browser. The tested custom Chromium/Wayland recipe is recorded under
+`av1-timeout-cli-20260922/media-capabilities.json`; its `/candidate-p010` path is
+specific to that isolated runtime. Packaging a production Wayland/browser runtime
+and physical display validation remain separate from these CLI changes.

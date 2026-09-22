@@ -4,7 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
-COPY start-kiosk kiosk-session kiosk-session.py kiosk-display.py kiosk-sunshine.py kiosk-graphics.py /usr/local/bin/
+COPY start-kiosk kiosk-session kiosk-session.py kiosk-media.py kiosk-display.py kiosk-sunshine.py kiosk-graphics.py /usr/local/bin/
 COPY xorg.conf /etc/X11/xorg.conf
 COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
 COPY input-test.html /opt/kiosk/input-test.html
@@ -14,3 +14,5 @@ RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local
  && bash -n /usr/local/bin/start-kiosk
 ENV KIOSK_GRAPHICS=software
 # /state is supplied by deployment. Never copy browser state, credentials or pairings.
+
+LABEL io.vyarm.kiosk.media-policy="1"

@@ -1,0 +1,31 @@
+{
+  "timeout_injections": 4,
+  "preparation_error_injections": 3,
+  "subsequent_bitexact_frames": 2100,
+  "combined_browser": {
+    "auto": {
+      "decoder": "V4L2VideoDecoder",
+      "frames": 1800,
+      "drops": 11
+    },
+    "software": {
+      "decoder": "Dav1dVideoDecoder",
+      "frames": 1800,
+      "drops": 50
+    },
+    "auto_no_decoder": {
+      "decoder": "Dav1dVideoDecoder",
+      "frames": 1800,
+      "drops": 59
+    }
+  },
+  "unit_tests": 68,
+  "host_fix_regression_tests": 3,
+  "upstream_config_and_op_schema": "passed",
+  "runtime_image": "fe1195eab79b93a9cb6084738f9a09b22a644952b275d3547befeb755b2aedd4",
+  "production_kiosk_changed": false,
+  "unexplained_restart_on_initial_browser_comparison": true,
+  "real_hardware_wedge_recovery_proven": false,
+  "shipping_ready": false,
+  "combined_boot_display_vop_iommu_fault_and_vblank_timeout": true
+}

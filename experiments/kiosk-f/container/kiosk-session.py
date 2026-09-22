@@ -11,6 +11,9 @@ import time
 spec = importlib.util.spec_from_file_location('display', '/usr/local/bin/kiosk-display.py')
 display = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(display)
+media_spec = importlib.util.spec_from_file_location('media', '/usr/local/bin/kiosk-media.py')
+media = importlib.util.module_from_spec(media_spec)
+media_spec.loader.exec_module(media)
 children = []
 stopping = False
 
@@ -79,10 +82,14 @@ try:
                 browser = None
                 retry = time.monotonic() + 2
             if browser is None and time.monotonic() >= retry:
-                browser = launch(['chromium', '--kiosk', '--no-first-run',
+                media_args, media_status = media.browser_policy(os.environ)
+                enabled = media_status['active_features']
+                if enabled:
+                    media_args.append('--enable-features=' + ','.join(enabled))
+                browser = launch([media_status['executable'], '--kiosk', '--no-first-run',
                                   '--disable-session-crashed-bubble',
                                   '--disable-features=Translate,TranslateUI',
-                                  '--user-data-dir=/state/browser', url])
+                                  '--user-data-dir=/state/browser'] + media_args + [url])
             time.sleep(.2)
 finally:
     bus_process = children.pop(0) if children and 'bus' in globals() and children[0] is bus else None

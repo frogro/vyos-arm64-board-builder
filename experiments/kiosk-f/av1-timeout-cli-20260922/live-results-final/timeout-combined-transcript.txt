@@ -1,0 +1,12 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    4461844 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+Running as unit: vyarm-av1-timeout-watchdog.service
+Running timer as unit: vyarm-av1-timeout-fallback.timer
+Will run service as unit: vyarm-av1-timeout-fallback.service
+TIMEOUT_RECOVERY_EXACT_1
+TRACE_DECODE_REMOVE_OK

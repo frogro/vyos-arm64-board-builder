@@ -87,6 +87,10 @@ def prepare(root):
     op = root / 'src/op_mode/kiosk_sunshine.py'
     op.write_text((HERE / 'sunshine-op.py').read_text())
     op.chmod(0o755)
+    (root / 'op-mode-definitions/kiosk_media.xml.in').write_text((HERE / 'media-op.xml').read_text())
+    media_op = root / 'src/op_mode/kiosk_media.py'
+    media_op.write_text((HERE / 'media-op.py').read_text())
+    media_op.chmod(0o755)
     schema.write_text(xml)
     owner.write_text(code)
 

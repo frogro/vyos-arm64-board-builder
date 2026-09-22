@@ -185,3 +185,19 @@ TLB callbacks live, including subsequent exact decode and client-abort recovery.
 Keep this lifecycle evidence separate from full timeout recovery. Kernel A/B
 parameters are diagnostic only and must not become normal CLI reset switches.
 Candidate results: av1-reset-candidates-20260922/README.md.
+
+### Implementation checkpoint, 2026-09-22 18:05
+
+The generic F decoder-policy subset is implemented in the experimental source
+extension: `video-decode auto|software`, independent H264/AV1 reserve opt-ins,
+image policy/feature compatibility validation and `show kiosk media <name>`.
+Absent settings preserve behavior. Host capability labels and runtime binary-hash,
+V4L2 OUTPUT/media/render permission checks are separate. Wayland recipe is gated
+against X11. Real isolated playback confirms auto hardware, explicit software and
+no-device fallback. Startup report deliberately leaves actual per-video decoder
+unknown; CDP evidence is recorded separately. Strict hardware-required remains
+unimplemented and is not offered. All details and restart scope are in CLI.md.
+Production kiosk was not migrated to a different compositor/browser/image.
+D encoder/converter controls and F Sunshine codec/converter ownership migration
+are still separate follow-ups; these playback settings do not implement them.
+Evidence and remaining lifecycle gates: av1-timeout-cli-20260922.

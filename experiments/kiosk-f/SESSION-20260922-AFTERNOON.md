@@ -74,3 +74,26 @@ boot; the16:42 occurrence repeated a known setup error. Central mandatory
 BOOT-TEST-CHECKLIST.md and profile README link now record the preflight rule,
 runtime-only alternative, actual-kernel verification and limits of boot timers.
 No live changes made for this documentation correction.
+
+## 17:25–18:25 bounded recovery/CLI task
+
+User authorized one hour, avoiding repeated broad tests, plus agreed media CLI.
+Four controlled AV1 watchdog injections and three preparation-error injections
+recover to2100 bitexact subsequent frames. Fixed duplicate AV1 prepare-error
+completion and PM/clock unwind in isolated signed module; both VSI candidates
+included in later tests. Not proof of arbitrary real hardware wedge recovery.
+Initial browser auto succeeds; following software run interrupted by unexplained
+reboot. Preserved as unresolved, not attributed to a driver without evidence.
+Combined-candidate repeat passes auto/software/no-decoder browser paths. No more
+decoder stress rounds. Generic F decoder CLI subset implemented and tested;
+strict hardware-only and D encoder/remote conversion knobs remain unpromoted.
+68 tests plus3 host regressions and upstream config/op schemas pass. Runtime
+companion built separately. Native package building locally in dedicated Docker;
+no Chromium rebuild needed. Original test4 running state and kiosk image restored,
+D active, watchdog/timers disarmed, no failed units in final check. See
+av1-timeout-cli-20260922/README.md and CLI.md for exact boundaries.
+
+Final log audit found a separate combined-boot VOP display-IOMMU fault burst and
+vblank timeout before AV1 tests. Not present in final restored test4 boot. Recorded
+as an additional shipping blocker; do not describe the entire candidate kernel
+as warning-free or infer that the AV1 VSI changes caused it.
