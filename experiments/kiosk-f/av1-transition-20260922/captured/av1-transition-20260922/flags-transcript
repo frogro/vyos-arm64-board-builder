@@ -1,0 +1,6 @@
+Running as unit: vyarm-flags-watchdog.service
+Running timer as unit: vyarm-flags-fallback.timer
+Will run service as unit: vyarm-flags-fallback.service
+2026-09-22T18:48:24+02:00 LEGACY_FLAGS_BEGIN
+Terminated
+2026-09-22T18:48:58+02:00 CLEANUP_DONE
