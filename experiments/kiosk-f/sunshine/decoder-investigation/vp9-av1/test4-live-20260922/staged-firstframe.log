@@ -1,0 +1,33 @@
+FIRST_FRAME_BEGIN
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+0:00:00.170783753 [32m         7[00m          7 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:342:gst_v4l2_codec_find_devices:[00m Analysing media device '/dev/media1'
+0:00:00.170817585 [32m         7[00m          7 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:358:gst_v4l2_codec_find_devices:[00m Found CODEC entities
+0:00:00.170822544 [32m         7[00m          7 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:368:gst_v4l2_codec_find_devices:[00m Analysing entity rockchip,rk3588-av1-vpu-dec-proc
+0:00:00.170826044 [32m         7[00m          7 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:373:gst_v4l2_codec_find_devices:[00m Found source and sink pads
+0:00:00.170829543 [32m         7[00m          7 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:381:gst_v4l2_codec_find_devices:[00m Found source and sink V4L IO entities
+0:00:00.170948833 [32m         7[00m          7 [36mINFO   [00m [00m          v4l2codecs gstv4l2codecdevice.c:399:gst_v4l2_codec_find_devices:[00m Found decoder device rockchip,rk3588-av1-vpu-dec-proc
+0:00:00.171099330 [32m         7[00m          7 [36mINFO   [00m [00m          v4l2codecs plugin.c:107:register_video_decoder:<v4l2decoder0>[00m Registering rockchip,rk3588-av1-vpu-dec-proc as AV1 Decoder
+0:00:00.336448771 [32m         1[00m          1 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:342:gst_v4l2_codec_find_devices:[00m Analysing media device '/dev/media1'
+0:00:00.336511187 [32m         1[00m          1 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:358:gst_v4l2_codec_find_devices:[00m Found CODEC entities
+0:00:00.336523728 [32m         1[00m          1 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:368:gst_v4l2_codec_find_devices:[00m Analysing entity rockchip,rk3588-av1-vpu-dec-proc
+0:00:00.336532770 [32m         1[00m          1 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:373:gst_v4l2_codec_find_devices:[00m Found source and sink pads
+0:00:00.336541811 [32m         1[00m          1 [37mDEBUG  [00m [00m          v4l2codecs gstv4l2codecdevice.c:381:gst_v4l2_codec_find_devices:[00m Found source and sink V4L IO entities
+0:00:00.336852430 [32m         1[00m          1 [36mINFO   [00m [00m          v4l2codecs gstv4l2codecdevice.c:399:gst_v4l2_codec_find_devices:[00m Found decoder device rockchip,rk3588-av1-vpu-dec-proc
+0:00:00.337202423 [32m         1[00m          1 [36mINFO   [00m [00m          v4l2codecs plugin.c:107:register_video_decoder:<v4l2decoder0>[00m Registering rockchip,rk3588-av1-vpu-dec-proc as AV1 Decoder
+Setting pipeline to PAUSED ...
+Pipeline is PREROLLING ...
+/GstPipeline:pipeline0/GstAV1Parse:av1parse0.GstPad:src: caps = video/x-av1, width=(int)1920, height=(int)1080, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true, stream-format=(string)obu-stream, alignment=(string)frame, profile=(string)main, level=(string)4.1, tier=(string)main
+/GstPipeline:pipeline0/v4l2slav1dec:v4l2slav1dec0.GstPad:sink: caps = video/x-av1, width=(int)1920, height=(int)1080, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true, stream-format=(string)obu-stream, alignment=(string)frame, profile=(string)main, level=(string)4.1, tier=(string)main
+/GstPipeline:pipeline0/v4l2slav1dec:v4l2slav1dec0.GstPad:src: caps = video/x-raw, format=(string)NV12, width=(int)1920, height=(int)1080, interlace-mode=(string)progressive, multiview-mode=(string)mono, multiview-flags=(GstVideoMultiviewFlagsSet)0:ffffffff:/right-view-first/left-flipped/left-flopped/right-flipped/right-flopped/half-aspect/mixed-mono, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1
+/GstPipeline:pipeline0/GstCapsFilter:capsfilter0.GstPad:src: caps = video/x-raw, format=(string)NV12, width=(int)1920, height=(int)1080, interlace-mode=(string)progressive, multiview-mode=(string)mono, multiview-flags=(GstVideoMultiviewFlagsSet)0:ffffffff:/right-view-first/left-flipped/left-flopped/right-flipped/right-flopped/half-aspect/mixed-mono, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1
+/GstPipeline:pipeline0/GstFakeSink:fakesink0.GstPad:sink: caps = video/x-raw, format=(string)NV12, width=(int)1920, height=(int)1080, interlace-mode=(string)progressive, multiview-mode=(string)mono, multiview-flags=(GstVideoMultiviewFlagsSet)0:ffffffff:/right-view-first/left-flipped/left-flopped/right-flipped/right-flopped/half-aspect/mixed-mono, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1
+/GstPipeline:pipeline0/GstCapsFilter:capsfilter0.GstPad:sink: caps = video/x-raw, format=(string)NV12, width=(int)1920, height=(int)1080, interlace-mode=(string)progressive, multiview-mode=(string)mono, multiview-flags=(GstVideoMultiviewFlagsSet)0:ffffffff:/right-view-first/left-flipped/left-flopped/right-flipped/right-flopped/half-aspect/mixed-mono, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1
+Pipeline is PREROLLED ...
+Setting pipeline to PLAYING ...
+Redistribute latency...
+New clock: GstSystemClock
+Got EOS from element "pipeline0".
+Execution ended after 0:00:00.004483621
+Setting pipeline to NULL ...
+Freeing pipeline ...
+FIRST_FRAME_RETURNED

@@ -1,0 +1,4 @@
+STAGE_300_BEGIN
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+300/300 frames bit-exact
+STAGE_300_RETURNED
