@@ -22,3 +22,17 @@ v4l2_m2m_buf_copy_metadata(src, dst, true). All seven hunks pass patch --dry-run
 against a copied test4 hantro_drv.c. Not compiled or deployed; review remove
 ordering and clock preparation lifetime before combining. No source kernel,
 normal image recipe or release workflow changed.
+
+## Newer v5 found in follow-up search
+
+https://lkml.iu.edu/hypermail/linux/kernel/2607.3/09663.html
+Message-ID: 20260729060440.2092-1-tharitt97@gmail.com
+Retrieved series mbox via Patchew. v5 supersedes the v4 candidate: split clock/
+error-path management and DEFINE_RUNTIME_DEV_PM_OPS cleanup into two patches.
+Retained test4 metadata third argument; patch 2 first hunk used fuzz 1 at the
+unchanged runtime-callback boundary, reviewed resulting source. External
+module compiled successfully against test4 source/kbuild on 2026-09-22.
+Stored separate tmp/av1-iommu-test4/pm-v5-candidate; no installed module changed.
+NOT deployed or functionally tested. Author's G1 tests do not validate AV1.
+Removal still unprepares clocks before disabling runtime PM; review that
+lifetime together with IOMMU/reset ordering before treating v5 as an unload fix.

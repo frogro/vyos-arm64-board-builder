@@ -121,3 +121,9 @@ boot selects normal kernel. No new kernel compile or normal workflow changes.
 Follow-up: longer idle/reprobe, teardown with IOMMU runtime power held, reset
 ownership/order review; separately evaluate upstream runtime-PM clock patch.
 Do not combine both changes for the initial causal control.
+
+## Extended decode and patch research
+
+See PATCH-SEARCH-20260922.md and extended-results.json. AV1 capture reserve
+10→12 reduces browser-reported drops from11–13% to0.72–0.78% in repeated
+120second tests. Reset-mask0 remains diagnostic; no production unload fix.

@@ -1,0 +1,20 @@
+[  507.783316] vyos unknown: AV1_STAGE_MASK0_LOAD_BEGIN
+[  509.170770] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=0
+[  509.170840] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[  509.170843] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[  509.170847] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[  509.171085] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[  509.174997] vyos unknown: AV1_STAGE_MASK0_LOAD_RETURNED
+[  569.400060] vyos kernel: perf: interrupt took too long (3923 > 3922), lowering kernel.perf_event_max_sample_rate to 50000
+[  681.936076] vyos unknown: AV1_EXTENDED_BROWSER_BEGIN
+[  949.489619] vyos unknown: AV1_EXTENDED_BROWSER_END
+[ 2126.386288] vyos unknown: VYARM_EXTENDED_TEST_COMPLETE_REMOVE_MASK0
+[ 2126.395940] vyos kernel: hantro-vpu fdc70000.video-codec: Removing fdc70000.video-codec
+[ 2126.396290] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+[ 2126.396317] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+[ 2126.396322] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+[ 2126.396341] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+[ 2126.396346] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+[ 2126.396351] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+[ 2126.396355] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+[ 2126.396360] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
