@@ -27,3 +27,18 @@ files are untouched. Fix installed live with original helper backed up under
 
 The previously produced SD/ISO files are NOT repacked with this correction.
 Their first-boot race remains until rebuilt; do not call those artifacts fixed.
+
+## Required follow-up: complete Profile F first-install setup
+
+User explicitly requests recording this missing build integration. Importing the
+runtime and installing CLI alone does not provision a runnable kiosk. Add a
+reviewable, explicit Profile F setup path which selects the versioned runtime,
+sets persistent state, display/VT/udev access, discovers stable input identities,
+and sets restart policy. Do not overwrite existing container configuration during
+updates or activate experimental Wayland/decoder recipes merely by importing an
+image. Provide a distinct supported Wayland setup if hardware browser decoding
+is offered. Acceptance requires a fresh-image boot, working configure, kiosk
+startup, display rotation/touch and restart, plus configuration-preserving update.
+Until implemented, document required manual provisioning; do not advertise the
+current SD/ISO as a ready-configured kiosk. User configuration currently pending:
+local input-test page, auto output, 90 degrees, auto decode and both reserves on.
