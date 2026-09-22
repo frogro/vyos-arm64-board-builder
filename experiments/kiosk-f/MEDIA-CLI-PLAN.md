@@ -98,3 +98,36 @@ negotiates/decodes H264 High and HEVC Main at1080p60. Thus D HEVC transport is a
 viable optional test path for validated receivers, not blanket browser support.
 Keep H264 default; readiness must include receiver capability, actual frames and
 presentation/color validation. This does not implement the reserved F WebRTC UI.
+
+## Agreed next step: generic browser decoder CLI (2026-09-22)
+
+User requests recording this follow-up, not implementing it before the unified
+Chromium candidate passes browser tests. Extend the existing CLI generically
+across supported SBCs; no ROCK-specific forced startup flags or board-name
+assumption of decoder capability. Syntax remains provisional.
+
+- Proposed modes: auto, software, hardware-required. Auto is the intended
+  default for the new design; preserve existing configurations during migration.
+  Auto permits software fallback only where that codec/profile actually has a
+  usable software decoder. Otherwise report unsupported playback explicitly.
+- Probe driver/API capabilities, decoder/media/render devices and container
+  permissions before applying an explicit hardware selection. Reject known
+  unsupported requests without replacing the working configuration.
+- Startup checks cannot guarantee every video's codec profile, bit depth,
+  dimensions or GPU import path. Handle per-stream failures at runtime; strict
+  hardware-required must report failure rather than silently use software.
+  Verify that the browser implementation can enforce this mode before exposing it.
+- Keep the opt-in H264 capture-buffer reserve as a separate expert option,
+  gated to the supported stateless V4L2/MMAP/non-low-delay path. NV15 format
+  support and HEVC SPS/RPS capability negotiation are internal features, not
+  compulsory user-facing switches. AV1 support remains subject to driver tests.
+- Status/help/completion: requested mode versus actual per-video decoder,
+  codec/profile/bit depth when available, hardware/software use and fallback
+  reason. Distinguish decoder support from GPU rendering and physical output.
+- Acceptance: supported and unsupported hardware, absent devices/permissions,
+  unsupported video profiles, rollback, restart scope and update/reboot retention.
+  Package only after end-to-end tests; do not alter existing release workflows.
+
+Scope: profile F local browser playback. Profile D's ROCK-side capture,
+conversion and encoder selection remain separate. No requirement for customers
+of D to install our patched Chromium on their receiving computer.
