@@ -48,7 +48,13 @@ whether an installation image can be built successfully.
 
 ## Official Rolling watcher
 
-`watch-upstream-rolling.yml` runs hourly at minute 23 on the default branch.
+`watch-upstream-rolling.yml` is scheduled twice hourly at minutes 23 and 53
+on the default branch. GitHub may delay or drop scheduled events; this is
+best-effort polling, not a guaranteed 30-minute detection interval. The second
+slot adds another opportunity to check. Each run scans unprocessed releases,
+and the persisted dispatch state prevents repeated board builds. A strict
+interval would require an independent scheduler using workflow_dispatch with
+dry_run=false. The manual dry-run remains available for read-only checks.
 It checks official, non-draft, non-prerelease dated Rolling releases, starting
 after baseline `2026.09.17-0028-rolling` (the reference already built manually).
 For every new release it dispatches the network image for E52C, ROCK 5B and Pi 5
