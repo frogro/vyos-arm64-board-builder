@@ -50,3 +50,23 @@ Wants dependency live and started the installed service. Existing drop-in saved
 as kernel-test4/kiosk-retry.before-touch.conf. Eleven startup/reconciliation tests
 pass. AV1 read-only preflight passes: vsi_iommu bound, group 6, no decoder module
 loaded; test4 decoding cycles remain pending.
+
+## First decoding attempt, approximately 11:58 CEST
+
+User confirmed recovered physical touch before proceeding. Repeated preflight
+passed on test4; launched probe.sh as transient vyarm-test4-av1-cycles.service,
+RuntimeMaxSec=360, output appended to /config/kiosk-test/kernel-test4/cycles.log.
+Immediately following launch, SSH timed out repeatedly, ping had 100% loss and
+ARP neighbor became FAILED while NUC remained reachable over the same LAN.
+User answered "nein" to whether the kiosk still responded (interpreted as no
+response; question wording also mentioned freezing). Suspected system hang,
+not a successful AV1 validation. Exact stage (module probe, decode, or removal)
+is UNKNOWN until persistent logs can be recovered. No additional tests started.
+Requested physical power cycle into unchanged normal GRUB default. Transient
+test service does not restart at boot. A systemd timeout cannot recover a fully
+hung kernel; no claim of guaranteed automatic recovery. Existing one-shot boot
+fallback had been disabled after healthy test4 boot verification.
+
+NUC Chromium still advances: 52454/56256 around 11:59. A .exit file containing 1
+is stale (03:39); live build log modification time and active nightwatch indicate
+it is not the current build's result.
