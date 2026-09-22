@@ -181,15 +181,16 @@ if ! chroot "$ROOTFS" env GST_REGISTRY="$GST_GENERIC_REGISTRY" /usr/bin/gst-insp
 fi
 rm -f "$ROOTFS$GST_GENERIC_REGISTRY"
 
+# Consume full FFmpeg output: grep -q can cause SIGPIPE (141) under pipefail.
 if enabled ffmpeg-rockchip; then
     check_ldd /usr/local/bin/ffmpeg-rockchip
     chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -h demuxer=v4l2 2>&1 |
-        grep -q 'capture_buffers' || die "FFmpeg capture-buffer option is missing"
+        grep 'capture_buffers' >/dev/null || die "FFmpeg capture-buffer option is missing"
     chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -encoders |
-        grep -q 'h264_rkmpp' ||
+        grep 'h264_rkmpp' >/dev/null ||
         die "installed ffmpeg-rockchip does not expose h264_rkmpp"
     chroot "$ROOTFS" /usr/local/bin/ffmpeg-rockchip -hide_banner -h encoder=h264_rkmpp |
-        grep -q 'bgr24' ||
+        grep 'bgr24' >/dev/null ||
         die "installed h264_rkmpp does not advertise bgr24 input"
 fi
 

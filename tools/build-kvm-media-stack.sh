@@ -135,7 +135,7 @@ if enabled ffmpeg-rockchip; then
     git -C "$CHROOT/build/ffmpeg-rockchip" apply "$FFMPEG_PATCH"
     install -m 0644 "$FFMPEG_PATCH" "$ARTIFACTS/source/"
 
-    chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; cd /build/ffmpeg-rockchip; ./configure --prefix=/usr/local --disable-debug --disable-doc --disable-shared --enable-static --disable-autodetect --enable-version3 --enable-libdrm --enable-rkmpp; make -j"${JOBS:-4}"; make install; ldconfig; /usr/local/bin/ffmpeg -hide_banner -encoders | grep -q "h264_rkmpp"; /usr/local/bin/ffmpeg -hide_banner -h encoder=h264_rkmpp | grep -q "bgr24"'
+    chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; cd /build/ffmpeg-rockchip; ./configure --prefix=/usr/local --disable-debug --disable-doc --disable-shared --enable-static --disable-autodetect --enable-version3 --enable-libdrm --enable-rkmpp; make -j"${JOBS:-4}"; make install; ldconfig; /usr/local/bin/ffmpeg -hide_banner -encoders | grep "h264_rkmpp" >/dev/null; /usr/local/bin/ffmpeg -hide_banner -h encoder=h264_rkmpp | grep "bgr24" >/dev/null'
 
     chroot "$CHROOT" /usr/local/bin/ffmpeg -hide_banner -h demuxer=v4l2 2>&1 |
         grep -q 'capture_buffers' || die "FFmpeg capture-buffer option missing"
