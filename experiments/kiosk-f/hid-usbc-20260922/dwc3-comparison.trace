@@ -1,0 +1,955 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 943/943   #P:8
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+            bash-54146   [006] .....  1050.705745: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-54146   [006] .....  1050.705750: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-54146   [006] .....  1050.705753: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-54146   [006] .....  1050.705758: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-54146   [006] .....  1050.705761: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-54146   [006] .....  1050.705765: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1050.716883: dwc3_event: event (00030601): Suspend [U3]
+     irq/54-dwc3-54164   [000] D..1.  1051.079439: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-54164   [000] D..1.  1051.134221: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-54164   [000] D..1.  1051.134238: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.134244: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.191260: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.191285: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.191296: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.191353: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.191359: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 18/18 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.191377: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.191382: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.191415: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.191421: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.191479: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-54164   [000] D..1.  1051.246377: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-54164   [000] D..1.  1051.246390: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.246395: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.303102: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.303122: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.303129: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.303173: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.303179: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.315945: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.315969: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.315973: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.315980: dwc3_event: event (000090c2): ep0in: Transfer Not Ready [00000000] (Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316045: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316052: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 18/18 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.316053: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316058: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316093: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316099: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316255: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.316268: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316271: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316322: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316326: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 5/5 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.316327: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316332: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316386: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316391: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316441: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.316449: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316451: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316566: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316569: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 22/22 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.316570: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316574: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316609: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316613: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316849: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.316857: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316859: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316884: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316886: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 10/10 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.316891: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316894: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.316934: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.316938: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317087: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317098: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317100: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317139: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317142: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 9/9 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317156: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317160: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317200: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317205: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317289: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317300: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317310: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317355: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317358: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 34/34 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317366: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317370: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317409: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317414: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317474: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317484: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317491: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317537: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317540: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 4/4 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317541: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317545: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317560: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317564: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317609: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317618: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317623: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317672: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317674: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 36/36 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317680: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317684: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317714: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317719: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317748: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317756: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317770: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317788: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317790: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 12/12 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317796: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317800: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317827: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317832: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317863: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.317872: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317881: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317923: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317926: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 32/32 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.317933: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317937: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.317974: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.317979: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.320315: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.320325: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [20409] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..3.  1051.320353: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Configuration' [401] params 00020046 06090200 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..3.  1051.320358: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..3.  1051.320365: dwc3_gadget_ep_cmd: ep1in: cmd 'Start Transfer' [406] params 00000000 00a09000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.320399: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.320405: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.320449: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.320452: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 0/0 zsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.320458: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.320907: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.320932: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.320942: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.320944: dwc3_event: event (000090c2): ep0in: Transfer Not Ready [00000000] (Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321002: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321008: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 28/28 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.321015: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321020: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321059: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321065: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321163: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.321172: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321179: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321219: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321222: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 32/32 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.321227: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321231: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321274: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321278: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321372: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321381: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321386: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321434: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321436: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 0/0 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.321440: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321479: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.321490: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321493: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321563: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321566: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 63/63 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.321574: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321579: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.321646: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.321652: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.323302: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.323316: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.323326: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.323365: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.323369: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 1/1 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.323380: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.323385: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.323425: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.323430: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.579376: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1051.579398: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.579400: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.579424: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.579429: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 1/1 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1051.579432: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.579436: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1051.579471: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1051.579476: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+         python3-54905   [006] d..1.  1063.465369: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-54905   [006] d..1.  1063.465377: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1063.477765: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1063.477780: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-54905   [007] d..1.  1063.615474: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-54905   [007] d..1.  1063.615481: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1063.629764: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1063.629776: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1069.594970: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-54164   [000] D..2.  1069.594991: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1069.594998: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1069.594999: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1069.595030: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-54164   [000] D..1.  1069.595034: dwc3_gadget_giveback: ep0out: req 00000000368bb929 length 1/1 ZsI ==> 0
+     irq/54-dwc3-54164   [000] D..1.  1069.595041: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1069.595045: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1069.595065: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-54164   [000] D..1.  1069.595070: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+         python3-55997   [005] d..1.  1082.118929: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-55997   [005] d..1.  1082.118940: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1082.134444: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1082.134460: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-55997   [005] d..1.  1082.269064: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-55997   [005] d..1.  1082.269073: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1082.278537: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1082.278552: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [007] d..1.  1106.873049: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [007] d..1.  1106.873057: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1106.887420: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1106.887432: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [007] d..1.  1106.923281: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [007] d..1.  1106.923290: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1106.935360: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1106.935370: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1106.973393: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] dn.1.  1106.973401: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1106.983365: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1106.983378: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1107.023517: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1107.023525: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.039389: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.039412: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1107.073621: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1107.073628: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.087394: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.087407: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1107.123902: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1107.123913: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.135420: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.135434: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1107.174029: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1107.174039: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.183402: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.183419: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.224140: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.224148: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.239378: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.239390: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [001] d..1.  1107.274349: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [001] d..1.  1107.274366: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.287384: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.287395: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.324474: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.324482: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.335382: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.335395: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.374583: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.374590: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.383379: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.383390: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.424805: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.424814: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.439495: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.439508: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.474944: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.474953: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.487406: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.487421: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.525182: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.525191: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.535429: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.535441: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.575395: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.575404: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.591432: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.591445: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.625604: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.625613: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.639437: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.639447: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.675849: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.675857: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.687416: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.687431: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.725966: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.725974: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.735393: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.735406: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.776201: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.776210: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.791439: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.791453: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.826313: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.826322: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.839474: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.839488: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.876430: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.876439: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.887408: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.887421: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.926560: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.926569: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.935480: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.935496: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1107.976682: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1107.976692: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1107.991527: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1107.991543: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [005] d..1.  1108.026811: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [005] d..1.  1108.026819: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.039445: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.039459: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.077030: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.077040: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.087429: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.087443: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.127161: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.127171: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.135487: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.135501: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.177275: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.177284: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.191505: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.191519: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.227385: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.227393: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.239450: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.239466: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.277492: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.277500: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.287458: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.287469: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.327620: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.327629: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.343416: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.343430: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.377732: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.377740: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.391439: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.391454: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.427856: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.427865: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.439458: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.439473: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.477969: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.477974: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.487505: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.487518: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.528173: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.528182: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.543512: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.543528: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.578374: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.578384: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.591450: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.591465: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.628623: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.628632: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.639464: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.639480: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.678880: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.678890: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.687525: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.687540: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.728993: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.729003: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.743523: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.743537: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.779230: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.779239: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.791476: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.791491: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+         python3-57313   [004] d..1.  1108.829340: dwc3_ep_queue: ep1in: req 000000005a9365d9 length 0/8 ZsI ==> -115
+         python3-57313   [004] d..1.  1108.829349: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-54164   [000] D..1.  1108.839466: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-54164   [000] D..1.  1108.839480: dwc3_gadget_giveback: ep1in: req 000000005a9365d9 length 8/8 ZsI ==> 0
+            bash-57514   [001] d..1.  1113.825476: dwc3_gadget_ep_cmd: ep1in: cmd 'End Transfer' [20c08] params 00000000 00000000 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830053: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830064: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830068: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830073: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830078: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-57514   [001] .....  1113.830084: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1113.841187: dwc3_event: event (00030601): Suspend [U3]
+     irq/54-dwc3-57518   [000] D..1.  1114.026766: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-57518   [000] D..1.  1114.081559: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-57518   [000] D..1.  1114.081572: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.081577: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.138581: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.138607: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.138618: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.138672: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.138679: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 18/18 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.138681: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.138686: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.138726: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.138731: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.138752: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-57518   [000] D..1.  1114.193567: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-57518   [000] D..1.  1114.193580: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.193586: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.250627: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.250648: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.250655: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.250700: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.250706: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263187: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.263217: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263221: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263300: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263308: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 18/18 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.263311: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263316: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263325: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263330: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263485: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.263508: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263512: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263549: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263556: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 5/5 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.263558: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263563: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263732: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263740: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263751: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.263768: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263771: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263815: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263821: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 22/22 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.263823: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263827: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.263895: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.263901: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264026: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264038: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264041: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264064: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264067: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 10/10 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264073: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264076: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264113: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264117: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264243: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264256: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264258: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264263: dwc3_event: event (000090c2): ep0in: Transfer Not Ready [00000000] (Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264306: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264309: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 9/9 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264315: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264319: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264337: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264341: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264382: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264390: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264397: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264433: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264436: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 34/34 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264441: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264445: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264474: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264478: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264512: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264523: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264533: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264624: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264628: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 4/4 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264641: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264645: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264686: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264691: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264725: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264736: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264757: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264786: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264789: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 36/36 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264790: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264794: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264816: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264820: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264870: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.264878: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264885: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264913: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264915: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 12/12 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.264920: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264924: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.264949: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.264954: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.265004: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.265012: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.265019: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.265072: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.265074: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 32/32 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.265080: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.265084: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.265108: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.265112: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.267711: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.267717: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [20409] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..3.  1114.267744: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Configuration' [401] params 00020046 06090200 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..3.  1114.267748: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..3.  1114.267754: dwc3_gadget_ep_cmd: ep1in: cmd 'Start Transfer' [406] params 00000000 00a09000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.267766: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.267771: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.267840: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.267842: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 0/0 zsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.267847: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.268258: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.268269: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.268272: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.268385: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.268389: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 28/28 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.268390: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.268394: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.268428: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.268432: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271658: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.271680: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271690: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271742: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271749: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 32/32 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.271751: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271755: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271793: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271798: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271843: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271864: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271869: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271902: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.271904: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 0/0 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.271908: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271928: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.271938: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.271944: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272007: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272010: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 63/63 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.272016: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272020: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.272043: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272048: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.272541: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.272557: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.272567: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272608: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272613: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 1/1 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.272634: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272639: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.272681: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.272686: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.542787: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-57518   [000] D..2.  1114.542815: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.542818: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.542893: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.542901: dwc3_gadget_giveback: ep0out: req 000000005d5ba7c8 length 1/1 ZsI ==> 0
+     irq/54-dwc3-57518   [000] D..1.  1114.542905: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.542910: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-57518   [000] D..1.  1114.542948: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-57518   [000] D..1.  1114.542953: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+            bash-58044   [006] dN.1.  1127.858542: dwc3_gadget_ep_cmd: ep1in: cmd 'End Transfer' [20c08] params 00000000 00000000 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883957: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883962: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883965: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883970: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883973: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-58044   [006] .....  1127.883978: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1127.895094: dwc3_event: event (00030601): Suspend [U3]
+     irq/54-dwc3-58072   [000] D..1.  1128.019059: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-58072   [000] D..1.  1128.073747: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-58072   [000] D..1.  1128.073761: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.073767: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.133869: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.133896: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.133905: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.133925: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.133931: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 18/18 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.133937: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.133941: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.133961: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.133966: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.133980: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-58072   [000] D..1.  1128.188870: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-58072   [000] D..1.  1128.188882: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.188888: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.245882: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.245902: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.245910: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.245951: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.245957: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.260846: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.260872: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.260876: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.260907: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.260914: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 18/18 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.260928: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.260935: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.260996: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261002: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261012: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.261023: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261031: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261076: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261078: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 5/5 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.261079: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261083: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261202: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261207: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261214: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.261221: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261223: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261331: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261334: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 22/22 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.261335: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261339: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261374: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261378: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261511: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.261521: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261523: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261630: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261634: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 10/10 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.261635: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261639: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261747: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261752: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261759: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.261769: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261772: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261777: dwc3_event: event (000090c2): ep0in: Transfer Not Ready [00000000] (Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261817: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261820: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 9/9 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.261826: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261829: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261850: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261854: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261885: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.261894: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261902: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261952: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261955: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 41/41 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.261962: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261966: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.261986: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.261991: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262030: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.262041: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262050: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262050: dwc3_event: event (000090c2): ep0in: Transfer Not Ready [00000000] (Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262146: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262150: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 4/4 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.262162: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262167: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262212: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262217: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262237: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.262246: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262252: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262326: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262329: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 36/36 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.262330: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262334: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262362: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262366: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262400: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.262408: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262419: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262444: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262447: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 12/12 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.262457: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262461: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262480: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262485: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262513: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.262523: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262532: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262580: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262584: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 32/32 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.262591: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262595: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.262643: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.262648: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265158: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265164: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [20409] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265188: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Configuration' [401] params 00020046 06090200 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265193: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265199: dwc3_gadget_ep_cmd: ep1in: cmd 'Start Transfer' [406] params 00000000 00a09000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265209: dwc3_gadget_ep_cmd: ep1out: cmd 'Set Endpoint Configuration' [401] params 00000046 04090200 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265214: dwc3_gadget_ep_cmd: ep1out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265220: dwc3_gadget_ep_cmd: ep1out: cmd 'Start Transfer' [406] params 00000000 00a08000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265225: dwc3_ep_queue: ep1out: req 000000008a34f337 length 0/8 zsI ==> -115
+     irq/54-dwc3-58072   [000] D..3.  1128.265234: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265237: dwc3_ep_queue: ep1out: req 00000000dc173789 length 0/8 zsI ==> -115
+     irq/54-dwc3-58072   [000] D..3.  1128.265241: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265243: dwc3_ep_queue: ep1out: req 000000008da6d8ef length 0/8 zsI ==> -115
+     irq/54-dwc3-58072   [000] D..3.  1128.265247: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..3.  1128.265250: dwc3_ep_queue: ep1out: req 00000000e0a8eeb5 length 0/8 zsI ==> -115
+     irq/54-dwc3-58072   [000] D..3.  1128.265253: dwc3_gadget_ep_cmd: ep1out: cmd 'Update Transfer' [30007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265273: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265278: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265320: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265322: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 0/0 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.265328: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265692: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.265702: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265705: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265759: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265760: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 28/28 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.265765: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265769: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.265794: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.265798: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268205: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.268235: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268242: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268313: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268320: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 32/32 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.268338: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268343: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268373: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268379: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268441: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268452: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268456: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268491: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268492: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 0/0 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.268497: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268526: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-58072   [000] D..2.  1128.268536: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268543: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268619: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268623: dwc3_gadget_giveback: ep0out: req 0000000013250425 length 63/63 ZsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.268629: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268633: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.268671: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-58072   [000] D..1.  1128.268675: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1128.272177: dwc3_event: event (00006084): ep1out: Transfer In Progress [00000000] (SIm)
+     irq/54-dwc3-58072   [000] D..1.  1128.272188: dwc3_gadget_giveback: ep1out: req 000000008a34f337 length 1/8 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1128.536169: dwc3_event: event (00006084): ep1out: Transfer In Progress [00000000] (SIm)
+     irq/54-dwc3-58072   [000] D..1.  1128.536184: dwc3_gadget_giveback: ep1out: req 00000000dc173789 length 1/8 zsI ==> 0
+         python3-58549   [005] d..1.  1136.405130: dwc3_ep_queue: ep1in: req 0000000001693e97 length 0/8 ZsI ==> -115
+         python3-58549   [005] d..1.  1136.405137: dwc3_gadget_ep_cmd: ep1in: cmd 'Update Transfer' [20007] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-58072   [000] D..1.  1142.825714: dwc3_event: event (00006084): ep1out: Transfer In Progress [00000000] (SIm)
+     irq/54-dwc3-58072   [000] D..1.  1142.825730: dwc3_gadget_giveback: ep1out: req 000000008da6d8ef length 1/8 zsI ==> 0
+     irq/54-dwc3-58072   [000] D..1.  1142.832794: dwc3_event: event (00004086): ep1in: Transfer In Progress [00000000] (sIm)
+     irq/54-dwc3-58072   [000] D..1.  1142.832803: dwc3_gadget_giveback: ep1in: req 0000000001693e97 length 8/8 ZsI ==> 0
+            bash-59863   [000] d..1.  1160.412944: dwc3_gadget_ep_cmd: ep1out: cmd 'End Transfer' [30c08] params 00000000 00000000 00000000 --> status: Successful
+            bash-59863   [000] d..1.  1160.413956: dwc3_gadget_giveback: ep1out: req 00000000e0a8eeb5 length 0/8 zsI ==> -108
+            bash-59863   [000] d..1.  1160.413962: dwc3_gadget_ep_cmd: ep1in: cmd 'End Transfer' [20c08] params 00000000 00000000 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439748: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439757: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439761: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439766: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439769: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-59863   [000] .....  1160.439775: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.450905: dwc3_event: event (00030601): Suspend [U3]
+     irq/54-dwc3-59875   [000] D..1.  1160.582890: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-59875   [000] D..1.  1160.637605: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-59875   [000] D..1.  1160.637618: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.637623: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.694751: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.694778: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.694782: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.694827: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.694834: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 18/18 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.694836: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.694841: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.694897: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.694903: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.694954: dwc3_event: event (00000101): Reset [U0]
+     irq/54-dwc3-59875   [000] D..1.  1160.749788: dwc3_event: event (00000201): Connection Done [U0]
+     irq/54-dwc3-59875   [000] D..1.  1160.749799: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 80000200 00000500 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.749804: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 80000200 02000500 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.806612: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.806638: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.806644: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.806691: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.806697: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817663: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.817689: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817704: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817743: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817751: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 18/18 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.817758: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817763: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817803: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817809: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817879: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.817891: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817900: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817922: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817926: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 5/5 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.817928: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817932: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817954: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.817959: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.817987: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.817997: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818005: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818048: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818052: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 22/22 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.818059: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818064: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818106: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818112: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818177: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.818188: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818196: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818222: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818226: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 10/10 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.818233: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818237: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818259: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818264: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818314: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.818326: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818363: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818367: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 9/9 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.818374: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818378: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818400: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818405: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818427: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.818437: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818445: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818488: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818492: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 34/34 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.818499: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818503: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818525: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.818530: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.818986: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.818998: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819010: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819023: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819029: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 4/4 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.819036: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819040: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819061: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819066: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819110: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.819120: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819129: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819170: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819173: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 36/36 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.819180: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819184: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819205: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819210: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819239: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.819248: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819256: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819285: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819288: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 12/12 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.819295: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819299: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819320: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819325: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819365: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.819375: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819377: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819419: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819421: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 32/32 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.819428: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819433: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.819454: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.819459: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.823375: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.823383: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [20409] params 00000000 00000000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..3.  1160.823405: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Configuration' [401] params 00020046 06090200 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..3.  1160.823409: dwc3_gadget_ep_cmd: ep1in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..3.  1160.823415: dwc3_gadget_ep_cmd: ep1in: cmd 'Start Transfer' [406] params 00000000 00a09000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.823432: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.823436: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.823480: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.823483: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 0/0 zsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.823487: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.825377: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.825399: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.825407: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.825445: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.825451: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 28/28 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.825456: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.825461: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.825513: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.825518: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.827376: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.827396: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.827408: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.827441: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.827446: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 32/32 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.827452: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.827456: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.827474: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.827479: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.829369: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829383: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829389: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.829417: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829419: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 0/0 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.829424: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.829485: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.829500: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.829506: dwc3_event: event (000010c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829562: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829567: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 63/63 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.829572: dwc3_event: event (000020c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829576: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.829600: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.829604: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.831359: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1160.831371: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.831378: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.831400: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.831403: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 1/1 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1160.831411: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.831415: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1160.831436: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1160.831440: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1161.130445: dwc3_event: event (0000c040): ep0out: Transfer Complete (sIL) [Setup Phase]
+     irq/54-dwc3-59875   [000] D..2.  1161.130467: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1161.130470: dwc3_event: event (000010c0): ep0out: Transfer Not Ready [00000000] (Not Active) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1161.130501: dwc3_event: event (00002040): ep0out: Transfer Complete (Sil) [Data Phase]
+     irq/54-dwc3-59875   [000] D..1.  1161.130507: dwc3_gadget_giveback: ep0out: req 00000000d5dd0042 length 1/1 ZsI ==> 0
+     irq/54-dwc3-59875   [000] D..1.  1161.130515: dwc3_event: event (000020c2): ep0in: Transfer Not Ready [00000000] (Not Active) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1161.130520: dwc3_gadget_ep_cmd: ep0in: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+     irq/54-dwc3-59875   [000] D..1.  1161.130540: dwc3_event: event (0000c042): ep0in: Transfer Complete (sIL) [Status Phase]
+     irq/54-dwc3-59875   [000] D..1.  1161.130546: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a06000 00000000 --> status: Successful
+ restore-safe.sh-60684   [000] d..1.  1174.276601: dwc3_gadget_ep_cmd: ep1in: cmd 'End Transfer' [20c08] params 00000000 00000000 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453431: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453436: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453438: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453442: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453444: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60714   [007] .....  1174.453448: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a16000 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548365: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548370: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548373: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548376: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548379: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60741   [007] .....  1174.548383: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a16000 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634586: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634591: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634594: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634598: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634601: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60774   [006] .....  1174.634605: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a16000 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756040: dwc3_gadget_ep_cmd: ep0out: cmd 'Start New Configuration' [409] params 00000000 00000000 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756045: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000 00000500 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756048: dwc3_gadget_ep_cmd: ep0out: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756051: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Configuration' [401] params 00001000 02000500 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756054: dwc3_gadget_ep_cmd: ep0in: cmd 'Set Endpoint Transfer Resource' [402] params 00000001 00000000 00000000 --> status: Successful
+            bash-60808   [005] .....  1174.756058: dwc3_gadget_ep_cmd: ep0out: cmd 'Start Transfer' [406] params 00000000 00a16000 00000000 --> status: Successful

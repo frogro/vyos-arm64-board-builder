@@ -1,0 +1,13 @@
+--- a/tools/common-firstboot/vyos-kvm-gadget
++++ b/tools/common-firstboot/vyos-kvm-gadget
+@@ -184,6 +184,10 @@
+         printf '1\n' > "${function}/protocol"
+         printf '1\n' > "${function}/subclass"
+         printf '8\n' > "${function}/report_length"
++        # Opt-in diagnostic workaround; preserve the proven default port.
++        if [[ "${KVM_GADGET_KEYBOARD_NO_OUT_ENDPOINT:-0}" == 1 ]]; then
++            printf '1\n' > "${function}/no_out_endpoint"
++        fi
+         printf '%s\n' "${KEYBOARD_REPORT_DESC_B64}" |
+             base64 -d > "${function}/report_desc"
+     fi
