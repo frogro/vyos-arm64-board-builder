@@ -36,3 +36,6 @@ Stored separate tmp/av1-iommu-test4/pm-v5-candidate; no installed module changed
 NOT deployed or functionally tested. Author's G1 tests do not validate AV1.
 Removal still unprepares clocks before disabling runtime PM; review that
 lifetime together with IOMMU/reset ordering before treating v5 as an unload fix.
+
+Live follow-up failed after exact decoding with mask0; see PM-V5-LIVE.md.
+Candidate is rejected for integration pending diagnosis.

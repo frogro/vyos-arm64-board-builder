@@ -1,0 +1,11 @@
+[ 2711.443266] vyos unknown: VYARM_PM_V5_LOAD_BEGIN
+[ 2711.512385] vyos kernel: hantro_vpu: loading out-of-tree module taints kernel.
+[ 2711.517329] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=0
+[ 2711.517394] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[ 2711.517398] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[ 2711.517402] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[ 2711.517695] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[ 2711.519205] vyos unknown: VYARM_PM_V5_LOAD_RETURNED
+[ 2748.112661] vyos unknown: VYARM_PM_V5_HASH_BEGIN
+[ 2759.004912] vyos unknown: VYARM_PM_V5_HASH_DONE
+Timeout, server 192.168.178.173 not responding.
