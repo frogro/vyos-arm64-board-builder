@@ -70,3 +70,12 @@ fallback had been disabled after healthy test4 boot verification.
 NUC Chromium still advances: 52454/56256 around 11:59. A .exit file containing 1
 is stale (03:39); live build log modification time and active nightwatch indicate
 it is not the current build's result.
+
+Recovery verified at 12:02 CEST: uname is 6.18.50-vyos (normal kernel), user
+confirms touch works. cycles.log, decode-1.log and hardware-1.json exist but are
+zero bytes; no reference-comparison result survived. Previous-boot journal lacks
+test service entries and ends before the test; pstore is empty. Saved previous
+journal on ROCK as kernel-test4/journal-after-hang.txt. Thus no exact failing
+kernel operation can be established from preserved logs. A subsequent test must
+stream logs off-host and split module attachment, first decode, and removal into
+separate stages rather than rerun the same combined probe blindly.
