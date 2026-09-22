@@ -1,0 +1,16 @@
+--- a/media/gpu/chromeos/video_decoder_pipeline.cc
++++ b/media/gpu/chromeos/video_decoder_pipeline.cc
+@@ -755,8 +755,12 @@
+   }
+ #endif
+ 
++  // Preserve the caller's latency mode for the V4L2 capture-buffer policy.
++  // Other decoder backends retain their existing initialization behavior.
++  const bool decoder_low_delay =
++      low_delay && decoder_->GetDecoderType() == VideoDecoderType::kV4L2;
+   decoder_->Initialize(
+-      config, /* low_delay=*/false, cdm_context,
++      config, decoder_low_delay, cdm_context,
+       base::BindOnce(&VideoDecoderPipeline::OnInitializeDone,
+                      decoder_weak_this_, std::move(init_cb), cdm_context),
+       base::BindRepeating(&VideoDecoderPipeline::OnFrameDecoded,

@@ -131,3 +131,40 @@ assumption of decoder capability. Syntax remains provisional.
 Scope: profile F local browser playback. Profile D's ROCK-side capture,
 conversion and encoder selection remain separate. No requirement for customers
 of D to install our patched Chromium on their receiving computer.
+
+
+### Validated browser candidate update, 2026-09-22 afternoon
+
+The final NUC binary has two independent opt-in features:
+`V4L2ExtraCaptureBuffers` (H264) and `V4L2ExtraAV1CaptureBuffers` (AV1).
+Each defaults to two extra request/MMAP capture buffers, clamps 0..8 and
+respects VIDEO_MAX_FRAME. They remain disabled by default. No buffer reserve
+change for HEVC/VP9. Report actual decoder backend and active reserve separately
+from requested policy; device presence or a CLI flag alone is not proof.
+
+Live WebRTC tests exposed missing low_delay propagation in VideoDecoderPipeline.
+The final candidate forwards it for V4L2 only. Both feature-off/on now allocate
+six capture buffers in the tested H264 WebRTC path, preserving the low-delay
+exception. Generic CLI must not force the kiosk reserve into D's receiver path.
+D's ROCK encoder and the remote user's browser remain separate capabilities.
+
+HID USB-C–USB-A follow-up: default endpoint succeeds at high-speed. Keep the
+no_out_endpoint workaround experimental/opt-in, not a board-wide default.
+The configured dedicated UDC may be absent when its live DT mode is host;
+report that mismatch explicitly rather than silently selecting another port.
+
+Evidence: chromium-nuc-live-20260922 and hid-usba-20260922. No production CLI
+changes implemented by this validation step.
+
+
+### Additional color/P010 evidence (2026-09-22 afternoon)
+
+P010 single-buffer plane geometry is an internal format-support correction,
+not a user-facing codec switch. AV1 10-bit passes after this addition.
+NativePixmapAccurateYuvMatrix is a separate disabled-by-default experiment:
+BT709 EGL import instead of legacy REC601. HEVC/VP9/AV1 canvas comparisons
+improve, BT601 preservation and full-range BT709 are checked with explicit
+metadata. Do not enable on all boards/backends before direct-overlay and
+physical display validation. CLI should expose a supported policy, not assume
+that every receiver or graphics backend has the same overlay constraints.
+Incomplete stream color metadata remains independent of the import correction.

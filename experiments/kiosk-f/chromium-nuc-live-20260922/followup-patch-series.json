@@ -1,0 +1,26 @@
+{
+  "base_recipe": "../sunshine/decoder-investigation/chromium-unified-20260922/README.md",
+  "additional_patches_in_order": [
+    {
+      "file": "av1-extra-capture-opt-in.patch",
+      "sha256": "b37a6ac9482b5d36d2cba5696ef48942520c8080479ab9fa20e6c3acceaa702c"
+    },
+    {
+      "file": "v4l2-preserve-low-delay.patch",
+      "sha256": "5b15ecee958ed69c599d1c2045217ce9a0986645e458f64eb3e4c4b5350cb4dc"
+    },
+    {
+      "file": "native-pixmap-bt709-opt-in.patch",
+      "sha256": "d2e6a535a93344dace7138c4fbfb9c64568c0119cf8d60544bb89c9056940bfb"
+    },
+    {
+      "file": "v4l2-p010-single-buffer-layout.patch",
+      "sha256": "db8d258542908c95c71fbea6b5a49a3f4b659b1bf0a9f841e8bf176be3ca4b36"
+    },
+    {
+      "file": "v4l2-linear-modifier-test-expectations.patch",
+      "sha256": "657ca9f34f340d2a23f93abefaa8da8495cf6bb7c3d055a2824cda03a0660a59",
+      "scope": "unit-test expectations only; no browser binary change"
+    }
+  ]
+}

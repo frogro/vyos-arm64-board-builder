@@ -9,3 +9,10 @@ High-speed with no_out_endpoint=1: host identified the gadget but SET_CONFIGURAT
 Candidate patch is opt-in, only applies when a HID function is newly created, and is NOT installed or included in production defaults. It removes the dedicated interrupt OUT endpoint, leaving keyboard output reports on endpoint zero. Existing gadget must be recreated to change the option. Full-speed needs separate max_speed configuration; no generic speed default change is proposed.
 
 All test gadgets removed. Original keyboard, both mice, read-only Alpine ISO and fc400000 binding restored. Kiosk retained. Next priority: validate completed NUC Chromium before AV1 incremental rebuild.
+
+## Follow-up on USB-A data connection
+
+See `../hid-usba-20260922/README.md`: on test4 and the USB-A/hub host path,
+high-speed works with both endpoint variants, including repeated input tests.
+The earlier failure is connection/configuration-specific; do not enable the
+workaround universally or diagnose the injector as defective from this test.

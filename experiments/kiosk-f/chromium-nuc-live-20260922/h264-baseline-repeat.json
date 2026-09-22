@@ -1,0 +1,1532 @@
+{
+  "webrtc": {
+    "receive": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=1"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=3"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=1;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=2;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/flexfec-03",
+          "sdpFmtpLine": "repair-window=10000000"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    },
+    "send": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    }
+  },
+  "cpuSamples": [
+    {
+      "monotonic": 368.627413036,
+      "usage_usec": 6356246,
+      "state": "loading"
+    },
+    {
+      "monotonic": 369.128755124,
+      "usage_usec": 8309810,
+      "state": "loading"
+    },
+    {
+      "monotonic": 369.631675797,
+      "usage_usec": 9131922,
+      "state": "playing"
+    },
+    {
+      "monotonic": 370.134368516,
+      "usage_usec": 9487006,
+      "state": "playing"
+    },
+    {
+      "monotonic": 370.638907355,
+      "usage_usec": 9842411,
+      "state": "playing"
+    },
+    {
+      "monotonic": 371.143279447,
+      "usage_usec": 10221735,
+      "state": "playing"
+    },
+    {
+      "monotonic": 371.648355897,
+      "usage_usec": 10540827,
+      "state": "playing"
+    },
+    {
+      "monotonic": 372.152711823,
+      "usage_usec": 10988992,
+      "state": "playing"
+    },
+    {
+      "monotonic": 372.657060625,
+      "usage_usec": 11416352,
+      "state": "playing"
+    },
+    {
+      "monotonic": 373.163832196,
+      "usage_usec": 11745261,
+      "state": "playing"
+    },
+    {
+      "monotonic": 373.670988925,
+      "usage_usec": 12096408,
+      "state": "playing"
+    },
+    {
+      "monotonic": 374.179382621,
+      "usage_usec": 12449834,
+      "state": "playing"
+    },
+    {
+      "monotonic": 374.684698564,
+      "usage_usec": 12775372,
+      "state": "playing"
+    },
+    {
+      "monotonic": 375.193256714,
+      "usage_usec": 13123237,
+      "state": "playing"
+    },
+    {
+      "monotonic": 375.702346975,
+      "usage_usec": 13459156,
+      "state": "playing"
+    },
+    {
+      "monotonic": 376.210792545,
+      "usage_usec": 13808706,
+      "state": "playing"
+    },
+    {
+      "monotonic": 376.72154343,
+      "usage_usec": 14152170,
+      "state": "playing"
+    },
+    {
+      "monotonic": 377.229206311,
+      "usage_usec": 14479698,
+      "state": "playing"
+    },
+    {
+      "monotonic": 377.73679632,
+      "usage_usec": 14804663,
+      "state": "playing"
+    },
+    {
+      "monotonic": 378.24573046,
+      "usage_usec": 15134402,
+      "state": "playing"
+    },
+    {
+      "monotonic": 378.755661116,
+      "usage_usec": 15503802,
+      "state": "playing"
+    },
+    {
+      "monotonic": 379.269797246,
+      "usage_usec": 15882077,
+      "state": "playing"
+    },
+    {
+      "monotonic": 379.779618738,
+      "usage_usec": 16220102,
+      "state": "playing"
+    },
+    {
+      "monotonic": 380.288294885,
+      "usage_usec": 16580489,
+      "state": "playing"
+    },
+    {
+      "monotonic": 380.796084055,
+      "usage_usec": 16915217,
+      "state": "playing"
+    },
+    {
+      "monotonic": 381.308920677,
+      "usage_usec": 17283238,
+      "state": "playing"
+    },
+    {
+      "monotonic": 381.819064578,
+      "usage_usec": 17628626,
+      "state": "playing"
+    },
+    {
+      "monotonic": 382.332855841,
+      "usage_usec": 18014086,
+      "state": "playing"
+    },
+    {
+      "monotonic": 382.847039803,
+      "usage_usec": 18357567,
+      "state": "playing"
+    },
+    {
+      "monotonic": 383.358413755,
+      "usage_usec": 18709543,
+      "state": "playing"
+    },
+    {
+      "monotonic": 383.877835121,
+      "usage_usec": 19056558,
+      "state": "playing"
+    },
+    {
+      "monotonic": 384.393158137,
+      "usage_usec": 19461216,
+      "state": "playing"
+    },
+    {
+      "monotonic": 384.904527422,
+      "usage_usec": 19786245,
+      "state": "playing"
+    },
+    {
+      "monotonic": 385.415272682,
+      "usage_usec": 20147382,
+      "state": "playing"
+    },
+    {
+      "monotonic": 385.931669794,
+      "usage_usec": 20491068,
+      "state": "playing"
+    },
+    {
+      "monotonic": 386.447883869,
+      "usage_usec": 20821396,
+      "state": "playing"
+    },
+    {
+      "monotonic": 386.962070706,
+      "usage_usec": 21151624,
+      "state": "playing"
+    },
+    {
+      "monotonic": 387.482660542,
+      "usage_usec": 21502879,
+      "state": "playing"
+    },
+    {
+      "monotonic": 387.995829447,
+      "usage_usec": 21827984,
+      "state": "playing"
+    },
+    {
+      "monotonic": 388.519434413,
+      "usage_usec": 22301097,
+      "state": "playing"
+    },
+    {
+      "monotonic": 389.032499154,
+      "usage_usec": 22642889,
+      "state": "playing"
+    },
+    {
+      "monotonic": 389.544927245,
+      "usage_usec": 22972990,
+      "state": "playing"
+    },
+    {
+      "monotonic": 390.059828396,
+      "usage_usec": 23327908,
+      "state": "playing"
+    },
+    {
+      "monotonic": 390.582775712,
+      "usage_usec": 23706035,
+      "state": "playing"
+    },
+    {
+      "monotonic": 391.121749777,
+      "usage_usec": 24087639,
+      "state": "playing"
+    },
+    {
+      "monotonic": 391.643931489,
+      "usage_usec": 24445011,
+      "state": "playing"
+    },
+    {
+      "monotonic": 392.161317367,
+      "usage_usec": 24776969,
+      "state": "playing"
+    },
+    {
+      "monotonic": 392.700543509,
+      "usage_usec": 25193462,
+      "state": "playing"
+    },
+    {
+      "monotonic": 393.225368026,
+      "usage_usec": 25550911,
+      "state": "playing"
+    },
+    {
+      "monotonic": 393.751215975,
+      "usage_usec": 25899718,
+      "state": "playing"
+    },
+    {
+      "monotonic": 394.281136235,
+      "usage_usec": 26254207,
+      "state": "playing"
+    },
+    {
+      "monotonic": 394.797486223,
+      "usage_usec": 26589743,
+      "state": "playing"
+    },
+    {
+      "monotonic": 395.329992332,
+      "usage_usec": 26932793,
+      "state": "playing"
+    },
+    {
+      "monotonic": 395.856534763,
+      "usage_usec": 27286056,
+      "state": "playing"
+    },
+    {
+      "monotonic": 396.37378902,
+      "usage_usec": 27622898,
+      "state": "playing"
+    },
+    {
+      "monotonic": 396.930895237,
+      "usage_usec": 27969487,
+      "state": "playing"
+    },
+    {
+      "monotonic": 397.457985278,
+      "usage_usec": 28340679,
+      "state": "playing"
+    },
+    {
+      "monotonic": 397.983931892,
+      "usage_usec": 28592923,
+      "state": "playing"
+    },
+    {
+      "monotonic": 398.510467614,
+      "usage_usec": 28656051,
+      "state": "playing"
+    },
+    {
+      "monotonic": 399.03754924,
+      "usage_usec": 28988941,
+      "state": "playing"
+    },
+    {
+      "monotonic": 399.551805658,
+      "usage_usec": 29446643,
+      "state": "playing"
+    },
+    {
+      "monotonic": 400.075884861,
+      "usage_usec": 29800142,
+      "state": "playing"
+    },
+    {
+      "monotonic": 400.61061862,
+      "usage_usec": 30174785,
+      "state": "playing"
+    },
+    {
+      "monotonic": 401.188340383,
+      "usage_usec": 30592549,
+      "state": "ended"
+    }
+  ],
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+    "--ozone-platform=wayland",
+    "--start-fullscreen",
+    "--window-size=1920,1080"
+  ],
+  "gpu": {
+    "gpu": {
+      "devices": [
+        {
+          "vendorId": 0,
+          "deviceId": 0,
+          "vendorString": "Google Inc. (Mesa)",
+          "deviceString": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+          "driverVendor": "Mesa",
+          "driverVersion": "25.0.7"
+        }
+      ],
+      "auxAttributes": {
+        "amdSwitchable": false,
+        "canSupportThreadedTextureMailbox": false,
+        "directRenderingVersion": "",
+        "displayType": "ANGLE_OPENGLES",
+        "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_compressed_texture_etc GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_size GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_robust_client_memory GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_translated_shader_source GL_ARM_rgba8 GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_blend_func_extended GL_EXT_blend_minmax GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_render_snorm GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_debug GL_KHR_parallel_shader_compile GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_read_depth GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth24 GL_OES_draw_buffers_indexed GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object ",
+        "glImplementationParts": "(gl=egl-angle,angle=opengles)",
+        "glRenderer": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+        "glResetNotificationStrategy": 0,
+        "glVendor": "Google Inc. (Mesa)",
+        "glVersion": "OpenGL ES 3.0 (ANGLE 2.1 git hash: unknown hash)",
+        "glWsExtensions": "EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANDROID_native_fence_sync EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_KHR_create_context_no_error EGL_EXT_image_dma_buf_import EGL_EXT_image_dma_buf_import_modifiers EGL_KHR_reusable_sync EGL_ANGLE_external_context_and_surface EGL_EXT_buffer_age EGL_ANGLE_context_virtualization EGL_ANGLE_memory_usage_report EGL_ANGLE_create_context_passthrough_shaders ",
+        "glWsVendor": "Google Inc. (Mesa)",
+        "glWsVersion": "1.5 (ANGLE 2.1 git hash: unknown hash)",
+        "hardwareSupportsVulkan": false,
+        "inProcessGpu": false,
+        "initializationTime": 0.139333,
+        "isAsan": false,
+        "isClangCoverage": false,
+        "jpegDecodeAcceleratorSupported": false,
+        "maxMsaaSamples": "4",
+        "optimus": false,
+        "passthroughCmdDecoder": true,
+        "pixelShaderVersion": "3.00",
+        "processCrashCount": 0,
+        "sandboxed": false,
+        "skiaBackendType": "GaneshGL",
+        "subpixelFontRendering": true,
+        "targetCpuBits": 64,
+        "vertexShaderVersion": "3.00",
+        "visibilityCallbackCallCount": 0
+      },
+      "featureStatus": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "enabled_on",
+        "opengl": "enabled_on",
+        "rasterization": "enabled",
+        "raw_draw": "disabled_off_ok",
+        "skia_graphite": "disabled_off",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "enabled",
+        "video_encode": "disabled_software",
+        "vulkan": "disabled_off",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webgpu_on_vk_via_gl_interop": "disabled_off",
+        "webnn": "disabled_off"
+      },
+      "driverBugWorkarounds": [
+        "enable_webgl_timer_query_extensions",
+        "exit_on_context_lost",
+        "disabled_extension_GL_KHR_blend_equation_advanced",
+        "disabled_extension_GL_KHR_blend_equation_advanced_coherent"
+      ],
+      "videoDecoding": [],
+      "videoEncoding": []
+    },
+    "modelName": "",
+    "modelVersion": "",
+    "commandLine": "/candidate/chrome --no-first-run --autoplay-policy=no-user-gesture-required --disable-background-networking --user-data-dir=/tmp/probe-profile --remote-debugging-pipe --enable-logging=stderr --enable-gpu --use-gl=angle --use-angle=gles --enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration --ozone-platform=wayland --start-fullscreen --window-size=1920,1080 --flag-switches-begin --flag-switches-end --render-node-override=/dev/dri/renderD128"
+  },
+  "page": {
+    "codec": "h264",
+    "state": "ended",
+    "started": 102.40000000002328,
+    "duration": 30,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 1800,
+    "droppedFrames": 277,
+    "elapsedMs": 32871.59999999998
+  },
+  "support": {
+    "h264": "probably",
+    "hevc": "probably"
+  },
+  "mediaEvents": [
+    {
+      "method": "Media.playerCreated",
+      "params": {
+        "player": {
+          "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144"
+        }
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 368.195916,
+            "value": "{\"created\":\"2026-09-22 11:44:11.479128 UTC\",\"event\":\"kMediaLogCreated\"}"
+          },
+          {
+            "timestamp": 368.207423,
+            "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"http://127.0.0.1:37797/\"}"
+          },
+          {
+            "timestamp": 368.207671,
+            "value": "{\"event\":\"kLoad\",\"url\":\"http://127.0.0.1:37797/test-h264.mp4\"}"
+          },
+          {
+            "timestamp": 368.221983,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "properties": [
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "false"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "true"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0x1cf4bdb"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "http://127.0.0.1:37797/browser-decode-probe.html?codec=h264&timeout=150000&width=1920"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 369.438193,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kPlaying\"}"
+          },
+          {
+            "timestamp": 369.449721,
+            "value": "{\"dimensions\":\"1920x1080\",\"event\":\"kVideoSizeChanged\"}"
+          },
+          {
+            "timestamp": 369.376932,
+            "value": "{\"duration\":30.0,\"event\":\"kDurationChanged\"}"
+          },
+          {
+            "timestamp": 370.096521,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 370.096632,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 369.377626,
+            "value": "{\"event\":\"kPlay\"}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "properties": [
+          {
+            "name": "kBitrate",
+            "value": "8096689"
+          },
+          {
+            "name": "kVideoDecoderName",
+            "value": "V4L2VideoDecoder"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "true"
+          },
+          {
+            "name": "kVideoTracks",
+            "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1920x1080\"}]"
+          },
+          {
+            "name": "kIsPlatformVideoDecoder",
+            "value": "true"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "http://127.0.0.1:37797/browser-decode-probe.html?codec=h264&timeout=150000&width=1920"
+          },
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "false"
+          },
+          {
+            "name": "kIsVideoDecryptingDemuxerStream",
+            "value": "false"
+          },
+          {
+            "name": "kStartTime",
+            "value": "0.0"
+          },
+          {
+            "name": "kResolution",
+            "value": "1920x1080"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0x1cf4bdb"
+          },
+          {
+            "name": "kMaxDuration",
+            "value": "30.0"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerMessagesLogged",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "messages": [
+          {
+            "level": "info",
+            "message": "FFmpegDemuxer: created video stream, config codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+          },
+          {
+            "level": "info",
+            "message": "Effective playback rate changed from 0 to 1"
+          },
+          {
+            "level": "info",
+            "message": "VideoDecoderPipeline |decoder_| Initialize() successful"
+          },
+          {
+            "level": "info",
+            "message": "Selected V4L2VideoDecoder for video decoding, config: codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 371.183507,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 371.183567,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 372.191611,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 372.191738,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 373.19457,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 373.194636,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 374.095109,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 374.095471,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 375.098184,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 375.098239,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 376.161051,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 376.162648,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 377.095675,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 377.095925,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 378.132261,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 378.132513,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 379.087118,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 379.087455,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 380.078448,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 380.07853,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 381.162613,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 381.162661,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 382.162631,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 382.162733,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 383.181287,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 383.181349,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 384.197827,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 384.197963,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 385.14772,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 385.148671,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 386.177403,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 386.177442,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 387.109216,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 387.109281,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 388.157881,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 388.159667,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 389.110282,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 389.110354,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 390.078331,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 390.078473,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 391.162034,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 391.162197,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 392.145345,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 392.155849,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 393.096595,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 393.096646,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 394.120748,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 394.120934,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 395.206554,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 395.206816,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 396.078182,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 396.078712,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 397.187381,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 397.187696,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 397.736982,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"reason\":\"DECODER_UNDERFLOW\",\"state\":\"BUFFERING_HAVE_NOTHING\"}}"
+          },
+          {
+            "timestamp": 397.739898,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"reason\":\"DECODER_UNDERFLOW\",\"state\":\"BUFFERING_HAVE_NOTHING\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerMessagesLogged",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "messages": [
+          {
+            "level": "debug",
+            "message": "FFmpegDemuxer: av_read_frame(): End of file"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 399.190843,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 399.191025,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "properties": [
+          {
+            "name": "kVideoDecoderName",
+            "value": "V4L2VideoDecoder"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "true"
+          },
+          {
+            "name": "kVideoPlaybackFreezingRatio",
+            "value": "2.4680787231489263"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "http://127.0.0.1:37797/browser-decode-probe.html?codec=h264&timeout=150000&width=1920"
+          },
+          {
+            "name": "kResolution",
+            "value": "1920x1080"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0x1cf4bdb"
+          },
+          {
+            "name": "kMaxDuration",
+            "value": "30.0"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          },
+          {
+            "name": "kFramerate",
+            "value": "60.0"
+          },
+          {
+            "name": "kVideoTracks",
+            "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1920x1080\"}]"
+          },
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "false"
+          },
+          {
+            "name": "kIsVideoDecryptingDemuxerStream",
+            "value": "false"
+          },
+          {
+            "name": "kVideoPlaybackRoughness",
+            "value": "183.131"
+          },
+          {
+            "name": "kStartTime",
+            "value": "0.0"
+          },
+          {
+            "name": "kBitrate",
+            "value": "8096689"
+          },
+          {
+            "name": "kIsPlatformVideoDecoder",
+            "value": "true"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 400.162331,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 400.162513,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "5F9FF9A7A7BF525E733DF3E21A6D6144",
+        "events": [
+          {
+            "timestamp": 401.051225,
+            "value": "{\"event\":\"kEnded\"}"
+          },
+          {
+            "timestamp": 400.829563,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 400.829668,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 401.051514,
+            "value": "{\"event\":\"kPause\"}"
+          }
+        ]
+      },
+      "sessionId": "DCE52BF99B3FA686EB095DA48B9F0377"
+    }
+  ]
+}

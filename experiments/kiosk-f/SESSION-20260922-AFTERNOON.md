@@ -1,0 +1,42 @@
+# Afternoon continuation 2026-09-22
+
+14:29 CEST: user extends autonomous test authorization to 17:30 Europe/Berlin.
+USB-C to USB-A PD-injector HID test added; continue Main10/browser work.
+No modem changes, no main/release workflow edits or push. Production kiosk
+retained. Current running test4; normal boot default unchanged.
+
+Main10 120s completed, 7200frames/83drops, V4L2 hardware, CPU69.2% oneCPU.
+HID USB-A five captured runs pass including default OUT endpoint and three
+software reenumerations. See hid-usba-20260922; supersedes universal endpoint
+workaround requirement. No composite HID/storage claim.
+
+Chromium final candidate includes AV1 opt-in and V4L2 low_delay forwarding;
+both incremental NUC builds already finished. See chromium-nuc-live-20260922.
+Currently checking whether per-poll full frame-list serialization affects
+long browser measurements, then consolidate patches/evidence in local commit.
+
+14:45 CEST update: six USB-A input runs total3000 press/release pairs, all exact,
+including default endpoint and ~80s final run. Test gadget detached.
+Main10 summary-only polling23/7200drops, CPU61.4%; H26418/7200drops.
+CDP kPlay→kEnded120.11s H264,120.19s Main10; page elapsed includes startup.
+H264 five resolution switches and eight seeks pass; Main10 eight seeks pass.
+Range server/stale callback corrections recorded. H264 high-reference600/6EOS.
+Final binary/source manifest saved and runtime backed up on development disk.
+
+15:06 CEST: VP9 Profile2 browser decode passes, but RGB comparison exposed
+legacy REC601 import for BT709. New opt-in color candidate compiled and HEVC
+Main10 RGB error improves7.1→1.4; VP9 A/B in progress. AV1 10-bit exposed
+missing P010 single-buffer layout, correction+test compiling incrementally.
+No permanent driver replacement or production browser switch. USB tests done,
+all test gadgets gone; Kiosk/input services retained.
+
+15:19 CEST: P010 browser fix compiled, AV1 10-bit passes1800/6drops with
+hardware confirmed; software46drops and~247%CPU vs hardware~64%. AV1 8bit
+regression passes. Kernel driver safely unloaded; bootback timer canceled.
+Color A/B VP9 also improves7.28→0.95RGB error. P010 unit-test suite building,
+then final commit. BT709-full and BT601-preservation color regressions running.
+
+15:29 CEST: V4L2UtilsTest rerun passes9/9, including P010. Three stale Linux
+modifier expectations corrected in a separate test-only patch; initial failure
+logs retained. Production services and original media modules restored; Hantro
+unloaded, no pending experimental rollback/reboot timers.

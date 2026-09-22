@@ -1,0 +1,19 @@
+<!doctype html><meta charset="utf-8"><video muted playsinline width="1920"></video>
+<script>
+const v=document.querySelector('video');
+const report=window.decodeProbe={state:'running',parts:[],started:performance.now()};
+(async()=>{try{
+ for(const file of ['av1.webm','h264.mp4','hevc.mp4','main10.mp4','av1.webm']){
+  v.pause();v.src=file;v.load();await v.play();
+  const deadline=performance.now()+20000;
+  while(v.currentTime<3 && !v.ended){
+   if(v.error)throw new Error(v.error.message);
+   if(performance.now()>deadline)throw new Error('media time did not advance: '+file);
+   await new Promise(r=>setTimeout(r,100));
+  }
+  v.pause();const q=v.getVideoPlaybackQuality();
+  report.parts.push({file,time:v.currentTime,width:v.videoWidth,height:v.videoHeight,total:q.totalVideoFrames,dropped:q.droppedVideoFrames});
+ }
+ report.state='ended';report.elapsedMs=performance.now()-report.started;
+}catch(e){report.state='error';report.error=String(e)}})();
+</script>

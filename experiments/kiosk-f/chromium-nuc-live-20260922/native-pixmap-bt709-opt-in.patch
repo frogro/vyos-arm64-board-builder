@@ -1,0 +1,35 @@
+--- a/ui/ozone/common/native_pixmap_egl_binding.cc
++++ b/ui/ozone/common/native_pixmap_egl_binding.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <array>
+ 
++#include "base/feature_list.h"
+ #include "base/logging.h"
+ #include "base/memory/scoped_refptr.h"
+ #include "base/notreached.h"
+@@ -18,6 +19,11 @@
+ namespace ui {
+ 
+ namespace {
++
++// Opt-in for validated compositing paths. Keep the legacy overlay-compatible
++// REC601 import policy by default until direct scanout is separately validated.
++BASE_FEATURE(kNativePixmapAccurateYuvMatrix, "NativePixmapAccurateYuvMatrix",
++             base::FEATURE_DISABLED_BY_DEFAULT);
+ 
+ #define FOURCC(a, b, c, d)                                        \
+   ((static_cast<uint32_t>(a)) | (static_cast<uint32_t>(b) << 8) | \
+@@ -131,6 +137,12 @@
+     // color space and range to DRM/KMS.
+     attrs.push_back(EGL_YUV_COLOR_SPACE_HINT_EXT);
+     switch (color_space.GetMatrixID()) {
++      case gfx::ColorSpace::MatrixID::BT709:
++        attrs.push_back(base::FeatureList::IsEnabled(
++                            kNativePixmapAccurateYuvMatrix)
++                            ? EGL_ITU_REC709_EXT
++                            : EGL_ITU_REC601_EXT);
++        break;
+       case gfx::ColorSpace::MatrixID::BT2020_NCL:
+         attrs.push_back(EGL_ITU_REC2020_EXT);
+         break;

@@ -1,0 +1,70 @@
+[
+  {
+    "file": "h264-range-long.json",
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 70.5,
+      "duration": 120,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 13,
+      "elapsedMs": 120315.3999999999
+    },
+    "cpu_percent_one_core": 58.29651835766685,
+    "decoder": "V4L2VideoDecoder",
+    "hardware": "true"
+  },
+  {
+    "file": "h264-software-range-long.json",
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 61.299999999813735,
+      "duration": 120,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 39,
+      "elapsedMs": 120313.8999999999
+    },
+    "cpu_percent_one_core": 155.3634113899248,
+    "decoder": "FFmpegVideoDecoder",
+    "hardware": "false"
+  },
+  {
+    "file": "main10-summary-long.json",
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 58.89999999990687,
+      "duration": 120,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 23,
+      "elapsedMs": 120362.20000000019
+    },
+    "cpu_percent_one_core": 61.36658383403092,
+    "decoder": "V4L2VideoDecoder",
+    "hardware": "true"
+  },
+  {
+    "file": "av1-software-long.json",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 166.79999999981374,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 63,
+      "elapsedMs": 120431.90000000014
+    },
+    "cpu_percent_one_core": 163.58470270545135,
+    "decoder": "Dav1dVideoDecoder",
+    "hardware": "false"
+  }
+]
