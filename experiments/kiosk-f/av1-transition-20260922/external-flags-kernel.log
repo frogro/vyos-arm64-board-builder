@@ -1,0 +1,4 @@
+2026-09-22T18:48:23,319401+02:00 VYARM_FLAGS LEGACY_FLAGS_BEGIN
+2026-09-22T18:48:47,185895+02:00 perf: interrupt took too long (2536 > 2500), lowering kernel.perf_event_max_sample_rate to 78000
+2026-09-22T18:48:57,398675+02:00 VYARM_FLAGS CLEANUP_DONE
+Timeout, server 10.3.141.50 not responding.

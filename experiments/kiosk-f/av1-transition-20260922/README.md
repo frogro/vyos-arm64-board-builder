@@ -52,3 +52,7 @@ The15:19 successful reference used base test4, so the combined VSI patch is
 not established as required for software. Runtime/history, graphics lifecycle
 and power remain unisolated. Existing VOP fault burst belongs to a separate
 boot and not this failure. No physical output validation in this task.
+
+The final SSH timeout in external-flags-kernel.log follows the intentional
+ThinkPad return from VyOS-AP to homebase after CLEANUP_DONE; it is not another
+ROCK hang. Final AP health check had completed successfully before switching.
