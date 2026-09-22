@@ -17,6 +17,10 @@ class StartupInstall(unittest.TestCase):
             drop = root / 'etc/systemd/system/vyos-container-lobby-screen.service.d/kiosk-retry.conf'
             self.assertIn('vyos-kiosk-wait-addresses lobby-screen\n', drop.read_text())
             self.assertNotIn('kiosk-test', drop.read_text())
+            self.assertIn('Wants=vyos-kiosk-inputs-lobby-screen.service', drop.read_text())
+            unit = root / 'etc/systemd/system/vyos-kiosk-inputs-lobby-screen.service'
+            self.assertIn('After=vyos-container-lobby-screen.service', unit.read_text())
+            self.assertTrue((root / 'usr/local/libexec/vyos-kiosk-reconcile-inputs').is_file())
             self.assertEqual((root / 'usr/local/libexec/vyos-kiosk-wait-addresses').stat().st_mode & 0o777, 0o755)
             self.assertFalse((root / 'config').exists())
 

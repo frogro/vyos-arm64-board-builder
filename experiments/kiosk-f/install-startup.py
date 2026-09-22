@@ -19,8 +19,15 @@ def install(root, name):
     files = {
         'usr/local/libexec/vyos-kiosk-wait-addresses': (
             (SOURCE / 'systemd/wait-container-addresses.py').read_bytes(), 0o755),
+        'usr/local/libexec/vyos-kiosk-reconcile-inputs': (
+            (SOURCE / 'systemd/reconcile-inputs.py').read_bytes(), 0o755),
+        f'etc/systemd/system/vyos-kiosk-inputs-{name}.service': (
+            (MARKER + '[Unit]\nDescription=Reconcile configured kiosk USB input mappings\n'
+             f'After=vyos-container-{name}.service\n\n[Service]\nType=simple\n'
+             f'ExecStart=/usr/local/libexec/vyos-kiosk-reconcile-inputs {name}\n'
+             'Restart=on-failure\nRestartSec=5\n').encode(), 0o644),
         f'etc/systemd/system/vyos-container-{name}.service.d/kiosk-retry.conf': (
-            (MARKER + '[Unit]\nStartLimitIntervalSec=0\n\n[Service]\n'
+            (MARKER + f'[Unit]\nStartLimitIntervalSec=0\nWants=vyos-kiosk-inputs-{name}.service\n\n[Service]\n'
              'RestartSec=5s\n'
              f'ExecStartPre=/usr/local/libexec/vyos-kiosk-wait-addresses {name}\n').encode(), 0o644),
     }
