@@ -1,0 +1,3 @@
+Sep 22 02:00:44 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
+Sep 22 02:03:33 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
+Sep 22 02:06:04 vyos kernel: rkvdec fdc40100.video-codec: missing multi-core support, ignoring this instance
