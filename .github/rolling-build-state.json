@@ -14,6 +14,10 @@
         }
       },
       "vyos_commit": "b5ae37645cc0630543859c4b25fb2927a91c9071"
+    },
+    "2026.09.23-0027-rolling": {
+      "boards": {},
+      "vyos_commit": "b744b1a0c794db4ca1a6336053389bbc02e2e6f6"
     }
   }
 }
