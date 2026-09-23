@@ -66,3 +66,15 @@ validation; offline configuration-preservation tests are not a live upgrade.
 
 Build results, exact image IDs, checksums and final paths will be recorded with
 finished artifacts. Do not describe the images as built until these exist.
+
+## Standard kiosk first-install helper (pending live acceptance)
+
+The image installs `sudo vyarm-kiosk-setup` to print a complete standard X11
+configuration. `sudo vyarm-kiosk-setup --apply` creates and saves it explicitly.
+A connected monitor and imported runtime are required. Discovery selects one
+display card and stable USB evdev IDs, preserving numbering-independent touch
+reconciliation. Default is landscape/local test page/software video decoding;
+remote access stays disabled. Existing named containers, networks or state are
+never overwritten. Route collisions reject setup. Configuration is backed up
+before applying. No setup runs during image updates. Hardware Wayland setup is
+still a distinct follow-up; this helper makes no accelerated playback promise.

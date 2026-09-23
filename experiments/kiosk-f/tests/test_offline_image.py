@@ -27,9 +27,24 @@ class OfflineImage(unittest.TestCase):
             (artifacts / 'runtime.json').write_text(json.dumps({'archive_sha256': hashlib.sha256(b'archive').hexdigest()}))
             load('stage-runtime').stage(root, artifacts)
             load('stage-runtime').stage(root, artifacts)
+            self.assertTrue((root / 'usr/local/sbin/vyarm-kiosk-setup').is_file())
             self.assertEqual(config.read_bytes(), b'customer config')
             self.assertEqual(state.read_bytes(), b'customer settings')
             self.assertTrue((root / 'etc/systemd/system/vyos.target.wants/vyarm-kiosk-runtime.service').is_symlink())
+
+    def test_setup_commands_have_complete_standard_devices_and_safe_defaults(self):
+        lines = load('setup-kiosk').commands('kiosk', 'localhost/vyarm-kiosk:test',
+                   '/dev/dri/card1', [('/dev/input/by-id/usb-touch-event', '/dev/input/event7')])
+        text = '\n'.join(lines)
+        self.assertIn('device display source /dev/dri/card1', text)
+        self.assertIn('device display destination /dev/dri/card0', text)
+        self.assertIn('device input-0 source /dev/input/by-id/usb-touch-event', text)
+        self.assertIn('volume state source /config/kiosk/state', text)
+        self.assertIn('kiosk rotation 0', text)
+        self.assertIn('kiosk video-decode software', text)
+        self.assertNotIn('remote access enabled', text)
+        with self.assertRaises(ValueError):
+            load('setup-kiosk').commands('../bad', 'localhost/vyarm-kiosk:test', '/dev/dri/card0', [])
 
     def test_import_waits_for_first_boot_partition_growth(self):
         unit = (BASE / 'vyarm-kiosk-runtime.service').read_text()

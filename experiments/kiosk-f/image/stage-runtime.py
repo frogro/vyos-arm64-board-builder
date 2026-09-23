@@ -20,6 +20,7 @@ def stage(root, artifacts):
     if digest != meta['archive_sha256']:
         raise ValueError('Runtime archive checksum mismatch')
     for source, target, mode in [
+        (HERE / 'setup-kiosk.py', 'usr/local/sbin/vyarm-kiosk-setup', 0o755),
         (HERE / 'kiosk-generator.py', 'usr/lib/systemd/system-generators/vyarm-kiosk-generator', 0o755),
         (HERE.parent / 'systemd/reconcile-inputs.py', 'usr/local/libexec/vyos-kiosk-reconcile-inputs', 0o755),
         (HERE.parent / 'systemd/wait-container-addresses.py', 'usr/local/libexec/vyos-kiosk-wait-addresses', 0o755),
