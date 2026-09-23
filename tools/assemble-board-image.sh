@@ -149,6 +149,7 @@ KVM_USERSPACE_INSTALLER="$ROOT/tools/install-kvm-userspace.sh"
 KVM_MEDIA_INSTALLER="$ROOT/tools/install-kvm-media-stack.sh"
 KVM_CLI_INSTALLER="$ROOT/tools/install-kvm-cli.sh"
 ARM_CPU_OPMODE_PATCHER="$ROOT/tools/patch-vyos-arm-cpu-opmode.py"
+IMAGE_INFO_PATCHER="$ROOT/tools/patch-vyos-image-info.py"
 GRUB_CONSOLE_TOOL="$ROOT/tools/set-grub-console-default.py"
 GRUB_BOARD_DTB_PATCHER="$ROOT/tools/patch-vyos-grub-board-dtb.py"
 SYSTEM_IMAGE_DTB_PATCHER="$ROOT/tools/patch-vyos-system-image-dtb.py"
@@ -172,6 +173,9 @@ if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hd
     [[ -x "$KVM_MEDIA_INSTALLER" ]] || die "KVM media installer missing: $KVM_MEDIA_INSTALLER"
     [[ -d "$KVM_MEDIA_ARTIFACTS" ]] || die "KVM media artifacts missing: $KVM_MEDIA_ARTIFACTS"
 fi
+
+[[ -x "$IMAGE_INFO_PATCHER" ]] ||
+    die "VyOS image-info patcher missing: $IMAGE_INFO_PATCHER"
 
 [[ -x "$ARM_CPU_OPMODE_PATCHER" ]] ||
     die "VyOS ARM CPU op-mode patcher missing: $ARM_CPU_OPMODE_PATCHER"
@@ -575,6 +579,10 @@ echo
 echo "===== ADDING GENERIC ARM CPU DISPLAY SUPPORT ====="
 
 python3 "$ARM_CPU_OPMODE_PATCHER" "$SQUASH_ROOT"
+
+# Apply after optional vyos-1x installation so every board/profile keeps the fix.
+echo "===== PRESERVING FULL VYOS IMAGE NAMES IN TABLES ====="
+python3 "$IMAGE_INFO_PATCHER" "$SQUASH_ROOT"
 
 echo
 echo "===== ADDING BOARD DTB TO VYOS GRUB TEMPLATE ====="
