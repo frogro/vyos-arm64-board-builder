@@ -4,6 +4,7 @@ FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
 LABEL io.vyarm.kiosk.media-policy="2"
+LABEL io.vyarm.kiosk.wayland-drm="1"
 LABEL io.vyarm.kiosk.media-h264-reserve="1"
 LABEL io.vyarm.kiosk.media-av1-reserve="1"
 COPY helpers/ /usr/local/bin/
@@ -21,6 +22,8 @@ RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local
  && python3 -m py_compile /usr/local/bin/kiosk-*.py \
  && bash -n /usr/local/bin/start-kiosk \
  && /opt/vyarm/chromium/chrome --version \
+ && test -x /opt/vyarm/chromium/chrome_crashpad_handler \
+ && test -f /usr/lib/aarch64-linux-gnu/libweston-14/drm-backend.so \
  && command -v sunshine && command -v Xorg && command -v weston
 ENV KIOSK_GRAPHICS=software
 # The existing X11 session remains the default; Wayland decoder tests are opt-in.

@@ -8,7 +8,7 @@ import stat
 from pathlib import Path
 from urllib.parse import urlsplit
 
-KEYS = {'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
+KEYS = {'display_backend': 'KIOSK_DISPLAY_BACKEND', 'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
 
 
 def environment(config):
@@ -41,6 +41,10 @@ def environment(config):
     if not isinstance(output, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:-]*', output):
         raise ValueError('Invalid kiosk output name')
     values = {'url': url, 'output': output, 'rotation': rotation}
+    if 'display_backend' in settings:
+        if settings['display_backend'] not in ('x11', 'wayland'):
+            raise ValueError('Kiosk display backend must be x11 or wayland')
+        values['display_backend'] = settings['display_backend']
     if 'graphics' in settings:
         if settings['graphics'] not in ('software', 'auto'):
             raise ValueError('Kiosk graphics must be software or auto')

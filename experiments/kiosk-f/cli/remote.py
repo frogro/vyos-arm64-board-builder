@@ -73,13 +73,18 @@ def mounted_policy(name):
 def verify_image(config):
     settings = config.get('kiosk', {})
     media = any(key in settings for key in ('video_decode', 'video_h264_buffers', 'video_av1_buffers'))
-    if 'remote' not in settings and not media:
+    wayland = settings.get('display_backend') == 'wayland'
+    if wayland and settings.get('remote', {}).get('access') == 'enabled':
+        raise ValueError('Sunshine capture is not validated for DRM Wayland; use x11 for remote access')
+    if 'remote' not in settings and not media and not wayland:
         return
     try:
         result = subprocess.run(['podman', 'image', 'inspect', config['image']],
                                 capture_output=True, text=True, check=True, timeout=3)
         image = json.loads(result.stdout)[0]
         labels = image.get('Labels') or image.get('Config', {}).get('Labels') or {}
+        if wayland and labels.get('io.vyarm.kiosk.wayland-drm') != '1':
+            raise ValueError('Kiosk image lacks DRM Wayland session support')
         if media and labels.get('io.vyarm.kiosk.media-policy') != '2':
             raise ValueError('Kiosk image lacks media CLI policy support (version 2)')
         for codec in ('h264', 'av1'):

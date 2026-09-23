@@ -1,0 +1,6 @@
+FROM localhost/vyarm-kiosk:full-f-20260922
+USER root
+LABEL io.vyarm.kiosk.wayland-drm="1"
+COPY helpers/ /usr/local/bin/
+COPY chrome_crashpad_handler /opt/vyarm/chromium/chrome_crashpad_handler
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-wayland*.py /opt/vyarm/chromium/chrome_crashpad_handler && python3 -m py_compile /usr/local/bin/kiosk-wayland*.py && test -f /usr/lib/aarch64-linux-gnu/libweston-14/drm-backend.so && /usr/bin/weston --version && ! ldd /opt/vyarm/chromium/chrome_crashpad_handler | grep 'not found'

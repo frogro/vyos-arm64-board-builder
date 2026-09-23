@@ -14,6 +14,11 @@ if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
     wait "$leader"
     exit $?
 fi
+case "${KIOSK_DISPLAY_BACKEND:-x11}" in
+    wayland) exec python3 /usr/local/bin/kiosk-wayland.py ;;
+    x11) ;;
+    *) echo 'Invalid display backend' >&2; exit 1 ;;
+esac
 export DISPLAY=:0 XAUTHORITY=/run/kiosk/Xauthority
 # Only an explicitly passed-through encoder device is adjusted. Sunshine still
 # runs as kiosk; neither world access nor a privileged container is required.

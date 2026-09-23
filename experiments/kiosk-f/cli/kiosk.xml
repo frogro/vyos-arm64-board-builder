@@ -1,6 +1,12 @@
 <node name="kiosk">
   <properties><help>Web kiosk settings for a compatible kiosk container image</help></properties>
   <children>
+    <leafNode name="display-backend"><properties>
+      <help>Display session: x11 (existing default) or wayland (DRM Weston runtime required)</help>
+      <completionHelp><list>x11 wayland</list></completionHelp>
+      <constraint><regex>(x11|wayland)</regex></constraint>
+      <constraintErrorMessage>Choose x11 or wayland</constraintErrorMessage>
+    </properties></leafNode>
     <leafNode name="url">
       <properties>
         <help>Required page URL; quote the complete URL</help>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare a standard X11 touch kiosk; print commands unless --apply is given."""
+"""Prepare an X11 or optional DRM Wayland touch kiosk; print commands unless --apply is given."""
 import argparse
 import datetime
 import ipaddress
@@ -14,7 +14,9 @@ API = '/bin/cli-shell-api'
 META = Path('/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json')
 
 
-def commands(name, image, card, inputs):
+def commands(name, image, card, inputs, backend="x11", media_devices=()):
+    if backend not in ("x11", "wayland"):
+        raise ValueError("Invalid display backend")
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,39}', name):
         raise ValueError('Invalid container name')
     if not re.fullmatch(r'localhost/vyarm-kiosk:[A-Za-z0-9_.-]+', image):
@@ -32,6 +34,12 @@ def commands(name, image, card, inputs):
     devices = [('display', card, '/dev/dri/card0'),
                ('console-control', '/dev/tty0', '/dev/tty0'),
                ('console', '/dev/tty8', '/dev/tty8')]
+    if backend == 'wayland':
+        settings.append(prefix + ['kiosk', 'display-backend', 'wayland'])
+        for i, path in enumerate(media_devices):
+            if not re.fullmatch(r'/dev/(dri/renderD[0-9]+|video[0-9]+|media[0-9]+)', path):
+                raise ValueError('Invalid media device')
+            devices.append((f'media-{i}', path, path))
     for i, (source, target) in enumerate(inputs):
         if not re.fullmatch(r'/dev/input/by-(id|path)/[^/\s]+', source) or not re.fullmatch(r'/dev/input/event[0-9]+', target):
             raise ValueError('Invalid stable input mapping')
@@ -49,6 +57,7 @@ def commands(name, image, card, inputs):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--name', default='kiosk')
+    parser.add_argument('--display-backend', choices=['x11', 'wayland'], default='x11')
     parser.add_argument('--apply', action='store_true')
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -73,7 +82,32 @@ def main():
         target = str(p.resolve())
         if p.is_char_device() and target not in seen:
             inputs.append((str(p), target)); seen.add(target)
-    lines = commands(args.name, meta['image'], cards[0], inputs)
+    media_devices = []
+    if args.display_backend == 'wayland':
+        import fcntl, struct
+        renders = sorted(Path('/dev/dri').glob('renderD*'))
+        if len(renders) != 1:
+            raise ValueError('Exactly one render device required; otherwise configure manually')
+        media_devices = [str(renders[0])]
+        # Select decoder queues by compressed input formats, never board/video numbers.
+        for node in sorted(Path('/dev').glob('video*')):
+            try:
+                fd = os.open(node, os.O_RDWR | os.O_NONBLOCK)
+                formats = set()
+                try:
+                    for queue in (2, 10):
+                        for index in range(64):
+                            fmt = bytearray(64)
+                            struct.pack_into('II', fmt, 0, index, queue)
+                            try: fcntl.ioctl(fd, 0xc0405602, fmt, True)
+                            except OSError: break
+                            formats.add(bytes(fmt[44:48]))
+                finally: os.close(fd)
+                if formats & {b'S264', b'S265', b'VP9F', b'AV1F'}:
+                    media_devices.append(str(node))
+            except OSError: continue
+        media_devices += [str(p) for p in sorted(Path('/dev').glob('media*')) if p.is_char_device()]
+    lines = commands(args.name, meta['image'], cards[0], inputs, args.display_backend, media_devices)
     subprocess.run(['podman', 'image', 'exists', meta['image']], check=True)
     print('\n'.join(['configure', *lines, 'commit', 'save', 'exit']), flush=True)
     if not args.apply:
