@@ -42,3 +42,21 @@ startup, display rotation/touch and restart, plus configuration-preserving updat
 Until implemented, document required manual provisioning; do not advertise the
 current SD/ISO as a ready-configured kiosk. User configuration currently pending:
 local input-test page, auto output, 90 degrees, auto decode and both reserves on.
+
+## Follow-up 2026-09-23
+
+ROCK access restored. Existing kiosk running at 1080x1920/90 degrees on HDMI-1;
+ILITEK touch and mouse devices present in Xorg; no failed systemd units.
+Actual touch interaction not asserted. Sunshine disabled by current policy.
+Native `request kiosk sunshine kiosk pair` and config-mode `run request ...`
+both reached the Web username prompt; aborted before entering data. No credentials
+or pairings changed. Current user-selected software decoder policy preserved.
+78 local profile tests pass. New guarded setup helper refuses an existing kiosk
+on the real system; first-install apply still needs fresh-image acceptance.
+
+Corrected packaging started on NUC as user unit vyarm-corrected-image-20260923.
+Source 9e76084, retaining kernel/Chromium/CLI/runtime inputs. Original outputs
+retained. New directory /home/photobooth/vyarm-board-build-20260922/revised-20260923.
+Includes first-login helper fix and explicit standard X11 setup helper. This is
+NOT automatic Wayland provisioning and NOT a new Chromium/kernel compilation.
+Build result must be read from status/log; start does not imply completion.
