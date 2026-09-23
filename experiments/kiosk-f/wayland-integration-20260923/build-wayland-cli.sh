@@ -24,4 +24,5 @@ version=$(sed -n 's/^Version: //p' pkg/DEBIAN/control)
 sed -i "s/^Version: .*/Version: ${version}+wayland.20260923/" pkg/DEBIAN/control
 (cd pkg; find . -type f ! -path './DEBIAN/*' -print0 | sort -z | xargs -0 md5sum | sed 's@  ./@  @' > DEBIAN/md5sums)
 dpkg-deb --build --root-owner-group pkg "output/vyos-1x_${version}+wayland.20260923_arm64.deb"
+chown -R 1000:1000 output
 printf 'complete\n' > status

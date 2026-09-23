@@ -22,6 +22,8 @@ if [[ -f $old ]]; then
 fi
 loop=$(losetup --find --show --read-only --partscan "/work/output/$base.img")
 udevadm settle
+IFS=: read -r major minor < "/sys/class/block/$(basename "$loop")p3/dev"
+[[ -b ${loop}p3 ]] || mknod "${loop}p3" b "$major" "$minor"
 mount -o ro "${loop}p3" "$out/mount"
 boot="$out/mount/boot/999.202609191955"
 unsquashfs -excludes -processors 4 -d "$out/root" "$boot/999.202609191955.squashfs" usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.tar
@@ -47,6 +49,8 @@ image="$out/output/$base.img"
 cp --sparse=always "/work/output/$base.img" "$image"
 loop=$(losetup --find --show --partscan "$image")
 udevadm settle
+IFS=: read -r major minor < "/sys/class/block/$(basename "$loop")p3/dev"
+[[ -b ${loop}p3 ]] || mknod "${loop}p3" b "$major" "$minor"
 mount "${loop}p3" "$out/mount"
 cp "$out/rootfs.squashfs" "$out/mount/boot/999.202609191955/999.202609191955.squashfs"
 sync
