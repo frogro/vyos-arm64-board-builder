@@ -173,6 +173,11 @@ def verify(kvm):
                 'Video backend must be one of: ustreamer, gstreamer, ffmpeg'
             )
 
+        if video.get('colorimetry', 'legacy') not in ('legacy', 'negotiated'):
+            raise ConfigError('Video colorimetry must be legacy or negotiated')
+        if 'colorimetry' in video and backend != 'gstreamer':
+            raise ConfigError('Video colorimetry is only valid with gstreamer')
+
         if video.get('transport', 'webrtc') not in ('webrtc', 'moq', 'both'):
             raise ConfigError('Video transport must be webrtc, moq or both')
         if backend == 'ustreamer' and 'transport' in video:
@@ -298,6 +303,7 @@ def generate(kvm):
 
     _write_env({
         'KVM_VIDEO_BACKEND': backend,
+        'KVM_VIDEO_COLORIMETRY': video.get('colorimetry', 'legacy'),
         'KVM_VIDEO_PROVIDER': _provider(),
         'KVM_VIDEO_DEVICE': video.get('device', ''),
         'KVM_VIDEO_RESOLUTION': video.get('resolution', ''),

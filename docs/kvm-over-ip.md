@@ -429,3 +429,41 @@ MoQ page certificates are auto-generated in the protected runtime directory;
 local testing still requires trusting that certificate in the browser. They
 are not an enterprise PKI deployment and may change after reboot/clock recovery.
 These new supervisor changes require image-level reboot/browser acceptance.
+
+## Optional negotiated color metadata (D media candidate)
+
+The default remains `legacy`. For the patched GStreamer media package:
+
+```text
+configure
+set service kvm-over-ip video backend gstreamer
+set service kvm-over-ip video colorimetry negotiated
+commit
+save
+exit
+```
+
+This forwards negotiated YUV matrix, primaries, transfer and range into MPP's
+encoded stream. It does not assume BT.709 from the resolution or a board name,
+perform HDR tone mapping, or add H.265 to the default browser transport.
+On the generic software encoder the normal GStreamer caps remain authoritative.
+MPP mode refuses an image lacking the patched-media build marker.
+
+Legacy mode preserves the previous runner and plugin behavior. Return with
+`set service kvm-over-ip video colorimetry legacy` and commit/save.
+
+The additional RGA full-CSC driver path is opt-in and requires the verified raw
+hardware revision 0x03263318, supported RGB formats, NV12/NV12M and explicit
+supported color/range values. It is included only through the matching KVM
+hardware provider, not the A/B kernel path. It is disabled by default through
+`rockchip_rga.experimental_full_csc`. No service changes that host-wide knob.
+For a bounded diagnostic on the verified hardware an administrator can set
+`/sys/module/rockchip_rga/parameters/experimental_full_csc` to Y and restore N
+when finished. Do not enable on another hardware revision without testing.
+Negotiated mode falls back to CPU conversion when this opt-in is absent/off.
+This does not claim arbitrary Rockchip boards are qualified; provider selection
+and device-tree support must also be established for each new board.
+
+The consolidated kernel patch keeps the original legacy CSC selection when the
+opt-in is off; it does not carry the early unconditional BT.601 diagnostic change.
+Validated results and limitations: [D HDMI media checks](tests/d-media-20260926/README.md).
