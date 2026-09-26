@@ -56,14 +56,31 @@ def main():
     # Only explicitly granted devices contribute groups. No host-wide permissions.
     nodes = list(Path('/dev/dri').glob('*')) + list(Path('/dev').glob('video*')) + list(Path('/dev').glob('media*'))
     groups = sorted(set(os.getgrouplist('kiosk', user.pw_gid)) | {p.stat().st_gid for p in nodes if p.is_char_device() and p.stat().st_gid != 0})
-    env = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), WAYLAND_DISPLAY='wayland-kiosk', LIBSEAT_BACKEND='builtin', SEATD_VTBOUND='0')
+    env = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), WAYLAND_DISPLAY='wayland-kiosk', LIBSEAT_BACKEND='seatd', SEATD_SOCK='/run/seatd.sock', SEATD_VTBOUND='0')
     children = []
+    seat_log = None
+    user_command = ['setpriv', '--reuid', 'kiosk', '--regid', 'kiosk', '--groups', ','.join(map(str, groups))]
     def stop(*_):
         raise KeyboardInterrupt()
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     try:
-        weston = subprocess.Popen(['/usr/bin/weston', '--backend=drm', '--drm-device=card0', '--renderer=gl', '--config='+str(config), '--socket=wayland-kiosk', '--log=/state/weston.log'], env=env, start_new_session=True)
+        # Keep the compositor and its Wayland clients under the same user.
+        # A separate seatd owns privileged device access; never run Weston as root.
+        seat_log = open('/state/seatd.log', 'w')
+        seat = subprocess.Popen(['seatd', '-u', 'kiosk', '-g', 'kiosk'], env=env,
+                                stdout=seat_log, stderr=subprocess.STDOUT,
+                                start_new_session=True)
+        children.append(seat)
+        for _ in range(100):
+            if seat.poll() is not None:
+                raise RuntimeError('seatd failed; see /state/seatd.log')
+            if Path('/run/seatd.sock').is_socket():
+                break
+            time.sleep(.1)
+        else:
+            raise RuntimeError('seatd socket timeout')
+        weston = subprocess.Popen(user_command + ['/usr/bin/weston', '--backend=drm', '--drm-device=card0', '--renderer=gl', '--config='+str(config), '--socket=wayland-kiosk', '--log=/state/weston.log'], env=env, start_new_session=True)
         children.append(weston)
         for _ in range(100):
             if weston.poll() is not None:
@@ -76,9 +93,9 @@ def main():
         os.chown(runtime / 'wayland-kiosk', user.pw_uid, user.pw_gid)
         (runtime / 'display.json').write_text(json.dumps({'backend':'wayland','output':selected,'rotation':os.environ.get('KIOSK_ROTATION','0'),'touch':'libinput: physical test required'}))
         env.update(HOME='/home/kiosk', XDG_CACHE_HOME='/state/cache')
-        session = subprocess.Popen(['setpriv','--reuid','kiosk','--regid','kiosk','--groups',','.join(map(str,groups)),'python3','/usr/local/bin/kiosk-wayland-session.py'], env=env, start_new_session=True)
+        session = subprocess.Popen(user_command + ['python3','/usr/local/bin/kiosk-wayland-session.py'], env=env, start_new_session=True)
         children.append(session)
-        while weston.poll() is None and session.poll() is None:
+        while seat.poll() is None and weston.poll() is None and session.poll() is None:
             time.sleep(.25)
         raise RuntimeError('Wayland compositor or browser session stopped')
     except KeyboardInterrupt:
@@ -92,6 +109,8 @@ def main():
             try: child.wait(timeout=8)
             except subprocess.TimeoutExpired:
                 os.killpg(child.pid, signal.SIGKILL); child.wait()
+        if seat_log is not None:
+            seat_log.close()
 
 
 if __name__ == '__main__':

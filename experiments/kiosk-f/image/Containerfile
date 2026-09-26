@@ -24,7 +24,7 @@ RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local
  && /opt/vyarm/chromium/chrome --version \
  && test -x /opt/vyarm/chromium/chrome_crashpad_handler \
  && test -f /usr/lib/aarch64-linux-gnu/libweston-14/drm-backend.so \
- && command -v sunshine && command -v Xorg && command -v weston
+ && command -v sunshine && command -v Xorg && command -v weston && command -v seatd
 ENV KIOSK_GRAPHICS=software
 # The existing X11 session remains the default; Wayland decoder tests are opt-in.
 # No state, credentials, test fixtures, browser profiles or private keys copied.
