@@ -1,0 +1,73 @@
+{
+  "tests": [
+    {
+      "format": "BGR",
+      "colorspace": "bt601",
+      "samples": {
+        "videoconvert": [
+          81,
+          90,
+          239
+        ],
+        "v4l2convert": [
+          81,
+          90,
+          240
+        ]
+      },
+      "max_error": 1
+    },
+    {
+      "format": "BGR",
+      "colorspace": "bt709",
+      "samples": {
+        "videoconvert": [
+          62,
+          102,
+          239
+        ],
+        "v4l2convert": [
+          62,
+          102,
+          240
+        ]
+      },
+      "max_error": 1
+    },
+    {
+      "format": "RGB",
+      "colorspace": "bt601",
+      "samples": {
+        "videoconvert": [
+          81,
+          90,
+          239
+        ],
+        "v4l2convert": [
+          81,
+          90,
+          240
+        ]
+      },
+      "max_error": 1
+    },
+    {
+      "format": "RGB",
+      "colorspace": "bt709",
+      "samples": {
+        "videoconvert": [
+          62,
+          102,
+          239
+        ],
+        "v4l2convert": [
+          62,
+          102,
+          240
+        ]
+      },
+      "max_error": 1
+    }
+  ],
+  "passed": true
+}
