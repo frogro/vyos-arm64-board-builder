@@ -1,0 +1,39 @@
+--- a/gst/rockchipmpp/gstmppenc.c
++++ b/gst/rockchipmpp/gstmppenc.c
+@@ -709,6 +709,36 @@
+   mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:width", width);
+   mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:height", height);
+ 
++  /* Experimental opt-in: preserve negotiated YUV colorimetry in the bitstream.
++   * GST range enums differ from MPP range enums; map them explicitly.
++   * RGB conversion is not covered by this metadata-only path.
++   */
++  if (g_strcmp0 (g_getenv ("VYARM_MPP_COLORIMETRY"), "1") == 0 &&
++      GST_VIDEO_INFO_IS_YUV (info)) {
++    const GstVideoColorimetry *color = &info->colorimetry;
++    MppFrameColorRange range = MPP_FRAME_RANGE_UNSPECIFIED;
++    guint matrix = gst_video_color_matrix_to_iso (color->matrix);
++    guint primaries = gst_video_color_primaries_to_iso (color->primaries);
++    guint transfer = gst_video_transfer_function_to_iso (color->transfer);
++
++    if (color->range == GST_VIDEO_COLOR_RANGE_0_255)
++      range = MPP_FRAME_RANGE_JPEG;
++    else if (color->range == GST_VIDEO_COLOR_RANGE_16_235)
++      range = MPP_FRAME_RANGE_MPEG;
++
++    if (mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:colorspace", matrix) ||
++        mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:colorprim", primaries) ||
++        mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:colortrc", transfer) ||
++        mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:colorrange", range)) {
++      GST_ERROR_OBJECT (self, "MPP rejected negotiated colorimetry");
++      return FALSE;
++    }
++    mpp_frame_set_colorspace (self->mpp_frame, matrix);
++    mpp_frame_set_color_primaries (self->mpp_frame, primaries);
++    mpp_frame_set_color_trc (self->mpp_frame, transfer);
++    mpp_frame_set_color_range (self->mpp_frame, range);
++  }
++
+   mpp_enc_cfg_set_s32 (self->mpp_cfg, "rc:fps_in_flex", 0);
+   mpp_enc_cfg_set_s32 (self->mpp_cfg, "rc:fps_in_num",
+       GST_VIDEO_INFO_FPS_N (info));

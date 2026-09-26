@@ -1,0 +1,24 @@
+{
+  "state": "ended",
+  "requestedSeconds": 15,
+  "width": 1920,
+  "height": 1080,
+  "totalFrames": 881,
+  "droppedFrames": 108,
+  "connectionStates": [
+    "connecting",
+    "connected"
+  ],
+  "finalConnectionState": "connected",
+  "receiver": "isolated local Chromium153, sandbox enabled, software/headless; not remote client or display latency test",
+  "inbound": [
+    {
+      "framesDecoded": 881,
+      "framesReceived": 893,
+      "framesDropped": 11,
+      "packetsLost": 0,
+      "frameWidth": 1920,
+      "frameHeight": 1080
+    }
+  ]
+}

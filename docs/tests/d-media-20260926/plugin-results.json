@@ -1,0 +1,224 @@
+{
+  "tests": [
+    {
+      "codec": "h264",
+      "input_colorimetry": "bt709",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "h264",
+      "input_colorimetry": "bt709",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_primaries": "bt709",
+        "color_transfer": "bt709"
+      }
+    },
+    {
+      "codec": "h264",
+      "input_colorimetry": "bt601",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "h264",
+      "input_colorimetry": "bt601",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "color_space": "smpte170m",
+        "color_transfer": "smpte170m",
+        "color_primaries": "smpte170m",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "tv",
+        "color_space": "smpte170m",
+        "color_primaries": "smpte170m",
+        "color_transfer": "smpte170m"
+      }
+    },
+    {
+      "codec": "h264",
+      "input_colorimetry": "1:3:5:1",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "h264",
+      "input_colorimetry": "1:3:5:1",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "h264",
+        "width": 320,
+        "height": 240,
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_primaries": "bt709",
+        "color_transfer": "bt709"
+      }
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "bt709",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "bt709",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_primaries": "bt709",
+        "color_transfer": "bt709"
+      }
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "bt601",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "bt601",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "color_space": "smpte170m",
+        "color_transfer": "smpte170m",
+        "color_primaries": "smpte170m",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "tv",
+        "color_space": "smpte170m",
+        "color_primaries": "smpte170m",
+        "color_transfer": "smpte170m"
+      }
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "1:3:5:1",
+      "enabled": false,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "tv",
+        "nb_read_frames": "5"
+      },
+      "passed": true
+    },
+    {
+      "codec": "hevc",
+      "input_colorimetry": "1:3:5:1",
+      "enabled": true,
+      "exit_code": 0,
+      "stream": {
+        "codec_name": "hevc",
+        "width": 320,
+        "height": 240,
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "nb_read_frames": "5"
+      },
+      "passed": true,
+      "expected": {
+        "color_range": "pc",
+        "color_space": "bt709",
+        "color_primaries": "bt709",
+        "color_transfer": "bt709"
+      }
+    }
+  ],
+  "passed": true
+}

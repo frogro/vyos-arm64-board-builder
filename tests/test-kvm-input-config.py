@@ -22,6 +22,25 @@ with patch.dict(sys.modules, {'vyos': vyos, 'vyos.config': config, 'vyos.configd
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 
 class Tests(unittest.TestCase):
+    def test_colorimetry_rejects_wrong_backend_and_unknown_value(self):
+        for backend, mode in [('ffmpeg', 'negotiated'), ('ustreamer', 'legacy'),
+                              ('gstreamer', 'guess')]:
+            with self.subTest(backend=backend, mode=mode), self.assertRaises(ConfigError):
+                m.verify({'video': {'backend': backend, 'colorimetry': mode}})
+
+    def test_colorimetry_generation_is_explicit_and_defaults_legacy(self):
+        for mode in (None, 'legacy', 'negotiated'):
+            with tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                video = {'backend': 'gstreamer'}
+                if mode is not None:
+                    video['colorimetry'] = mode
+                with patch.multiple(m, RUN_DIR=root, INPUT_CONFIG=root/'input.json',
+                                    VIDEO_ENV=root/'video.env', MEDIAMTX_CONFIG=root/'media.yml'):
+                    m.generate({'video': video})
+                    self.assertIn('KVM_VIDEO_COLORIMETRY=' + (mode or 'legacy'),
+                                  m.VIDEO_ENV.read_text())
+
     def test_transport_generates_explicit_listeners(self):
         for transport, rtc, moq in [('webrtc','true','false'),('moq','false','true'),('both','true','true')]:
             with tempfile.TemporaryDirectory() as d:

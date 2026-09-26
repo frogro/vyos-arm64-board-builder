@@ -18,6 +18,7 @@ RESOLUTION="${KVM_VIDEO_RESOLUTION:-}"
 FRAMERATE="${KVM_VIDEO_FRAMERATE:-}"
 BITRATE="${KVM_VIDEO_BITRATE:-8000}"
 GOP="${KVM_VIDEO_GOP:-60}"
+COLORIMETRY="${KVM_VIDEO_COLORIMETRY:-legacy}"
 LISTEN_ADDRESS="${KVM_VIDEO_LISTEN_ADDRESS:-0.0.0.0}"
 PORT="${KVM_VIDEO_PORT:-8889}"
 USTREAMER_QUALITY="${KVM_VIDEO_USTREAMER_QUALITY:-80}"
@@ -169,6 +170,13 @@ case "${BACKEND}" in
         ;;
 
     gstreamer)
+        # Process-local opt-in; the plugin uses negotiated YUV caps, not a
+        # board/resolution-derived matrix. Preserve old behavior by default.
+        if [[ "$COLORIMETRY" == negotiated ]]; then
+            export VYARM_MPP_COLORIMETRY=1
+        else
+            export VYARM_MPP_COLORIMETRY=0
+        fi
         GST="/usr/bin/gst-launch-1.0"
         [[ -x "${GST}" ]] || {
             echo "ERROR: gst-launch-1.0 is missing" >&2
@@ -203,10 +211,22 @@ case "${BACKEND}" in
                     converter=v4l2convert
                 fi
             fi
+            # Negotiated mode must not silently use the known inaccurate
+            # legacy RGA matrix. Unavailable/disabled correction uses CPU.
+            # Never toggle a host-wide module parameter from this service.
+            if [[ "$COLORIMETRY" == negotiated && "$converter" == v4l2convert ]] &&
+               ! grep -qs '^Y$' /sys/module/rockchip_rga/parameters/experimental_full_csc; then
+                converter=videoconvert
+            fi
             args+=("!" "${converter}" "!" "video/x-raw,format=NV12")
         fi
 
         if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" ]]; then
+            if [[ "$COLORIMETRY" == negotiated ]] &&
+               ! grep -qs '^GSTREAMER_MPP_COLORIMETRY_PATCH=1$' /usr/share/vyos-arm64-board-builder/kvm-media-build.env; then
+                echo "ERROR: negotiated MPP colorimetry requires the patched media package" >&2
+                exit 1
+            fi
             gst-inspect-1.0 mpph264enc >/dev/null 2>&1 || {
                 echo "ERROR: Rockchip GStreamer mpph264enc is unavailable" >&2
                 exit 1
