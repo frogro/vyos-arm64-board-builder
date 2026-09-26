@@ -45,3 +45,38 @@ Existing SD/ISO artifacts are unchanged and must be rebuilt with this runtime.
 No release/main workflow modification. Hardware decoding additionally needs
 scoped compressed decoder video nodes and their media nodes in saved VyOS config;
 changing display-backend alone does not add devices to an existing installation.
+
+## Persistent kiosk verification
+
+Built and selected `localhost/vyarm-kiosk:wayland-user-20260926`, image ID
+`3b7a84a541ae1b766062167ef3a598b20609a345df3a7b8c5fef0b73fa800fb8`.
+The normal `vyos-container-kiosk.service` now starts seatd as root and Weston,
+Chromium and the session as kiosk. Saved backend=wayland, rotation=90,
+video-decode=auto, both capture-buffer options enabled. Removed the unsuccessful
+extra card1 test mapping; scoped decoder and media mappings remain configured.
+
+Repeated short fixtures inside this actual service container (persistent-results.json):
+H264 3/600 dropped, HEVC Main10 2/300, VP9 3/300, AV1 4/300; all EOS,
+V4L2VideoDecoder and platform decoder true. Restarted the service after probes:
+normal configured webpage restored, no failed systemd units, no new SIGSYS.
+Independent recovery timers were stopped after successful restoration.
+A VAAPI initialization warning still occurs during capability probing; measured
+playback uses V4L2, not VAAPI. This does not certify all website video formats.
+
+Rollback, in VyOS configuration mode, one command per line:
+
+```text
+set container name kiosk image localhost/vyarm-kiosk:wayland-corrected-20260923
+set container name kiosk kiosk video-decode software
+commit
+save
+exit
+```
+
+The old container image and installed system image remain available. This is a
+live runtime correction, not a new SD/ISO release. The next build must package a
+new runtime built from the corrected source and update its runtime manifest/tag;
+reusing the Sep23 runtime archive would reintroduce the defect. Existing config
+must be preserved on update, with any runtime tag migration made explicit.
+The first-install setup already discovers compressed decoder queues by format;
+existing containers require their saved device mappings separately.

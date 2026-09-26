@@ -1,0 +1,150 @@
+{
+  "h264": {
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 186.80000000004657,
+      "duration": 10,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 600,
+      "droppedFrames": 3,
+      "elapsedMs": 10454.399999999907
+    },
+    "flags": [
+      "--ozone-platform=wayland",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-h264",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--start-fullscreen"
+    ],
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ]
+  },
+  "hevc": {
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 157.80000000004657,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 2,
+      "elapsedMs": 5427
+    },
+    "flags": [
+      "--ozone-platform=wayland",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-hevc",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--start-fullscreen"
+    ],
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ]
+  },
+  "vp9": {
+    "page": {
+      "codec": "vp9",
+      "state": "ended",
+      "started": 113.4000000001397,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 3,
+      "elapsedMs": 5443.800000000047
+    },
+    "flags": [
+      "--ozone-platform=wayland",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-vp9",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--start-fullscreen"
+    ],
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ]
+  },
+  "av1": {
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 89.89999999990687,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 4,
+      "elapsedMs": 5491.5
+    },
+    "flags": [
+      "--ozone-platform=wayland",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-av1",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--start-fullscreen"
+    ],
+    "decoder_properties": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "V4L2VideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "true"
+      }
+    ]
+  }
+}
