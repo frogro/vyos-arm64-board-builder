@@ -73,3 +73,38 @@ No new live modifications were made for this research.
   Weston configuration switch. No performance claim without implementation/test.
 
 No new kernel patch or main-branch change is justified solely by these sources.
+
+## Direct Sunshine follow-up, 16:45–17:00 CEST
+
+Isolated bounded Sunshine process used the candidate3 binary, KMS capture,
+HEVC/rkmpp, Mali-G610 (Panfrost) confirmed by the process's own GL debug log.
+A host-root probe entered the container mount namespace and retained the MPP
+compatible environment, using a separate copied state and host networking bound
+to the tailnet address. CAP_SYS_NICE warnings disappeared (EGL MEDIUM confirmed).
+This is not a single-variable production capability A/B: namespace and process
+privileges also differ. Nevertheless the same slowdown remains with permission:
+
+- Fresh paired client: 12.75 fps, mean host processing 284.8 ms.
+- Repeat with attempted loader instrumentation: 12.94 fps, mean 288.7 ms;
+  network 59 ms, decode 1.03 ms.
+
+No individual readback timing was obtained: LD_PRELOAD hooks failed to intercept
+Sunshine's loaded GL entrypoint. Instrument the pinned Sunshine source next;
+do not present the whole-frame host metric as glGetTextureSubImage duration.
+Initial setup probes without MPP mapping/environment fell back to software;
+these are excluded. Restoring mappings and MPP_DEVICE_TREE_COMPATIBLE made
+h264_rkmpp/hevc_rkmpp validation succeed. Production setup remains unmodified.
+
+Reusing the earlier test-client certificate failed with 401; a fresh isolated
+Moonlight configuration paired and streamed successfully. This is test-state
+troubleshooting, not evidence of a new production pairing regression. Earlier
+bounded probes briefly overlapped at RTSP port48010; all exact probe binaries
+were terminated before final restoration. Normal Wayland image/state restored,
+kiosk and Tailscale services active; rollback timer stopped after success.
+
+Vulkan: no successful ROCK Sunshine Vulkan capture/encode comparison found in
+these records. No Vulkan ICD files were present at the normal runtime location.
+Moonlight's Vulkan logs concern the ThinkPad client, not the ROCK capture path.
+Panthor cache UAPI is API-neutral in principle; actual OpenGL benefit requires
+userspace allocation/synchronization support. The referenced MR36385 specifically
+implements PanVK use, not proof that our Mesa25 OpenGL path benefits unchanged.
