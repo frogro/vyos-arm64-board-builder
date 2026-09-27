@@ -44,3 +44,13 @@ workflow already installs libxtables-dev, iptables and pkg-config. The test
 workflow now includes those packages and checks the xtables header with the C
 compiler before downloading or building the kernel. This was a runner dependency
 omission, not a Panthor compiler failure; it provides no live stability evidence.
+
+## Live boot path correction
+
+The live system binds /run/live/persistence/boot/<version> directly onto /boot,
+with the global GRUB directory bind-mounted below it. The menu helper now verifies
+that mapping by inode identity and stages under /boot/panthor-test. GRUB still
+uses partition-relative /boot/<version>/panthor-test paths. Tests cover the live
+bind layout, whole-boot layout and mismatched mounts. The existing default is not
+changed. A workflow dispatch can reuse the verified kernel artifact while building
+an image with this helper fix, avoiding an unnecessary kernel rebuild.

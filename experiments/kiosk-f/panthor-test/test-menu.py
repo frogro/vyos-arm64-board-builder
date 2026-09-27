@@ -3,6 +3,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 spec = importlib.util.spec_from_file_location('menu', Path(__file__).with_name('install-menu.py'))
 menu = importlib.util.module_from_spec(spec)
@@ -30,6 +31,25 @@ class BootMenuTests(unittest.TestCase):
         self.assertNotIn('/vmlinuz"', result)
         self.assertIn('--id existing-normal', TEMPLATE)
         self.assertEqual(result, menu.render(TEMPLATE, VERSION, RELEASE))
+
+    def test_running_image_bind_mount_and_partition_layout(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            persistence = root / 'persistence'
+            image = persistence / 'boot' / VERSION
+            image.mkdir(parents=True)
+            bound = root / 'bound'
+            bound.symlink_to(image, target_is_directory=True)
+            self.assertEqual(menu.installed_image_dir(VERSION, bound, persistence), bound)
+            partition = root / 'partition'
+            partition.symlink_to(image.parent, target_is_directory=True)
+            self.assertEqual(menu.installed_image_dir(VERSION, partition, persistence), partition / VERSION)
+            wrong = root / 'wrong'
+            wrong.mkdir()
+            with self.assertRaises(ValueError):
+                menu.installed_image_dir(VERSION, wrong, persistence)
+            with self.assertRaises(ValueError):
+                menu.installed_image_dir('../wrong', bound, persistence)
 
     def test_fail_closed_for_changed_templates_and_names(self):
         for template, version, release in [

@@ -30,6 +30,19 @@ def render(template, version, release):
     # A later image removal must not leave a selectable broken entry.
     return f'if [ -f "{base}/panthor-test/Image" ]; then\n' + text + 'fi\n'
 
+def installed_image_dir(version, boot=Path('/boot'), persistence=Path('/run/live/persistence')):
+    """VyOS binds the running version onto /boot, with global GRUB below it."""
+    if not re.fullmatch(r'[A-Za-z0-9_.+-]+', version):
+        raise ValueError('Unsupported image name')
+    expected = persistence / 'boot' / version
+    if not expected.is_dir():
+        raise ValueError('Persistent installed image directory missing')
+    for candidate in (boot, boot / version):
+        if candidate.is_dir() and candidate.samefile(expected):
+            return candidate
+    raise ValueError('Boot mount does not match running installed image')
+
+
 def main():
     cmdline = Path('/proc/cmdline').read_text().split()
     versions = [x.removeprefix('vyos-union=/boot/') for x in cmdline if x.startswith('vyos-union=/boot/')]
@@ -45,7 +58,7 @@ def main():
         raise ValueError('Unsupported image name')
     template = (grub / 'vyos-versions' / f'{version}.cfg').read_text()
     text = render(template, version, release)
-    dest = Path('/boot') / version / 'panthor-test'
+    dest = installed_image_dir(version) / 'panthor-test'
     dest.mkdir(exist_ok=True)
     for name in ['Image', 'initrd.img', 'board.dtb']:
         tmp = dest / (name + '.new')

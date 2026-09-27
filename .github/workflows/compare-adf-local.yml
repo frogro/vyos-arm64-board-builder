@@ -4,6 +4,11 @@ on:
   push:
     branches: [ci/adf-compare-20260927]
   workflow_dispatch:
+    inputs:
+      reuse_kernel_run:
+        description: "Optional successful Panthor kernel artifact run (same audited source/config)"
+        type: string
+        default: ''
 permissions:
   # Draft-release assets require repository write visibility; no publishing step.
   contents: write
@@ -16,6 +21,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   panthor-kernel:
+    if: ${{ inputs.reuse_kernel_run == '' }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
     env:
@@ -46,6 +52,7 @@ jobs:
           retention-days: 7
           path: /work/panthor-build.log
   image:
+    if: ${{ !cancelled() && (needs.panthor-kernel.result == 'success' || (needs.panthor-kernel.result == 'skipped' && inputs.reuse_kernel_run != '')) }}
     needs: panthor-kernel
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
@@ -98,8 +105,18 @@ jobs:
           sudo cp /work/edk2.img /work/repo/work/build/rock-5b/boot/edk2/rock-5b_UEFI_Release_v1.1.img
       - uses: actions/download-artifact@v4
         with:
-          name: panthor-test-kernel-${{ github.run_id }}
+          name: panthor-test-kernel-${{ inputs.reuse_kernel_run || github.run_id }}
+          run-id: ${{ inputs.reuse_kernel_run || github.run_id }}
+          github-token: ${{ github.token }}
           path: /work/panthor-artifacts
+      - name: Verify optional kernel input and record source run
+        env:
+          KERNEL_SOURCE_RUN: ${{ inputs.reuse_kernel_run || github.run_id }}
+        run: |
+          [[ "$KERNEL_SOURCE_RUN" =~ ^[0-9]+$ ]]
+          (cd /work/panthor-artifacts && sha256sum -c SHA256SUMS)
+          test "$(cat /work/panthor-artifacts/kernel.release)" = 6.18.50-vyos-panthor-cache-test
+          printf '%s\n' "$KERNEL_SOURCE_RUN" > /work/panthor-source-run.txt
       - name: Build instrumented Sunshine into existing Chromium runtime
         run: bash /work/build-runtime.sh
       - name: Rebuild complete native CLI with upstream checks
