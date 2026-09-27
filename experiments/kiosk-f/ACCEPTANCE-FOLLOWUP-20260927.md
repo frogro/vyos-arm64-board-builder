@@ -155,7 +155,13 @@ UI_GET_SYSNAME returned its actual input12–input16 devices. A production helpe
 must use this association, validate virtual sysfs paths, handle removal/recreation
 and container PID changes, and refuse unrelated devices. This is not yet an
 installed service or a CLI release of Wayland remote control. The Moonlight
-control session connected; physical mouse/keyboard/portrait acceptance is pending.
+control session connected. The user subsequently confirmed mouse and keyboard
+input, but reported difficult mouse control and feeling trapped in the window.
+Therefore basic input delivery is accepted; usability and portrait-coordinate
+acceptance remain open. The bounded client process has already exited.
+Moonlight supports Ctrl+Alt+Shift+Z to release capture, Q to quit, and
+--absolute-mouse for a separate desktop-control comparison. Do not infer a
+coordinate defect solely from the mouse-capture complaint.
 
 ## Update preservation audit
 
