@@ -183,3 +183,25 @@ from clean base. Inspect finish-image.status/log for current result.
 - Chromium, Weston and input reconciliation service active. Asked user to
   confirm actual touch position and swiping; physical outcome pending.
   This is old-image verification, not yet a new-candidate touch test.
+
+## New-image touch boot (~09:20 CEST)
+
+- User confirmed old-image tapping/swiping and orientation correct, then
+  protected one-shot booted candidate again with original complete config.
+  Independent12min return timer armed, old permanent default unchanged.
+- Native startup succeeded with selected USB present. ILITEK touch changed
+  event2 -> event1, mouse event3 -> event0. CLI generation resolved stable
+  by-id links to correct new destinations without changing saved selections.
+- Weston associates both with HDMI-A-1;1920x1080@60 preferred/current and
+  rotate-270. Chromium and kiosk active; no failed systemd units; read-only
+  input reconciler reports change_required=false. One-shot variable cleared.
+- Asked user for actual new-image touch response; confirmation pending.
+- User confirms touch works on the new candidate. Physical touch/rotation
+  acceptance now complete for this boot with connected ILITEK monitor.
+- Kept candidate running for user testing after native service/SSH checks;
+  stopped/removed return timer and removed one-shot GRUB hook/variable.
+  Verified permanent default remains uuid5-9061c446-3e56-58c8-af43-bffd3ea145ca
+  (old image). No unexpected timed reboot remains.
+- Separate open issues unchanged: stable decoder-device resolution and startup
+  with absent selected USB devices. Touch confirmation does not validate codec
+  passthrough under this boot's device numbers or USB unplug/replug recovery.
