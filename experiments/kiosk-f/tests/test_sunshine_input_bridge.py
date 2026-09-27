@@ -2,6 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 import struct
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -16,6 +17,34 @@ remote = load('remote_bridge', BASE / 'cli/remote.py')
 kiosk = load('kiosk_bridge', BASE / 'cli/kiosk.py')
 
 class InputBridgeTests(unittest.TestCase):
+    def test_container_lookup_does_not_resolve_same_named_network(self):
+        with patch.object(bridge, 'run', return_value=b'[{"Id":"abc","State":{"Running":true,"Pid":42}}]') as run:
+            self.assertEqual(bridge.container('kiosk'), ('abc', 42))
+            run.assert_called_once_with('podman', 'container', 'inspect', 'kiosk')
+
+    def test_stopped_or_missing_container_is_expected_transition(self):
+        with patch.object(bridge, 'run', return_value=b'[{"State":{"Running":false}}]'):
+            with self.assertRaises(bridge.ContainerUnavailable):
+                bridge.container('kiosk')
+        error = subprocess.CalledProcessError(125, 'podman', stderr=b'Error: no such container: kiosk')
+        with patch.object(bridge, 'run', side_effect=error):
+            with self.assertRaises(bridge.ContainerUnavailable):
+                bridge.container('kiosk')
+        error.stderr = b'Error: permission denied'
+        with patch.object(bridge, 'run', side_effect=error):
+            with self.assertRaises(subprocess.CalledProcessError):
+                bridge.container('kiosk')
+
+    def test_managed_start_during_recreation_exits_cleanly(self):
+        with patch('sys.argv', ['bridge', '--target', 'kiosk', '--managed']), patch.object(bridge, 'container', side_effect=bridge.ContainerUnavailable()), patch.object(bridge.socket, 'socket') as sock:
+            bridge.main()
+            sock.assert_not_called()
+
+    def test_running_bridge_cleans_up_when_container_stops(self):
+        with patch('sys.argv', ['bridge', '--target', 'kiosk', '--managed']), patch.object(bridge, 'container', side_effect=[('abc', 42), bridge.ContainerUnavailable()]), patch.object(bridge.socket, 'socket') as sock:
+            bridge.main()
+            sock.return_value.close.assert_called_once()
+
     def test_real_udev_header_retained_on_remove(self):
         body = b'ACTION=add\0DEVNAME=/dev/input/event6\0DEVPATH=/devices/virtual/input/input12/event6\0'
         header = bytearray(40)

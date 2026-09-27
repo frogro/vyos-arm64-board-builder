@@ -27,10 +27,20 @@ def run(*args, **kw):
     return subprocess.run(args, check=True, capture_output=True, timeout=5, **kw).stdout
 
 
+class ContainerUnavailable(ValueError):
+    """The supervised container is stopped or being recreated."""
+
+
 def container(name):
-    info = json.loads(run('podman', 'inspect', name))[0]
-    if not info['State']['Running']:
-        raise ValueError('Container is not running')
+    try:
+        # Generic inspect can resolve the same-named network during recreation.
+        info = json.loads(run('podman', 'container', 'inspect', name))[0]
+    except subprocess.CalledProcessError as error:
+        if b'no such container' in (error.stderr or b'').lower():
+            raise ContainerUnavailable('Container is absent') from error
+        raise
+    if not info.get('State', {}).get('Running'):
+        raise ContainerUnavailable('Container is not running')
     return info['Id'], int(info['State']['Pid'])
 
 
@@ -127,8 +137,13 @@ def main():
     args.source = args.source or args.target
     if not 1 <= args.duration <= 600:
         ap.error('duration must be 1..600 seconds')
-    target = container(args.target)
-    source = container(args.source)
+    try:
+        target = container(args.target)
+        source = target if args.source == args.target else container(args.source)
+    except ContainerUnavailable:
+        if args.managed:
+            return  # systemd retries when the native container returns.
+        raise
     sock = socket.socket(socket.AF_NETLINK, socket.SOCK_RAW, 15)
     sock.bind((0, 2))
     sock.settimeout(1.0)
@@ -156,7 +171,10 @@ def main():
             pass
     try:
         while not stop and time.monotonic() < deadline:
-            if container(args.target) != target or (args.source != args.target and container(args.source) != source):
+            try:
+                if container(args.target) != target or (args.source != args.target and container(args.source) != source):
+                    break
+            except ContainerUnavailable:
                 break
             # Bound podman/sysfs polling even when unrelated udev traffic is busy.
             time.sleep(0.8)
@@ -164,7 +182,15 @@ def main():
                 break
             wanted = {}
             if not args.managed or control_enabled(args.target):
-                for pid in sunshine_pids(args.source):
+                try:
+                    pids = sunshine_pids(args.source)
+                except subprocess.CalledProcessError:
+                    try:
+                        container(args.source)
+                    except ContainerUnavailable:
+                        break
+                    raise
+                for pid in pids:
                     wanted.update(owned_inputs(pid))
             for name in list(tracked):
                 if name not in wanted or tracked[name][1] != wanted[name][1]:
