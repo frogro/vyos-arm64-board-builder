@@ -116,3 +116,17 @@ integration acceptance; this is not a claim that main/released images include it
 
 The normal kiosk and CSC=N were restored after testing; temporary input cgroup
 rule and rollback timer removed. Prior Sunshine binary is preserved separately.
+
+### HEVC portrait follow-up
+
+The same binary and input bridge were then tested at 1080x1920 HEVC/60,
+2 Mbps on LAN. Actual stream encoder: hevc_rkmpp; GPU/RGA rotated frames logged
+at 1080x1920. User explicitly confirmed upright/fluid image, correct mouse
+directions and click positions. Rendering 59.85 FPS; host processing mean
+12.9 ms (9.7..175.5); network loss 0%, jitter loss 0.50%, LAN RTT 1 ms.
+H.264 comparison: 59.97 FPS, mean 12.9 ms. These are separate short interactive
+runs, not a controlled latency benchmark or endurance test. Both codecs now
+have the same portrait/mouse acceptance level for this local rotation (90).
+Earlier note that HEVC portrait was unqualified is superseded by this follow-up.
+See portrait-comparison-20260927.json. Normal kiosk restored, only physical
+event0/event1 retained; experimental CSC reset to N, rollback timer cancelled.
