@@ -1,0 +1,33 @@
+From c57079937bf8dff763ec90a01573b3a1918d959e Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@linaro.org>
+Date: Thu, 18 Dec 2025 10:48:22 +0300
+Subject: [PATCH] drm/panthor: unlock on error in panthor_ioctl_bo_create()
+
+Call drm_dev_exit() before returning -EINVAL.
+
+Fixes: cd2c9c3015e6 ("drm/panthor: Add flag to map GEM object Write-Back Cacheable")
+Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://patch.msgid.link/aUOxxvXXtHHfFCcg@stanley.mountain
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+ drivers/gpu/drm/panthor/panthor_drv.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/panthor/panthor_drv.c b/drivers/gpu/drm/panthor/panthor_drv.c
+index 98d4e8d867ed46..165dddfde6ca8b 100644
+--- a/drivers/gpu/drm/panthor/panthor_drv.c
++++ b/drivers/gpu/drm/panthor/panthor_drv.c
+@@ -923,8 +923,10 @@ static int panthor_ioctl_bo_create(struct drm_device *ddev, void *data,
+ 	}
+ 
+ 	if ((args->flags & DRM_PANTHOR_BO_NO_MMAP) &&
+-	    (args->flags & DRM_PANTHOR_BO_WB_MMAP))
+-		return -EINVAL;
++	    (args->flags & DRM_PANTHOR_BO_WB_MMAP)) {
++		ret = -EINVAL;
++		goto out_dev_exit;
++	}
+ 
+ 	if (args->exclusive_vm_id) {
+ 		vm = panthor_vm_pool_get_vm(pfile->vms, args->exclusive_vm_id);
