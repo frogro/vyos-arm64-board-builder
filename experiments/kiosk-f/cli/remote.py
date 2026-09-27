@@ -25,6 +25,14 @@ def policy(config):
 def remote_only(old, new):
     if not old.get('kiosk') or not new.get('kiosk'):
         return False
+    def input_bridge(c):
+        kiosk = c.get('kiosk', {})
+        remote = kiosk.get('remote', {})
+        return (kiosk.get('display_backend') == 'wayland' and remote.get('access') == 'enabled'
+                and remote.get('input') == 'control')
+    # Adding/removing device-cgroup permissions needs native recreation once.
+    if input_bridge(old) != input_bridge(new):
+        return False
     def stripped(c):
         c = copy.deepcopy(c)
         c['kiosk'].pop('remote', None)

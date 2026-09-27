@@ -64,6 +64,11 @@ def environment(config):
     # and variable substitution ($) must remain literal URL characters.
     result = [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
               for key, value in values.items()]
+    remote = settings.get('remote', {})
+    if (settings.get('display_backend') == 'wayland'
+            and remote.get('access') == 'enabled' and remote.get('input') == 'control'):
+        # Host companion creates only Sunshine-owned nodes; target gains no mknod.
+        result.append('PodmanArgs=--device-cgroup-rule="c 13:* rw"')
     for item in config.get('device', {}).values():
         if optional_input(config, item):
             result.append(f"# KioskInput={item['source']}:{item['destination']}")

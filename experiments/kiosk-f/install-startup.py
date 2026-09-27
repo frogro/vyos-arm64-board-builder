@@ -17,6 +17,13 @@ def install(root, name):
         raise ValueError('Invalid container name')
     root = Path(root).resolve(strict=True)
     files = {
+        'usr/local/libexec/vyos-kiosk-sunshine-inputs': (
+            (SOURCE / 'sunshine/input-bridge/bridge.py').read_bytes(), 0o755),
+        f'etc/systemd/system/vyos-kiosk-sunshine-inputs-{name}.service': (
+            (MARKER + '[Unit]\nDescription=Forward owned Sunshine input devices to kiosk\n'
+             f'After=vyos-container-{name}.service\n\n[Service]\nType=simple\n'
+             f'ExecStart=/usr/local/libexec/vyos-kiosk-sunshine-inputs --target {name} --managed\n'
+             'Restart=always\nRestartSec=5\nKillMode=mixed\nTimeoutStopSec=15\n').encode(), 0o644),
         'usr/local/libexec/vyos-kiosk-wait-addresses': (
             (SOURCE / 'systemd/wait-container-addresses.py').read_bytes(), 0o755),
         'usr/local/libexec/vyos-kiosk-reconcile-inputs': (
@@ -27,7 +34,7 @@ def install(root, name):
              f'ExecStart=/usr/local/libexec/vyos-kiosk-reconcile-inputs {name}\n'
              'Restart=on-failure\nRestartSec=5\n').encode(), 0o644),
         f'etc/systemd/system/vyos-container-{name}.service.d/kiosk-retry.conf': (
-            (MARKER + f'[Unit]\nStartLimitIntervalSec=0\nWants=vyos-kiosk-inputs-{name}.service\n\n[Service]\n'
+            (MARKER + f'[Unit]\nStartLimitIntervalSec=0\nWants=vyos-kiosk-inputs-{name}.service vyos-kiosk-sunshine-inputs-{name}.service\n\n[Service]\n'
              'RestartSec=5s\n'
              f'ExecStartPre=/usr/local/libexec/vyos-kiosk-wait-addresses {name}\n').encode(), 0o644),
     }
