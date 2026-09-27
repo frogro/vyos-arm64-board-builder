@@ -8,7 +8,8 @@ proof = {}
 empty_defaults = {'Hostname', 'Domainname', 'User', 'AttachStdin', 'AttachStdout',
                   'AttachStderr', 'Tty', 'OpenStdin', 'StdinOnce', 'Cmd', 'Image',
                   'Volumes', 'WorkingDir', 'ArgsEscaped', 'StopSignal', 'OnBuild',
-                  'Shell', 'Healthcheck', 'ExposedPorts', 'NetworkDisabled'}
+                  'Shell', 'Healthcheck', 'ExposedPorts', 'NetworkDisabled',
+                  'Labels', 'Entrypoint', 'Env'}
 for label, image in [('cli', 'vyos-profile-build:arm64-22dfa15927f2'),
                      ('assembly', 'vyarm-board-runner:20260922')]:
     expected = json.loads(Path('/work/inputs/' + label + '-image-inspect.json').read_text())
