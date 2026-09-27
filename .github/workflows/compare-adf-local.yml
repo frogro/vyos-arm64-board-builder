@@ -49,15 +49,7 @@ jobs:
           tar -xzf /work/inputs/runtime-kernel-inputs.tar.gz -C /work
           docker load -i /work/inputs/cli-builder.tar.gz
           docker load -i /work/inputs/assembly-runner.tar.gz
-          python3 - <<'PY'
-          import json,subprocess
-          from pathlib import Path
-          for label,image in [('cli','vyos-profile-build:arm64-22dfa15927f2'),('assembly','vyarm-board-runner:20260922')]:
-              expected=json.loads(Path('/work/inputs/'+label+'-image-inspect.json').read_text())
-              actual=json.loads(subprocess.check_output(['docker','image','inspect',image]))[0]
-              assert {key:actual[key] for key in expected}==expected,label
-          print('Both build environments match the NUC RootFS and Config')
-          PY
+          python3 /work/verify-build-environments.py
           python3 /work/native-pack.py
           docker run --rm --platform linux/arm64 --network none -v /work:/work --entrypoint /bin/bash vyarm-board-runner:20260922 /work/test-native-pack.sh
       - name: Prepare identical image inputs and firmware
@@ -96,5 +88,6 @@ jobs:
             /work/*.log
             /work/cli-artifacts/*
             /work/native-pack/SHA256.json
+            /work/build-environments.json
             /work/verification-complete
             /work/inputs.sha256
