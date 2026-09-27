@@ -2,7 +2,7 @@
 
 One-off candidate for ROCK 5B; no automatic release publication or main changes.
 
-Frozen integration source: `f00cf42d100f10373509c7e918ad8fb6949d283e`; upstream VyOS `999.202609250800` from
+Frozen integration source: `c0e39171807e14959611cfaa943e392f5d3b79db`; upstream VyOS `999.202609250800` from
 successful A-D run `36267716867`; original CLI source
 `4e3e38a2e665bb2d8e9446116e02300bb38a2ab4`.
 

@@ -8,6 +8,9 @@ permissions:
   # Draft-release assets require repository write visibility; no publishing step.
   contents: write
   actions: read
+defaults:
+  run:
+    shell: bash
 concurrency:
   group: adf-compare-20260927
   cancel-in-progress: false
@@ -23,7 +26,7 @@ jobs:
           fetch-depth: 0
       - name: Check frozen production inputs and F regressions
         run: |
-          git diff --exit-code f00cf42d100f10373509c7e918ad8fb6949d283e -- tools profiles firmware experiments/kiosk-f/cli experiments/kiosk-f/host experiments/kiosk-f/image experiments/kiosk-f/systemd
+          git diff --exit-code c0e39171807e14959611cfaa943e392f5d3b79db -- tools profiles firmware experiments/kiosk-f/cli experiments/kiosk-f/host experiments/kiosk-f/image experiments/kiosk-f/systemd
           python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
           python3 tests/test-kiosk-host-fixes.py
           python3 tests/test-console-log-source.py
@@ -66,6 +69,14 @@ jobs:
       - name: Assemble and verify SD image plus update ISO
         run: |
           docker run --rm --privileged --platform linux/arm64 --network host --memory=8g --cpus=4 -e GITHUB_RUN_ID -e GITHUB_SHA -v /work:/work -v /dev:/dev -v /run/udev:/run/udev:ro --entrypoint /bin/bash vyarm-board-runner:20260922 /work/assemble.sh 2>&1 | tee /work/full-build.log
+      - name: Require verified complete output set
+        run: |
+          test "$(cat /work/verification-complete)" = FULL_ARTIFACT_VERIFICATION_OK
+          test -s /work/output/build-provenance.json
+          test -s /work/output/content-inventory.json
+          test -s /work/output/vyos-999.202609250800-rock-5b-network-tailscale-kvm-kiosk.img.xz
+          test -s /work/output/vyos-999.202609250800-rock-5b-network-tailscale-kvm-kiosk.iso
+          (cd /work/output && sha256sum -c ./*.sha256)
       - name: Upload comparison images
         uses: actions/upload-artifact@v4
         with:
