@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 import re
 import shutil
+import time
 
 PAYLOAD = Path('/usr/share/vyarm/panthor-test')
 
@@ -43,6 +44,24 @@ def installed_image_dir(version, boot=Path('/boot'), persistence=Path('/run/live
     raise ValueError('Boot mount does not match running installed image')
 
 
+def wait_for_boot_layout(version, boot=Path('/boot'), persistence=Path('/run/live/persistence'), timeout=120):
+    """The Type=simple router service may still be mounting the boot binds."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            installed_image_dir(version, boot, persistence)
+            grub = boot / 'grub'
+            if grub.samefile(persistence / 'boot/grub'):
+                template = grub / 'grub.cfg.d/vyos-versions' / f'{version}.cfg'
+                if template.is_file():
+                    return grub / 'grub.cfg.d'
+        except (OSError, ValueError):
+            pass
+        if time.monotonic() >= deadline:
+            raise TimeoutError('Installed image and shared GRUB mounts not ready')
+        time.sleep(1)
+
+
 def main():
     cmdline = Path('/proc/cmdline').read_text().split()
     versions = [x.removeprefix('vyos-union=/boot/') for x in cmdline if x.startswith('vyos-union=/boot/')]
@@ -52,7 +71,7 @@ def main():
     release = (PAYLOAD / 'kernel.release').read_text().strip()
     if not (Path('/lib/modules') / release).is_dir():
         raise ValueError('Matching test modules missing')
-    grub = Path('/boot/grub/grub.cfg.d')
+    grub = wait_for_boot_layout(version)
     # render validates version before any version-dependent filesystem writes.
     if not re.fullmatch(r'[A-Za-z0-9_.+-]+', version):
         raise ValueError('Unsupported image name')

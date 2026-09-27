@@ -27,6 +27,7 @@ After=vyos-router.service
 ConditionPathExists=/usr/share/vyarm/panthor-test/Image
 [Service]
 Type=oneshot
+TimeoutStartSec=150
 ExecStart=/usr/local/libexec/vyarm-panthor-test-menu
 [Install]
 WantedBy=multi-user.target

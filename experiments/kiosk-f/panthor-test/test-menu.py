@@ -4,6 +4,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 import tempfile
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('menu', Path(__file__).with_name('install-menu.py'))
 menu = importlib.util.module_from_spec(spec)
@@ -50,6 +51,26 @@ class BootMenuTests(unittest.TestCase):
                 menu.installed_image_dir(VERSION, wrong, persistence)
             with self.assertRaises(ValueError):
                 menu.installed_image_dir('../wrong', bound, persistence)
+
+    def test_waits_for_late_shared_grub_mount(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            persistence = root / 'persistence'
+            image = persistence / 'boot' / VERSION
+            image.mkdir(parents=True)
+            grub = persistence / 'boot/grub'
+            configs = grub / 'grub.cfg.d/vyos-versions'
+            configs.mkdir(parents=True)
+            (configs / f'{VERSION}.cfg').write_text(TEMPLATE)
+            boot = root / 'boot'
+            boot.symlink_to(image)
+            with self.assertRaises(TimeoutError):
+                menu.wait_for_boot_layout(VERSION, boot, persistence, timeout=0)
+            def mount_later(_):
+                (image / 'grub').symlink_to(grub)
+            with patch.object(menu.time, 'sleep', side_effect=mount_later) as sleep:
+                self.assertEqual(menu.wait_for_boot_layout(VERSION, boot, persistence), boot / 'grub/grub.cfg.d')
+                sleep.assert_called_once()
 
     def test_fail_closed_for_changed_templates_and_names(self):
         for template, version, release in [
