@@ -53,3 +53,16 @@ This sets accept_ra=2 with forwarding still enabled. `rdisc6 -1 eth0` solicited 
 ThinkPad LAN disconnected; Samsung hotspot assigned 10.174.69.115/24. Wi-Fi had only link-local IPv6 and no IPv6 default route. WireGuard retained the earlier local handshake; no fresh external handshake was observed. Thus native WireGuard local function is verified, external transport is blocked by this client's missing IPv6 connectivity while the home endpoint is behind provider IPv4 NAT. Do not label this an external WireGuard or Moonlight success. Requires an IPv6-capable external access network, a publicly reachable IPv4 home endpoint, or a separate reachable WireGuard relay/server topology. Tailscale is a distinct alternative already available, not proof of native direct reachability.
 
 Cleanup observation: native eth0 autoconf removal initially failed in `flush_ipv6_slaac_addrs()` (`ip ... addr del` exit 2). This is separate from tunnel connectivity. Remaining test dynamic global IPv6 addresses were explicitly flushed, preserving link-local, before retrying native removal. No kernel/image rebuild proposed for this uninvestigated upstream cleanup error.
+
+## External IPv6 success — 2026-09-28
+
+Changed to the other Samsung hotspot (Galaxy S22). ThinkPad Ethernet DOWN; Wi-Fi had a global 2a00:fbc:… address and IPv6 default route. Recreated the same temporary native wg27 server + eth0 SLAAC via configure/set/commit, with new 15-minute rollback. Client endpoint was ROCK global IPv6 UDP 51829. Route to that endpoint was via Wi-Fi's mobile gateway, not tailscale0. Server saw the matching mobile global IPv6 endpoint. A fresh WireGuard handshake and both transfer counters verified.
+
+- VyOS inner address 10.203.27.1: 5/5 replies, 0% loss, mean 60.657 ms.
+- SSH over 10.203.27.1 returned active kernel 6.18.50-vyos-panthor-cache-test.
+- Kiosk bridge address 10.89.50.14: 5/5 replies, 0% loss, mean 64.755 ms.
+- Temporary non-root HTTP responder in kiosk returned WIREGUARD_EXTERNAL_CONTAINER_OK via wg27 at port 18089.
+
+This establishes native WireGuard external access and routed access to the bridged container over mobile IPv6, without Tailscale as test transport. Tailscale was retained only as a separate management/cleanup channel. Initial probes before SLAAC/DAD completed timed out; subsequent established-tunnel probes above passed. No Moonlight performance or D application acceptance is claimed from these network tests.
+
+Cleanup is temporary and not saved. Stop acceptance of new SLAAC addresses, flush only the newly learned dynamic global addresses (preserve link-local), then remove autoconf and wg27 through native CLI to avoid the earlier address-deletion race. FRITZ!Box UDP 51829 rule remains user-managed; remove it when no further test is planned.
