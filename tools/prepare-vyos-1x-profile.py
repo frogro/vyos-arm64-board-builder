@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = {
@@ -56,6 +57,35 @@ def restore_operator_runner_install(source):
             'chmod u+s /usr/bin/vyos-op-run || exit 1\n', 1)
     return postinst, script
 
+def remove_duplicate_console_log(source):
+    """Keep show/monitor log ownership in their canonical upstream definitions."""
+    path = source/'op-mode-definitions/show-console-server.xml.in'
+    if not path.exists():
+        return None
+    text = path.read_text()
+    tree = ET.fromstring(text)
+    branches = tree.findall("./node[@name='show']/children/node[@name='log']")
+    if not branches:
+        return None  # Upstream has already removed the duplicate.
+    expected = 'journalctl --no-hostname --boot --follow --unit conserver-server.service'
+    if len(branches) != 1 or len(branches[0]) != 1:
+        raise ValueError('Console log duplicate changed; review required')
+    leaves = branches[0].findall('./children/*')
+    if (len(leaves) != 1 or leaves[0].get('name') != 'console-server'
+            or leaves[0].findtext('command') != expected):
+        raise ValueError('Console log duplicate changed; review required')
+    for filename, top, command in [
+        ('show-log.xml.in', 'show', 'journalctl --no-hostname --boot --unit conserver-server.service'),
+        ('monitor-log.xml.in', 'monitor', 'journalctl --no-hostname --follow --boot --unit conserver-server.service')]:
+        canonical = ET.fromstring((path.parent/filename).read_text())
+        node = canonical.find("./node[@name='%s']/children/node[@name='log']/children/leafNode[@name='console-server']" % top)
+        if node is None or node.findtext('command') != command:
+            raise ValueError('Canonical console log command changed; review required')
+    pattern = r'(?ms)^      <node name="log">.*?^      </node>\n'
+    if len(re.findall(pattern, text)) != 1:
+        raise ValueError('Console log source layout changed; review required')
+    return path, re.sub(pattern, '', text, count=1)
+
 def prepare(source, version, kvm, tailscale=False, kiosk=False):
     if not kvm and not tailscale and not kiosk:
         return None
@@ -76,6 +106,7 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False):
     if len(re.findall(pattern, data)) != 1:
         raise ValueError('Upstream package version rule changed; review required')
     runner_postinst, runner_postinst_text = restore_operator_runner_install(source)
+    console_fix = remove_duplicate_console_log(source)
     if kiosk:
         profiles.append('kiosk-f')
     recipe_files = dict(payload)
@@ -102,6 +133,8 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False):
         helper = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helper)
         helper.prepare(source)
+    if console_fix:
+        console_fix[0].write_text(console_fix[1])
     runner_postinst.write_text(runner_postinst_text)
     rules.write_text(re.sub(pattern, '\tdh_gencontrol -- -v'+output_version, data))
     metadata = {'schema':1, 'profiles':profiles, 'base_package_version':version,
