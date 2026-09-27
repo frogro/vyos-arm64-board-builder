@@ -31,7 +31,7 @@ def prepare(root):
         raise ValueError('Unexpected or already patched source tree')
     anchor = '          <leafNode name="allow-host-pid">'
     checks = [
-        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment, devices as kiosk_devices\nfrom vyos import kiosk_remote\n'),
+        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment, devices as kiosk_devices, optional_input as kiosk_optional_input\nfrom vyos import kiosk_remote\n'),
         ('        for name, container_config in container[\'name\'].items():\n            # Container image',
          '        for name, container_config in container[\'name\'].items():\n'
          '            try:\n                kiosk_environment(container_config)\n                kiosk_devices(container_config)\n                kiosk_remote.policy(container_config)\n                kiosk_remote.verify_image(container_config)\n'
@@ -52,6 +52,18 @@ def prepare(root):
     if code.count(device_old) != 1:
         raise ValueError('Container device generation changed; review required')
     code = code.replace(device_old, "        for source_dev, dest_dev in kiosk_devices(container_config):\n")
+    generation_guard = "    if 'device' in container_config:\n        for source_dev, dest_dev in kiosk_devices(container_config):\n"
+    if code.count(generation_guard) != 1:
+        raise ValueError('Container device guard changed; review required')
+    code = code.replace(generation_guard,
+                        "    if 'device' in container_config or 'kiosk' in container_config:\n"
+                        "        for source_dev, dest_dev in kiosk_devices(container_config):\n")
+    missing_guard = "                    if not os.path.exists(source):\n                        raise ConfigError(f'Device"
+    if code.count(missing_guard) != 1:
+        raise ValueError('Container device verification changed; review required')
+    code = code.replace(missing_guard,
+                        "                    if not os.path.exists(source) and not kiosk_optional_input(container_config, dev_config):\n"
+                        "                        raise ConfigError(f'Device")
     extra = [
         ("    for name in container.get('name', []):\n",
          "    previous = conf.get_config_dict(base, effective=True, key_mangling=('-', '_'),\n"

@@ -142,3 +142,21 @@ existing container behavior. Configuration persistence uses native commit/save;
 startup writes only runtime Xorg configuration, never saved values. The startup
 and fallback have been live-tested; this new CLI leaf still needs package/schema
 build and live CLI validation before use on the router.
+
+### Host devices (2026-09-27)
+
+For native kiosks with `video-decode auto`, device generation queries V4L2
+capabilities and compressed OUTPUT formats and supplements the configured
+mappings with request decoders plus each decoder's own media controller.
+Discovery uses capabilities, not board names or fixed video numbers. Capture,
+RGA and encoder-only nodes are not automatically granted. Explicit mappings
+remain unchanged; conflicting destinations are rejected. No automatic discovery
+is performed for other containers or software/legacy decoding. No buffers or
+streams are started by discovery. Rendering devices remain explicitly selected.
+
+Stable selected `/dev/input/by-id` or `by-path` evdev mappings may be absent.
+The generated Quadlet retains them as `# KioskInput=` metadata; the input
+reconciler removes absent mappings and restores them after reconnection, with
+its existing debounce/commit-lock protection. This never edits saved config or
+selects arbitrary new USB devices. Other missing device sources remain errors.
+Older Quadlets without metadata keep their original fail-closed behavior.

@@ -205,3 +205,54 @@ from clean base. Inspect finish-image.status/log for current result.
 - Separate open issues unchanged: stable decoder-device resolution and startup
   with absent selected USB devices. Touch confirmation does not validate codec
   passthrough under this boot's device numbers or USB unplug/replug recovery.
+
+## Device discovery and absent-touch correction (in progress)
+
+- Implemented request-decoder passthrough in native kiosk helper: read-only
+  VIDIOC_QUERYCAP/ENUM_FMT, M2M compressed OUTPUT selection and corresponding
+  media-controller sysfs relationship. No board names/fixed device numbers;
+  no automatic grants for non-kiosk or software/legacy modes; explicit mappings
+  preserved and destination collisions rejected. Source preparation updated.
+- Stable selected input mappings may be absent during native validation and
+  generation; generated Quadlet comments retain their identities. Reconciler
+  removes absent selected devices and re-adds only these on return, retaining
+  debounce and commit-lock protection. Old metadata-free Quadlets fail closed.
+- Installed three files under independent10min rollback with originals in shared
+  boot/vyarm-device-fix-20260927: kiosk.py, container.py, input reconciler.
+  Native verify/generation passed, automatically adding current rkvdec video1.
+- At real Full-HD HDMI output, four probe files reached EOS with platform=true,
+  V4L2VideoDecoder: H2647/600 drops, HEVC Main10 8/300, VP9 9/300, AV1 2/300.
+  Short smoke tests; raw fullhd-results in shared device-fix directory.
+- Temporarily unbound only both ILITEK usbhid interfaces, with independent35s
+  rebind timer. With both absent, native verification/generation passed and
+  Chromium/Weston started. Metadata retained both selections. After rebind,
+  reconciler automatically restarted container and Weston associated both input
+  devices with HDMI-A-1. This tests absent-device startup/recovery, not a cold
+  boot with physically disconnected cable.
+- Prepared protected candidate reboot, independent12min return timer and
+  one-shot GRUB override; old default preserved. Boot verification pending.
+
+### Device-fix verification complete
+
+- Protected reboot succeeded with native config generation. rkvdec changed
+  video1 -> video2; detector returns current request decoders and their media
+  controllers. Kiosk starts without hand-editing runtime mappings. HDMI remains
+  FullHD60 and both ILITEK devices are associated with rotated output.
+- Four post-boot fixtures: H2647/600, HEVC Main10 8/300, VP9 10/300, AV1 5/300
+  dropped frames. All EOS, V4L2VideoDecoder, platform=true. No matching decoder
+  timeout/kernel panic/IOMMU fault found. This is still a short playback suite,
+  not a sustained performance or complete error-path qualification.
+- Results in device-fix-results-20260927.json; full raw archive local
+  tmp/adf-update-20260927/device-fix-results.tar. Physical touch reconfirmation
+  after automated rebind/reboot requested; prior candidate touch confirmed.
+- All90 local kiosk tests pass, including discovery ioctl behavior, swapped
+  numbers, absent media, conflict rejection, optional-input scope, input return,
+  and unchanged other containers. Source preparation passes on clean upstream
+  container.py/container.xml.in from exact CLI checkout (syntax checked).
+- Saved configuration values match pretest backup. Only generated version
+  comment differs after boot. Removed test timer/GRUB hook; candidate remains
+  running with these live fixes, old permanent boot default unchanged.
+- Backups/rollback script remain in shared boot/vyarm-device-fix-20260927.
+  Main/Actions unchanged; no push. Existing ISO predates these fixes: next ISO
+  MUST rebuild native CLI from this source and apply current F host integration;
+  do not reuse earlier cli-artifacts package as if it included the changes.

@@ -5,6 +5,8 @@ No service lifecycle, network changes, configuration writes or shell execution.
 import re
 import os
 import stat
+import fcntl
+import struct
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -60,8 +62,19 @@ def environment(config):
         raise ValueError('Capture buffer reserves require explicit video-decode auto or software')
     # Quadlet moves these into systemd ExecStart, where both specifiers (%)
     # and variable substitution ($) must remain literal URL characters.
-    return [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
-            for key, value in values.items()]
+    result = [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
+              for key, value in values.items()]
+    for item in config.get('device', {}).values():
+        if optional_input(config, item):
+            result.append(f"# KioskInput={item['source']}:{item['destination']}")
+    return result
+
+
+def optional_input(config, item):
+    """Only explicitly selected stable kiosk evdev inputs may be absent."""
+    return ('kiosk' in config and
+            bool(re.fullmatch(r'/dev/input/by-(?:id|path)/[^/\s:%]+', item.get('source', ''))) and
+            bool(re.fullmatch(r'/dev/input/event[0-9]+', item.get('destination', ''))))
 
 
 def resolve_input(source):
@@ -72,7 +85,55 @@ def resolve_input(source):
     return str(node)
 
 
-def devices(config, resolve=resolve_input):
+def request_decoder(path):
+    """Query capabilities/formats only; never allocate buffers or start streaming."""
+    fd = os.open(path, os.O_RDWR | os.O_NONBLOCK | os.O_CLOEXEC)
+    try:
+        cap = bytearray(104)
+        fcntl.ioctl(fd, 0x80685600, cap, True)
+        flags = struct.unpack_from('I', cap, 84)[0]
+        if flags & 0x80000000:
+            flags = struct.unpack_from('I', cap, 88)[0]
+        if not flags & (0x4000 | 0x8000):
+            return False
+        for queue in (2, 10):
+            for index in range(64):
+                fmt = bytearray(64)
+                struct.pack_into('II', fmt, 0, index, queue)
+                try:
+                    fcntl.ioctl(fd, 0xc0405602, fmt, True)
+                except OSError:
+                    break
+                if bytes(fmt[44:48]) in (b'S264', b'S265', b'VP9F', b'AV1F'):
+                    return True
+        return False
+    finally:
+        os.close(fd)
+
+
+def decoder_devices(sysroot=Path('/sys/class/video4linux'), devroot=Path('/dev'),
+                    probe=request_decoder):
+    """Select request decoders and their own media controller, regardless of number."""
+    result = set()
+    for entry in sorted(sysroot.glob('video*')):
+        if not re.fullmatch(r'video[0-9]+', entry.name):
+            continue
+        video = devroot / entry.name
+        try:
+            if not stat.S_ISCHR(video.stat().st_mode) or not probe(str(video)):
+                continue
+            media = [devroot / p.name for p in (entry / 'device').glob('media*')
+                     if re.fullmatch(r'media[0-9]+', p.name)]
+            media = [p for p in media if stat.S_ISCHR(p.stat().st_mode)]
+            if media:
+                result.add(str(video))
+                result.update(map(str, media))
+        except OSError:
+            continue  # Absent/busy/inaccessible hardware: browser can fall back.
+    return [(p, p) for p in sorted(result)]
+
+
+def devices(config, resolve=resolve_input, discover=decoder_devices):
     """Resolve selected kiosk inputs at generation; never modify saved config."""
     result, destinations = [], set()
     for item in config.get('device', {}).values():
@@ -82,10 +143,20 @@ def devices(config, resolve=resolve_input):
                 re.fullmatch(r'/dev/input/event[0-9]+', destination)):
             try:
                 destination = resolve(source)
+            except FileNotFoundError:
+                continue  # Selected device stays recorded in KioskInput metadata.
             except (OSError, ValueError) as error:
                 raise ValueError(f'Cannot resolve selected kiosk input {source}: {error}') from error
         if 'kiosk' in config and destination in destinations:
             raise ValueError(f'Conflicting kiosk device destination: {destination}')
         destinations.add(destination)
         result.append((source, destination))
+    if config.get('kiosk', {}).get('video_decode') == 'auto':
+        for source, destination in discover():
+            if (source, destination) in result:
+                continue
+            if destination in destinations:
+                raise ValueError(f'Conflicting kiosk decoder destination: {destination}')
+            result.append((source, destination))
+            destinations.add(destination)
     return result

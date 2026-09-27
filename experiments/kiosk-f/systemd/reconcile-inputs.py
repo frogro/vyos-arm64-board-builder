@@ -3,7 +3,8 @@
 
 No config commits, saved configuration edits or additional device grants. Only
 an active kiosk is restarted, after debouncing and under the native commit lock.
-Absent devices are left pending: this does not implement boot without devices.
+New Quadlets retain selected inputs as comments so absent inputs can return.
+Older Quadlets without metadata retain the original fail-closed behavior.
 """
 import argparse
 import json
@@ -34,6 +35,29 @@ def plan(text, resolve=resolve_device):
         raise ValueError('Not a native VyOS container Quadlet')
     if not re.search(r'^Environment=KIOSK_ROTATION=', text, re.M):
         raise ValueError('Not a native kiosk container')
+    selected = {}
+    for line in text.splitlines():
+        if line.startswith('# KioskInput='):
+            fields = line.split('=', 1)[1].split(':')
+            if len(fields) != 2 or not STABLE.fullmatch(fields[0]) or not EVENT.fullmatch(fields[1]):
+                raise ValueError('Invalid selected input metadata')
+            selected[fields[0]] = fields[1]
+    if selected:
+        # Regenerate only explicitly selected inputs; metadata persists unplugged.
+        raw = []
+        for line in text.splitlines(keepends=True):
+            if line.startswith('AddDevice=') and line.split('=', 1)[1].split(':', 1)[0] in selected:
+                continue
+            raw.append(line)
+        additions = []
+        for source in selected:
+            try:
+                destination = resolve(source)
+            except FileNotFoundError:
+                continue
+            additions.append(f'AddDevice={source}:{destination}\n')
+        # AddDevice belongs inside [Container], never at end after [Service].
+        text = ''.join(raw).replace('[Container]\n', '[Container]\n' + ''.join(additions), 1)
     lines, expected, destinations = [], [], set()
     for line in text.splitlines(keepends=True):
         if line.startswith('AddDevice='):
