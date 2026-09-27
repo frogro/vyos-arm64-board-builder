@@ -11,6 +11,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class KvmCliTests(unittest.TestCase):
+    def test_negotiated_conversion_preserves_legacy_and_falls_back_safely(self):
+        runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
+        start = runner.index('            # Negotiated mode must not')
+        end = runner.index('            args+=("!" "${converter}"', start)
+        block = runner[start:end]
+        for mode, enabled, converter, expected in [
+            ('legacy', False, 'v4l2convert', 'v4l2convert'),
+            ('negotiated', False, 'v4l2convert', 'videoconvert'),
+            ('negotiated', True, 'v4l2convert', 'v4l2convert'),
+            ('negotiated', True, 'videoconvert', 'videoconvert'),
+        ]:
+            script = ('COLORIMETRY=' + mode + '; converter=' + converter + '; '
+                      + 'grep() { return ' + ('0' if enabled else '1') + '; };\n'
+                      + block + '\nprintf "%s" "$converter"')
+            result = subprocess.run(['bash', '-c', script], capture_output=True,
+                                    text=True, check=True)
+            self.assertEqual(result.stdout, expected)
+
     def test_cli_backend_names_are_generic(self):
         xml_path = ROOT / 'profiles/kvm-cli/service_kvm-over-ip.xml'
         tree = ET.parse(xml_path)

@@ -58,7 +58,7 @@ def main():
             if run_title in known:
                 record['boards'][board]={'existing_run':known[run_title]}
             else:
-                args=['workflow','run','build-board-candidate.yml','--repo',REPO,'--ref','main-test']
+                args=['workflow','run','build-board-candidate.yml','--repo',REPO,'--ref','main']
                 inputs={'board':board,'extended_network':'true','tailscale_subnet_router':'false','kvm_over_ip':'false',
                     'expected_update_provider':BOARDS[board],'vyos_ref':record['vyos_commit'],'armbian_ref':ARMBIAN,
                     'rolling_reference':tag,'force_fresh_base':'true','publish_release':'true'}

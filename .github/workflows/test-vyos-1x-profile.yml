@@ -1,7 +1,7 @@
 name: Test source-built VyOS-1x profile packages
 on:
   push:
-    branches: [main-test]
+    branches: [main]
     paths:
       - tools/build-vyos-1x-profile.py
       - tools/prepare-vyos-1x-profile.py

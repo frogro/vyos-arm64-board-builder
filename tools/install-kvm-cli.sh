@@ -20,7 +20,14 @@ name=meta['package']; assert Path(name).name==name and name.endswith('.deb')
 package=artifacts/name
 assert hashlib.sha256(package.read_bytes()).hexdigest()==meta['package_sha256']
 version=subprocess.check_output(['dpkg-query','--admindir='+str(root/'var/lib/dpkg'),'-W','-f=${Version}','vyos-1x'],text=True).strip()
-assert version==meta['base_package_version'], 'Profile package does not match this base image'
+if version != meta['base_package_version']:
+    # An already assembled profile image can be extended only from the same
+    # exact upstream package; never infer compatibility from a version suffix.
+    prior_path = root/'usr/share/vyos-arm64-board-builder/native-cli/build.json'
+    prior = json.loads(prior_path.read_text()) if prior_path.is_file() else {}
+    assert (prior.get('package_version') == version and
+            prior.get('base_package_version') == meta['base_package_version']), \
+        'Profile package does not match this base image'
 policy=root/'usr/sbin/policy-rc.d'
 assert not policy.is_symlink(), 'Unexpected policy-rc.d symlink'
 previous=policy.read_bytes() if policy.exists() else None

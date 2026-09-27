@@ -16,6 +16,13 @@
               <help>Video capture and streaming</help>
             </properties>
             <children>
+              <leafNode name="colorimetry">
+                <properties>
+                  <help>GStreamer color metadata policy (default legacy)</help>
+                  <completionHelp><list>legacy negotiated</list></completionHelp>
+                  <constraint><regex>(legacy|negotiated)</regex></constraint>
+                </properties>
+              </leafNode>
               <leafNode name="transport">
                 <properties>
                   <help>MediaMTX browser protocol (default webrtc)</help>

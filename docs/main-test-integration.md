@@ -1,5 +1,8 @@
 # Shared main-test integration
 
+Superseded by the A–D promotion documented in `main-promotion-20260922.md`.
+The following records the historical integration and acceptance plan.
+
 `main-test` is the shared integration branch for all boards. It starts from the
 latest common E52C branch, which already contains the ROCK 5B MPP/KVM work and
 Pi development, and merges the remaining remote branch histories. `main` has

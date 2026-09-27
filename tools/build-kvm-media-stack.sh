@@ -149,6 +149,7 @@ if enabled ffmpeg-rockchip; then
 fi
 
 GST_STATUS=disabled
+GST_COLORIMETRY=0
 if enabled gstreamer-rockchip; then
     GST_MODE="$(mode_of gstreamer-rockchip)"
     GST_INSPECT_LOG="$ARTIFACTS/gstreamer/mpph264enc-inspect.txt"
@@ -159,6 +160,10 @@ if enabled gstreamer-rockchip; then
         set -euo pipefail
         chroot "$CHROOT" env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends meson ninja-build python3 gstreamer1.0-tools libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
         clone_pinned "$GST_ROCKCHIP_REPO" "$GST_ROCKCHIP_COMMIT" "$CHROOT/build/gst-rockchip"
+        GST_COLOR_PATCH="$ROOT/profiles/kvm-hardware/gstreamer-patches/0001-opt-in-gstreamer-mpp-colorimetry.patch"
+        git -C "$CHROOT/build/gst-rockchip" apply --check "$GST_COLOR_PATCH"
+        git -C "$CHROOT/build/gst-rockchip" apply "$GST_COLOR_PATCH"
+        install -m 0644 "$GST_COLOR_PATCH" "$ARTIFACTS/source/"
         chroot "$CHROOT" /bin/bash -lc 'set -euo pipefail; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig; meson setup /build/gst-rockchip/build /build/gst-rockchip --prefix=/usr/local --libdir=lib/aarch64-linux-gnu --buildtype=release -Drockchipmpp=enabled -Drga=disabled -Drkximage=disabled -Dkmssrc=disabled -Dvpxalphadec=disabled; ninja -C /build/gst-rockchip/build -j"${JOBS:-4}"; meson install -C /build/gst-rockchip/build; ldconfig; rm -f /tmp/vyos-kvm-gst-registry.bin; GST_REGISTRY=/tmp/vyos-kvm-gst-registry.bin GST_PLUGIN_PATH=/usr/local/lib/aarch64-linux-gnu/gstreamer-1.0 gst-inspect-1.0 mpph264enc >/tmp/mpph264enc.txt 2>&1'
         GST_PLUGIN="$(find "$CHROOT/usr/local/lib/aarch64-linux-gnu/gstreamer-1.0" -type f -name 'libgstrockchipmpp.so*' -print -quit)"
         [[ -n "$GST_PLUGIN" ]]
@@ -170,6 +175,7 @@ if enabled gstreamer-rockchip; then
         git -C "$CHROOT/build/gst-rockchip" archive --format=tar.gz --prefix="gst-rockchip-${GST_ROCKCHIP_COMMIT}/" --output="$ARTIFACTS/source/gst-rockchip-${GST_ROCKCHIP_COMMIT}.tar.gz" HEAD
     ); then
         GST_STATUS=pass
+        GST_COLORIMETRY=1
     else
         GST_STATUS=failed
         if [[ -s "$CHROOT/tmp/mpph264enc.txt" && ! -s "$GST_INSPECT_LOG" ]]; then
@@ -225,6 +231,7 @@ FFMPEG_ROCKCHIP_COMMIT=$FFMPEG_COMMIT
 MEDIAMTX_VERSION=$MEDIAMTX_VERSION
 GSTREAMER_ROCKCHIP_COMMIT=$GST_ROCKCHIP_COMMIT
 GSTREAMER_ROCKCHIP_STATUS=$GST_STATUS
+GSTREAMER_MPP_COLORIMETRY_PATCH=$GST_COLORIMETRY
 LIBMPP_MODE=$(mode_of libmpp)
 FFMPEG_ROCKCHIP_MODE=$(mode_of ffmpeg-rockchip)
 MEDIAMTX_MODE=$(mode_of mediamtx)

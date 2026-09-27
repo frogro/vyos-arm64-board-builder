@@ -35,5 +35,6 @@ class Tests(unittest.TestCase):
         self.assertEqual(len(dispatched),3)
         self.assertEqual(len(state['releases']['2026.09.18-0028-rolling']['boards']),3)
         self.assertTrue(all('kvm_over_ip=false' in a for a in dispatched))
+        self.assertTrue(all(a[a.index('--ref') + 1] == 'main' for a in dispatched))
 
 unittest.main()

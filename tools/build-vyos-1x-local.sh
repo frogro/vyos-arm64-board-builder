@@ -3,7 +3,7 @@
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo 'Run this script with sudo.' >&2; exit 1; }
 BASE=/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp
-REPO=/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/worktrees/main-test
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION=999.0-14891-gd185906f3
 UNIT=vyos-profile-build-docker
 CTR_UNIT=vyos-profile-build-containerd

@@ -1,7 +1,9 @@
 name: Watch official VyOS Rolling releases
 on:
   schedule:
-    - cron: '23 * * * *'
+    # Best-effort checks twice hourly, away from the top-of-hour peak.
+    # GitHub may delay/drop scheduled events; this is not a timing guarantee.
+    - cron: '23,53 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -21,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main-test
+          ref: main
       - name: Test release selection
         run: python3 tests/test-watch-upstream-rolling.py
       - name: Dispatch new official Rolling builds
