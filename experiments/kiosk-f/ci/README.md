@@ -2,12 +2,12 @@
 
 One-off candidate for ROCK 5B; no automatic release publication or main changes.
 
-Frozen integration source: `8c5a006`; upstream VyOS `999.202609250800` from
+Frozen integration source: `f00cf42d100f10373509c7e918ad8fb6949d283e`; upstream VyOS `999.202609250800` from
 successful A-D run `36267716867`; original CLI source
 `4e3e38a2e665bb2d8e9446116e02300bb38a2ab4`.
 
 The native ARM64 Actions job rebuilds the full CLI with its upstream checks.
-Its recipe must equal `f7a18d9dddcaef2028f969fb271062918e4a8e20b13e071d38f297db95c738fd`.
+Its recipe must equal `e4ba6e3c140350063eb20d95ee41fc70c34e8bb48b6e4f267003078ecaceee22`.
 It reuses the exact same validated kernel/modules/DTB, Chromium/Kiosk runtime,
 GPU firmware and build-container layers as the NUC run. Binary inputs are staged
 as draft-release assets, pinned by SHA256 in inputs.sha256; they are not a public
@@ -26,3 +26,8 @@ payload identity between each run's IMG and ISO. Whole artifact hashes need not
 match: build timestamps, filesystem UUIDs, compression threading and generated
 package metadata can legitimately differ. Fresh boot/update testing remains a
 separate step after artifact validation.
+
+This corrected candidate follows the original 8c5a006 comparison. It normalizes
+installed MPP library ownership and CLI metadata permissions, and removes the
+upstream duplicate console log definition before CLI generation. Both package
+and final image checks validate the resulting console commands.

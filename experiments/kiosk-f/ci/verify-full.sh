@@ -36,6 +36,19 @@ assert (r/'usr/local/sbin/vyarm-kiosk-setup').is_file()
 assert (r/'usr/lib/firmware/arm/mali/arch10.8/mali_csffw.bin').is_file()
 assert (r/'etc/systemd/system/rsyslog.service.d/50-vyarm-config-ready.conf').is_file()
 assert not list((r/'etc/ssh').glob('ssh_host_*_key'))
+op=r/'opt/vyatta/share/vyatta-op/templates'
+show=(op/'show/log/console-server/node.def').read_text()
+monitor=(op/'monitor/log/console-server/node.def').read_text()
+assert 'conserver-server.service' in show and '--follow' not in show
+assert 'conserver-server.service' in monitor and '--follow' in monitor
+assert (op/'show/console-server/ports/node.def').is_file()
+libs=list((r/'usr/local/lib/vyos-kvm-media').glob('librockchip_mpp.so*'))
+assert libs, 'MPP libraries missing'
+for lib in libs:
+ st=lib.lstat();assert (st.st_uid,st.st_gid)==(0,0),(lib,st)
+for kind in ['native-cli','kvm-cli']:
+ st=(r/f'usr/share/vyos-arm64-board-builder/{kind}/build.json').stat()
+ assert (st.st_uid,st.st_gid,st.st_mode & 0o777)==(0,0,0o644),(kind,st)
 print('CLI, runtime, host fixes, A-D/F profile metadata and absence of SSH private host keys verified')
 PY
 mkdir -p "$V/root/run"

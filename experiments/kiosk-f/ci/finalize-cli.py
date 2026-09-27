@@ -15,8 +15,15 @@ for rel in ['usr/share/vyos/reftree.cache','usr/share/vyos/configd-include.json'
  assert (check/rel).is_file(),rel
 assert 'def decoder_devices(' in (check/'usr/lib/python3/dist-packages/vyos/kiosk.py').read_text()
 assert 'optional_input' in (check/'usr/libexec/vyos/conf_mode/container.py').read_text()
+r=check
+op=r/'opt/vyatta/share/vyatta-op/templates'
+show=(op/'show/log/console-server/node.def').read_text()
+monitor=(op/'monitor/log/console-server/node.def').read_text()
+assert 'conserver-server.service' in show and '--follow' not in show
+assert 'conserver-server.service' in monitor and '--follow' in monitor
+assert (op/'show/console-server/ports/node.def').is_file()
 out=b/'cli-artifacts';out.mkdir(exist_ok=True)
 shutil.copy2(p,out/p.name)
-meta.update(package=p.name,package_sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_commit='4e3e38a2e665bb2d8e9446116e02300bb38a2ab4',build_container_id=(b/'build-image-id.txt').read_text().strip(),build_host_arch='aarch64 native GitHub Actions',integration_commit='8c5a006')
+meta.update(package=p.name,package_sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_commit='4e3e38a2e665bb2d8e9446116e02300bb38a2ab4',build_container_id=(b/'build-image-id.txt').read_text().strip(),build_host_arch='aarch64 native GitHub Actions',integration_commit='f00cf42d100f10373509c7e918ad8fb6949d283e')
 (out/'build.json').write_text(json.dumps(meta,indent=2)+'\n');(out/'SHA256SUMS').write_text(meta['package_sha256']+'  '+p.name+'\n')
 print('CLI artifact and required D/F commands verified:',p.name)

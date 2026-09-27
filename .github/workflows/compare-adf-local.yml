@@ -1,5 +1,5 @@
 name: Compare local and native ARM64 A-D plus F build
-run-name: "Experimental ROCK 5B A-D+F / frozen 8c5a006"
+run-name: "Corrected ROCK 5B A-D+F / ownership and console CLI"
 on:
   push:
     branches: [ci/adf-compare-20260927]
@@ -23,9 +23,11 @@ jobs:
           fetch-depth: 0
       - name: Check frozen production inputs and F regressions
         run: |
-          git diff --exit-code 8c5a006 -- tools profiles firmware experiments/kiosk-f/cli experiments/kiosk-f/host experiments/kiosk-f/image experiments/kiosk-f/systemd
+          git diff --exit-code f00cf42d100f10373509c7e918ad8fb6949d283e -- tools profiles firmware experiments/kiosk-f/cli experiments/kiosk-f/host experiments/kiosk-f/image experiments/kiosk-f/systemd
           python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
           python3 tests/test-kiosk-host-fixes.py
+          python3 tests/test-console-log-source.py
+          sudo python3 tests/test-kvm-media-file-ownership.py
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-cli.py
           python3 tests/test-grub-board-dtb-persistence.py

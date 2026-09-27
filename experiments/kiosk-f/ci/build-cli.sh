@@ -10,7 +10,7 @@ python3 repo/tools/prepare-vyos-1x-profile.py cli-source --version 999.0-14942-g
 python3 - <<'PY'
 import json
 m=json.load(open('cli-source/data/arm64-profile-source.json'))
-assert m['recipe_sha256']=='f7a18d9dddcaef2028f969fb271062918e4a8e20b13e071d38f297db95c738fd',m
+assert m['recipe_sha256']=='e4ba6e3c140350063eb20d95ee41fc70c34e8bb48b6e4f267003078ecaceee22',m
 PY
 git -C cli-source add .
 docker image inspect -f '{{.Id}}' vyos-profile-build:arm64-22dfa15927f2 > build-image-id.txt
