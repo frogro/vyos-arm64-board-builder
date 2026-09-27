@@ -1,5 +1,5 @@
 ARG BASE_IMAGE
-FROM localhost/vyarm-sunshine-build:kms-timing-20260927 AS sunshine
+FROM localhost/vyarm-sunshine-build:direct-rga-20260927 AS sunshine
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
@@ -20,4 +20,4 @@ RUN printf '/opt/mpp/lib\n' > /etc/ld.so.conf.d/vyarm-mpp.conf && ldconfig \
  && test -s /usr/lib/aarch64-linux-gnu/libweston-14/drm-backend.so \
  && test -s /usr/lib/aarch64-linux-gnu/libweston-14/gl-renderer.so
 # No credentials, machine identities or browser state are copied. Timing and
-# experimental RGA remain off unless explicitly enabled for diagnostics.
+# experimental RGA/direct GPU capture remain off unless explicitly enabled.

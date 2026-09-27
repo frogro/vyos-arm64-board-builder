@@ -1,0 +1,11 @@
+[2026-09-27 19:57:46.973]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 19:57:47.030]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:57:47.060]: Info: Creating encoder []
+[2026-09-27 19:57:47.237]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:57:52.508]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 19:57:52.550]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:57:52.575]: Info: Creating encoder []
+[2026-09-27 19:57:52.721]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:57:52.977]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:08.068]: Info: VYARM_KMS_TIMING frames=60 refresh_ms=0.227388 import_ms=0.154539 prepare_ms=0.0242808 readback_ms=251.045 cursor_ms=8.75167e-05 total_ms=251.452 width=1920 height=1080
+[2026-09-27 19:58:23.085]: Info: VYARM_KMS_TIMING frames=60 refresh_ms=0.207358 import_ms=0.131101 prepare_ms=0.0260403 readback_ms=249.837 cursor_ms=8.265e-05 total_ms=250.202 width=1920 height=1080

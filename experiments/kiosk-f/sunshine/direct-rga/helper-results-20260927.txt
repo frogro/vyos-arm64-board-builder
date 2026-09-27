@@ -1,0 +1,9 @@
+1920x1080 bt709=0 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+1920x1080 bt709=0 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+1920x1080 bt709=1 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+1920x1080 bt709=1 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+1080x1920 bt709=0 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+1080x1920 bt709=0 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+1080x1920 bt709=1 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+1080x1920 bt709=1 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+DIRECT_RGA_TEST_OK cases=8

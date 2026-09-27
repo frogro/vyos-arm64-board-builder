@@ -1,0 +1,23 @@
+[2026-09-27 20:02:51.232]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 20:02:51.279]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:02:51.310]: Info: Creating encoder []
+[2026-09-27 20:02:51.481]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:51.481]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:02:51.528]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:51.623]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:51.670]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:57.112]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 20:02:57.158]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:02:57.199]: Info: Creating encoder []
+[2026-09-27 20:02:57.341]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:57.341]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:02:57.387]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:57.502]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:57.566]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:02:57.647]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:03:01.705]: Info: VYARM_DIRECT_RGA frames=120 capture_convert_ms=5.42133 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:03:05.705]: Info: VYARM_DIRECT_RGA frames=240 capture_convert_ms=5.07151 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:03:09.704]: Info: VYARM_DIRECT_RGA frames=360 capture_convert_ms=4.08442 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:03:13.703]: Info: VYARM_DIRECT_RGA frames=480 capture_convert_ms=4.01928 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:03:14.846]: Warning: VYARM_DIRECT_RGA fallback: RGA corrected CSC disabled during capture: Resource temporarily unavailable; disabled until capture reinitialization
+[2026-09-27 20:03:30.147]: Info: VYARM_KMS_TIMING frames=60 refresh_ms=0.206787 import_ms=0.365094 prepare_ms=0.0254412 readback_ms=254.571 cursor_ms=6.80667e-05 total_ms=255.168 width=1920 height=1080
