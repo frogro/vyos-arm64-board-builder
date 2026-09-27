@@ -53,3 +53,23 @@ with tested A-D branch (63767ef), without changing main or publishing.
   live backend/decoder/D tests and configuration comparison still pending.
 - No reboot performed this turn. No main push or publication. No old artifacts
   deleted to free space; NUC new workspace uses separate root filesystem.
+
+## Continuation checkpoint
+
+- CLI compilation reached full upstream pylint stage; four active workers,
+  no failure reported as of this checkpoint. Native build exec session99787;
+  status/log in tmp/adf-update-20260927. Do not start another package build.
+- Started local systemd unit vyarm-adf-finish-20260927. It waits for successful
+  CLI completion, validates package and executes assemble-from-ad.sh; it does
+  NOT install or reboot the ROCK. Inspect finish-image.status/log and unit.
+  Maximum wait2h, failed steps stop with statusfailed. No background observer
+  or recurring automation created.
+- Assembly helper additionally checks preserved config against the generated
+  reference tree using a temporary /run tmpfs copy, absent from packaged root.
+- ROCK old kiosk still active, saved config SHA256
+  4ea89b238f5d043e9c2ca9ad639d14cdd5c19c13f2dc3920fcc2f194d00ae860.
+  USB enumeration shows root hubs and Terminus hub, no ILITEK/Logitech devices.
+  HDMI reports connected but kernel logged I2C/ELD/EDID errors on kiosk restart.
+  User's monitor/USB question remains unanswered. No new-image boot attempted.
+- When pipeline finishes, audit ISO and install alongside old default; first
+  resolve missing saved USB device mappings before protected reboot/live tests.

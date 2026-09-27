@@ -49,6 +49,14 @@ m=json.loads(p.read_text());m['version']=sys.argv[2]
 m['build_comment']='Local A-D plus F candidate; preserved A-D base, matched CLI/kernel and validated Wayland runtime'
 p.write_text(json.dumps(m)+'\n')
 PY
+# Validate preserved configuration without embedding credentials in the image.
+# /run is the temporary tmpfs mounted above and is removed before packaging.
+if [[ -f $WORK/private-backup/config-before.tar ]]; then
+    tar -xOf "$WORK/private-backup/config-before.tar" config/config.boot > "$ROOT/run/config-validation.boot"
+    chmod 600 "$ROOT/run/config-validation.boot"
+    chroot "$ROOT" python3 -c 'from pathlib import Path; from vyos.configtree import ConfigTree, validate_tree; result=validate_tree(ConfigTree(config_string=Path("/run/config-validation.boot").read_text())); assert not result, "Saved configuration fails new CLI schema validation"; print("Saved configuration passes new CLI schema validation")'
+    rm "$ROOT/run/config-validation.boot"
+fi
 cleanup
 trap - EXIT
 ISO=$WORK/iso-adf
