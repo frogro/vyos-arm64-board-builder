@@ -82,7 +82,7 @@ if enabled libmpp; then
     install -m 0755 "$ARTIFACTS/bin/mpi_enc_test" "$ROOTFS/usr/local/bin/mpi_enc_test"
 
     while IFS= read -r lib; do
-        cp -a "$lib" "$MEDIA_LIB_DIR/"
+        cp -a --remove-destination "$lib" "$MEDIA_LIB_DIR/"
         # Artifact archives may carry the NUC/Actions runner UID. Installed
         # runtime libraries and their links must belong to the target root.
         chown -h 0:0 -- "$MEDIA_LIB_DIR/$(basename "$lib")"
