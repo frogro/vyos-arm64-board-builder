@@ -48,3 +48,6 @@ exit
 ```
 
 This sets accept_ra=2 with forwarding still enabled. `rdisc6 -1 eth0` solicited an advertisement; a global EUI-64 address appeared. The client peer endpoint was changed to that ROCK global IPv6 address (not the FRITZ!Box WAN address); inner IPv4 tunnel ping still succeeds locally. Rollback script extended to delete this temporary autoconf option as well. External IPv6 test still requires UDP 51829 IPv6 firewall permission for the ROCK and IPv6 connectivity through the Samsung hotspot. Public addresses are deliberately omitted here; derive fresh values from live state.
+
+## External hotspot result
+ThinkPad LAN disconnected; Samsung hotspot assigned 10.174.69.115/24. Wi-Fi had only link-local IPv6 and no IPv6 default route. WireGuard retained the earlier local handshake; no fresh external handshake was observed. Thus native WireGuard local function is verified, external transport is blocked by this client's missing IPv6 connectivity while the home endpoint is behind provider IPv4 NAT. Do not label this an external WireGuard or Moonlight success. Requires an IPv6-capable external access network, a publicly reachable IPv4 home endpoint, or a separate reachable WireGuard relay/server topology. Tailscale is a distinct alternative already available, not proof of native direct reachability.

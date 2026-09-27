@@ -67,6 +67,7 @@ jobs:
           git merge-base --is-ancestor 21febba HEAD
           git fetch origin main
           python3 experiments/kiosk-f/ci/check-main-preservation.py origin/main
+          python3 experiments/kiosk-f/ci/check-cli-recipe.py
           python3 experiments/kiosk-f/panthor-test/test-menu.py
           python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
           python3 tests/test-kiosk-host-fixes.py

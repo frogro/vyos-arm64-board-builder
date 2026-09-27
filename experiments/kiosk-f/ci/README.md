@@ -7,7 +7,7 @@ successful A-D run `36267716867`; original CLI source
 `4e3e38a2e665bb2d8e9446116e02300bb38a2ab4`.
 
 The native ARM64 Actions job rebuilds the full CLI with its upstream checks.
-Its recipe must equal `e4ba6e3c140350063eb20d95ee41fc70c34e8bb48b6e4f267003078ecaceee22`.
+Its reviewed recipe is pinned in `cli-recipe.sha256` and checked against the current D/F payload by `check-cli-recipe.py` before expensive builds. Update the pin after reviewing CLI source changes; the build-time assertion remains enabled.
 It reuses the exact same validated kernel/modules/DTB, Chromium/Kiosk runtime,
 GPU firmware and build-container layers as the NUC run. Binary inputs are staged
 as draft-release assets, pinned by SHA256 in inputs.sha256; they are not a public
