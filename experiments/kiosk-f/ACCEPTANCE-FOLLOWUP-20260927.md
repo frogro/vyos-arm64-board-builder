@@ -134,3 +134,63 @@ Hotspot test has its own rollback baseline including enabled Tailscale, so clean
 does not remove the only remote management path. Normal kiosk and its original
 Sunshine state are restored after test. No public router port forwards needed.
 Remaining acceptance: remote control/rotation and sustained motion/latency tests.
+
+## Wayland remote-input investigation
+
+The control-enabled candidate creates libvirtualhid Keyboard, Mouse and Mouse
+(Absolute) through /dev/uinput. Their host evdev nodes were missing inside the
+container. Host udev multicast also does not reach the container network namespace.
+These are separate problems from Sunshine's input-policy switch.
+
+Bounded live proof: a temporary native Quadlet device-cgroup rule `c 13:* rw`,
+host-created nodes for only the three virtual devices, and selective forwarding
+of their actual udev add messages into the container network namespace caused
+Weston to register all three at 14:11:49–50 UTC, without a compositor restart.
+Read-only access was insufficient for seatd/libinput; CAP_MKNOD stayed absent.
+No entire /dev/input bind mount or general udev forwarding was used.
+
+Ownership can be checked without trusting device names: duplicating the running
+container Sunshine process's uinput file descriptions via pidfd_getfd and querying
+UI_GET_SYSNAME returned its actual input12–input16 devices. A production helper
+must use this association, validate virtual sysfs paths, handle removal/recreation
+and container PID changes, and refuse unrelated devices. This is not yet an
+installed service or a CLI release of Wayland remote control. The Moonlight
+control session connected; physical mouse/keyboard/portrait acceptance is pending.
+
+## Update preservation audit
+
+The installed image_installer.py copies the entire DIR_CONFIG tree using
+copytree(symlinks=True, copy_function=copy_preserve_owner, dirs_exist_ok=True)
+when configuration migration is selected. The live kiosk state mount originates
+at /config/kiosk/state; native Tailscale state is /config/tailscale/state.
+AP configuration is in saved config.boot. All three therefore belong to the
+normal migration set. Actual next-image identity/pairing comparisons remain
+required; this source audit is not an update acceptance result.
+
+## Profile D RGA performance follow-up
+
+Same live HDMI input: BGR 1920x1080 at 60 Hz. Native CLI temporary GStreamer
+backend, negotiated colour, 8000 kbps, GOP60, listener127.0.0.1:18080.
+Waited for MediaMTX to report its RTSP publisher online before reading frames.
+
+- experimental_full_csc=Y selected v4l2convert plus mpph264enc. FFmpeg received
+  and decoded 600 distinct output frames in 10.964 seconds including connection
+  and probing; steady progress was approximately 60 frames per second. Stream
+  metadata: H.264 High, limited-range BT.709, 1920x1080. Exit0.
+- experimental_full_csc=N selected CPU videoconvert plus the same encoder.
+  FFmpeg received/decoded 120 frames in 17.447 seconds including startup/probing;
+  progress increments were about ten frames per second. Exit0. Metadata retained
+  limited range and BT.709 matrix/primaries, with sRGB transfer from negotiated caps.
+  An earlier eight-second ffprobe readiness timeout was not an encoder crash.
+
+These are short throughput checks, not latency, sustained stability or objective
+pixel-quality acceptance. They establish a performance benefit versus this
+GStreamer CPU-conversion fallback, not versus every existing D backend. The prior
+FFmpeg MPP baseline already reached 60 fps. No default backend was changed.
+
+After testing: module parameter restored N, temporary D configuration removed,
+original Wayland kiosk image restored, Tailscale remained active. A local
+integration/main-tested-df-20260927 branch starts from origin/main13cf40e and
+contains only the optional D candidate so far. Its KVM CLI/input and feature
+profile tests pass (23 tests). Main and published workflows remain unchanged;
+F packaging and remote-control acceptance are still outstanding.
