@@ -67,3 +67,47 @@ Distinguishes proprietary Mali and Mesa/Panthor stacks. Its Bookworm capability
 table must not be generalized to current PanVK; upstream documents G610 Vulkan:
 https://docs.mesa3d.org/drivers/panfrost.html
 No reason from these sources to replace our working kernel with a vendor stack.
+
+## Live validation: Mesa 26.1.6, 2026-09-27
+
+Isolated runtime `localhost/vyarm-kiosk:mesa26-probe-20260927`, image ID
+`e07845534a672ccb9cc6810cc6a3bd14f6b38d273565d12eb61fd6cce8e4c97d`.
+Based on the known Sunshine `audio-hevc-test3-20260927` runtime; upgraded only
+container Mesa packages from Debian trixie-backports to 26.1.6-1~bpo13+1.
+Host and running kiosk graphics libraries untouched. No reboot or Chromium build.
+Kernel remains `6.18.50-vyos-panthor-cache-test` for this comparison.
+
+- Vulkan: actual Mali-G610 MC4, MESA_PANVK, Vulkan 1.4.354; HOST_VISIBLE |
+  HOST_CACHED memory type available. This does not prove Sunshine uses it.
+- Native EGL: Mali-G610 MC4 (Panfrost), OpenGL 3.1 Mesa26.1.6.
+- Native KMS streaming, HEVC/rkmpp, 1920x1080, requested30fps, 2Mbps,
+  40-second client window: incoming13.81fps, rendering13.72fps,
+  host latency248.1/306.6/290.5ms min/max/mean; network1ms, network loss0%,
+  jitter drops0.61%; hardware client decoding1.11ms.
+  Earlier same-kernel Mesa25 measurement:14.33fps, mean host290.8ms.
+  No material performance gain; not a controlled content-identical benchmark.
+- Zink explicitly selected with MESA_LOADER_DRIVER_OVERRIDE=zink,
+  GALLIUM_DRIVER=zink and VK_DRIVER_FILES pointing to panfrost_icd.json.
+  EGL confirms actual Zink over MESA_PANVK, not lavapipe, but only GL2.1/ES2.0.
+  Sunshine fails EGL context creation with0x3009 (EGL_BAD_MATCH), then cannot
+  find a usable video path. No valid Zink stream or performance measurement.
+  PanVK does not advertise VK_EXT_transform_feedback in this build. Mesa's
+  Zink requirements list it for GL3.0; upstream Sunshine graphics.cpp requests
+  OpenGL context major3. These observations explain the compatibility boundary.
+  No version override was used to pretend missing GL support exists.
+
+References for the context/feature boundary:
+https://docs.mesa3d.org/drivers/zink.html#opengl-3-0
+https://github.com/LizardByte/Sunshine/blob/master/src/platform/linux/graphics.cpp
+
+Tests stopped; normal `kiosk` remained running. Test image retained for follow-up.
+Evidence outside git (client logs may contain authentication data):
+`work/panthor-live-36335262291/stream-mesa26-native.log`,
+`sunshine-mesa26-native-summary.log`, `sunshine-mesa26-zink-summary.log`,
+`mesa26-device-check.txt` under the local Codex workspace.
+
+Next useful step: instrument native Sunshine capture/import/readback separately
+from CPU conversion and MPP encode. The GitHub instrumented-runtime build passed
+its Sunshine step and was assembling the image during this test. A generic Mesa
+upgrade or Zink default is not justified by these results. Physical color/rotation
+validation of the Mesa26 stream was not performed by the user.
