@@ -212,7 +212,13 @@ class Supervisor:
                 self.error = 'Sunshine exited; retrying in five seconds'
             if self.proc is None and time.monotonic() >= self.retry:
                 self.log = open(STATE / 'runtime.log', 'w')
-                self.proc = subprocess.Popen(['sunshine', str(CONF)], cwd=STATE,
+                command = ['sunshine', str(CONF)]
+                if os.environ.get('SUNSHINE_VYARM_DIRECT_RGA') == '1':
+                    csc = Path('/sys/module/rockchip_rga/parameters/experimental_full_csc')
+                    if not csc.exists() or csc.read_text().strip() not in ('Y', '1'):
+                        raise ValueError('Waiting for host RGA CSC prerequisite')
+                    command += ['capture=kms', 'encoder=rkmpp', 'hevc_mode=2']
+                self.proc = subprocess.Popen(command, cwd=STATE,
                                              stdout=self.log, stderr=subprocess.STDOUT, env=capture_environment(),
                                              start_new_session=True, preexec_fn=parent_death_signal)
                 self.starts += 1

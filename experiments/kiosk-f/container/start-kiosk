@@ -15,7 +15,7 @@ if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
     exit $?
 fi
 # Only explicitly mapped devices inside this container, never host permissions.
-for device in /dev/mpp_service /dev/dma_heap/system; do
+for device in /dev/mpp_service /dev/dma_heap/system /dev/uinput; do
     if [ -c "$device" ]; then
         chgrp video "$device"
         chmod 0660 "$device"

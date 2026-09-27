@@ -65,6 +65,14 @@ def environment(config):
     result = [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
               for key, value in values.items()]
     remote = settings.get('remote', {})
+    if settings.get('display_backend') == 'wayland' and remote.get('access') == 'enabled':
+        result.append('Environment=SUNSHINE_VYARM_DIRECT_RGA="1"')
+        volumes = config.get('volume', {}).values()
+        matching = [v for v in volumes if v.get('destination') == '/run/mpp/compatible']
+        if matching and any(v.get('source') != '/sys/firmware/devicetree/base/compatible' for v in matching):
+            raise ValueError('Conflicting MPP compatible volume')
+        if not matching:
+            result.append('Volume=/sys/firmware/devicetree/base/compatible:/run/mpp/compatible:ro')
     if (settings.get('display_backend') == 'wayland'
             and remote.get('access') == 'enabled' and remote.get('input') == 'control'):
         # Host companion creates only Sunshine-owned nodes; target gains no mknod.
@@ -156,6 +164,24 @@ def devices(config, resolve=resolve_input, discover=decoder_devices):
             raise ValueError(f'Conflicting kiosk device destination: {destination}')
         destinations.add(destination)
         result.append((source, destination))
+    settings = config.get('kiosk', {})
+    if settings.get('display_backend') == 'wayland' and settings.get('remote', {}).get('access') == 'enabled':
+        required = ['/dev/mpp_service', '/dev/dma_heap/system']
+        required += [str(p) for p in Path('/dev/dri').glob('renderD*')]
+        rga = [str(Path('/dev') / p.parent.name) for p in Path('/sys/class/video4linux').glob('video*/name')
+               if p.read_text().strip() == 'rockchip-rga']
+        if len(rga) != 1 or len(required) != 3:
+            raise ValueError('Wayland remote requires one supported RGA and render device')
+        required += rga
+        if settings['remote'].get('input') == 'control':
+            required.append('/dev/uinput')
+        for node in required:
+            if not Path(node).is_char_device():
+                raise ValueError(f'Wayland remote device unavailable: {node}')
+            if (node, node) not in result:
+                if node in destinations:
+                    raise ValueError(f'Conflicting remote device destination: {node}')
+                result.append((node, node)); destinations.add(node)
     if config.get('kiosk', {}).get('video_decode') == 'auto':
         for source, destination in discover():
             if (source, destination) in result:

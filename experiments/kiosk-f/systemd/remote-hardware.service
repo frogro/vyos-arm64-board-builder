@@ -1,0 +1,6 @@
+[Unit]
+Description=Manage native kiosk remote CSC prerequisite
+[Service]
+ExecStart=/usr/local/libexec/vyos-kiosk-remote-hardware
+Restart=on-failure
+RestartSec=5

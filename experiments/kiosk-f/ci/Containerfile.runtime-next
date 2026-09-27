@@ -2,6 +2,7 @@ ARG BASE_IMAGE
 FROM localhost/vyarm-sunshine-build:direct-rga-20260927 AS sunshine
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
+LABEL io.vyarm.kiosk.sunshine-wayland="1"
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
 COPY --from=sunshine /build/sunshine-build/sunshine /usr/bin/sunshine
 COPY --from=sunshine /opt/mpp/lib/ /opt/mpp/lib/

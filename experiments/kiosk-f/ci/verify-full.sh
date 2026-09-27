@@ -23,6 +23,10 @@ cmp "$SQUASH" "$V/iso/live/filesystem.squashfs"
 (cd "$V/iso" && sha256sum -c sha256sum.txt)
 unsquashfs -d "$V/root" -f "$SQUASH" >/work/verification-extract.log
 cmp repo/experiments/kiosk-f/cli/kiosk.py "$V/root/usr/lib/python3/dist-packages/vyos/kiosk.py"
+cmp repo/experiments/kiosk-f/cli/remote.py "$V/root/usr/lib/python3/dist-packages/vyos/kiosk_remote.py"
+cmp repo/experiments/kiosk-f/systemd/remote-hardware.py "$V/root/usr/local/libexec/vyos-kiosk-remote-hardware"
+cmp repo/experiments/kiosk-f/sunshine/input-bridge/bridge.py "$V/root/usr/local/libexec/vyos-kiosk-sunshine-inputs"
+test -f "$V/root/etc/systemd/system/vyos-kiosk-remote-hardware.service"
 cmp repo/experiments/kiosk-f/systemd/reconcile-inputs.py "$V/root/usr/local/libexec/vyos-kiosk-reconcile-inputs"
 cmp runtime-artifacts/runtime.json "$V/root/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json"
 cmp runtime-artifacts/runtime.tar "$V/root/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.tar"

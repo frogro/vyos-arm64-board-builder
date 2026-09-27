@@ -17,6 +17,12 @@ def install(root, name):
         raise ValueError('Invalid container name')
     root = Path(root).resolve(strict=True)
     files = {
+        'usr/local/libexec/vyos-kiosk-remote-hardware': (
+            (SOURCE / 'systemd/remote-hardware.py').read_bytes(), 0o755),
+        'etc/systemd/system/vyos-kiosk-remote-hardware.service': (
+            (MARKER + '[Unit]\nDescription=Manage native kiosk remote CSC prerequisite\n'
+             '[Service]\nExecStart=/usr/local/libexec/vyos-kiosk-remote-hardware\n'
+             'Restart=on-failure\nRestartSec=5\n').encode(), 0o644),
         'usr/local/libexec/vyos-kiosk-sunshine-inputs': (
             (SOURCE / 'sunshine/input-bridge/bridge.py').read_bytes(), 0o755),
         f'etc/systemd/system/vyos-kiosk-sunshine-inputs-{name}.service': (
@@ -34,7 +40,7 @@ def install(root, name):
              f'ExecStart=/usr/local/libexec/vyos-kiosk-reconcile-inputs {name}\n'
              'Restart=on-failure\nRestartSec=5\n').encode(), 0o644),
         f'etc/systemd/system/vyos-container-{name}.service.d/kiosk-retry.conf': (
-            (MARKER + f'[Unit]\nStartLimitIntervalSec=0\nWants=vyos-kiosk-inputs-{name}.service vyos-kiosk-sunshine-inputs-{name}.service\n\n[Service]\n'
+            (MARKER + f'[Unit]\nStartLimitIntervalSec=0\nWants=vyos-kiosk-inputs-{name}.service vyos-kiosk-remote-hardware.service vyos-kiosk-sunshine-inputs-{name}.service\n\n[Service]\n'
              'RestartSec=5s\n'
              f'ExecStartPre=/usr/local/libexec/vyos-kiosk-wait-addresses {name}\n').encode(), 0o644),
     }

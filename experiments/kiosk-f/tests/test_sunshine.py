@@ -162,3 +162,13 @@ class ProcessIntegrationTest(unittest.TestCase):
             finally:
                 supervisor.terminate();supervisor.wait(timeout=10)
                 desktop.terminate();desktop.wait(timeout=3)
+
+class NativeWaylandTransitionTest(unittest.TestCase):
+    def test_device_access_requires_recreation_audio_does_not(self):
+        a = {'kiosk': {'display_backend': 'wayland', 'remote': {'access': 'disabled'}}}
+        b = copy.deepcopy(a); b['kiosk']['remote'].update(access='enabled', input='control')
+        self.assertFalse(remote.remote_only(a, b))
+        c = copy.deepcopy(b); c['kiosk']['remote']['audio'] = 'enabled'
+        self.assertTrue(remote.remote_only(b, c))
+        c['kiosk']['remote']['input'] = 'view-only'
+        self.assertFalse(remote.remote_only(b, c))

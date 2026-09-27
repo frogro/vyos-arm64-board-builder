@@ -28,10 +28,10 @@ def remote_only(old, new):
     def input_bridge(c):
         kiosk = c.get('kiosk', {})
         remote = kiosk.get('remote', {})
-        return (kiosk.get('display_backend') == 'wayland' and remote.get('access') == 'enabled'
-                and remote.get('input') == 'control')
+        return (kiosk.get('display_backend') == 'wayland'
+                and remote.get('access') == 'enabled')
     # Adding/removing device-cgroup permissions needs native recreation once.
-    if input_bridge(old) != input_bridge(new):
+    if input_bridge(old) != input_bridge(new) or (input_bridge(new) and policy(old)['input'] != policy(new)['input']):
         return False
     def stripped(c):
         c = copy.deepcopy(c)
@@ -82,8 +82,6 @@ def verify_image(config):
     settings = config.get('kiosk', {})
     media = any(key in settings for key in ('video_decode', 'video_h264_buffers', 'video_av1_buffers'))
     wayland = settings.get('display_backend') == 'wayland'
-    if wayland and settings.get('remote', {}).get('access') == 'enabled':
-        raise ValueError('Sunshine capture is not validated for DRM Wayland; use x11 for remote access')
     if 'remote' not in settings and not media and not wayland:
         return
     try:
@@ -91,6 +89,14 @@ def verify_image(config):
                                 capture_output=True, text=True, check=True, timeout=3)
         image = json.loads(result.stdout)[0]
         labels = image.get('Labels') or image.get('Config', {}).get('Labels') or {}
+        if wayland and settings.get('remote', {}).get('access') == 'enabled':
+            if labels.get('io.vyarm.kiosk.sunshine-wayland') != '1':
+                raise ValueError('Kiosk image lacks integrated Wayland Sunshine support')
+            for path in ('/usr/local/libexec/vyos-kiosk-sunshine-inputs',
+                         '/usr/local/libexec/vyos-kiosk-remote-hardware',
+                         '/sys/module/rockchip_rga/parameters/experimental_full_csc'):
+                if not Path(path).exists():
+                    raise ValueError(f'Wayland remote prerequisite missing: {path}')
         if wayland and labels.get('io.vyarm.kiosk.wayland-drm') != '1':
             raise ValueError('Kiosk image lacks DRM Wayland session support')
         if media and labels.get('io.vyarm.kiosk.media-policy') != '2':
