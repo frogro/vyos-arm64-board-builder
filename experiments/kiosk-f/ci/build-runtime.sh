@@ -6,8 +6,14 @@ mkdir sunshine-build-context runtime-next
 cp inputs/sunshine-source.tar.gz sunshine-build-context/
 cp "$S/kms-timing/Containerfile" "$S/kms-timing/0001-kms-stage-timing.patch" "$S/0002-mpp-container-compatible-path.patch" "$S/hevc/"*.patch "$S/rga-converter/0001-opt-in-sunshine-converter.patch" "$S/rga-converter/rga-converter.hpp" sunshine-build-context/
 docker build --platform linux/arm64 --network host -t localhost/vyarm-sunshine-build:kms-timing-20260927 -f sunshine-build-context/Containerfile sunshine-build-context 2>&1 | tee /work/sunshine-build.log
-BASE=$(python3 -c 'import json; print(json.load(open("runtime-artifacts/runtime.json"))["image_id"])')
+BASE_ID=$(python3 -c 'import json; print(json.load(open("runtime-artifacts/runtime.json"))["image_id"])')
 docker load -i runtime-artifacts/runtime.tar
+# BuildKit resolves a bare sha256 image ID as a registry name in FROM.
+# Verify the imported content before assigning a local, run-specific tag.
+test "$(docker image inspect --format '{{.Id}}' "$BASE_ID")" = "$BASE_ID"
+BASE=localhost/vyarm-kiosk-base:verified-${GITHUB_RUN_ID}
+docker tag "$BASE_ID" "$BASE"
+test "$(docker image inspect --format '{{.Id}}' "$BASE")" = "$BASE_ID"
 mkdir runtime-next/helpers
 cp repo/experiments/kiosk-f/container/kiosk-*.py repo/experiments/kiosk-f/container/start-kiosk runtime-next/helpers/
 TAG=localhost/vyarm-kiosk:github-${GITHUB_RUN_ID}

@@ -54,3 +54,14 @@ uses partition-relative /boot/<version>/panthor-test paths. Tests cover the live
 bind layout, whole-boot layout and mismatched mounts. The existing default is not
 changed. A workflow dispatch can reuse the verified kernel artifact while building
 an image with this helper fix, avoiding an unnecessary kernel rebuild.
+
+## Live-test boot argument trap (2026-09-27)
+
+Do not append an independent `panic=30` to the optional menu. VyOS
+`system_option.py` manages this argument; if it differs from the saved config,
+boot-time configuration applies `kexec -l /boot/vmlinuz` and reboots into the
+normal kernel. This was reproduced twice: the optional kernel and Panthor
+initialized, then `system_option` initiated kexec. The inherited BOOT_IMAGE text
+still named the test Image afterward, so it is not proof of the running kernel.
+Always verify `uname -r` and the kernel journal. Preserve the installed menu's
+arguments exactly and use the independent return timer / watchdog for recovery.
