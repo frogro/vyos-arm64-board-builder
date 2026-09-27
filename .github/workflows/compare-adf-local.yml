@@ -5,7 +5,8 @@ on:
     branches: [ci/adf-compare-20260927]
   workflow_dispatch:
 permissions:
-  contents: read
+  # Draft-release assets require repository write visibility; no publishing step.
+  contents: write
   actions: read
 concurrency:
   group: adf-compare-20260927

@@ -11,7 +11,8 @@ Its recipe must equal `f7a18d9dddcaef2028f969fb271062918e4a8e20b13e071d38f297db9
 It reuses the exact same validated kernel/modules/DTB, Chromium/Kiosk runtime,
 GPU firmware and build-container layers as the NUC run. Binary inputs are staged
 as draft-release assets, pinned by SHA256 in inputs.sha256; they are not a public
-release and the job only has read access to repository contents. Outputs are
+release. GitHub requires contents:write to read these draft assets; the job has
+no publication or repository-write step. Outputs are
 Actions artifacts, not published board releases.
 
 The SD image uses a12GiB disposable source copy; the original A-D artifact stays
