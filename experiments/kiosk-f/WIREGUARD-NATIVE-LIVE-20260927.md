@@ -36,3 +36,15 @@ FRITZ!Box UDP 51829 -> ROCK 192.168.178.173:51829. Need public reachable IPv4 or
 Cleanup uses `delete interfaces wireguard wg27` and `commit` on VyOS; remove temporary wg27 interface and test key from ThinkPad. Remove temporary FRITZ!Box forwarding if not retained for a planned deployment.
 
 Additional local checks: SSH to VyOS at 10.203.27.1 returned the active kernel. A temporary, non-root, 120-second HTTP responder in kiosk returned `WG_CONTAINER_TCP_OK` through wg27 at 10.89.50.14:18089 (first immediate request raced startup; repeat succeeded). Container tunnel ping: 3/3 replies, mean 1.253 ms. ThinkPad cleanup timer also scheduled to remove only test wg27 and its root-owned key.
+
+## IPv6 alternative prepared
+FRITZ!Box screenshot shows WAN IPv4 in 100.64.0.0/10 shared address space; simple inbound IPv4 forwarding is insufficient. Public IPv6 prefix is present. ROCK initially had only link-local IPv6, accept_ra=0. Applied temporarily via native CLI:
+
+```text
+configure
+set interfaces ethernet eth0 ipv6 address autoconf
+commit
+exit
+```
+
+This sets accept_ra=2 with forwarding still enabled. `rdisc6 -1 eth0` solicited an advertisement; a global EUI-64 address appeared. The client peer endpoint was changed to that ROCK global IPv6 address (not the FRITZ!Box WAN address); inner IPv4 tunnel ping still succeeds locally. Rollback script extended to delete this temporary autoconf option as well. External IPv6 test still requires UDP 51829 IPv6 firewall permission for the ROCK and IPv6 connectivity through the Samsung hotspot. Public addresses are deliberately omitted here; derive fresh values from live state.
