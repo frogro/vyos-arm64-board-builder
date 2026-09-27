@@ -64,3 +64,18 @@ The normal CLI DRM-Wayland remote-access guard is deliberately still in place.
   experimental_full_csc=N, roughly 120 frames / 12.56 seconds. An RGA-enabled
   attempt hit RTSP before publisher readiness; its performance is still untested.
 - Fresh SD and decoder endurance tests remain deferred by the user.
+
+## End-to-end audio follow-up
+
+Two source tones (697 and 1209 Hz, one second each with one second silence,
+48 kHz stereo PCM, source amplitude 1000) were played into Sunshine's stereo
+sink on the ROCK during HEVC Moonlight streaming over the AP. The ThinkPad's
+PipeWire speaker-monitor capture (not microphone) recorded 1195264 frames,
+peak 1135. Frequency analysis measured tone amplitudes 1016.01 and 1004.89.
+Both tones therefore traversed Sunshine/Opus/network/Moonlight/output.
+The user independently confirmed seeing the picture and hearing audio.
+Remote mouse input was intentionally disabled by view-only policy; its absence
+in this run is expected and is not a remote-input regression test.
+Tailscale client installation on ThinkPad was authorized and completed; ROCK
+native service tailscale configuration was enabled. Authentication/testing of
+the current ROCK node is pending. No offsite-streaming success claimed.
