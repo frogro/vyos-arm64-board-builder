@@ -114,3 +114,42 @@ No direct current-KMS-buffer bypass was claimed or enabled by these probes.
 
 After tests, restored experimental_full_csc=N, stopped rollback timer and removed
 compiler container. Existing kiosk kept the same start timestamp throughout.
+
+## Actual KMS AFBC source follow-up
+
+Added `kms-source.hpp`: read-only primary-plane discovery, GETFB2, PRIME export,
+EGL modifier-aware import and a GLES textured draw into the same RGA-exported
+linear target. Keeps exported fd/EGL import alive through glFinish; closes GEM
+handles and imports after each capture. Refuses multiple active primary planes,
+changed geometry, extra planes or formats other than XR24. Does not acquire DRM
+master or change display state. Current probe expects1920x1080,BT709-limited.
+
+Build additionally needs libdrm-dev, `-I/usr/include/libdrm -ldrm`.
+Run with `RGA_PROBE_GPU=1 RGA_PROBE_KMS=/dev/dri/card0 ./probe rga-export`.
+The DRM node is explicitly selected for this probe; production discovery and
+connector selection must be integrated with Sunshine's existing code.
+
+Live source: Weston fb91,XR24,pitch7680,AFBC modifier0x0800000000000051.
+Two120-frame runs:3.82ms then3.80ms average for KMS lookup/export/import, GPU draw
+and completion, RGA NV12 conversion and output CPU copy. Per-frame metadata/import
+cost included; one-time context setup and final validation readback excluded.
+No per-frame RGB readback or CPU RGB upload; NV12 still copied for validation.
+
+Final output checked against a one-time GL_RGBA readback of the linear render
+target: sampled luma maximum error1, luma range17..234; chroma maximum error1
+on1842flat2x2sample blocks. This checks conversion of the captured content, not
+physical orientation, cursor/overlay completeness or tear-free lifetime safety.
+No performance conclusion for Moonlight/MPP can yet be drawn from this isolated
+capture/conversion measurement. No encoding or streaming in this probe.
+
+Remaining work: opt-in integration with Sunshine capture/encoder classes,
+proper state/resolution transitions, explicit synchronization/lifetime audit,
+separate cursor handling and real Moonlight A/B measurements. Probe input is
+only the primary plane; capture of overlays and nontrivial transforms is not
+implemented here. Do not replace the standard capture path with this probe.
+
+Existing CSC parameter temporarily enabled with independent five-minute rollback;
+restored N after successful test, timer stopped, compiler container removed.
+Kiosk image/config and start timestamp remained unchanged. GitHub comparison
+run36339240710 completed successfully during this work; it predates this probe
+and does NOT include a new Sunshine DMA-BUF capture implementation.

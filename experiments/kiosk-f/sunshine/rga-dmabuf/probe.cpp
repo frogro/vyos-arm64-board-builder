@@ -38,6 +38,7 @@ static unsigned colors[8][3]={{0,0,0},{255,255,255},{255,0,0},{0,255,0},
   {0,0,255},{255,255,0},{0,255,255},{255,0,255}};
 #ifdef VYARM_GPU_PROBE
 #include "gpu-fill.hpp"
+#include "kms-source.hpp"
 #endif
 static std::string discover() {
   for(auto &e:std::filesystem::directory_iterator("/sys/class/video4linux")) {
@@ -85,10 +86,13 @@ static bool dequeue(int fd,v4l2_buf_type type,size_t minimum) {
 int main(int argc, char **argv) try {
   const bool rga_export=argc==2 && std::string(argv[1])=="rga-export";
   need(argc==1 || rga_export,"usage: probe [rga-export]");
+  const char *kms_node=std::getenv("RGA_PROBE_KMS");
+  need(!kms_node || (rga_export && std::getenv("RGA_PROBE_GPU")),"KMS needs GPU/RGA export");
   std::string node=discover();
   bool colors_ok=true;
   for(auto dims:{std::pair<unsigned,unsigned>{1920,1080},{1080,1920}})
   for(bool bt709:{false,true})for(bool full:{false,true}) {
+    if(kms_node && (dims.first!=1920 || !bt709 || full))continue;
     unsigned w=dims.first,h=dims.second;
     const bool use_gpu=std::getenv("RGA_PROBE_GPU")!=nullptr;
     unsigned storage_w=use_gpu?((w+15)&~15u):w;
@@ -123,6 +127,8 @@ int main(int argc, char **argv) try {
 #ifdef VYARM_GPU_PROBE
     gpu_fill gpu;
     if(use_gpu)gpu.draw(dma.fd,w,h,storage_w);
+    std::unique_ptr<kms_source> kms;
+    if(kms_node)kms=std::make_unique<kms_source>(kms_node);
 #else
     need(!use_gpu,"GPU probe not compiled");
 #endif
@@ -152,7 +158,8 @@ int main(int argc, char **argv) try {
     for(int n=0;n<120;++n) {
       auto start=std::chrono::steady_clock::now();
 #ifdef VYARM_GPU_PROBE
-      if(use_gpu)gpu.paint(w,h,n&1);
+      if(kms)kms->copy(gpu,w,h);
+      else if(use_gpu)gpu.paint(w,h,n&1);
 #endif
       queue(rga.fd,output,dst.len,-1);queue(rga.fd,input,srcsize,dma.fd);
       for(auto q:{&qo,&qi})if(!q->active){need(ctl(rga.fd,VIDIOC_STREAMON,&q->type)==0,"STREAMON");q->active=true;}
@@ -165,6 +172,48 @@ int main(int argc, char **argv) try {
       }
       memcpy(copy.data(),dst.ptr,copy.size());
       elapsed+=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
+      if(kms_node) {
+#ifdef VYARM_GPU_PROBE
+        // One reference readback, outside timing; checks RGA luma against GPU target.
+        if(n==119){
+          std::vector<unsigned char> rgb(size_t(w)*h*4);
+          glReadPixels(0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,rgb.data());
+          need(glGetError()==GL_NO_ERROR,"reference readback");
+          unsigned min_y=255,max_y=0,chroma_samples=0;
+          int chroma_error=0;
+          for(unsigned y=8;y<h;y+=31)for(unsigned x=8;x<w;x+=31){
+            auto p=&rgb[(size_t(y)*w+x)*4];
+            int expected=int(lround(16+(.2126*p[0]+.7152*p[1]+.0722*p[2])*219/255));
+            unsigned actual=copy[size_t(y)*w+x];
+            error=std::max(error,std::abs(int(actual)-expected));
+            min_y=std::min(min_y,actual);max_y=std::max(max_y,actual);
+          }
+          for(unsigned y=8;y+1<h;y+=32)for(unsigned x=8;x+1<w;x+=32){
+            double avg[3]={};bool flat=true;
+            for(unsigned c=0;c<3;++c){
+              int lo=255,hi=0;
+              for(unsigned dy=0;dy<2;++dy)for(unsigned dx=0;dx<2;++dx){
+                int v=rgb[((size_t(y+dy)*w+x+dx)*4)+c];
+                lo=std::min(lo,v);hi=std::max(hi,v);avg[c]+=v*.25;
+              }
+              flat=flat && hi-lo<=2;
+            }
+            if(!flat)continue;
+            double lum=.2126*avg[0]+.7152*avg[1]+.0722*avg[2];
+            int u=int(lround(128+(avg[2]-lum)*(112.0/255)/.9278));
+            int v=int(lround(128+(avg[0]-lum)*(112.0/255)/.7874));
+            auto off=size_t(w)*h+size_t(y/2)*w+x;
+            chroma_error=std::max({chroma_error,std::abs(int(copy[off])-u),std::abs(int(copy[off+1])-v)});
+            ++chroma_samples;
+          }
+          need(chroma_samples>=16 && chroma_error<=3,"KMS chroma reference");
+          std::cout<<"kms_reference_chroma_max_error="<<chroma_error<<" flat_samples="<<chroma_samples<<std::endl;
+          std::cout<<"kms_reference_luma_max_error="<<error<<" luma_min="<<min_y<<" luma_max="<<max_y<<std::endl;
+          need(max_y>min_y+16,"KMS output lacks contrast");
+        }
+#endif
+        continue;
+      }
       for(unsigned i=0;i<8;++i) {
         unsigned x=(i*w/8+w/16)&~1u;auto &c=colors[use_gpu && (n&1)?7-i:i];double kr=bt709?.2126:.299,kb=bt709?.0722:.114;
         double y=kr*c[0]+(1-kr-kb)*c[1]+kb*c[2];
