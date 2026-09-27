@@ -83,6 +83,9 @@ if enabled libmpp; then
 
     while IFS= read -r lib; do
         cp -a "$lib" "$MEDIA_LIB_DIR/"
+        # Artifact archives may carry the NUC/Actions runner UID. Installed
+        # runtime libraries and their links must belong to the target root.
+        chown -h 0:0 -- "$MEDIA_LIB_DIR/$(basename "$lib")"
     done < <(find "$ARTIFACTS/lib" -maxdepth 1 \( -type f -o -type l \) -name 'librockchip_mpp.so*' -print | sort)
 
     install -D -m 0644 /dev/stdin "$ROOTFS/etc/ld.so.conf.d/vyos-kvm-media.conf" <<'EOF'

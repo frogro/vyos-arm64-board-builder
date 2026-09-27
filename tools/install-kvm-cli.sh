@@ -8,7 +8,7 @@ for item in dev proc sys run; do
     mountpoint -q "$ROOTFS/$item" || { echo "Missing chroot mount: $item" >&2; exit 1; }
 done
 python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" "${5:-no}" <<'PY'
-import hashlib, json, shutil, subprocess, sys
+import hashlib, json, os, shutil, subprocess, sys
 from pathlib import Path
 root, artifacts = map(Path,sys.argv[1:3])
 kvm, tailscale, kiosk = sys.argv[3:6]
@@ -55,6 +55,9 @@ installed=subprocess.check_output(['chroot',str(root),'dpkg-query','-W','-f=${Ve
 assert installed==meta['package_version']
 for directory in ['native-cli'] + (['kvm-cli'] if kvm=='yes' else []):
     dest=root/'usr/share/vyos-arm64-board-builder'/directory;dest.mkdir(parents=True,exist_ok=True)
-    shutil.copy2(artifacts/'build.json',dest/'build.json')
+    target=dest/'build.json'
+    shutil.copyfile(artifacts/'build.json',target)
+    target.chmod(0o644)
+    os.chown(target,0,0)
 print('Installed source-built vyos-1x profile package:',installed,expected)
 PY
