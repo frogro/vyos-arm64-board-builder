@@ -79,3 +79,27 @@ in this run is expected and is not a remote-input regression test.
 Tailscale client installation on ThinkPad was authorized and completed; ROCK
 native service tailscale configuration was enabled. Authentication/testing of
 the current ROCK node is pending. No offsite-streaming success claimed.
+
+## Tailscale follow-up
+
+Both current nodes authenticated with the user's existing tailnet. The ROCK
+registered a new identity because its active state directory did not contain the
+previous identity. The old offline node remains; it has not been deleted.
+State for future updates is /config/tailscale/state/tailscaled.state and must
+be retained together with the native service tailscale configuration.
+
+Sunshine port bindings were temporarily moved from AP to the ROCK tailnet IPv4
+address. ThinkPad route lookup confirmed tailscale0/table52 and source tailnet IP.
+Serverinfo returned HTTP200, two HEVC Moonlight sessions connected and decoded.
+Tailscale peer counters confirmed traffic. Its direct encrypted endpoint was
+on the local Fritzbox LAN; this was NOT a geographically remote/DERP test.
+
+The repeated tone test over Tailscale captured 1053184 frames at 48 kHz with
+peak 1115 and tone amplitudes 1015.62 (697 Hz) and 1001.49 (1209 Hz).
+Therefore non-silent content traversed the VPN as well as Sunshine/Moonlight.
+View-only remained intentional; no remote mouse acceptance claimed.
+
+Normal kiosk/runtime/policy and temporary port bindings were restored after
+these tests. Preserve native Tailscale enablement and private identity for future
+remote tests. A future remote test from another network must still validate NAT
+traversal/relay throughput and latency. No public port forwarding was configured.
