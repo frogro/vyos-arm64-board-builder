@@ -256,3 +256,5 @@ from clean base. Inspect finish-image.status/log for current result.
   Main/Actions unchanged; no push. Existing ISO predates these fixes: next ISO
   MUST rebuild native CLI from this source and apply current F host integration;
   do not reuse earlier cli-artifacts package as if it included the changes.
+- User subsequently confirms touch and swiping remain correct after automatic
+  rebind and protected reboot. Physical acceptance for this recovery test passed.
