@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 REPO=$(pwd)
+# Check the netfilter userspace headers before spending time on the kernel.
+# ipt-netflow's configure requires these even for a module-only build.
+pkg-config --exists xtables
+iptables --version
+printf '#include <xtables.h>\n' | cc $(pkg-config --cflags xtables) -x c -fsyntax-only -
 WORK=${1:?new absolute work directory}
 mkdir -p "$WORK"
 cd "$WORK"

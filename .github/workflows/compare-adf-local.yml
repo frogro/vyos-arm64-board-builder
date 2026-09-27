@@ -25,7 +25,7 @@ jobs:
       - name: Prepare native kernel build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc flex bison libssl-dev libelf-dev libncurses-dev kmod dwarves rsync cpio zstd xz-utils patch git curl python3
+          sudo apt-get install -y build-essential bc flex bison libssl-dev libelf-dev libncurses-dev kmod dwarves rsync cpio zstd xz-utils patch git curl python3 libxtables-dev iptables pkg-config
           sudo mkdir -p /work/panthor
           sudo chown -R "$(id -u):$(id -g)" /work
       - name: Build isolated Panthor kernel and matching signed modules

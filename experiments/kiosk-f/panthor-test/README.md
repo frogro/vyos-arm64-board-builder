@@ -35,3 +35,12 @@ and 31 existing host/CLI/ownership/GRUB tests pass. The workflow also verifies
 normal kernel/DTB bytes, identical SD/ISO root filesystems, test payload and
 initramfs contents, CLI ownership, Chromium checksum and Sunshine dependencies.
 A full build and live boot remain separate pending checks.
+
+## First CI run correction
+
+Run 36333055879 completed the kernel and in-tree modules, then failed configuring
+ipt-netflow because the new runner lacked libxtables-dev. The established main
+workflow already installs libxtables-dev, iptables and pkg-config. The test
+workflow now includes those packages and checks the xtables header with the C
+compiler before downloading or building the kernel. This was a runner dependency
+omission, not a Panthor compiler failure; it provides no live stability evidence.
