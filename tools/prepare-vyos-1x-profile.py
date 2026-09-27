@@ -77,7 +77,11 @@ def remove_duplicate_console_log(source):
     for filename, top, command in [
         ('show-log.xml.in', 'show', 'journalctl --no-hostname --boot --unit conserver-server.service'),
         ('monitor-log.xml.in', 'monitor', 'journalctl --no-hostname --follow --boot --unit conserver-server.service')]:
-        canonical = ET.fromstring((path.parent/filename).read_text())
+        # Include directives are expanded by the upstream build. This literal
+        # console command is outside them; omit directives for this check.
+        canonical_text = (path.parent/filename).read_text()
+        canonical_text = re.sub(r'(?m)^\s*#include\s+<[^>]+>\s*$', '', canonical_text)
+        canonical = ET.fromstring(canonical_text)
         node = canonical.find("./node[@name='%s']/children/node[@name='log']/children/leafNode[@name='console-server']" % top)
         if node is None or node.findtext('command') != command:
             raise ValueError('Canonical console log command changed; review required')

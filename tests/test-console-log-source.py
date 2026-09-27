@@ -16,8 +16,9 @@ class ConsoleLog(unittest.TestCase):
       <node name="log"><children><leafNode name="console-server"><command>{command}</command></leafNode></children>
       </node>
       <node name="console-server"><children><leafNode name="ports"><command>console -x</command></leafNode></children></node>
+#include <include/unrelated-command.xml.i>
 </children></node></interfaceDefinition>'''
-        (p/'show-console-server.xml.in').write_text(definition('show','journalctl --no-hostname --boot --follow --unit conserver-server.service'))
+        (p/'show-console-server.xml.in').write_text(definition('show','journalctl --no-hostname --boot --follow --unit conserver-server.service').replace('#include <include/unrelated-command.xml.i>', ''))
         (p/'show-log.xml.in').write_text(definition('show','journalctl --no-hostname --boot --unit conserver-server.service'))
         (p/'monitor-log.xml.in').write_text(definition('monitor','journalctl --no-hostname --follow --boot --unit conserver-server.service'))
         return root,p
