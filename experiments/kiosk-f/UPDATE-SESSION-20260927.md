@@ -73,3 +73,17 @@ with tested A-D branch (63767ef), without changing main or publishing.
   User's monitor/USB question remains unanswered. No new-image boot attempted.
 - When pipeline finishes, audit ISO and install alongside old default; first
   resolve missing saved USB device mappings before protected reboot/live tests.
+
+## Offline validation fix
+
+Full CLI build completed successfully, including upstream pylint. Initial ISO
+assembly stopped correctly on config validation. Isolated reproduction:
+`chroot rootfs ipaddrcheck --is-any-single 1.1.1.1` exits2 under QEMU10.2.1
+with 'could not allocate memory'; syscall trace shows brk allocation failure.
+Same binary and input with QEMU_RESERVED_VA=0x100000000 exits0. Full saved
+configuration validates with an empty diagnostic under that environment.
+No saved configuration changed. The assembly helper applies this environment
+only to offline config validation; native ARM64 runtime is unchanged.
+Retained first attempted rootfs and original modules for inspection; re-extracted
+pristine A-D squashfs and launched unit vyarm-adf-finish-retry-20260927 to build
+from clean base. Inspect finish-image.status/log for current result.

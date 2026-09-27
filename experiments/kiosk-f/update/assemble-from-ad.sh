@@ -54,7 +54,9 @@ PY
 if [[ -f $WORK/private-backup/config-before.tar ]]; then
     tar -xOf "$WORK/private-backup/config-before.tar" config/config.boot > "$ROOT/run/config-validation.boot"
     chmod 600 "$ROOT/run/config-validation.boot"
-    chroot "$ROOT" python3 -c 'from pathlib import Path; from vyos.configtree import ConfigTree, validate_tree; result=validate_tree(ConfigTree(config_string=Path("/run/config-validation.boot").read_text())); assert not result, "Saved configuration fails new CLI schema validation"; print("Saved configuration passes new CLI schema validation")'
+    # QEMU user-mode PIE/brk allocation can fail at high guest addresses.
+    # This affects only offline validation, never the installed ARM64 system.
+    env QEMU_RESERVED_VA=0x100000000 chroot "$ROOT" python3 -c 'from pathlib import Path; from vyos.configtree import ConfigTree, validate_tree; result=validate_tree(ConfigTree(config_string=Path("/run/config-validation.boot").read_text())); assert not result, "Saved configuration fails new CLI schema validation"; print("Saved configuration passes new CLI schema validation")'
     rm "$ROOT/run/config-validation.boot"
 fi
 cleanup
