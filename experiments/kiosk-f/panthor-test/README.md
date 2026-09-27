@@ -65,3 +65,26 @@ initialized, then `system_option` initiated kexec. The inherited BOOT_IMAGE text
 still named the test Image afterward, so it is not proof of the running kernel.
 Always verify `uname -r` and the kernel journal. Preserve the installed menu's
 arguments exactly and use the independent return timer / watchdog for recovery.
+
+## Live Sunshine result (2026-09-27)
+
+After preserving the normal boot arguments, `uname -r` confirms the optional
+kernel. Wayland/Weston uses Mali-G610 (Panfrost), Mesa 25.0.7, with physical HDMI
+at rotation90. A separate bounded container used the existing
+`audio-hevc-test3-20260927` Sunshine runtime, KMS capture and hevc_rkmpp, RGA off.
+Moonlight requested 1920x1080/30fps, 2000kbps, hardware client decoding,
+vsync/frame pacing off. A 40-second process window yielded:
+
+- Received/rendered: 14.33fps.
+- Host processing min/max/mean: 260.7/404.2/290.8ms.
+- Network latency: 1ms; network/jitter drops: 0%/0%.
+- Client decode: 1.93ms average.
+
+Historical Wayland/KMS control:13.70fps,280.6ms mean host time; privileged
+capture control:12.75fps,284.8ms. This short historical comparison is not a
+same-session A/B (network and scene differ). It shows no material improvement
+from the kernel alone with unchanged Mesa/OpenGL userspace. It is not a Vulkan,
+new Mesa or instrumented Sunshine result. No GPU hang appeared during the test.
+The test container and return timers were removed/stopped afterward; normal
+kiosk stayed running. Optional kernel remains active until the next reboot;
+normal GRUB default remains unchanged. No production CLI/credentials changed.
