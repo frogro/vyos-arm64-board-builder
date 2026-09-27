@@ -200,3 +200,25 @@ integration/main-tested-df-20260927 branch starts from origin/main13cf40e and
 contains only the optional D candidate so far. Its KVM CLI/input and feature
 profile tests pass (23 tests). Main and published workflows remain unchanged;
 F packaging and remote-control acceptance are still outstanding.
+
+
+## Remote-control latency: user feedback and client statistics
+
+User clarified that pointer movement was delayed/jerky, not merely captured.
+The control-test client summary records 13.52 incoming/decoding fps, 13.50 rendering
+fps, host processing latency min/max/mean246.8/305.5/282.4ms, network61ms
+(variance13ms), network drops0.00%, jitter drops0.17%, decoder0.46ms,
+frame queue0.11ms, renderer2.68ms. Hardware input delivery therefore passes,
+but interactive performance does not.
+
+This cannot reasonably be attributed solely to the mobile/DERP path: the earlier
+AP H.264 log already recorded13.75fps and288.4ms mean host processing with2ms
+network latency; tailnet-over-LAN audio test13.59fps and282.6ms with1ms network.
+Both H.264 and HEVC show the host bottleneck. Investigate KMS acquisition, CPU
+conversion/scaling and encoder queueing separately. RGA is a candidate, not yet
+a demonstrated Sunshine performance fix. Profile D's RGA result is not proof
+for this differently captured and possibly scaled/rotated frame path.
+
+The next comparison should hold resolution, codec, framerate and bitrate constant,
+measure host processing and frame rate, and change only the converter or capture
+path. Do not declare full F remote-control acceptance based on input delivery.
