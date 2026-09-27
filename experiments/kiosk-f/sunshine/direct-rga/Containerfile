@@ -44,6 +44,8 @@ RUN cd /build/source && patch --batch --fuzz=0 -p1 < /tmp/0002-enable-hevc-mpp.p
  && patch --batch --fuzz=0 -p1 < /tmp/0001-opt-in-sunshine-converter.patch \
  && patch --batch --fuzz=0 -p1 < /tmp/0001-kms-stage-timing.patch \
  && patch --batch --fuzz=0 -p1 < /tmp/0001-direct-gpu-rga-capture.patch \
+ && patch --batch --fuzz=0 -p1 < /tmp/0002-portrait-gpu-rotation.patch \
+ && patch --batch --fuzz=0 -p1 < /tmp/0003-absolute-input-rotation.patch \
  && cmake -S /build/source -B /cmake-build-kms-timing -G Ninja \
  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
  -DSUNSHINE_ASSETS_DIR=share/sunshine \

@@ -24,6 +24,20 @@ SOCKET = '/run/kiosk/sunshine-control.sock'
 LIMIT = 16384
 
 
+def capture_environment(base=None):
+    """One rotation authority: native kiosk setting, only for opt-in GPU/RGA."""
+    env = dict(os.environ if base is None else base)
+    if (env.get('KIOSK_DISPLAY_BACKEND') == 'wayland'
+            and env.get('SUNSHINE_VYARM_DIRECT_RGA') == '1'):
+        value = env.get('KIOSK_ROTATION', '0')
+        if value not in ('0', '90', '180', '270'):
+            raise ValueError('Invalid kiosk rotation for Sunshine')
+        rotation = int(value)
+        env['SUNSHINE_VYARM_KMS_ROTATION'] = str((360 - rotation) % 360)
+        env['SUNSHINE_VYARM_ABS_ROTATION'] = str(rotation)
+    return env
+
+
 def atomic(path, text):
     if path.is_symlink():
         raise ValueError('Refusing symlink destination')
@@ -199,7 +213,7 @@ class Supervisor:
             if self.proc is None and time.monotonic() >= self.retry:
                 self.log = open(STATE / 'runtime.log', 'w')
                 self.proc = subprocess.Popen(['sunshine', str(CONF)], cwd=STATE,
-                                             stdout=self.log, stderr=subprocess.STDOUT,
+                                             stdout=self.log, stderr=subprocess.STDOUT, env=capture_environment(),
                                              start_new_session=True, preexec_fn=parent_death_signal)
                 self.starts += 1
                 self.error = None

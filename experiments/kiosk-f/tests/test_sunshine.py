@@ -55,6 +55,19 @@ class PolicyTest(unittest.TestCase):
             remote.verify_image({'image':'old','kiosk':{'url':'file:///a'}})
 
 class RuntimeTest(unittest.TestCase):
+    def test_capture_rotation_is_derived_only_for_opt_in_wayland(self):
+        original = {'KIOSK_DISPLAY_BACKEND':'wayland', 'KIOSK_ROTATION':'90',
+                    'SUNSHINE_VYARM_DIRECT_RGA':'1'}
+        derived = runtime.capture_environment(original)
+        self.assertEqual(derived['SUNSHINE_VYARM_KMS_ROTATION'], '270')
+        self.assertEqual(derived['SUNSHINE_VYARM_ABS_ROTATION'], '90')
+        self.assertNotIn('SUNSHINE_VYARM_KMS_ROTATION', original)
+        for base in (dict(original, KIOSK_DISPLAY_BACKEND='x11'),
+                     dict(original, SUNSHINE_VYARM_DIRECT_RGA='0')):
+            self.assertEqual(runtime.capture_environment(base), base)
+        with self.assertRaises(ValueError):
+            runtime.capture_environment(dict(original, KIOSK_ROTATION='invalid'))
+
     def test_managed_keys_preserve_web_settings(self):
         text='# encoder tuning\nencoder = rkmpp\nstream_audio = enabled\nstream_audio = disabled\naudio_sink = custom\n'
         policy=remote.policy({'kiosk':{'remote':{'audio':'enabled'}}})

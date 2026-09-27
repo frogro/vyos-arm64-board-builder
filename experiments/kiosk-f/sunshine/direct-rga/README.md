@@ -64,3 +64,55 @@ of the prior CSC setting. The live image and its Sunshine state need not change.
 
 Build/test results and streaming acceptance are tracked separately; numerical
 helper success alone does not establish improved Moonlight latency.
+
+
+## Experimental upright capture
+
+`SUNSHINE_VYARM_KMS_ROTATION=90|180|270` rotates the GPU copy clockwise,
+including the cursor, before RGA conversion. Default is 0. This is an explicit
+capture correction, not a universal mapping from a compositor's rotation label.
+Only the SDR direct-RGA full-output path supports it. Unsupported setup is
+rejected; a mid-stream direct-path failure ends rotated capture rather than
+silently falling back to an unrotated/cropped image. Pixel and logical input
+extents use the rotated geometry. Validate absolute pointer mapping live.
+
+The numeric helper tests all three rotations, both landscape/portrait source
+sizes, BT.601/709 and limited/full ranges. Comparison includes cursor and an
+asymmetric top marker. See rotation-reference-20260927.txt. A matching pixel
+reference does not establish physical-monitor or remote-input acceptance.
+
+
+`SUNSHINE_VYARM_ABS_ROTATION=90|180|270` separately corrects Sunshine's
+absolute virtual-mouse coordinates on Linux. It does not alter physical touch
+or relative-mouse packets. Both flags are off by default. For opt-in direct RGA
+under Wayland, kiosk-sunshine derives them from existing KIOSK_ROTATION: capture
+uses the inverse quarter-turn and absolute input uses the configured turn.
+X11 and non-direct paths retain their environment unchanged. CLI acceptance gate
+is still retained pending complete rebuilt-runtime integration.
+
+### Portrait live acceptance, 2026-09-27
+
+Initial GPU 90-degree correction produced an upside-down picture (user report).
+GPU 270 degrees produced upright portrait but wrong absolute mouse directions.
+GPU 270 + absolute input 90 then passed the user's direction and click-position
+test at 1080x1920 H.264/60 on the ROCK, whose local kiosk rotation is 90.
+
+Final client statistics: rendering 59.97 FPS, incoming 60.76 FPS; host processing
+mean 12.9 ms, min/max 9.8/123.8 ms; network frame loss 0%, jitter loss 0.98%,
+LAN RTT 1 ms. This is a short live test, not a sustained-latency qualification.
+HEVC portrait and physical local rotations 180/270 are not live-qualified by it.
+The helper's 24 rotated color/geometry cases matched the reference at sampled
+pixels exactly; original color cases remained within 1 level. Invalid 45-degree
+rotation is rejected and subsequent valid capture succeeds.
+
+Test binary SHA256:
+`dc7acada7dc2c9d744767b97e840d46eb7843358dd85617c915e8868148b0b01`.
+Patch application is staged in both direct build Containerfile and CI context
+assembly. Default capture remains unchanged. No kernel/Chromium rebuild needed.
+Runtime supervisor rotation derivation passed unit tests; this live test used
+explicit flags in an isolated server and the ownership-checked input bridge.
+Thus the permanent, same-container policy path and next image still need
+integration acceptance; this is not a claim that main/released images include it.
+
+The normal kiosk and CSC=N were restored after testing; temporary input cgroup
+rule and rollback timer removed. Prior Sunshine binary is preserved separately.

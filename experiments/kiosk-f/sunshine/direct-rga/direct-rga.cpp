@@ -85,22 +85,26 @@ struct direct_rga::impl {
   const char *renderer=reinterpret_cast<const char*>(glGetString(GL_RENDERER));require(renderer && !strstr(renderer,"llvmpipe") && !strstr(renderer,"softpipe"),"hardware GPU required");
   EGLint ta[]={EGL_WIDTH,EGLint(storage),EGL_HEIGHT,EGLint(height),EGL_LINUX_DRM_FOURCC_EXT,0x34325258,EGL_DMA_BUF_PLANE0_FD_EXT,dma.v,EGL_DMA_BUF_PLANE0_OFFSET_EXT,0,EGL_DMA_BUF_PLANE0_PITCH_EXT,EGLint(storage*4),EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT,0,EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT,0,EGL_NONE};
   target_image=create(display,EGL_NO_CONTEXT,EGL_LINUX_DMA_BUF_EXT,nullptr,ta);require(target_image!=EGL_NO_IMAGE_KHR,"GPU linear target import");glGenTextures(1,&target_texture);glBindTexture(GL_TEXTURE_2D,target_texture);bind_image(GL_TEXTURE_2D,target_image);glGenFramebuffers(1,&fbo);glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,target_texture,0);require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"GPU target framebuffer");
-  GLuint v=shader(GL_VERTEX_SHADER,"attribute vec2 p; varying vec2 uv; uniform vec4 crop; void main(){gl_Position=vec4(p,0.,1.);uv=(p+1.)*.5*crop.zw+crop.xy;}");
+  GLuint v=shader(GL_VERTEX_SHADER,"attribute vec2 p; varying vec2 uv; uniform vec4 crop; uniform int rotation; void main(){gl_Position=vec4(p,0.,1.);vec2 q=(p+1.)*.5;if(rotation==90)q=vec2(q.y,1.-q.x);else if(rotation==180)q=vec2(1.-q.x,1.-q.y);else if(rotation==270)q=vec2(1.-q.y,q.x);uv=q*crop.zw+crop.xy;}");
   GLuint fs=shader(GL_FRAGMENT_SHADER,"precision mediump float; varying vec2 uv; uniform sampler2D src; void main(){gl_FragColor=texture2D(src,uv);}");program=glCreateProgram();glAttachShader(program,v);glAttachShader(program,fs);glBindAttribLocation(program,0,"p");glLinkProgram(program);glDeleteShader(v);glDeleteShader(fs);GLint linked=0;glGetProgramiv(program,GL_LINK_STATUS,&linked);require(linked,"GPU copy shader link");
  }
- void draw(GLuint tex,int x,int y,int w,int h,float u,float v,float du,float dv){
-  glBindFramebuffer(GL_FRAMEBUFFER,fbo);glDisable(GL_SCISSOR_TEST);glViewport(x,y,w,h);glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,tex);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glUseProgram(program);glUniform1i(glGetUniformLocation(program,"src"),0);glUniform4f(glGetUniformLocation(program,"crop"),u,v,du,dv);
+ void draw(GLuint tex,int x,int y,int w,int h,float u,float v,float du,float dv,unsigned rotation=0){
+  glBindFramebuffer(GL_FRAMEBUFFER,fbo);glDisable(GL_SCISSOR_TEST);glViewport(x,y,w,h);glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,tex);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glUseProgram(program);glUniform1i(glGetUniformLocation(program,"src"),0);glUniform4f(glGetUniformLocation(program,"crop"),u,v,du,dv);glUniform1i(glGetUniformLocation(program,"rotation"),rotation);
   const GLfloat vertices[]={-1,-1,1,-1,-1,1,1,1};glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,vertices);glEnableVertexAttribArray(0);glDrawArrays(GL_TRIANGLE_STRIP,0,4);glDisableVertexAttribArray(0);
  }
- void gpu_copy(const direct_surface &s,int x,int y,const direct_cursor &cursor){
+ void gpu_copy(const direct_surface &s,int x,int y,const direct_cursor &cursor,unsigned rotation){
   require(eglBindAPI(EGL_OPENGL_ES_API)&&eglMakeCurrent(display,EGL_NO_SURFACE,EGL_NO_SURFACE,context),"GPU context restore");
   EGLint a[]={EGL_WIDTH,s.width,EGL_HEIGHT,s.height,EGL_LINUX_DRM_FOURCC_EXT,EGLint(s.format),EGL_DMA_BUF_PLANE0_FD_EXT,s.fd,EGL_DMA_BUF_PLANE0_OFFSET_EXT,EGLint(s.offset),EGL_DMA_BUF_PLANE0_PITCH_EXT,EGLint(s.pitch),EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT,EGLint(s.modifier&0xffffffff),EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT,EGLint(s.modifier>>32),EGL_NONE};
   struct imported{impl &owner;EGLImageKHR image=EGL_NO_IMAGE_KHR;GLuint texture=0,cursor=0;~imported(){if(cursor)glDeleteTextures(1,&cursor);if(texture)glDeleteTextures(1,&texture);if(image!=EGL_NO_IMAGE_KHR)owner.destroy(owner.display,image);}} source{*this};
-  source.image=create(display,EGL_NO_CONTEXT,EGL_LINUX_DMA_BUF_EXT,nullptr,a);require(source.image!=EGL_NO_IMAGE_KHR,"GPU source modifier import");glGenTextures(1,&source.texture);glBindTexture(GL_TEXTURE_2D,source.texture);bind_image(GL_TEXTURE_2D,source.image);glDisable(GL_BLEND);draw(source.texture,0,0,width,height,float(x)/s.width,float(y)/s.height,float(width)/s.width,float(height)/s.height);
+  source.image=create(display,EGL_NO_CONTEXT,EGL_LINUX_DMA_BUF_EXT,nullptr,a);require(source.image!=EGL_NO_IMAGE_KHR,"GPU source modifier import");glGenTextures(1,&source.texture);glBindTexture(GL_TEXTURE_2D,source.texture);bind_image(GL_TEXTURE_2D,source.image);glDisable(GL_BLEND);draw(source.texture,0,0,width,height,float(x)/s.width,float(y)/s.height,float(rotation%180?height:width)/s.width,float(rotation%180?width:height)/s.height,rotation);
   if(cursor.bgra && cursor.width && cursor.height){
    require(cursor.width<=1024 && cursor.height<=1024,"cursor size");std::vector<uint8_t> rgba(size_t(cursor.width)*cursor.height*4);
    for(size_t i=0;i<rgba.size();i+=4){rgba[i]=cursor.bgra[i+2];rgba[i+1]=cursor.bgra[i+1];rgba[i+2]=cursor.bgra[i];rgba[i+3]=cursor.bgra[i+3];}
-   glGenTextures(1,&source.cursor);glBindTexture(GL_TEXTURE_2D,source.cursor);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,cursor.width,cursor.height,0,GL_RGBA,GL_UNSIGNED_BYTE,rgba.data());glEnable(GL_BLEND);glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);draw(source.cursor,cursor.x,cursor.y,cursor.width,cursor.height,0,0,1,1);glDisable(GL_BLEND);
+   glGenTextures(1,&source.cursor);glBindTexture(GL_TEXTURE_2D,source.cursor);glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,cursor.width,cursor.height,0,GL_RGBA,GL_UNSIGNED_BYTE,rgba.data());glEnable(GL_BLEND);glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);int cx=cursor.x,cy=cursor.y;unsigned cw=cursor.width,ch=cursor.height;
+   if(rotation==90){cx=int(width)-cursor.y-int(cursor.height);cy=cursor.x;cw=cursor.height;ch=cursor.width;}
+   else if(rotation==180){cx=int(width)-cursor.x-int(cursor.width);cy=int(height)-cursor.y-int(cursor.height);}
+   else if(rotation==270){cx=cursor.y;cy=int(height)-cursor.x-int(cursor.width);cw=cursor.height;ch=cursor.width;}
+   draw(source.cursor,cx,cy,cw,ch,0,0,1,1,rotation);glDisable(GL_BLEND);
   }
   glFinish();require(glGetError()==GL_NO_ERROR,"GPU render/completion");
   // Borrowed KMS DMA-BUF and imported texture live through completion. As in
@@ -117,14 +121,16 @@ struct direct_rga::impl {
 };
 direct_rga::direct_rga()=default;
 direct_rga::~direct_rga()=default;
-bool direct_rga::capture(const direct_surface &s,int x,int y,unsigned w,unsigned h,bool b,bool f,const direct_cursor &cursor,uint8_t *dest,std::string &error){
+bool direct_rga::capture(const direct_surface &s,int x,int y,unsigned w,unsigned h,bool b,bool f,const direct_cursor &cursor,uint8_t *dest,std::string &error,unsigned rotation){
  context_restore restore;
  try {
-  require(dest&&s.fd>=0&&s.format==0x34325258&&w&&h&&w<=4096&&h<=4096&&!((w|h)&1)&&x>=0&&y>=0&&s.width>=int(w)&&s.height>=int(h)&&x<=s.width-int(w)&&y<=s.height-int(h),"unsupported direct capture geometry/format");
+  require(rotation==0||rotation==90||rotation==180||rotation==270,"unsupported rotation");
+  unsigned source_w=rotation%180?h:w,source_h=rotation%180?w:h;
+  require(dest&&s.fd>=0&&s.format==0x34325258&&w&&h&&w<=4096&&h<=4096&&!((w|h)&1)&&x>=0&&y>=0&&s.width>=int(source_w)&&s.height>=int(source_h)&&x<=s.width-int(source_w)&&y<=s.height-int(source_h),"unsupported direct capture geometry/format");
   if(!state||state->width!=w||state->height!=h||state->bt709!=b||state->full!=f){state.reset();state=std::make_unique<impl>();state->init(w,h,b,f);}
   std::ifstream csc("/sys/module/rockchip_rga/parameters/experimental_full_csc");char enabled=0;csc>>enabled;
   require(enabled=='Y'||enabled=='1',"RGA corrected CSC disabled during capture");
-  state->gpu_copy(s,x,y,cursor);state->convert(dest);return true;
+  state->gpu_copy(s,x,y,cursor,rotation);state->convert(dest);return true;
  }catch(const std::exception &e){error=e.what();state.reset();return false;}
 }
 }

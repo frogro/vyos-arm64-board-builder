@@ -1,0 +1,33 @@
+rotation=90 output=1080x1920 max_error=0
+rotation=180 output=1920x1080 max_error=0
+rotation=270 output=1080x1920 max_error=0
+1920x1080 bt709=0 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1080x1920 max_error=0
+rotation=180 output=1920x1080 max_error=0
+rotation=270 output=1080x1920 max_error=0
+1920x1080 bt709=0 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1080x1920 max_error=0
+rotation=180 output=1920x1080 max_error=0
+rotation=270 output=1080x1920 max_error=0
+1920x1080 bt709=1 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1080x1920 max_error=0
+rotation=180 output=1920x1080 max_error=0
+rotation=270 output=1080x1920 max_error=0
+1920x1080 bt709=1 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1920x1080 max_error=0
+rotation=180 output=1080x1920 max_error=0
+rotation=270 output=1920x1080 max_error=0
+1080x1920 bt709=0 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1920x1080 max_error=0
+rotation=180 output=1080x1920 max_error=0
+rotation=270 output=1920x1080 max_error=0
+1080x1920 bt709=0 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1920x1080 max_error=0
+rotation=180 output=1080x1920 max_error=0
+rotation=270 output=1920x1080 max_error=0
+1080x1920 bt709=1 full=0 max_error=1 cursor=pass orientation=pass recovery=pass
+rotation=90 output=1920x1080 max_error=0
+rotation=180 output=1080x1920 max_error=0
+rotation=270 output=1920x1080 max_error=0
+1080x1920 bt709=1 full=1 max_error=1 cursor=pass orientation=pass recovery=pass
+DIRECT_RGA_TEST_OK cases=8

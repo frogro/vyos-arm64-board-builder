@@ -75,6 +75,7 @@ int main() try {
   vyarm::direct_surface surface{dma.fd,int(storage),int(h),0x34325258,storage*4,0,0};
   std::string error;auto bad=surface;bad.format=0;
   need(!converter.capture(bad,0,0,w,h,bt709,full,{},nv12.data(),error),"reject unsupported format");
+  need(!converter.capture(surface,0,0,w,h,bt709,full,{},nv12.data(),error,45),"reject non-quarter rotation");
   int max_error=0;
   for(unsigned phase=0;phase<3;++phase) {
    dma_buf_sync sync{};sync.flags=DMA_BUF_SYNC_START|DMA_BUF_SYNC_WRITE;need(ctl(dma.fd,DMA_BUF_IOCTL_SYNC,&sync)==0,"CPU begin");
@@ -89,6 +90,26 @@ int main() try {
     int actual[3]={nv12[size_t(h/2)*w+x],nv12[size_t(w)*h+size_t(h/4)*w+x],nv12[size_t(w)*h+size_t(h/4)*w+x+1]};
     for(int j=0;j<3;++j)max_error=std::max(max_error,std::abs(actual[j]-std::clamp(expected[j],0,255)));
    }
+  }
+  auto baseline=nv12;
+  for(unsigned rotation:{90u,180u,270u}) {
+   unsigned rw=rotation%180?h:w,rh=rotation%180?w:h;
+   need(converter.capture(surface,0,0,rw,rh,bt709,full,{cursor.data(),16,16,32,32},nv12.data(),error,rotation),error.c_str());
+   int rotation_error=0;
+   // Pixel-centre reference includes asymmetric top marker and cursor.
+   auto compare=[&](unsigned sx,unsigned sy){
+    unsigned dx=sx,dy=sy;
+    if(rotation==90){dx=h-1-sy;dy=sx;}
+    if(rotation==180){dx=w-1-sx;dy=h-1-sy;}
+    if(rotation==270){dx=sy;dy=w-1-sx;}
+    rotation_error=std::max(rotation_error,std::abs(int(baseline[size_t(sy)*w+sx])-int(nv12[size_t(dy)*rw+dx])));
+    for(unsigned channel=0;channel<2;++channel)
+     rotation_error=std::max(rotation_error,std::abs(int(baseline[size_t(w)*h+(sy/2)*w+(sx&~1u)+channel])-int(nv12[size_t(rw)*rh+(dy/2)*rw+(dx&~1u)+channel])));
+   };
+   for(unsigned sy=16;sy<h;sy+=32)for(unsigned sx=16;sx<w;sx+=32)compare(sx,sy);
+   compare(40,40);
+   need(rotation_error<=3,"rotation reference mismatch");
+   std::cout<<"rotation="<<rotation<<" output="<<rw<<"x"<<rh<<" max_error="<<rotation_error<<std::endl;
   }
   need(max_error<=3,"color mismatch");++cases;std::cout<<w<<"x"<<h<<" bt709="<<bt709<<" full="<<full<<" max_error="<<max_error<<" cursor=pass orientation=pass recovery=pass"<<std::endl;
  }

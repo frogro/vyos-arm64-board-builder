@@ -4,7 +4,7 @@ cd /work
 S=repo/experiments/kiosk-f/sunshine
 mkdir sunshine-build-context runtime-next
 cp inputs/sunshine-source.tar.gz sunshine-build-context/
-cp "$S/direct-rga/Containerfile" "$S/direct-rga/0001-direct-gpu-rga-capture.patch" "$S/direct-rga/direct-rga.hpp" "$S/direct-rga/direct-rga.cpp" "$S/kms-timing/0001-kms-stage-timing.patch" "$S/0002-mpp-container-compatible-path.patch" "$S/hevc/"*.patch "$S/rga-converter/0001-opt-in-sunshine-converter.patch" "$S/rga-converter/rga-converter.hpp" sunshine-build-context/
+cp "$S/direct-rga/Containerfile" "$S/direct-rga/0001-direct-gpu-rga-capture.patch" "$S/direct-rga/0002-portrait-gpu-rotation.patch" "$S/direct-rga/0003-absolute-input-rotation.patch" "$S/direct-rga/direct-rga.hpp" "$S/direct-rga/direct-rga.cpp" "$S/kms-timing/0001-kms-stage-timing.patch" "$S/0002-mpp-container-compatible-path.patch" "$S/hevc/"*.patch "$S/rga-converter/0001-opt-in-sunshine-converter.patch" "$S/rga-converter/rga-converter.hpp" sunshine-build-context/
 docker build --platform linux/arm64 --network host -t localhost/vyarm-sunshine-build:direct-rga-20260927 -f sunshine-build-context/Containerfile sunshine-build-context 2>&1 | tee /work/sunshine-build.log
 BASE_ID=$(python3 -c 'import json; print(json.load(open("runtime-artifacts/runtime.json"))["image_id"])')
 docker load -i runtime-artifacts/runtime.tar

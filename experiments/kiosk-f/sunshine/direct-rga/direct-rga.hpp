@@ -25,6 +25,6 @@ public:
   direct_rga(const direct_rga &) = delete;
   bool capture(const direct_surface &, int x, int y, unsigned w, unsigned h,
                bool bt709, bool full, const direct_cursor &, uint8_t *nv12,
-               std::string &error);
+               std::string &error, unsigned clockwise = 0);
 };
 }
