@@ -671,6 +671,12 @@ chroot "$SQUASH_ROOT" /bin/bash -c "
     test -s '/boot/initrd.img-$KERNEL_RELEASE'
 "
 
+# Optional, isolated F test kernel; the production kernel remains untouched.
+if [[ -n "${KIOSK_F_TEST_KERNEL:-}" ]]; then
+    [[ "$KIOSK_F" == yes ]] || die "Optional test kernel requires profile F"
+    bash "$ROOT/experiments/kiosk-f/panthor-test/stage.sh" "$SQUASH_ROOT" "$KIOSK_F_TEST_KERNEL"
+fi
+
 INITRD_BUILT="$SQUASH_ROOT/boot/initrd.img-$KERNEL_RELEASE"
 
 [[ -s "$INITRD_BUILT" ]] ||

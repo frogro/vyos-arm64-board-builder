@@ -7,6 +7,7 @@ export TMPDIR=/work/assembly-tmp
 export KIOSK_F=yes KIOSK_F_GPU_FIRMWARE=mali-arch10.8
 export VYOS_1X_PREBUILT=/work/cli-artifacts KIOSK_F_RUNTIME=/work/runtime-artifacts
 export OUTPUT_EXTRA_SECTORS=32768
+export KIOSK_F_TEST_KERNEL=/work/panthor-artifacts
 IMG=/work/output/vyos-999.202609250800-rock-5b-network-tailscale-kvm-kiosk.img
 [[ ! -e "$IMG" ]]
 bash repo/tools/assemble-board-image.sh rock-5b current /work/base-expanded.img "$IMG"

@@ -26,6 +26,14 @@ cmp repo/experiments/kiosk-f/cli/kiosk.py "$V/root/usr/lib/python3/dist-packages
 cmp repo/experiments/kiosk-f/systemd/reconcile-inputs.py "$V/root/usr/local/libexec/vyos-kiosk-reconcile-inputs"
 cmp runtime-artifacts/runtime.json "$V/root/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json"
 cmp runtime-artifacts/runtime.tar "$V/root/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.tar"
+PANTHOR="$V/root/usr/share/vyarm/panthor-test"
+for file in Image board.dtb kernel.release; do cmp "panthor-artifacts/$file" "$PANTHOR/$file"; done
+cmp repo/experiments/kiosk-f/panthor-test/install-menu.py "$V/root/usr/local/libexec/vyarm-panthor-test-menu"
+test -L "$V/root/etc/systemd/system/multi-user.target.wants/vyarm-panthor-test-menu.service"
+test -d "$V/root/usr/lib/modules/$(cat panthor-artifacts/kernel.release)"
+lsinitramfs "$PANTHOR/initrd.img" > "$V/panthor-initrd-files.txt"
+grep -q 'lib/modules/6.18.50-vyos-panthor-cache-test/' "$V/panthor-initrd-files.txt"
+grep -q 'arm/mali/arch10.8/mali_csffw.bin' "$V/panthor-initrd-files.txt"
 python3 - <<'PY'
 import json,pathlib
 r=pathlib.Path('/work/verification/root');p=pathlib.Path('/work/cli-artifacts/build.json')

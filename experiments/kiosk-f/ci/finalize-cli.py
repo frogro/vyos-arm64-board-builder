@@ -1,5 +1,5 @@
 from pathlib import Path
-import hashlib,json,subprocess,shutil
+import hashlib,json,subprocess,shutil,os
 b=Path(__file__).resolve().parent
 assert (b/'cli-status').read_text().strip()=='complete'
 meta=json.loads((b/'cli-source/data/arm64-profile-source.json').read_text())
@@ -24,6 +24,6 @@ assert 'conserver-server.service' in monitor and '--follow' in monitor
 assert (op/'show/console-server/ports/node.def').is_file()
 out=b/'cli-artifacts';out.mkdir(exist_ok=True)
 shutil.copy2(p,out/p.name)
-meta.update(package=p.name,package_sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_commit='4e3e38a2e665bb2d8e9446116e02300bb38a2ab4',build_container_id=(b/'build-image-id.txt').read_text().strip(),build_host_arch='aarch64 native GitHub Actions',integration_commit='c0e39171807e14959611cfaa943e392f5d3b79db')
+meta.update(package=p.name,package_sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_commit='4e3e38a2e665bb2d8e9446116e02300bb38a2ab4',build_container_id=(b/'build-image-id.txt').read_text().strip(),build_host_arch='aarch64 native GitHub Actions',integration_commit=os.environ['GITHUB_SHA'])
 (out/'build.json').write_text(json.dumps(meta,indent=2)+'\n');(out/'SHA256SUMS').write_text(meta['package_sha256']+'  '+p.name+'\n')
 print('CLI artifact and required D/F commands verified:',p.name)

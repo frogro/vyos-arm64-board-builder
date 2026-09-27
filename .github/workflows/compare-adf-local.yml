@@ -1,5 +1,5 @@
 name: Compare local and native ARM64 A-D plus F build
-run-name: "Corrected ROCK 5B A-D+F / ownership and console CLI"
+run-name: "ROCK 5B A-D+F / Sunshine timing and optional Panthor kernel"
 on:
   push:
     branches: [ci/adf-compare-20260927]
@@ -15,7 +15,37 @@ concurrency:
   group: adf-compare-20260927
   cancel-in-progress: false
 jobs:
+  panthor-kernel:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare native kernel build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc flex bison libssl-dev libelf-dev libncurses-dev kmod dwarves rsync cpio zstd xz-utils patch git curl python3
+          sudo mkdir -p /work/panthor
+          sudo chown -R "$(id -u):$(id -g)" /work
+      - name: Build isolated Panthor kernel and matching signed modules
+        run: bash experiments/kiosk-f/panthor-test/build.sh /work/panthor 2>&1 | tee /work/panthor-build.log
+      - name: Upload optional test kernel only
+        uses: actions/upload-artifact@v4
+        with:
+          name: panthor-test-kernel-${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: error
+          path: /work/panthor/artifacts/*
+      - name: Preserve kernel build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: panthor-test-log-${{ github.run_id }}
+          retention-days: 7
+          path: /work/panthor-build.log
   image:
+    needs: panthor-kernel
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
     env:
@@ -24,9 +54,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check frozen production inputs and F regressions
+      - name: Check established baseline ancestry and D/F regressions
         run: |
-          git diff --exit-code c0e39171807e14959611cfaa943e392f5d3b79db -- tools profiles firmware experiments/kiosk-f/cli experiments/kiosk-f/host experiments/kiosk-f/image experiments/kiosk-f/systemd
+          git merge-base --is-ancestor 21febba HEAD
+          python3 experiments/kiosk-f/panthor-test/test-menu.py
           python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
           python3 tests/test-kiosk-host-fixes.py
           python3 tests/test-console-log-source.py
@@ -49,7 +80,7 @@ jobs:
         run: |
           gh run download 36267716867 --repo "$GITHUB_REPOSITORY" --name vyos-rock-5b-current-candidate --dir /work/input-ad
           mkdir /work/inputs
-          gh release download adf-compare-inputs-20260927 --repo "$GITHUB_REPOSITORY" --dir /work/inputs --pattern '*.tar.gz' --pattern '*-image-inspect.json'
+          gh release download adf-compare-inputs-20260927 --repo "$GITHUB_REPOSITORY" --dir /work/inputs --pattern 'runtime-kernel-inputs.tar.gz' --pattern 'cli-builder.tar.gz' --pattern 'assembly-runner.tar.gz' --pattern 'sunshine-source.tar.gz' --pattern '*-image-inspect.json'
           (cd /work/inputs && sha256sum -c /work/inputs.sha256)
           tar -xzf /work/inputs/runtime-kernel-inputs.tar.gz -C /work
           docker load -i /work/inputs/cli-builder.tar.gz
@@ -64,6 +95,12 @@ jobs:
           curl --fail --location --retry 3 'https://github.com/edk2-porting/edk2-rk3588/releases/download/v1.1/rock-5b_UEFI_Release_v1.1.img' -o /work/edk2.img
           echo '47029c528318a8ec153aa060597b0615605a65a741cbb70b64f6ccaf11348e42  /work/edk2.img' | sha256sum -c
           sudo cp /work/edk2.img /work/repo/work/build/rock-5b/boot/edk2/rock-5b_UEFI_Release_v1.1.img
+      - uses: actions/download-artifact@v4
+        with:
+          name: panthor-test-kernel-${{ github.run_id }}
+          path: /work/panthor-artifacts
+      - name: Build instrumented Sunshine into existing Chromium runtime
+        run: bash /work/build-runtime.sh
       - name: Rebuild complete native CLI with upstream checks
         run: bash /work/build-cli.sh
       - name: Assemble and verify SD image plus update ISO
@@ -104,3 +141,6 @@ jobs:
             /work/build-environments.json
             /work/verification-complete
             /work/inputs.sha256
+            /work/runtime-next/binary-hashes.txt
+            /work/runtime-artifacts/runtime.json
+            /work/panthor-artifacts/initrd-files.txt
