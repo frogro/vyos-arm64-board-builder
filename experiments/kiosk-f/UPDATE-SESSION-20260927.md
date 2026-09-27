@@ -118,3 +118,54 @@ from clean base. Inspect finish-image.status/log for current result.
   for this newly installed combination from the offline/native CLI checks.
 - QEMU validator regression controls passed: valid IPv4/IPv6 and prefix accepted,
   invalid address and prefix rejected with reserved guest virtual address space.
+
+## Protected native boot and decoder comparison (2026-09-27 morning)
+
+- Booted installed candidate with a self-clearing GRUB one-shot override and
+  independent 15min monotonic return timer. Old default stayed unchanged.
+  Candidate config temporarily omitted ONLY two absent ILITEK input mappings,
+  with original in shared boot/vyarm-adf-test-20260927/config.original.
+- Native candidate started Wayland/Weston DRM, 90-degree rotation, sandboxed
+  custom Chromium as kiosk user. No failed systemd units. Status CLI works;
+  Sunshine reports disabled as configured (no streaming session tested).
+- Important regression: saved numerical device mappings passed video2/3/5,
+  but this boot enumerated rkvdec as video0, HDMI RX as video2, RGA as video3,
+  AV1 as video5. First probe: H264 software FFmpeg, VP9 software Vpx,
+  HEVC unsupported; AV1 hardware V4L2. This was device passthrough, not a missing
+  Chromium patch or decoder kernel failure.
+- Added video0 ONLY to transient /run Quadlet, restarted and repeated exact
+  fixtures using same kiosk UID/device groups and existing policy flags.
+  All four reached EOS using V4L2VideoDecoder, kIsPlatformVideoDecoder=true:
+  H264 High 1080p60 2/600 dropped; HEVC Main10 1080p60 3/300;
+  VP9 profile0 1080p60 9/300; AV1 Main 1080p60 8/300.
+  These 5–10s smoke tests prove hardware selection and EOS for these fixtures,
+  not sustained zero-drop playback or all streams/profiles.
+- Test browser used CDP pipe and loopback-only fixture server; no sandbox
+  disabling. Normal browser resumed after each probe. No matching decoder
+  timeout/IOMMU fault/panic observed; HDMI EDID/I2C/RGB sink warnings remain.
+  Physical display quality and touch NOT confirmed (USB inputs still absent).
+- Structured comparison: adf-decoder-results-20260927.json. Full raw local
+  tmp/adf-update-20260927/decoder-results{,-correct-device}.tar. Shared ROCK
+  boot/vyarm-adf-test-20260927 holds fixtures, results, kernel log and backups.
+- Restored candidate config byte-for-byte and original menu. Removed temporary
+  one-shot hook and future return timer activation. Requested return to old
+  unchanged permanent default; verify old boot and temporary kiosk runtime next.
+- Required before durable F promotion: capability/driver-based host decoder
+  resolution and matching media-controller passthrough at service generation,
+  rather than saved video numbers. Do not broadly pass arbitrary video devices:
+  distinguish HDMI capture/RGA/encoders, preserve explicit user selections and
+  ordinary containers. Test permuted enumeration, absent decoder, and reboot.
+  No main/Actions change or push performed.
+
+### Return verified
+
+- ROCK is back on 999.202609191955-wayland-20260923, confirmed cmdline.
+- Old boot skipped container generation because configured touch devices are
+  absent. Restored only transient /run Quadlet, network Quadlet via existing
+  native generator and default disabled Sunshine policy; omitted two absent
+  USB mappings as before this test. Kiosk service active, Weston/session alive.
+- Candidate config cmp equals saved original. Current old config has identical
+  normalized ConfigTree content to original (one nonsemantic line differs).
+- Future boots still need connected configured USB inputs or a deliberate
+  optional-device implementation. This temporary /run recovery is not a durable
+  fix and does not silently delete user settings.
