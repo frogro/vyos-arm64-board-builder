@@ -46,6 +46,20 @@ class OfflineImage(unittest.TestCase):
         with self.assertRaises(ValueError):
             load('setup-kiosk').commands('../bad', 'localhost/vyarm-kiosk:test', '/dev/dri/card0', [])
 
+    def test_optional_encoder_and_playback_devices_without_remote_or_microphone(self):
+        setup = load('setup-kiosk')
+        text = '\n'.join(setup.commands('kiosk', 'localhost/vyarm-kiosk:test', '/dev/dri/card0', [],
+            encoder_devices=['/dev/mpp_service','/dev/dma_heap/system'],
+            audio_devices=['/dev/snd/controlC1','/dev/snd/pcmC1D0p'],
+            mpp_compatible='/sys/firmware/devicetree/base/compatible'))
+        self.assertIn('device encoder-0 source /dev/mpp_service', text)
+        self.assertIn('volume mpp-compatible destination /run/mpp/compatible', text)
+        self.assertIn('volume mpp-compatible mode ro', text)
+        self.assertIn('device audio-1 source /dev/snd/pcmC1D0p', text)
+        self.assertNotIn('remote access enabled', text)
+        with self.assertRaises(ValueError):
+            setup.commands('kiosk','localhost/vyarm-kiosk:test','/dev/dri/card0',[],audio_devices=['/dev/snd/pcmC0D0c'])
+
     def test_import_waits_for_first_boot_partition_growth(self):
         unit = (BASE / 'vyarm-kiosk-runtime.service').read_text()
         self.assertIn('Wants=vyos-arm64-grow-persistence.service', unit)

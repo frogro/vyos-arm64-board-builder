@@ -14,7 +14,7 @@ API = '/bin/cli-shell-api'
 META = Path('/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json')
 
 
-def commands(name, image, card, inputs, backend="x11", media_devices=()):
+def commands(name, image, card, inputs, backend="x11", media_devices=(), encoder_devices=(), audio_devices=(), mpp_compatible=None):
     if backend not in ("x11", "wayland"):
         raise ValueError("Invalid display backend")
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,39}', name):
@@ -40,6 +40,14 @@ def commands(name, image, card, inputs, backend="x11", media_devices=()):
             if not re.fullmatch(r'/dev/(dri/renderD[0-9]+|video[0-9]+|media[0-9]+)', path):
                 raise ValueError('Invalid media device')
             devices.append((f'media-{i}', path, path))
+    for i, path in enumerate(encoder_devices):
+        if path not in ('/dev/mpp_service', '/dev/dma_heap/system'):
+            raise ValueError('Invalid encoder device')
+        devices.append((f'encoder-{i}', path, path))
+    for i, path in enumerate(audio_devices):
+        if not re.fullmatch(r'/dev/snd/(controlC[0-9]+|pcmC[0-9]+D[0-9]+p|timer)', path):
+            raise ValueError('Invalid playback audio device')
+        devices.append((f'audio-{i}', path, path))
     for i, (source, target) in enumerate(inputs):
         if not re.fullmatch(r'/dev/input/by-(id|path)/[^/\s]+', source) or not re.fullmatch(r'/dev/input/event[0-9]+', target):
             raise ValueError('Invalid stable input mapping')
@@ -47,8 +55,13 @@ def commands(name, image, card, inputs, backend="x11", media_devices=()):
     for label, source, dest in devices:
         for key, value in [('source', source), ('destination', dest)]:
             settings.append(prefix + ['device', label, key, value])
-    for label, source, dest, mode in [('udev', '/run/udev', '/run/udev', 'ro'),
-                                    ('state', f'/config/{name}/state', '/state', 'rw')]:
+    volumes = [('udev', '/run/udev', '/run/udev', 'ro'),
+               ('state', f'/config/{name}/state', '/state', 'rw')]
+    if mpp_compatible is not None:
+        if mpp_compatible != '/sys/firmware/devicetree/base/compatible':
+            raise ValueError('Invalid MPP compatible path')
+        volumes.append(('mpp-compatible', mpp_compatible, '/run/mpp/compatible', 'ro'))
+    for label, source, dest, mode in volumes:
         for key, value in [('source', source), ('destination', dest), ('mode', mode)]:
             settings.append(prefix + ['volume', label, key, value])
     return ['set ' + shlex.join(row) for row in settings]
@@ -107,7 +120,18 @@ def main():
                     media_devices.append(str(node))
             except OSError: continue
         media_devices += [str(p) for p in sorted(Path('/dev').glob('media*')) if p.is_char_device()]
-    lines = commands(args.name, meta['image'], cards[0], inputs, args.display_backend, media_devices)
+    # Capabilities, not board names. No microphone device or remote access grant.
+    encoder_devices = []
+    compatible = Path('/sys/firmware/devicetree/base/compatible')
+    mpp_compatible = None
+    if Path('/dev/mpp_service').is_char_device() and compatible.is_file():
+        encoder_devices = ['/dev/mpp_service']
+        if Path('/dev/dma_heap/system').is_char_device():
+            encoder_devices.append('/dev/dma_heap/system')
+        mpp_compatible = str(compatible)
+    audio_devices = [str(p) for p in sorted(Path('/dev/snd').glob('*'))
+                     if p.is_char_device() and re.fullmatch(r'(controlC[0-9]+|pcmC[0-9]+D[0-9]+p|timer)', p.name)]
+    lines = commands(args.name, meta['image'], cards[0], inputs, args.display_backend, media_devices, encoder_devices, audio_devices, mpp_compatible)
     subprocess.run(['podman', 'image', 'exists', meta['image']], check=True)
     print('\n'.join(['configure', *lines, 'commit', 'save', 'exit']), flush=True)
     if not args.apply:

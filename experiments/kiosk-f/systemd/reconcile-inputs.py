@@ -44,19 +44,29 @@ def plan(text, resolve=resolve_device):
             selected[fields[0]] = fields[1]
     if selected:
         # Regenerate only explicitly selected inputs; metadata persists unplugged.
+        # Preserve the generator's ordering: moving unchanged AddDevice lines
+        # to the beginning otherwise causes a restart after every CLI commit.
+        remaining = dict(selected)
         raw = []
         for line in text.splitlines(keepends=True):
-            if line.startswith('AddDevice=') and line.split('=', 1)[1].split(':', 1)[0] in selected:
-                continue
+            if line.startswith('AddDevice='):
+                fields = line.strip().split('=', 1)[1].split(':')
+                source = fields[0]
+                if source in selected:
+                    remaining.pop(source, None)
+                    try:
+                        fields[1] = resolve(source)
+                    except FileNotFoundError:
+                        continue
+                    line = 'AddDevice=' + ':'.join(fields) + '\n'
             raw.append(line)
         additions = []
-        for source in selected:
+        for source in remaining:
             try:
                 destination = resolve(source)
             except FileNotFoundError:
                 continue
             additions.append(f'AddDevice={source}:{destination}\n')
-        # AddDevice belongs inside [Container], never at end after [Service].
         text = ''.join(raw).replace('[Container]\n', '[Container]\n' + ''.join(additions), 1)
     lines, expected, destinations = [], [], set()
     for line in text.splitlines(keepends=True):

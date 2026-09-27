@@ -14,18 +14,19 @@ if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
     wait "$leader"
     exit $?
 fi
+# Only explicitly mapped devices inside this container, never host permissions.
+for device in /dev/mpp_service /dev/dma_heap/system; do
+    if [ -c "$device" ]; then
+        chgrp video "$device"
+        chmod 0660 "$device"
+    fi
+done
 case "${KIOSK_DISPLAY_BACKEND:-x11}" in
     wayland) exec python3 /usr/local/bin/kiosk-wayland.py ;;
     x11) ;;
     *) echo 'Invalid display backend' >&2; exit 1 ;;
 esac
 export DISPLAY=:0 XAUTHORITY=/run/kiosk/Xauthority
-# Only an explicitly passed-through encoder device is adjusted. Sunshine still
-# runs as kiosk; neither world access nor a privileged container is required.
-if [ -c /dev/mpp_service ]; then
-    chgrp video /dev/mpp_service
-    chmod 0660 /dev/mpp_service
-fi
 python3 /usr/local/bin/kiosk-display.py validate
 mkdir -p /run/kiosk /state/browser /state/sunshine /state/cache
 # This profile belongs exclusively to this kiosk instance.

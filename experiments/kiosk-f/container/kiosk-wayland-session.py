@@ -14,6 +14,9 @@ spec.loader.exec_module(display)
 media_spec = importlib.util.spec_from_file_location('media', '/usr/local/bin/kiosk-media.py')
 media = importlib.util.module_from_spec(media_spec)
 media_spec.loader.exec_module(media)
+audio_spec = importlib.util.spec_from_file_location('audio', '/usr/local/bin/kiosk-audio.py')
+audio_module = importlib.util.module_from_spec(audio_spec)
+audio_spec.loader.exec_module(audio_module)
 children = []
 stopping = False
 
@@ -58,6 +61,8 @@ try:
         link('/state/openbox/rc.xml', config / 'openbox/rc.xml')
     link('/state/sunshine', config / 'sunshine')
     os.environ['LANG'] = 'C.UTF-8'
+    audio = audio_module.AudioSession(launch, children)
+    audio.start()
     with open('/state/sunshine/supervisor.log', 'w') as log:
         sunshine = launch(['python3', '/usr/local/bin/kiosk-sunshine.py', 'serve'], stdout=log, stderr=subprocess.STDOUT)
         wm = None
@@ -66,6 +71,7 @@ try:
         browser = None
         retry = 0
         while not stopping:
+            audio.tick()
             if sunshine is not None and sunshine.poll() is not None:
                 children.remove(sunshine)
                 sunshine = None

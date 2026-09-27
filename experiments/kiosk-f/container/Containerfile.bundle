@@ -4,7 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
-COPY start-kiosk kiosk-session kiosk-session.py kiosk-media.py kiosk-display.py kiosk-sunshine.py kiosk-graphics.py /usr/local/bin/
+COPY kiosk-audio.py start-kiosk kiosk-session kiosk-session.py kiosk-media.py kiosk-display.py kiosk-sunshine.py kiosk-graphics.py /usr/local/bin/
 COPY xorg.conf /etc/X11/xorg.conf
 COPY kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
 COPY input-test.html /opt/kiosk/input-test.html

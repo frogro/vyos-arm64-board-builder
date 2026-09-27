@@ -28,6 +28,7 @@ def main():
         user = pwd.getpwnam('kiosk')
         existing = os.getgrouplist(user.pw_name, user.pw_gid)
         selected = [p.stat().st_gid for p in nodes] if os.environ.get('KIOSK_GRAPHICS', 'software') == 'auto' else []
+        selected += [p.stat().st_gid for p in Path('/dev/snd').glob('*') if p.is_char_device()]
         print(','.join(map(str, supplementary_groups(existing, selected))))
         return
     template = Path('/etc/X11/xorg.conf').read_text()

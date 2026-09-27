@@ -55,6 +55,7 @@ def main():
     config.write_text(text)
     # Only explicitly granted devices contribute groups. No host-wide permissions.
     nodes = list(Path('/dev/dri').glob('*')) + list(Path('/dev').glob('video*')) + list(Path('/dev').glob('media*'))
+    nodes += list(Path('/dev/snd').glob('*')) + [p for p in [Path('/dev/mpp_service')] if p.exists()]
     groups = sorted(set(os.getgrouplist('kiosk', user.pw_gid)) | {p.stat().st_gid for p in nodes if p.is_char_device() and p.stat().st_gid != 0})
     env = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), WAYLAND_DISPLAY='wayland-kiosk', LIBSEAT_BACKEND='seatd', SEATD_SOCK='/run/seatd.sock', SEATD_VTBOUND='0')
     children = []
