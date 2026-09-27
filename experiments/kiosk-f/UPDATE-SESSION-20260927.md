@@ -87,3 +87,34 @@ only to offline config validation; native ARM64 runtime is unchanged.
 Retained first attempted rootfs and original modules for inspection; re-extracted
 pristine A-D squashfs and launched unit vyarm-adf-finish-retry-20260927 to build
 from clean base. Inspect finish-image.status/log for current result.
+
+## Installed A-D/F candidate (2026-09-27 08:30 CEST)
+
+- finish-image.status=complete. ISO:
+  tmp/adf-update-20260927/output/vyos-999.202609250800-adf-20260927-rock-5b-network-tailscale-kvm-kiosk.iso
+  SHA256 e3bb115cfddce6da5274999554a02a23f837f7dafbe2f71d6a781814d0619e6e.
+- Copied ISO+checksum to /home/vyos/adf-update-20260927 on ROCK; remote
+  SHA256 verification passed. Native installer completed successfully as
+  999.202609250800-adf-20260927, NOT default, config+SSH keys copied, history not copied.
+  Installer default suggestion still reads underlying rolling base version from
+  /opt/vyatta/etc/version; the unique explicit installation name identifies this
+  A-D/F candidate. version.json contains candidate name and integration comment.
+- Kiosk stopped for consistent config/state copy under10min independent restart
+  timer; after installation old kiosk started and verified active, timer stopped.
+- Candidate rootfs mounted read-only temporarily for native ARM64 validation:
+  full saved config validates, D/F handler owners correct, IP validator succeeds
+  without QEMU environment. Root unmounted and temporary mount directory removed.
+- cmp verifies current config.boot equals candidate
+  rw/opt/vyatta/etc/config/config.boot and all private SSH host keys match.
+- Installed files SHA256 match local ISO inputs:
+  vmlinuz 0e482366b0ba249defb340ead610d6858329771f07bbca868aaf5c993a0152fe
+  initrd 7a161cc8c9151a7527630012ce452f09db9004fcf2808363b0bfcc20c0a23aec
+  DTB 706f4321dce85edcf458bc8f237f2cef7f9f72f40297b0cdb63f05fb32f15ec0.
+- Old default remains uuid5-9061c446-3e56-58c8-af43-bffd3ea145ca.
+- No reboot performed. Missing selected USB inputs still block a clean native
+  container config startup; monitor/USB question remains unanswered. Restore
+  original selected mappings when devices return, prepare one-shot boot/fallback,
+  then test candidate kernel and four codecs. Do not claim decoder live tests
+  for this newly installed combination from the offline/native CLI checks.
+- QEMU validator regression controls passed: valid IPv4/IPv6 and prefix accepted,
+  invalid address and prefix rejected with reserved guest virtual address space.
