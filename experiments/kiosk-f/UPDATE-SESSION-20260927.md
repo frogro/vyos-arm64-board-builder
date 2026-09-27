@@ -169,3 +169,17 @@ from clean base. Inspect finish-image.status/log for current result.
 - Future boots still need connected configured USB inputs or a deliberate
   optional-device implementation. This temporary /run recovery is not a durable
   fix and does not silently delete user settings.
+
+## Touch reconnected (2026-09-27 ~09:12 CEST)
+
+- User permits touch/display tests. Old default still running. ILITEK now
+  enumerates through stable by-id links to event2 (touch) / event3 (mouse).
+- Restored these selected mappings to transient runtime Quadlet, resolving
+  destinations from by-id; saved user configuration unchanged. Restarted kiosk.
+- Weston recognizes touchscreen and mouse and associates both with HDMI-A-1.
+  Monitor EDID now identifies RTK FHD HDR and preferred/current1920x1080@60,
+  replacing earlier EDID-failure fallback1024x768. Nonconforming EDID warnings
+  remain. Rotation transform=rotate-270 implements configured90degrees.
+- Chromium, Weston and input reconciliation service active. Asked user to
+  confirm actual touch position and swiping; physical outcome pending.
+  This is old-image verification, not yet a new-candidate touch test.
