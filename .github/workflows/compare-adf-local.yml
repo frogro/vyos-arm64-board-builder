@@ -25,7 +25,8 @@ jobs:
       - name: Prepare native kernel build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc flex bison libssl-dev libelf-dev libncurses-dev kmod dwarves rsync cpio zstd xz-utils patch git curl python3 libxtables-dev iptables pkg-config
+          mapfile -t packages < <(sed '/^#/d; /^$/d' tools/ci/board-build-packages.txt)
+          sudo apt-get install -y "${packages[@]}" dwarves cpio git
           sudo mkdir -p /work/panthor
           sudo chown -R "$(id -u):$(id -g)" /work
       - name: Build isolated Panthor kernel and matching signed modules
@@ -65,7 +66,7 @@ jobs:
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-cli.py
           python3 tests/test-grub-board-dtb-persistence.py
-          bash -n experiments/kiosk-f/ci/*.sh
+          for script in experiments/kiosk-f/ci/*.sh experiments/kiosk-f/panthor-test/*.sh; do bash -n "$script"; done
       - name: Prepare runner storage and native packing tools
         run: |
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
