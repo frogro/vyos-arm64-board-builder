@@ -222,3 +222,41 @@ for this differently captured and possibly scaled/rotated frame path.
 The next comparison should hold resolution, codec, framerate and bitrate constant,
 measure host processing and frame rate, and change only the converter or capture
 path. Do not declare full F remote-control acceptance based on input delivery.
+
+## Historical regression comparison, 16:25–16:35 CEST
+
+The user's recollection is supported by the Sept21 counter-comparison results:
+X11 capture delivered58.92fps/27.8ms with RGA and58.27fps/31.2ms without it.
+Those were not Wayland/KMS capture acceptance tests.
+
+Repeated live comparisons used the SAME candidate3 Sunshine binary, SHA256
+bb8cef2eac6c18331df28a06ff1ab2f7122b2002c3be158a17b9a2f32299daa2,
+HEVC, 2000kbps, hardware client decoder, no vsync/frame pacing, and Tailscale via
+the Samsung hotspot. RGA stayed off. All sessions bounded to35seconds:
+
+| Desktop / capture | Requested output | Received fps | Mean host processing |
+| --- | --- | ---: | ---: |
+| X11 / X11 | 1920x1080 at30 | 28.97 | 41.0ms |
+| X11 / X11 | 1080x1920 at60 | 55.75 | 35.9ms |
+| Wayland / KMS | 1920x1080 at30 | 13.70 | 280.6ms |
+| X11 / KMS | 1920x1080 at30 | 13.38 | 277.5ms |
+| X11 / KMS, animated page | 1920x1080 at30 | 13.12 | 281.2ms |
+
+Animation was added to exclude a completely static page as the explanation.
+A five-second thread CPU sample during the animated KMS session showed the
+capture thread at97% of one CPU and the encoder session at15.4%. The different
+desktop backend alone is therefore not sufficient: KMS is slow under X11 too.
+The old fast capture path still works with today's binary; missing encoder
+patches are not supported as the cause of this particular slowdown.
+
+Next isolate KMS texture import/readback and any fallback renderer in the actual
+capture process. Upstream kmsgrab.cpp's RAM path uses GetTextureSubImage; this is
+a source candidate, not a measured function-level attribution or a tested fix.
+A separate EGL probe without supplementary groups used llvmpipe because the
+render node was inaccessible. Repeating with the actual Wayland session groups
+used Mali-G610/Panfrost on both DRM nodes. Do not mistake the first probe for
+proof that the running Sunshine process lacks GPU access.
+
+Raw client summaries: sunshine/latency-comparison-20260927.json. Original normal
+Wayland kiosk and Sunshine state restored after testing; rollback timer removed.
+No production default changed, no new kernel needed for these comparisons.
