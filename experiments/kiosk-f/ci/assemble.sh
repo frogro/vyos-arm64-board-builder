@@ -21,3 +21,5 @@ sha256sum -c ./*.sha256
 printf 'FULL_BUILD_AND_VERIFICATION_COMPLETE\n'
 
 python3 /work/manifest.py
+
+python3 /work/inventory.py
