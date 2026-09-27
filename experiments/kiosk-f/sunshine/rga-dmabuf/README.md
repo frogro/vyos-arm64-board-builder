@@ -2,6 +2,12 @@
 
 Experimental standalone probe; no production setting or main change.
 
+**Correction after live follow-up:** FULL_CSC IS present in the running module.
+`experimental_full_csc` was N during the initial tests below. The old test4 source
+inspection was not proof of the final module contents. Enabling the existing
+revision-gated parameter makes both probes pass. No missing kernel patch or
+kernel rebuild was required; see follow-up below.
+
 ## Actual Sunshine test
 
 Same Mesa26 runtime / Panthor test kernel as MESA-CACHE-RESEARCH-20260927.md.
@@ -60,7 +66,8 @@ corrections before enabling RGA by default. No module was hot-replaced here.
 
 ## Next implementation gates
 
-1. Restore/verify FULL_CSC behavior on the exact next kernel; repeat both probes.
+1. DONE live: verify existing FULL_CSC opt-in; repeat both probes. Ensure the future
+   F integration enables/checks it when the user selects experimental RGA.
 2. Validate GPU import/render into an RGA-addressable linear exported buffer,
    with format/modifier support and fence/lifetime synchronization.
 3. Feed RGA NV12 output to MPP with explicit colorspace/range and bounded queues.
@@ -69,3 +76,41 @@ corrections before enabling RGA by default. No module was hot-replaced here.
 Normal kiosk continued running unchanged. Test Sunshine and compiler containers
 stopped; test binaries retained under /config/panthor-sunshine-20260927.
 No images were rebuilt locally and no global Mesa/default capture changes made.
+
+
+## Live follow-up: existing CSC option and GPU-to-RGA
+
+`modinfo rockchip_rga` exposed `experimental_full_csc`; sysfs value was N.
+Armed an independent eight-minute systemd rollback timer before enabling Y.
+No module unload, kernel replacement, reboot or compositor restart performed.
+
+Both original CPU-fed and DMA-BUF-import probes pass all8cases/960frames each,
+maximum sampled error1. Results in csc-enabled-results-20260927.txt.
+The previously observed errors were the expected legacy path with opt-in OFF,
+not a regression introduced by DMA-BUF or evidence of a lost commit.
+
+Added optional `gpu-fill.hpp`, compiled with `-DVYARM_GPU_PROBE -lEGL -lGLESv2`.
+Run `RGA_PROBE_GPU=1 timeout 30 ./probe rga-export` in the isolated Mesa26 runtime.
+It imports an RGA-allocated/exported linear XR24 buffer as an EGL image and renders
+alternating color bars directly into it with actual Mali-G610/Panfrost OpenGL.
+No RGB upload/readback through CPU memory is used in this GPU path. `glFinish`
+completes GPU writes before each RGA submission. NV12 is still copied back to CPU
+for validation; this is not a complete zero-copy streaming implementation.
+
+Initial portrait4320-byte pitch was rejected by Mesa (`WSI pitch not properly
+aligned`). Use storage width1088 / pitch4352, EGL image width1088, render1080 and
+explicit V4L2 input crop1080. Landscape1920 already satisfies alignment.
+The probe validates exact negotiated format and crop; no fake GL version.
+
+Dynamic GPU updates on every frame: all8cases/960frames pass,maxerror1.
+Mean GPU clear+completion+RGA conversion+NV12 output copy3.69–4.67ms/frame.
+Source import/context setup and CPU sample checks excluded from this metric.
+See gpu-dynamic-results-20260927.txt. This establishes GPU writes -> linear
+DMA-BUF -> RGA feasibility, not AFBC KMS sampling or Moonlight performance.
+
+Remaining: sample the actual AFBC framebuffer into this linear target with proper
+lifetime/synchronization, then connect output to Sunshine/MPP and compare latency.
+No direct current-KMS-buffer bypass was claimed or enabled by these probes.
+
+After tests, restored experimental_full_csc=N, stopped rollback timer and removed
+compiler container. Existing kiosk kept the same start timestamp throughout.

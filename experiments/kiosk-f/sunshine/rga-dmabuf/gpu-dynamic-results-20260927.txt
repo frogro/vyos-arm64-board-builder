@@ -1,0 +1,16 @@
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1920x1080 bt709=0 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.89956
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1920x1080 bt709=0 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.69019
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1920x1080 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.75062
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1920x1080 bt709=1 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.75662
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1080x1920 bt709=0 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.90449
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1080x1920 bt709=0 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.6695
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1080x1920 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.63394
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+allocator=rga-export 1080x1920 bt709=1 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.06768
