@@ -103,3 +103,34 @@ Normal kiosk/runtime/policy and temporary port bindings were restored after
 these tests. Preserve native Tailscale enablement and private identity for future
 remote tests. A future remote test from another network must still validate NAT
 traversal/relay throughput and latency. No public port forwarding was configured.
+
+## Samsung hotspot / relay test
+
+User moved ThinkPad to Samsung hotspot. Verified Ethernet DOWN, only WLAN IPv4
+10.174.69.115/24 with default gateway 10.174.69.200, plus tailscale0. No local
+Fritzbox or ROCK AP route remained. Tailscale ping to ROCK used DERP(ams), initial
+220 ms then 69 ms; no direct connection was established. During streams CurAddr
+was empty and peer traffic counters increased (local Relay ams, remote Relay fra).
+Thus this additionally covers an actual relay path, not merely same-LAN VPN.
+
+Temporary Sunshine bindings used only the ROCK tailnet IPv4. PIN pairing worked;
+container saw bridge source due to NAT. Short 1080p30 hardware-encoded/decoded
+streams, terminated intentionally by timeout:
+
+| Codec | Requested bitrate | Packet size | Logged network-dropped frames |
+| --- | --- | --- | --- |
+| HEVC | 4000 kbps | default | 2 |
+| H.264 | 4000 kbps | default | 16 |
+| H.264 | 2000 kbps | 1024 bytes | 2 |
+
+These counts mostly reflect startup in different short sessions, not normalized
+loss rates or a controlled codec comparison. Lower bitrate and packet size were
+changed together: the result does not identify which change helped. All three
+sessions received video and audio. HEVC non-silent tone capture at ThinkPad output
+recorded 864000 frames at48kHz, peak1048, tone amplitudes1018.36 and1008.16 for
+697/1209Hz. No microphone captured. No mouse input enabled (view-only).
+
+Hotspot test has its own rollback baseline including enabled Tailscale, so cleanup
+does not remove the only remote management path. Normal kiosk and its original
+Sunshine state are restored after test. No public router port forwards needed.
+Remaining acceptance: remote control/rotation and sustained motion/latency tests.
