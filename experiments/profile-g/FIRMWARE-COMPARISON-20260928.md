@@ -103,3 +103,15 @@ STREAMING and controlled receiver stop, with no new iwlwifi/Microcode error
 in the inspected interval. This exceeds the roughly 33 seconds before the
 morning firmware assertion, but remains a short test. Sender stopped and
 homebase restored after test; management route remains Ethernet.
+
+## USB adapter discovery check
+
+Added ThinkPad USB 0e8d:7612 MT7612U, mt76x2u, interface wlx00c0cab95d25.
+Kernel advertises P2P-client/P2P-GO (single-channel combinations), but no
+P2P-device interface mode. GNOME created a provider for its NetworkManager
+P2P device while Intel was temporarily unmanaged. No sinks appeared in this
+bounded trial. Direct wpa_cli p2p_find returned FAIL; get_capability modes
+returned IBSS AP MESH, with no P2P. This identifies a current discovery-stack
+limitation, not proof the hardware can never support Wi-Fi Direct. No driver
+patch was applied. Receiver restored; Intel managed/homebase restored; LAN
+remained active. No USB Miracast stream/audio/latency success claimed.
