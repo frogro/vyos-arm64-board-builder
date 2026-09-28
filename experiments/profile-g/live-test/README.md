@@ -41,3 +41,13 @@ only auto_null in PulseAudio. HDMI0 has ELD for RTK FHD HDR with one audio forma
 HDMI1 has none. This is separate from G: the G launcher explicitly passes sound
 nodes. Playing a marker through the F null sink is not acoustic proof. The
 ThinkPad microphone gain is restored after each bounded capture.
+
+Direct acoustic baseline passed: host `aplay -D plughw:1,0` played the marker WAV
+(exit 0). ThinkPad internal microphone at temporary 20% gain captured the
+600/1200/1800 Hz sequence at seconds 5/9/14 of the recording. Windowed FFT
+relative peak scores were 104/119/102 respectively, compared with below 1
+outside the marker intervals. Startup transient clipped; subsequent tone
+intervals did not. Gain restored to 100%. This proves direct HDMI acoustic
+output at the test location, not Miracast transport or end-to-end latency.
+Local evidence: /mnt/entwicklung/tmp/profile-g-live-20260928/mic-hdmi-direct.pcm
+and mic-hdmi-test.py. Recordings are not committed.
