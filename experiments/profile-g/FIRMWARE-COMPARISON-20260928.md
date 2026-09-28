@@ -261,3 +261,25 @@ in live-test/gnd-latency-probe.c with reproduction/limitations. Twenty tests pas
 including actual GStreamer live-video handoffs while an optional audio source
 supplies no preroll data. Restored AP/kiosk/homebase/LAN and stopped diagnostic
 sender; optimized receiver player remains staged for next G test. No main change.
+
+## HDMI audio selection fix (17:53 onward)
+
+New G-specific hdmi-audio.py selects the audio device matching the active DRM
+output EDID/ELD and starts Pulse without probing all sound cards. Actual mapping
+HDMI-A-1 -> plughw:1,0 -> sink g_hdmi, stereo 48 kHz; unused HDMI1 not opened.
+Since 17:53, zero new hdmi-audio-codec/ASoC kernel errors observed through active
+stream at 17:57:41. Local 660 Hz/0.5-second tone played through Pulse g_hdmi;
+user confirmed hearing it. This confirms output selection/playback, not Miracast
+AAC delivery. Audio demux delayed linking remains in the received stream.
+
+First connection attempts after change failed P2P scan/formation with ret=-22,
+supplicant-timeout; not counted as video passes. Fresh bounded restart of both
+ends yielded STREAMING at 17:57:41, with 50 ms sender diagnostic still active.
+21 automated tests pass, including EDID/ELD selection under card renumbering,
+disconnect/no-capability/ambiguous matches and absent-audio preroll regression.
+Physical second-port and unplug/replug tests not performed.
+
+At 17:59:09 stream remained active, g_hdmi remained default, and new HDMI codec
+error count remained zero. User had confirmed the local tone; renewed visual
+confirmation was still pending at cleanup. Restored AP/kiosk/homebase/LAN and
+stopped process-local sender diagnostic. Final HDMI module staged for next run.

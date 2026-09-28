@@ -244,3 +244,21 @@ ThinkPad WLAN firmware crash at 09:57:06, not timer expiry (09:57:29). See
 INCIDENT-20260928.md for the verified outage timeline and unsafe repeated manual
 rollback. Do not resume the ad hoc internal-radio harness without the listed
 management and recovery safeguards.
+
+### HDMI audio routing
+
+G now starts a private Pulse server without module-udev-detect. It compares the
+selected DRM connector's EDID vendor/product identifiers with valid ALSA ELD
+records containing audio capabilities and opens only the matching playback PCM.
+It does not assume HDMI-A-1 is ALSA card 1. It checks every two seconds and
+switches to a silent sink when the selected display disappears; matching audio
+return reopens the sink and moves existing streams. Failed device opens retry
+at most every 30 seconds. This is G-specific; F/D startup is unchanged.
+
+Ambiguous identical-monitor matches or cards with multiple playback PCMs are
+kept silent rather than routed to an arbitrary output. Supporting those needs
+additional connector-to-PCM topology mapping. A changed *video* connector still
+requires the display session to select that connector too. Tests cover HDMI-A-2
+mapped to reordered card7, disconnection, invalid audio capability, and ambiguity.
+Live hardware verification so far is HDMI-A-1 only; a physical HDMI-A-2 swap and
+live unplug/replug are still outstanding.

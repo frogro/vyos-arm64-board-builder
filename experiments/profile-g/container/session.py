@@ -79,9 +79,9 @@ def main():
         weston=launch(as_user+['/usr/bin/weston','--backend=drm','--drm-device='+cfg['drm_device'],
                      '--renderer=gl','--config='+str(ini),'--socket=wayland-g','--log=/state/weston.log'])
         wait_ready(lambda:(runtime/'wayland-g').is_socket(),weston,'Weston')
-        audio_mod=module('g_audio','/opt/profile-g/kiosk-audio.py')
+        audio_mod=module('g_audio','/opt/profile-g/hdmi-audio.py')
         # PulseAudio must run as the same user as the receiver.
-        audio=audio_mod.AudioSession(lambda args,**kw:launch(as_user+args,**kw),children)
+        audio=audio_mod.AudioSession(lambda args,**kw:launch(as_user+args,**kw),children,cfg['drm_device'],selected)
         os.chown(runtime/'pulse',user.pw_uid,user.pw_gid)
         audio.start()
         if cfg['method']=='miracast':
