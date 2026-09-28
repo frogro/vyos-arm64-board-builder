@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail a test build if audited main profile behavior or protected inputs drift."""
 import itertools
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -21,6 +22,19 @@ for combination in itertools.product((False, True), repeat=3):
 protected = ['boards', 'profiles', 'patches', 'tools/kvm', 'tools/tailscale',
              '.github/workflows/watch-upstream-rolling.yml']
 changed = git('diff', '--name-only', ref, 'HEAD', '--', *protected).strip()
+if changed:
+    reviewed = 'profiles/kvm-cli/service_kvm-over-ip.xml'
+    paths = changed.splitlines()
+    if reviewed in paths:
+        candidate_xml = Path(reviewed).read_text()
+        for name in ('cpu-conversion', 'conversion-fallback'):
+            candidate_xml, count = re.subn(r'              <leafNode name="' + name + r'">.*?</leafNode>\n', '', candidate_xml, flags=re.S)
+            if count != 1:
+                raise SystemExit('Reviewed additive conversion CLI node missing or duplicated')
+        if candidate_xml != git('show', f'{ref}:{reviewed}'):
+            raise SystemExit('Existing main KVM CLI changed beyond reviewed additive leaves')
+        paths.remove(reviewed)
+    changed = '\n'.join(paths)
 if changed:
     raise SystemExit(f'Protected main files differ; review before building:\n{changed}')
 workflow = git('show', f'{ref}:.github/workflows/build-board-candidate.yml')

@@ -14,7 +14,7 @@ class KvmCliTests(unittest.TestCase):
     def test_negotiated_conversion_preserves_legacy_and_falls_back_safely(self):
         runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
         start = runner.index('            # Negotiated mode must not')
-        end = runner.index('            # Opt-in negotiated CPU fallback', start)
+        end = runner.index('            # Opt-in CPU staging', start)
         block = runner[start:end]
         for mode, enabled, converter, expected in [
             ('legacy', False, 'v4l2convert', 'v4l2convert'),
@@ -32,22 +32,22 @@ class KvmCliTests(unittest.TestCase):
     def test_cached_copy_is_opt_in_and_keeps_rga_and_missing_helper_fallback(self):
         import tempfile
         runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
-        start = runner.index('            # Opt-in negotiated CPU fallback')
+        start = runner.index('            # Opt-in CPU staging')
         end = runner.index('\n        fi', start)
         block = runner[start:end]
         with tempfile.TemporaryDirectory() as directory:
             helper = Path(directory) / 'helper'
             helper.write_text('#!/bin/sh\n')
             for mode, converter, fourcc, present, selected in [
-                ('negotiated', 'videoconvert', 'BGR3', True, True),
-                ('negotiated', 'videoconvert', 'RGB3', True, True),
-                ('legacy', 'videoconvert', 'BGR3', True, False),
-                ('negotiated', 'v4l2convert', 'BGR3', True, False),
-                ('negotiated', 'videoconvert', 'YUYV', True, False),
-                ('negotiated', 'videoconvert', 'BGR3', False, False),
+                ('auto', 'videoconvert', 'BGR3', True, True),
+                ('cached', 'videoconvert', 'RGB3', True, True),
+                ('direct', 'videoconvert', 'BGR3', True, False),
+                ('auto', 'v4l2convert', 'BGR3', True, False),
+                ('auto', 'videoconvert', 'YUYV', True, False),
+                ('auto', 'videoconvert', 'BGR3', False, False),
             ]:
                 helper.chmod(0o755 if present else 0o644)
-                code = (f'COLORIMETRY={mode}; converter={converter}; FOURCC={fourcc}; '
+                code = (f'CPU_CONVERSION={mode}; converter={converter}; FOURCC={fourcc}; '
                         'GST=original; args=();\n' + block.replace(
                             '/usr/libexec/vyos/vyos-kvm-cached-launch', str(helper)) +
                         '\nprintf "%s\\n" "$GST" "${args[@]}"')

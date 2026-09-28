@@ -19,6 +19,9 @@ FRAMERATE="${KVM_VIDEO_FRAMERATE:-}"
 BITRATE="${KVM_VIDEO_BITRATE:-8000}"
 GOP="${KVM_VIDEO_GOP:-60}"
 COLORIMETRY="${KVM_VIDEO_COLORIMETRY:-legacy}"
+CPU_CONVERSION="${KVM_VIDEO_CPU_CONVERSION:-direct}"
+FALLBACK="${KVM_VIDEO_CONVERSION_FALLBACK:-disabled}"
+export VYARM_CACHED_COPY_FALLBACK="$FALLBACK"
 LISTEN_ADDRESS="${KVM_VIDEO_LISTEN_ADDRESS:-0.0.0.0}"
 PORT="${KVM_VIDEO_PORT:-8889}"
 USTREAMER_QUALITY="${KVM_VIDEO_USTREAMER_QUALITY:-80}"
@@ -68,8 +71,13 @@ selection="$(/usr/bin/python3 /usr/local/libexec/vyos-kvm-capture.py --backend "
 eval "${selection}"
 
 # Scope signal supervision to the provider with HDMI DV-timing support.
-if [[ "${SOURCE_PROVIDER}" == "rk3588-synopsys-hdmirx" && "${KVM_VIDEO_SUPERVISED:-0}" != 1 ]]; then
-    exec /usr/bin/python3 /usr/local/libexec/vyos-kvm-video-supervisor.py "${DEVICE}" "${BACKEND}" "$0"
+if [[ "${KVM_VIDEO_SUPERVISED:-0}" != 1 ]] &&
+   { [[ "$SOURCE_PROVIDER" == rk3588-synopsys-hdmirx ]] ||
+     [[ "$BACKEND" == gstreamer && "$FALLBACK" == enabled ]]; }; then
+    supervision=()
+    [[ "$SOURCE_PROVIDER" == rk3588-synopsys-hdmirx ]] || supervision+=(--generic)
+    export KVM_VIDEO_CONVERSION_FALLBACK="$FALLBACK"
+    exec /usr/bin/python3 /usr/local/libexec/vyos-kvm-video-supervisor.py "${DEVICE}" "${BACKEND}" "$0" "${supervision[@]}"
 fi
 
 sync_provider_capture_timings
@@ -218,9 +226,13 @@ case "${BACKEND}" in
                ! grep -qs '^Y$' /sys/module/rockchip_rga/parameters/experimental_full_csc; then
                 converter=videoconvert
             fi
-            # Opt-in negotiated CPU fallback: stage packed pixels in cached
-            # memory. Legacy and validated RGA routes retain their behavior.
-            if [[ "$COLORIMETRY" == negotiated && "$converter" == videoconvert &&
+            # Opt-in CPU staging, independent of color policy. Recovery is
+            # process-local and never changes the saved CLI configuration.
+            if [[ "${KVM_VIDEO_CONVERSION_RECOVERY:-}" == cpu || "${KVM_VIDEO_CONVERSION_RECOVERY:-}" == direct ]]; then
+                converter=videoconvert
+            fi
+            [[ "${KVM_VIDEO_CONVERSION_RECOVERY:-}" != direct ]] || CPU_CONVERSION=direct
+            if [[ "$CPU_CONVERSION" != direct && "$converter" == videoconvert &&
                   "$FOURCC" =~ ^(BGR3|RGB3)$ &&
                   -x /usr/libexec/vyos/vyos-kvm-cached-launch ]]; then
                 GST=/usr/libexec/vyos/vyos-kvm-cached-launch

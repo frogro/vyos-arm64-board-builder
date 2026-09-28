@@ -7,8 +7,10 @@
 static GMainLoop *loop;
 static GstElement *pipeline;
 static int failed;
+static gboolean direct_fallback;
 static GstPadProbeReturn stage(GstPad *pad, GstPadProbeInfo *info, gpointer unused) {
     (void)pad; (void)unused;
+    if (direct_fallback) return GST_PAD_PROBE_OK;
     GstBuffer *in = GST_PAD_PROBE_INFO_BUFFER(info);
     GstBuffer *out = gst_buffer_new_allocate(NULL, gst_buffer_get_size(in), NULL);
     GstMapInfo r = GST_MAP_INFO_INIT, w = GST_MAP_INFO_INIT;
@@ -32,9 +34,13 @@ error:
     if (wm) gst_buffer_unmap(out, &w);
     if (rm) gst_buffer_unmap(in, &r);
     if (out) gst_buffer_unref(out);
-    failed = 1;
-    g_printerr("cached-copy: allocation, layout or mapping failed; stopping\n");
-    g_main_loop_quit(loop);
+    if (g_strcmp0(g_getenv("VYARM_CACHED_COPY_FALLBACK"), "enabled") == 0) {
+        direct_fallback = TRUE;
+        g_printerr("cached-copy: staging failed; switching to direct CPU for this process\n");
+        return GST_PAD_PROBE_OK;
+    }
+    GST_ELEMENT_ERROR(pipeline, RESOURCE, FAILED,
+        ("cached-copy allocation, layout or mapping failed"), (NULL));
     return GST_PAD_PROBE_DROP;
 }
 static gboolean message(GstBus *bus, GstMessage *msg, gpointer data) {

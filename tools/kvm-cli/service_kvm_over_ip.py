@@ -173,6 +173,13 @@ def verify(kvm):
                 'Video backend must be one of: ustreamer, gstreamer, ffmpeg'
             )
 
+        for option, allowed in [('cpu_conversion', ('direct', 'cached', 'auto')),
+                                ('conversion_fallback', ('enabled', 'disabled'))]:
+            if option in video and (backend != 'gstreamer' or video[option] not in allowed):
+                raise ConfigError(option + ' requires gstreamer and a supported value')
+        if video.get('cpu_conversion') == 'cached' and not os.path.isfile('/usr/libexec/vyos/vyos-kvm-cached-launch'):
+            raise ConfigError('Cached conversion helper is not installed in this image')
+
         if video.get('colorimetry', 'legacy') not in ('legacy', 'negotiated'):
             raise ConfigError('Video colorimetry must be legacy or negotiated')
         if 'colorimetry' in video and backend != 'gstreamer':
@@ -304,6 +311,8 @@ def generate(kvm):
     _write_env({
         'KVM_VIDEO_BACKEND': backend,
         'KVM_VIDEO_COLORIMETRY': video.get('colorimetry', 'legacy'),
+        'KVM_VIDEO_CPU_CONVERSION': video.get('cpu_conversion', 'direct'),
+        'KVM_VIDEO_CONVERSION_FALLBACK': video.get('conversion_fallback', 'disabled'),
         'KVM_VIDEO_PROVIDER': _provider(),
         'KVM_VIDEO_DEVICE': video.get('device', ''),
         'KVM_VIDEO_RESOLUTION': video.get('resolution', ''),

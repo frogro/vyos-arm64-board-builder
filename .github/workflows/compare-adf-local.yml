@@ -75,6 +75,8 @@ jobs:
           sudo python3 tests/test-kvm-media-file-ownership.py
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-cli.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-video-supervisor.py
           python3 tests/test-grub-board-dtb-persistence.py
           for script in experiments/kiosk-f/ci/*.sh experiments/kiosk-f/panthor-test/*.sh; do bash -n "$script"; done
       - name: Prepare runner storage and native packing tools

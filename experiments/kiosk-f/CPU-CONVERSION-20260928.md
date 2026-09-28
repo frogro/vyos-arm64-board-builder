@@ -198,3 +198,37 @@ error fails rather than silently continuing with damaged output; service
 restart is not equivalent to an automatic direct-CPU downgrade. Runtime
 recovery, bounded retry policy and fault injection remain separate work.
 No unproven upstream patch is added to Actions36382869073.
+
+## Additional test build: independent selection and bounded recovery
+
+Two additive native CLI nodes (GStreamer only):
+
+```
+set service kvm-over-ip video cpu-conversion cached
+set service kvm-over-ip video conversion-fallback enabled
+```
+
+`cpu-conversion direct|cached|auto` defaults to `direct`. Cached staging applies
+when CPU conversion of BGR3/RGB3 is selected; it does not displace a selected RGA
+path. `auto` uses the helper if available; explicit `cached` requires its
+installation. Colorimetry remains an independent setting. The fallback defaults
+to disabled, preserving established behavior.
+
+Enabled recovery first restarts a failed/stalled capture with CPU conversion,
+then with direct CPU conversion, and stops retrying after those failures until
+source change or service restart. A missing RTSP transport does not consume this
+budget. Recovery is process-local and never rewrites saved configuration.
+Allocation/layout/mapping failure in cached staging can also switch to direct
+buffers within that process. Direct CPU fallback may reduce frame rate.
+
+Validation: cross-compilation with -Wall -Wextra -Werror; KVM CLI/config tests,
+supervisor recovery/exhaustion/source-change/transport tests, 106 kiosk tests,
+profile and boot regression tests. On the ROCK, a process-local allocation fault
+injection tested 30 synthetic 64x64 BGR frames: enabled recovery completed all
+184320 NV12 bytes, identical to control; disabled recovery exited 1. No global
+libraries or installed services were changed. Full installed native CLI and
+end-to-end HDMI recovery remain checks for the resulting image; this isolated
+fault test is not proof of recovery from every hardware hang.
+
+The upstream GStreamer copy/mapping patches remain excluded. This additional
+build retains the previous cached-copy run 36382869073 for comparison.
