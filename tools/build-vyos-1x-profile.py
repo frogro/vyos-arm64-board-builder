@@ -65,8 +65,8 @@ def build_container(out):
     if arch!='arm64': raise ValueError('Refusing non-ARM64 build container: '+arch)
     return output('docker','image','inspect','--format={{.Id}}',image),provenance
 
-def build(version,out,kvm=True,tailscale=False,kiosk=False):
-    if not kvm and not tailscale and not kiosk:
+def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False):
+    if not kvm and not tailscale and not kiosk and not receiver:
         raise ValueError('Select at least one native CLI profile')
     host_arch=output('uname','-m')
     if host_arch!='aarch64' and os.environ.get('VYOS_1X_ALLOW_EMULATION')!='yes':
@@ -83,7 +83,7 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False):
         run('git','-C',source,'checkout','--detach','FETCH_HEAD')
         if output('git','-C',source,'rev-parse','HEAD')!=sha: raise ValueError('Checkout mismatch')
         run('git','-C',source,'submodule','update','--init','--recursive','--depth=1')
-        metadata=profile.prepare(source,version,kvm,tailscale,kiosk)
+        metadata=profile.prepare(source,version,kvm,tailscale,kiosk,receiver)
         # Upstream lint uses git ls-files: include the added files in its scope.
         run('git','-C',source,'add','.')
         run('docker','run','--rm','--privileged','--network','host','--platform','linux/arm64',
@@ -120,6 +120,9 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False):
                          'usr/lib/python3/dist-packages/vyos/kiosk_remote.py',
                          'usr/libexec/vyos/op_mode/kiosk_sunshine.py',
                          'opt/vyatta/share/vyatta-cfg/templates/container/name/node.tag/kiosk/rotation/node.def']
+        if receiver:
+            required += ['usr/lib/python3/dist-packages/vyos/receiver.py',
+                         'opt/vyatta/share/vyatta-cfg/templates/container/name/node.tag/receiver/method/node.def']
         for rel in required:
             if not (unpack/rel).is_file(): raise ValueError('Generated package file missing: '+rel)
         includes=json.loads((unpack/'usr/share/vyos/configd-include.json').read_text())
@@ -138,4 +141,5 @@ if __name__=='__main__':
     p.add_argument('--kvm',choices=['yes','no'],default='yes')
     p.add_argument('--tailscale',choices=['yes','no'],default='no')
     p.add_argument('--kiosk',choices=['yes','no'],default='no')
-    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes')
+    p.add_argument('--receiver',choices=['yes','no'],default='no')
+    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes',a.receiver=='yes')

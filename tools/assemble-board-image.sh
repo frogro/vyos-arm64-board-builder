@@ -25,6 +25,7 @@ TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
 BUILD_PROFILE="${BUILD_PROFILE:-base}"
 KVM_OVER_IP="${KVM_OVER_IP:-no}"
 KIOSK_F="${KIOSK_F:-no}"
+RECEIVER_G="${RECEIVER_G:-no}"
 KIOSK_F_GPU_FIRMWARE="${KIOSK_F_GPU_FIRMWARE:-none}"
 KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
 KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
@@ -43,6 +44,7 @@ if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
 fi
 
 # F is opt-in on its development branch. Existing workflow defaults are unchanged.
+[[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
 [[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || { echo 'Invalid KIOSK_F' >&2; exit 1; }
 [[ "$KIOSK_F_GPU_FIRMWARE" == none || "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]] || exit 1
 
@@ -170,7 +172,7 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
 fi
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
     [[ -x "$KVM_CLI_INSTALLER" ]] ||
         die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
@@ -499,15 +501,15 @@ mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
     if [[ -n "${VYOS_1X_PREBUILT:-}" ]]; then
         KVM_CLI_ARTIFACTS="$(realpath "$VYOS_1X_PREBUILT")"
         [[ -s "$KVM_CLI_ARTIFACTS/build.json" ]] || die "Prebuilt CLI provenance missing"
     else
-        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F"
+        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G"
     fi
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G"
 fi
 
 if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
@@ -577,7 +579,8 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$KVM_HARDWARE_PROVIDER" \
     "$KVM_CAPTURE_BACKEND" \
     "$KVM_HID_GADGET" \
-    "$KIOSK_F"
+    "$KIOSK_F" \
+    "$RECEIVER_G"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo

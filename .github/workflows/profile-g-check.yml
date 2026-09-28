@@ -1,0 +1,50 @@
+name: Profile G receiver checks
+on:
+  push:
+    branches: [feature/profile-g]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: profile-g-check-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  policy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 -m unittest discover -s experiments/profile-g/tests -v
+          python3 -m unittest discover -s experiments/kiosk-f/tests
+          python3 tests/test-vyos-1x-profile.py
+          python3 tests/test-kvm-cli.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-video-supervisor.py
+          python3 experiments/kiosk-f/ci/check-cli-recipe.py
+          bash -n experiments/profile-g/build-runtime.sh tools/assemble-board-image.sh tools/finalize-vyos-rootfs.sh tools/install-kvm-cli.sh
+  native-receivers:
+    needs: policy
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile pinned receivers on ARM64 (no router access)
+        run: |
+          docker build --target build --build-arg BASE_IMAGE=debian:trixie-slim -f experiments/profile-g/container/Containerfile -t profile-g-backends .
+          docker run --rm --entrypoint /out/usr/local/bin/uxplay profile-g-backends -h
+          docker run --rm --entrypoint /out/usr/bin/miracle-sinkctl profile-g-backends --help
+          docker run --rm -e QT_QPA_PLATFORM=offscreen --entrypoint /out/usr/local/bin/moonlight profile-g-backends --help
+      - name: Export compiled backends and provenance
+        run: |
+          mkdir native-backends
+          container=$(docker create profile-g-backends)
+          docker cp "$container:/out/." native-backends/
+          docker rm "$container"
+          git rev-parse HEAD > native-backends/source-commit.txt
+          cp experiments/profile-g/container/Containerfile native-backends/
+          tar -C native-backends -czf profile-g-backends-arm64.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: profile-g-backends-arm64
+          path: profile-g-backends-arm64.tar.gz
+          retention-days: 7

@@ -1,0 +1,18 @@
+# Build native ARM64 against the same Debian generation as the tested F runtime.
+ARG BASE_IMAGE
+FROM docker.io/library/debian:trixie-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git build-essential cmake ninja-build meson pkg-config libssl-dev libplist-dev libavahi-compat-libdnssd-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libsystemd-dev libudev-dev libreadline-dev libglib2.0-dev libegl-dev libgl-dev libopus-dev libsdl2-dev libsdl2-ttf-dev libavcodec-dev libavformat-dev libswscale-dev libva-dev libvdpau-dev libxkbcommon-dev wayland-protocols libdrm-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev qt6-tools-dev-tools && rm -rf /var/lib/apt/lists/*
+RUN git init /src/uxplay && cd /src/uxplay && git remote add origin https://github.com/FDH2/UxPlay.git && git fetch --depth=1 origin 8f40118b1a72d7e16ce684b0f3ce6a0ae32bdc79 && git checkout --detach FETCH_HEAD && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j2 && install -D build/uxplay /out/usr/local/bin/uxplay
+RUN git init /src/miraclecast && cd /src/miraclecast && git remote add origin https://github.com/albfan/miraclecast.git && git fetch --depth=1 origin 0b7f1f1f6586dc65ff480f3cda5c2170a70aa020 && git checkout --detach FETCH_HEAD && meson setup build --prefix=/usr -Dbuild-tests=false && meson compile -C build -j2 && DESTDIR=/out meson install -C build
+RUN git init /src/moonlight && cd /src/moonlight && git remote add origin https://github.com/moonlight-stream/moonlight-qt.git && git fetch --depth=1 origin 8369d1a0e11b999d4d1598f62ca5f6dea49602fb && git checkout --detach FETCH_HEAD && git submodule update --init --recursive --depth=1 && qmake6 moonlight-qt.pro 'CONFIG+=release' 'CONFIG+=disable-prebuilts' && make -j2 && install -D app/moonlight /out/usr/local/bin/moonlight
+FROM ${BASE_IMAGE}
+USER root
+RUN test "$(. /etc/os-release; echo "$VERSION_CODENAME")" = trixie && apt-get update && apt-get install -y --no-install-recommends avahi-daemon libavahi-compat-libdnssd1 libplist-2.0-4 gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl dbus dbus-bin iproute2 iw wpasupplicant libreadline8t64 libglib2.0-0t64 libsystemd0 libudev1 libopus0 libsdl2-2.0-0 libsdl2-ttf-2.0-0 libavcodec61 libavformat61 libswscale8 libva2 libva-drm2 libva-wayland2 libva-x11-2 libvdpau1 qt6-wayland qml6-module-qtquick-controls qml6-module-qtquick-templates qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtquick-window qml6-module-qtquick qml6-module-qtquick-dialogs libqt6svg6 pulseaudio seatd util-linux && rm -rf /var/lib/apt/lists/*
+COPY --from=build /out/ /
+COPY experiments/profile-g/container/*.py /opt/profile-g/
+COPY experiments/profile-g/cli/receiver.py /opt/profile-g/receiver.py
+# Reuse the tested rotation mapping and audio lifecycle without modifying F.
+COPY experiments/kiosk-f/container/kiosk-wayland.py experiments/kiosk-f/container/kiosk-audio.py /opt/profile-g/
+RUN chmod 755 /opt/profile-g/*.py && id kiosk && test -x /usr/bin/weston && uxplay -h >/dev/null && miracle-sinkctl --help >/dev/null && QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null && gst-inspect-1.0 waylandsink >/dev/null
+LABEL io.vyarm.receiver.version="1" io.vyarm.receiver.methods="airplay,moonlight,miracast-experimental"
+ENTRYPOINT ["python3", "/opt/profile-g/session.py"]

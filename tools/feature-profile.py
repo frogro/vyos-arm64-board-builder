@@ -23,6 +23,7 @@ def derive(
     tailscale_subnet_router: bool,
     kvm_over_ip: bool,
     kiosk_f: bool = False,
+    receiver_g: bool = False,
 ) -> dict:
     enabled = []
     profile_parts = []
@@ -40,6 +41,10 @@ def derive(
         enabled.append("kiosk-f")
         profile_parts.append("kiosk")
 
+    if receiver_g:
+        enabled.append("receiver-g")
+        profile_parts.append("receiver")
+
     return {
         "schema": 1,
         "profile": "-".join(profile_parts) if profile_parts else "base",
@@ -48,6 +53,7 @@ def derive(
             "tailscale_subnet_router": tailscale_subnet_router,
             "kvm_over_ip": kvm_over_ip,
             **({"kiosk_f": True} if kiosk_f else {}),
+            **({"receiver_g": True} if receiver_g else {}),
         },
         "enabled_features": enabled,
     }
@@ -59,6 +65,7 @@ def main() -> None:
     parser.add_argument("--tailscale-subnet-router", default="no")
     parser.add_argument("--kvm-over-ip", default="no")
     parser.add_argument("--kiosk-f", default="no")
+    parser.add_argument("--receiver-g", default="no")
     parser.add_argument("--output-env", type=Path, required=True)
     parser.add_argument("--output-json", type=Path, required=True)
     args = parser.parse_args()
@@ -69,6 +76,7 @@ def main() -> None:
             parse_bool(args.tailscale_subnet_router),
             parse_bool(args.kvm_over_ip),
             parse_bool(args.kiosk_f),
+            parse_bool(args.receiver_g),
         )
     except ValueError as error:
         parser.error(str(error))
@@ -87,6 +95,7 @@ def main() -> None:
                 "TAILSCALE_SUBNET_ROUTER=" + ("yes" if data["features"]["tailscale_subnet_router"] else "no"),
                 "KVM_OVER_IP=" + ("yes" if data["features"]["kvm_over_ip"] else "no"),
                 *(["KIOSK_F=yes"] if data["features"].get("kiosk_f") else []),
+                *(["RECEIVER_G=yes"] if data["features"].get("receiver_g") else []),
                 "",
             ]
         ),
