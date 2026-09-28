@@ -76,7 +76,7 @@ def main():
         ini=runtime/'weston.ini';ini.write_text(text)
         seat=launch(['seatd','-u','kiosk','-g','kiosk'])
         wait_ready(lambda:Path('/run/seatd.sock').is_socket(),seat,'seatd')
-        weston=launch(as_user+['weston','--backend=drm','--drm-device='+cfg['drm_device'],
+        weston=launch(as_user+['/usr/bin/weston','--backend=drm','--drm-device='+cfg['drm_device'],
                      '--renderer=gl','--config='+str(ini),'--socket=wayland-g','--log=/state/weston.log'])
         wait_ready(lambda:(runtime/'wayland-g').is_socket(),weston,'Weston')
         audio_mod=module('g_audio','/opt/profile-g/kiosk-audio.py')

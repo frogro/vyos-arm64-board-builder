@@ -66,13 +66,15 @@ class Policy(unittest.TestCase):
         with self.assertRaises(ValueError):receiver.settings({'method':'miracast'})
         cfg=self.cfg(method='miracast',wifi_interface='wlan1')
         with self.assertRaises(ValueError):receiver.environment(cfg)
-        cfg['capability']=['net-admin'];self.assertTrue(receiver.environment(cfg))
+        cfg['capability']=['net-admin']
+        with self.assertRaisesRegex(ValueError,'net-raw'):receiver.environment(cfg)
+        cfg['capability']=['net-admin','net-raw'];self.assertTrue(receiver.environment(cfg))
     def test_display_conflict_and_disabled_kiosk(self):
         g=self.cfg(); f={'kiosk':{},'device':copy.deepcopy(g['device'])}
         with self.assertRaisesRegex(ValueError,'shared'):receiver.verify_all({'name':{'g':g,'f':f}},image_probe=lambda _:None)
         f['disable']={};receiver.verify_all({'name':{'g':g,'f':f}},image_probe=lambda _:None)
     def test_wireless_candidate_config_is_protected(self):
-        g=self.cfg(method='miracast',wifi_interface='wlan1');g['capability']=['net-admin']
+        g=self.cfg(method='miracast',wifi_interface='wlan1');g['capability']=['net-admin','net-raw']
         probe=lambda _: {'siblings':['wlan1','ap1']}
         with self.assertRaisesRegex(ValueError,'interfaces wireless'):
             receiver.verify_all({'name':{'g':g}},{'wireless':{'ap1':{}}},probe=probe,image_probe=lambda _:None)

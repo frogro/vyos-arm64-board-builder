@@ -126,8 +126,8 @@ show display-receiver wireless interface wlan1
 
 P2P-client and P2P-GO must be advertised by the running driver. All interfaces
 on the same PHY must be unused/down and free of addresses and bridge ownership;
-the candidate VyOS wireless configuration must not own that radio. Initially
-use a dedicated USB dongle. Same-radio AP/P2P concurrency is deliberately not
+the candidate VyOS wireless configuration must not own that radio. A dedicated USB dongle is preferred. A controlled internal-radio test may
+pause the AP with an independent management path and timed rollback. Same-radio AP/P2P concurrency is deliberately not
 enabled merely because a driver advertises it.
 
 ```
@@ -135,6 +135,7 @@ set container name receiver receiver method miracast
 set container name receiver receiver wifi-interface wlan1
 set container name receiver receiver latency 50
 set container name receiver capability net-admin
+set container name receiver capability net-raw
 commit
 ```
 
@@ -155,7 +156,7 @@ configurable RTP jitter buffer; latency is a target, not a measured guarantee.
   latency for equal 1080p60 LAN/WLAN conditions, not decoder-only FPS.
 - Dedicated USB radio P2P negotiation, cleanup and AP regression check.
 - Update/reboot persistence of both AirPlay and Moonlight identities.
-- Controlled comparison with internal radio only after dedicated-radio success.
+- Controlled internal-radio test with Ethernet management and timed AP/kiosk rollback; USB comparison when a dongle is available.
 
 Steam Link and Google Cast are not selectable placeholders: their suitability
 for this Linux ARM64 receiver remains research work. No full image or live
@@ -181,3 +182,23 @@ completed successfully for cdb8b11: all three pinned receivers compiled and
 help/startup smoke commands passed. Artifact: profile-g-backends-arm64.
 The follow-up run for b6af4ea also checks session-bus/cleanup changes. Neither
 run builds the final F-derived display container or proves an on-screen stream.
+
+## Internal radio startup test, 2026-09-28
+
+User requested internal WLAN first because no USB dongle was available. A separate
+G runtime was assembled on ROCK from GitHub run 36390939296 and the installed F
+image github-36352948223. No ISO or host CLI was replaced. Ethernet/Tailscale
+remained available. The AP address/MAC and service state were saved under
+/config/receiver/g-live-20260928; an independent 180-second systemd rollback
+was armed before stopping AP/kiosk. Manual rollback was exercised between tests.
+
+Live fixes: use /usr/bin/weston explicitly, matching F, because PATH selects a
+headless Weston 16 experiment; grant NET_RAW as well as NET_ADMIN for the
+supplicant's packet socket; pass only character devices from audio discovery.
+With these fixes Weston 14 started on HDMI-A-1, PulseAudio reported ready,
+MiracleCast listed wlan0 as managed and a P2P-device appeared. No sender was
+connected; no video, sound, latency or hardware decoder claim follows. A P2P
+scan invalid-arguments warning and missing rfkill control access remain to
+investigate during discovery. G was stopped and AP/kiosk restored after the
+startup test. Logs and scripts remain in the directory above. The live session
+fix is a read-only script mount; bake it into the next G runtime.

@@ -66,8 +66,8 @@ def environment(config):
     card = '/dev/dri/' + cfg['drm_device']
     if not any(d.get('source') == card and d.get('destination') == card for d in devices):
         raise ValueError('Explicit matching DRM card device grant required')
-    if cfg['method'] == 'miracast' and 'net-admin' not in config.get('capability', []):
-        raise ValueError('Experimental Miracast requires explicit capability net-admin')
+    if cfg['method'] == 'miracast' and not {'net-admin', 'net-raw'}.issubset(config.get('capability', [])):
+        raise ValueError('Experimental Miracast requires explicit capabilities net-admin and net-raw')
     encoded = base64.b64encode(json.dumps(cfg).encode()).decode()
     return [f'Environment=G_RECEIVER_CONFIG="{encoded}"']
 
