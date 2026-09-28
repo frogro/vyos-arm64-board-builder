@@ -132,3 +132,25 @@ fallback, preserving format/stride/color/timing information, and retain the
 existing validated RGA route. Do not replace all of GStreamer merely on the
 assumption a newer version fixes this allocation boundary. No upstream patch
 was installed, and Actions36381181401 does not include this new experiment.
+
+## Native helper and image integration
+
+Added cached-launch.c as an optional image input. Native launcher uses a pad
+probe to allocate owned default memory, map/copy pixels, preserve timestamps,
+flags and VideoMeta strides/offsets, then send the buffer through a bounded
+2-frame queue to videoconvert (4 threads). The queue is necessary: initial
+single-thread pipeline scheduling delivered about48fps through RTSP; queue
+separation restored about60fps (600 decoded frames in roughly10seconds).
+Native VyOS D configuration used gstreamer + colorimetry negotiated, HDMI
+1080p60 and loopback-only MediaMTX. FFmpeg decoded600frames successfully.
+The native helper produced identical active NV12 pixels to stock conversion
+for a padded65x63 BGR test; unused output padding bytes differ as expected.
+
+Selection is opt-in via existing `video colorimetry negotiated`: only packed
+BGR/RGB CPU fallback uses staging when the helper is installed. Legacy,
+RGA, other formats and images without the optional binary retain prior
+behavior. CI builds the helper, checks it executes inside the target rootfs,
+and verifies its bytes in both image/ISO squashfs. No global GStreamer
+library replacement. CLI source-recipe pin updated for the reviewed runner.
+Live test configuration and original runner restored after the test; helper
+removed. No save, main merge or active D service left behind.

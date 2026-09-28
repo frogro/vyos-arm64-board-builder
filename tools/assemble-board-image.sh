@@ -660,6 +660,14 @@ if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hd
     "$KVM_MEDIA_INSTALLER" "$SQUASH_ROOT" "$KVM_MEDIA_ARTIFACTS"
 fi
 
+# Explicit test-build input; never changes standard A-D assembly by default.
+if [[ "$KVM_OVER_IP" == yes && -n "${KVM_CACHED_COPY_BINARY:-}" ]]; then
+    install -D -m 0755 "$KVM_CACHED_COPY_BINARY" "$SQUASH_ROOT/usr/libexec/vyos/vyos-kvm-cached-launch"
+    chroot "$SQUASH_ROOT" /usr/libexec/vyos/vyos-kvm-cached-launch \
+        videotestsrc num-buffers=2 ! video/x-raw,format=BGR,width=64,height=64 \
+        ! identity name=vyarm_cached_copy ! videoconvert ! video/x-raw,format=NV12 ! fakesink
+fi
+
 chroot "$SQUASH_ROOT" /bin/bash -c "
     set -e
     export PATH=/usr/sbin:/usr/bin:/sbin:/bin

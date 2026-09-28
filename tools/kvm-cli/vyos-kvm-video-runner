@@ -218,7 +218,16 @@ case "${BACKEND}" in
                ! grep -qs '^Y$' /sys/module/rockchip_rga/parameters/experimental_full_csc; then
                 converter=videoconvert
             fi
-            args+=("!" "${converter}" "!" "video/x-raw,format=NV12")
+            # Opt-in negotiated CPU fallback: stage packed pixels in cached
+            # memory. Legacy and validated RGA routes retain their behavior.
+            if [[ "$COLORIMETRY" == negotiated && "$converter" == videoconvert &&
+                  "$FOURCC" =~ ^(BGR3|RGB3)$ &&
+                  -x /usr/libexec/vyos/vyos-kvm-cached-launch ]]; then
+                GST=/usr/libexec/vyos/vyos-kvm-cached-launch
+                args+=("!" identity name=vyarm_cached_copy "!" queue max-size-buffers=2 max-size-bytes=0 max-size-time=0 "!" videoconvert n-threads=4 "!" "video/x-raw,format=NV12")
+            else
+                args+=("!" "${converter}" "!" "video/x-raw,format=NV12")
+            fi
         fi
 
         if [[ "${PROVIDER}" == "rk3588-synopsys-hdmirx" ]]; then
