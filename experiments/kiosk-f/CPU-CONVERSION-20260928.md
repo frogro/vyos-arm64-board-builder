@@ -61,3 +61,74 @@ Primary references:
 - https://gstreamer.freedesktop.org/documentation/additional/design/dmabuf.html
 - https://gstreamer.freedesktop.org/documentation/video4linux2/v4l2src.html
 - https://cdn.kernel.org/doc/html/latest/driver-api/dma-buf.html
+
+## Follow-up: in-process cached staging works
+
+Bounded ctypes/GStreamer-API proof (no new runtime packages, no installed
+library changes): appsink holds the V4L2 sample; allocate a new default
+GstBuffer; map original READ and destination WRITE; one libc memcpy; unmap;
+copy flags/timestamps/meta; pass unchanged caps to appsrc. Preserve ownership
+until copy completion. appsink/appsrc queues bounded to two BGR frames.
+This is a diagnostic harness for this exact linear BGR1080p layout, not a
+production generic buffer transformer.
+
+120 input AND output buffers verified via sink handoff count:
+- Direct reference through the same appsink/appsrc harness, 4 threads:
+  3.415s /35.14fps. The harness changes scheduling and pool pressure; this is
+  the appropriate matched control and must not be conflated with the earlier
+  single gst-launch pipeline's 20fps.
+- Cached copy, 1 thread: 2.124s /56.49fps.
+- Cached copy, 4 threads: 2.122s /56.55fps.
+- Cached copy, 4 threads plus MPP H264: 2.130s /56.34fps.
+- 600-frame encoded follow-up: all600 input and output buffers,10.137s,
+  59.19fps including startup. Sum of copy/map/allocation times3.542s,
+  overlapped with downstream work. This is not a CPU-utilization measurement.
+
+Ten independently captured input frames were each fed through direct
+single-thread conversion and cached-copy/four-thread conversion. The two
+NV12 outputs compared SHA256-identical for every frame; copied BGR bytes
+also compared equal. This proves no pixel change in these samples, not a
+complete color-standard acceptance across all formats/ranges.
+
+No RGA/CSC used, CSC still N. Kiosk and input helper active afterward. No
+native D service or permanent CLI changes. Encoded output was counted at
+h264parse/fakesink, not streamed to a remote client in this test. End-to-end
+latency, longer runs, signal changes and generic strides/metas still require
+integration testing. Proof scripts retained in cpu-conversion-proof/.
+
+### Targeted upstream search
+
+1. **Concrete GStreamer copy optimization:**
+   fe61bc3cee1bc7b99b550005f77d8ece3649b4ec, MR7694,
+   `video-format: reduce the number of memcpy if possible`.
+   gst_video_frame_copy_plane uses one whole-plane memcpy when strides match,
+   instead of copying each row. Listed in1.26 performance changes. Relevant
+   when implementing staging via GstVideoFrame; our diagnostic already uses
+   one bulk memcpy. It does not itself insert a cached staging buffer.
+   https://github.com/GStreamer/gstreamer/commit/fe61bc3cee1bc7b99b550005f77d8ece3649b4ec
+   https://gstreamer.freedesktop.org/releases/1.26/
+2. **Concrete DMA mapping optimization:**
+   726b2603b8c936298bb2a2ad37237259cf483233, MR10153,
+   `v4l2allocator: Add KEEP_MAPPED flag to the allocated buffers`.
+   Adds GST_FD_MEMORY_FLAG_KEEP_MAPPED to exported DMA-BUF allocations.
+   Avoids repeated mappings; does not change CPU cache attributes. It targets
+   that allocator path, so applicability to current MMAP capture is limited.
+   https://github.com/GStreamer/gstreamer/commit/726b2603b8c936298bb2a2ad37237259cf483233
+3. **Linux-media discussion:** Tomasz Figa,2023-07-05, explains coherent
+   mappings are often uncached/write-combined on non-coherent platforms and
+   why userspace must opt into V4L2_MEMORY_FLAG_NON_COHERENT. This is a
+   driver/allocation candidate, not a ready GStreamer fix. Audited current
+   main gstv4l2allocator.c REQBUFS call sites: no NON_COHERENT flag request.
+   Do not enable cache skipping or change coherence without driver support.
+   https://lkml.rescloud.iu.edu/hypermail/linux/kernel/2307.0/03460.html
+4. **Radxa forum reproducer:** Rock3A low GStreamer performance discussion
+   attributes decoder-buffer CPU access to uncached MPP memory and suggests
+   RGA-assisted copy. Different device/source, corroborative only; not proof
+   of our exact HDMI allocation. No reviewed drop-in patch extracted.
+   https://forum.radxa.com/t/rock-3a-extremely-low-performance-in-gstreamer/12813
+
+Recommendation: integrate a separately selectable generic cached-copy CPU
+fallback, preserving format/stride/color/timing information, and retain the
+existing validated RGA route. Do not replace all of GStreamer merely on the
+assumption a newer version fixes this allocation boundary. No upstream patch
+was installed, and Actions36381181401 does not include this new experiment.
