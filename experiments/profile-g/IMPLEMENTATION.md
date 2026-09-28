@@ -211,3 +211,20 @@ name. This suggests the initial scan request races supplicant initialization;
 a readiness/retry fix remains necessary. The GTK sink row could not be
 activated through the available accessibility actions. No connection/stream was
 established. Sender was closed (ending screen sharing) and AP/kiosk restored.
+
+Further unattended test: sender UI selection succeeded after confirming the
+additional GNOME remote-input portal. A first negotiation timed out after 45s.
+A second attempt with an explicit receiver-side PBC connect to the known
+ThinkPad peer completed WPS and the four-way handshake. GNOME Network Displays
+logged WAIT_STREAMING then STREAMING at 09:56:33 CEST; receiver gst-launch reached
+PLAYING. Sender negotiated H.264/AAC, 1920x1080 at 30 fps (resolution fallback),
+not 60 fps. Timer ended the test about 40 seconds later. Receiver logged delayed
+link failure to queue1 (audio branch); physical picture/audio and decoded frame
+counts were not verified. Persisted logs on ROCK: thinkpad-stream.log (0600).
+AP/kiosk both active afterward; sender stopped, screen share ended.
+
+Startup now retries P2PScanning for a bounded initial period and sets the explicit
+friendly name, rather than treating D-Bus link existence as scan readiness. This
+made VyOS-TV discoverable without manual bus commands. Do not automatically
+pair unknown peers: the explicit PBC command in this test targeted the user's
+ThinkPad only. Automatic peer acceptance and audio pad handling need more work.

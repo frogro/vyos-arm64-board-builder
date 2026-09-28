@@ -93,6 +93,26 @@ def main():
                        '/org/freedesktop/miracle/wifi/link/_'+format(ord(index[0]), '02x')+index[1:]],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0
             wait_ready(link_ready,wifi,'MiracleCast link')
             receiver=launch(['miracle-sinkctl','--external-player','/opt/profile-g/miracle-player.py','run',index],stdin=subprocess.PIPE)
+            link='/org/freedesktop/miracle/wifi/link/_'+format(ord(index[0]), '02x')+index[1:]
+            bus_args=['busctl','--system']
+            subprocess.run(bus_args+['set-property','org.freedesktop.miracle.wifi',link,
+                           'org.freedesktop.miracle.wifi.Link','FriendlyName','s',cfg['name']],check=True,timeout=5)
+            # The link exists before the asynchronous supplicant is ready for P2P.
+            # Retry only during startup, never while a peer is streaming.
+            for attempt in range(15):
+                if stopping or wifi.poll() is not None or receiver.poll() is not None:
+                    raise RuntimeError('Miracast stopped before discovery')
+                subprocess.run(bus_args+['set-property','org.freedesktop.miracle.wifi',link,
+                               'org.freedesktop.miracle.wifi.Link','P2PScanning','b','true'],
+                               stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=5)
+                time.sleep(1)
+                scan=subprocess.run(bus_args+['get-property','org.freedesktop.miracle.wifi',link,
+                                    'org.freedesktop.miracle.wifi.Link','P2PScanning'],
+                                    capture_output=True,text=True,timeout=5)
+                if scan.returncode==0 and scan.stdout.strip()=='b true':
+                    break
+            else:
+                raise RuntimeError('Miracast P2P discovery did not become ready')
         else:
             receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' else command(cfg)))
         print(json.dumps({'method':cfg['method'],'output':selected,'status':'started-not-stream-verified'}),flush=True)
