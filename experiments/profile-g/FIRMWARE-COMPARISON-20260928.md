@@ -115,3 +115,19 @@ returned IBSS AP MESH, with no P2P. This identifies a current discovery-stack
 limitation, not proof the hardware can never support Wi-Fi Direct. No driver
 patch was applied. Receiver restored; Intel managed/homebase restored; LAN
 remained active. No USB Miracast stream/audio/latency success claimed.
+
+## BrosTrend check
+
+User-requested USB adapter 0bda:c811, wlx7419f81713f6, rtw88_8821cu.
+Kernel advertised IBSS/managed/AP/AP-VLAN/monitor, no P2P modes. NetworkManager
+exposes no P2P device for this adapter. With Intel temporarily unmanaged,
+GNOME Network Displays sees only the unavailable Intel placeholder and creates
+no BrosTrend P2P provider. Therefore no GNOME Miracast session can be tested
+through this adapter in the current stack.
+
+Unlike MT7612U, direct wpa_cli p2p_find returned OK and p2p_peers listed a TV
+and printer. Thus it would be inaccurate to claim discovery is universally
+impossible or the hardware is defective. The verified blocker is exposure
+through the current driver/NetworkManager/GNOME path. Direct scan stopped;
+sender stopped; Intel management/homebase restored; Ethernet route retained.
+No kernel/driver patch, reboot or alternative vendor driver installed.
