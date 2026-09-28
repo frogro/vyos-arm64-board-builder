@@ -238,3 +238,9 @@ showed AP and kiosk active, eth0 192.168.178.173 and wlan0 10.3.141.50. No valid
 audio proof file or latency measurement obtained. Further internal-radio tests
 must first revalidate independent management from BOTH ends (ThinkPad had
 reconnected to VyOS-AP during the interruption), reboot state, and rollback.
+
+Correction after journal audit: the 09:57:13 sender error followed an Intel
+ThinkPad WLAN firmware crash at 09:57:06, not timer expiry (09:57:29). See
+INCIDENT-20260928.md for the verified outage timeline and unsafe repeated manual
+rollback. Do not resume the ad hoc internal-radio harness without the listed
+management and recovery safeguards.
