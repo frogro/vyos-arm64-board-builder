@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import pwd
 import signal
+import select
 import subprocess
 import sys
 import time
@@ -46,13 +47,25 @@ def main():
                       G_DEVICE_GROUPS=','.join(map(str,groups)))
     as_user=['setpriv','--reuid=kiosk','--regid=kiosk','--groups='+os.environ['G_DEVICE_GROUPS'],'--']
     audio=None
+    radio_identity=None
+    radio_owned=False
     try:
-        if cfg['method']=='miracast': wifi_report(cfg['wifi_interface'])
+        if cfg['method']=='miracast':
+            wifi_report(cfg['wifi_interface'])
+            radio_identity=(Path('/sys/class/net')/cfg['wifi_interface']/'address').read_text()
         # Private system bus; never mount or control the router's D-Bus.
         Path('/run/dbus').mkdir(exist_ok=True)
         subprocess.run(['dbus-uuidgen','--ensure'],check=True)
         bus=launch(['dbus-daemon','--system','--nofork','--nopidfile'])
         wait_ready(lambda:Path('/run/dbus/system_bus_socket').is_socket(),bus,'D-Bus')
+        os.environ['DBUS_SYSTEM_BUS_ADDRESS']='unix:path=/run/dbus/system_bus_socket'
+        user_bus=launch(as_user+['dbus-daemon','--session','--nofork','--print-address=1'],stdout=subprocess.PIPE,text=True)
+        if not select.select([user_bus.stdout],[],[],5)[0]:
+            raise RuntimeError('Session bus timeout')
+        address=user_bus.stdout.readline().strip()
+        if not address or user_bus.poll() is not None:
+            raise RuntimeError('Session bus failed')
+        os.environ['DBUS_SESSION_BUS_ADDRESS']=address
         if cfg['method']=='airplay':
             avahi=launch(['avahi-daemon','--no-chroot','--no-drop-root'])
             time.sleep(.5)
@@ -73,6 +86,7 @@ def main():
         audio.start()
         if cfg['method']=='miracast':
             wifi=launch(['miracle-wifid','--interface',cfg['wifi_interface']])
+            radio_owned=True
             index=(Path('/sys/class/net')/cfg['wifi_interface']/'ifindex').read_text().strip()
             def link_ready():
                 return subprocess.run(['busctl','--system','introspect','org.freedesktop.miracle.wifi',
@@ -97,5 +111,9 @@ def main():
                 try:os.killpg(child.pid,signal.SIGKILL)
                 except ProcessLookupError:pass
                 child.wait()
+        if radio_owned:
+            address=Path('/sys/class/net')/cfg['wifi_interface']/'address'
+            if address.exists() and address.read_text()==radio_identity:
+                subprocess.run(['ip','link','set','dev',cfg['wifi_interface'],'down'],check=False)
 
 if __name__=='__main__': main()

@@ -22,8 +22,9 @@ wiederverwendet werden. Bestehende A–D/F-Standardpfade bleiben erhalten.
 
 Kandidaten: AirPlay (UxPlay), Miracast, Moonlight mit Sunshine als Sender,
 Steam Link sowie nach Machbarkeitsprüfung Google Cast und weitere Empfänger.
-Noch keiner dieser G-Empfänger ist durch das Anlegen dieses Zweigs implementiert
-oder freigegeben. Miracast benötigt einen eigenen WLAN-/Wi-Fi-Direct-Test und
+AirPlay, Moonlight und experimentelles Miracast sind inzwischen als erste
+Implementierung vorhanden; siehe [Implementierung und Tests](IMPLEMENTATION.md).
+Noch keine Empfangsmethode ist auf dem ROCK für Profil G freigegeben. Miracast benötigt einen eigenen WLAN-/Wi-Fi-Direct-Test und
 kann mit dem Router-AP auf derselben Funkkarte konkurrieren.
 
 ## Testplan
@@ -52,4 +53,5 @@ kann mit dem Router-AP auf derselben Funkkarte konkurrieren.
 - Ungeprüfte G-Funktionen nicht als Standard aktivieren. Release-Watcher und
   öffentliche Standard-Builds erst nach gesonderter Freigabe erweitern.
 
-Das Anlegen des Zweigs startet keinen Build und verändert kein Livesystem.
+Der G-Prüfworkflow testet die Richtlinien und baut die drei Empfänger auf ARM64.
+Er startet keinen SD-/ISO-Build und verändert kein Livesystem.

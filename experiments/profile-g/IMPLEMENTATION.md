@@ -160,3 +160,17 @@ configurable RTP jitter buffer; latency is a target, not a measured guarantee.
 Steam Link and Google Cast are not selectable placeholders: their suitability
 for this Linux ARM64 receiver remains research work. No full image or live
 stream is considered verified by a passing command-generation test.
+
+## Initial checks on 2026-09-28
+
+19 G policy/source tests and 106 F tests passed locally, along with the existing
+native profile and KVM CLI/config/supervisor tests. Applying F then G to the
+actual pinned upstream container.py/container.xml.in succeeded without replacing
+existing definitions. The main-preservation audit passed. The GitHub policy job
+also passed; receiver compilation is recorded separately in its run.
+
+A read-only live check found wlan0, driver mt7921e, running VyOS-AP. Its PHY
+advertises P2P-client, P2P-GO and P2P-device. No second wireless interface was
+present. This is capability evidence for the internal radio, not a successful
+Miracast test and not proof of simultaneous AP/P2P operation. The AP and kiosk
+were not stopped or reconfigured.

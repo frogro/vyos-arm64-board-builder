@@ -4,6 +4,7 @@ set -euo pipefail
 base=${1:?Usage: build-runtime.sh <local-tested-F-image> <new-output-directory>}
 out=${2:?Output directory required}
 root=$(cd "$(dirname "$0")/../.." && pwd)
+[[ -z $(git -C "$root" status --porcelain) ]] || { echo 'Commit source changes before building' >&2; exit 1; }
 engine=${CONTAINER_ENGINE:-podman}
 [[ "$engine" == podman || "$engine" == docker ]] || exit 1
 [[ $(uname -m) == aarch64 ]] || { echo 'Use a native ARM64 build host' >&2; exit 1; }

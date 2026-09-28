@@ -16,7 +16,7 @@ def prepare(root):
     changes = [
         ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos import receiver\nimport subprocess\n'),
         ('    # Add new container\n',
-         "    try:\n        interfaces = Config().get_config_dict(['interfaces'], key_mangling=('-', '_')) if any('receiver' in c and 'disable' not in c for c in container.get('name', {}).values()) else {}\n        receiver.verify_all(container, interfaces)\n    except (ValueError, OSError, subprocess.SubprocessError) as error:\n        raise ConfigError(str(error)) from error\n\n    # Add new container\n"),
+         "    try:\n        interfaces = Config().get_config_dict(['interfaces'], key_mangling=('-', '_'), no_tag_node_value_mangle=True) if any('receiver' in c and 'disable' not in c for c in container.get('name', {}).values()) else {}\n        receiver.verify_all(container, interfaces)\n    except (ValueError, OSError, subprocess.SubprocessError) as error:\n        raise ConfigError(str(error)) from error\n\n    # Add new container\n"),
         ("    if 'health_check' in container_config:\n", "    out.extend(receiver.environment(container_config))\n\n    if 'health_check' in container_config:\n")]
     for old,new in changes:
         if code.count(old) != 1:
