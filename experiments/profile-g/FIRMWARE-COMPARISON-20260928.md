@@ -208,3 +208,28 @@ was told it is the HDMI display attached to ROCK. Audio still fails delayed
 linking from demux to queue1, so no audio/latency approval. All recovery verified:
 ROCK AP/kiosk active, receiver stopped, ThinkPad homebase and LAN connected,
 Alfa returned to managed/disconnected. No main changes.
+
+## Powered-display visual test (17:31–17:36)
+
+User powered the previously battery-empty ROCK display. Prior kiosk interruption
+at 17:30:55 is explicitly logged by vyos-kiosk-reconcile-inputs: refreshed USB
+event mappings and restarted container. This was not a logged kiosk crash.
+Intel-only setup, Alfa unmanaged, Ethernet management. Stream at 17:32:31 with
+H.264 hardware decoder/Wayland caps. User confirmed visible but frozen image.
+Data continued (31.8 MB transmitted, zero tx failures in snapshot), keepalives
+continued. Receiver audio demux delayed-link failure persisted.
+
+Diagnostic comparison: backed up mounted miracle-player-probe.py and temporarily
+forced pipeline(..., False, ...) to omit its audio branch, then started a fresh
+receiver/sender session. Stream at 17:35:25; user confirmed picture updates but
+large latency, including cursor. This supports audio preroll/blocking as a
+candidate explanation for the initial freeze; repeated A/B and frame timing are
+still required. Video-only does not solve latency. No measured FPS/latency claim.
+Kernel logs include hdmi-audio-codec.8.auto Unknown ELD version 0 and ASoC -19;
+ALSA HDMI0 identifies RTK FHD HDR, HDMI1 monitor name empty. Do not equate these
+probing errors with a proven cause of video latency. Audio remains unverified.
+
+Restored the probe player from backup after test, AP/kiosk active, homebase and
+LAN restored. This supersedes any interpretation of STREAMING/caps alone as
+full functional approval: visible moving video now confirmed, but latency and
+audio remain blockers. No main or image change.
