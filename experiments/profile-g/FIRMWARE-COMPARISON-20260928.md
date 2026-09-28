@@ -143,3 +143,21 @@ Therefore the earlier OK/peer list with Intel enabled cannot be attributed to
 independent BrosTrend operation. The isolated BrosTrend path did not discover
 ROCK; Intel control discovered it within seconds. Both test sides cleaned up,
 AP/kiosk active and homebase restored. No BrosTrend stream established.
+
+## Alfa repeat and sender assertion
+
+MT7612U reattached as phy4/wlx00c0cab95d25. ROCK receiver was explicitly
+verified running throughout discovery. Intel temporarily unmanaged. Initial
+GNOME 0.99.0 launch aborted at 16:57:31 in libpulse socket-client.c:170,
+assertion c->defer_event == e, before discovery. No simultaneous firmware
+crash observed. Restart with explicit PULSE_SERVER=unix:/run/user/1000/pulse/native
+ran and created the Alfa provider, but discovered no sinks. This single restart
+does not prove the environment variable fixes the libpulse bug.
+
+Direct p2p_find initially FAIL; after cycling Alfa NM managed state returned
+OK once, later FAIL again, no verified peers. Intel re-enabled at 16:59:19
+created another provider but ALSO found no sinks in this same process before
+17:00:12. Therefore this repeat lacks a successful simultaneous positive
+control: do not conclude Alfa-only incompatibility from it. Device discovery
+state after adapter switching needs a fresh isolated test. Receiver was stopped
+via recovery, AP/kiosk verified active, sender stopped, homebase restored.
