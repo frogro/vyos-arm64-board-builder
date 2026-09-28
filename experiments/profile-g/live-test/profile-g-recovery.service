@@ -1,0 +1,9 @@
+[Unit]
+Description=Recover Profile G live test independently of SSH
+StartLimitIntervalSec=0
+[Service]
+Type=oneshot
+ExecStart=/config/receiver/g-live-20260928/recover-v2.sh --service
+TimeoutStartSec=90
+Restart=on-failure
+RestartSec=10
