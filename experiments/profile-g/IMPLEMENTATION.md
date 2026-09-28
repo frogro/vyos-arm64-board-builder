@@ -228,3 +228,13 @@ friendly name, rather than treating D-Bus link existence as scan readiness. This
 made VyOS-TV discoverable without manual bus commands. Do not automatically
 pair unknown peers: the explicit PBC command in this test targeted the user's
 ThinkPad only. Automatic peer acceptance and audio pad handling need more work.
+
+Audio/latency follow-up interrupted: user reports the remote connection was
+unavailable for nearly two hours and ROCK needed a reboot through Tailscale.
+Discard these interrupted attempts as audio/latency evidence. Container logs
+also showed a lost filesystem endpoint; causality is not established. Following
+the reported reboot, tests and sender were stopped; live check at 12:15 CEST
+showed AP and kiosk active, eth0 192.168.178.173 and wlan0 10.3.141.50. No valid
+audio proof file or latency measurement obtained. Further internal-radio tests
+must first revalidate independent management from BOTH ends (ThinkPad had
+reconnected to VyOS-AP during the interruption), reboot state, and rollback.
