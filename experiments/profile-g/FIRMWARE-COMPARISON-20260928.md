@@ -81,3 +81,25 @@ must use Type=oneshot and RemainAfterExit=yes: a default transient service
 terminated its container when the short launcher exited in an earlier attempt.
 No firmware or driver was changed. Stream/audio/latency remain unverified for
 this retry. Raw receiver log kept locally mode 0600; do not commit credentials.
+
+## LAN management / P2P-only retry
+
+User connected ThinkPad Ethernet. Verified enp0s31f6=192.168.178.84 and route
+to ROCK via Ethernet; disconnected infrastructure wlan0-equivalent wlp3s0
+using NetworkManager (radio remained enabled). Only the P2P connection was
+active on Wi-Fi during the successful connection.
+
+At 16:39:58 NetworkManager activated correct peer B4:8C:9D:A5:01:B7.
+At 16:40:28 sender got client socket; at 16:40:29 reported STREAMING with
+1920x1080@30. ROCK logs WPS-SUCCESS, group started as client on 2412 MHz,
+and pipeline PLAYING. This reproduces connection establishment with no
+simultaneous infrastructure Wi-Fi connection. It does not yet prove a unique
+root cause of prior failures or long-term stability. Audio queue1 delayed-link
+warning remains, so no Miracast audio success is claimed.
+
+Receiver recovery timer fired at 16:41:34 and verified AP/kiosk restored at
+16:41:35; sender error followed at 16:41:39. About 65 seconds elapsed between
+STREAMING and controlled receiver stop, with no new iwlwifi/Microcode error
+in the inspected interval. This exceeds the roughly 33 seconds before the
+morning firmware assertion, but remains a short test. Sender stopped and
+homebase restored after test; management route remains Ethernet.
