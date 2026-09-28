@@ -182,3 +182,29 @@ Thus discovery passes, streaming does not; this does not establish hardware
 incompatibility or isolate the negotiation failure from sender software state.
 No audio or latency measurement possible. Recovery verified AP and kiosk active,
 receiver stopped, ThinkPad homebase restored and LAN still connected.
+
+## Intel-only final control (17:15–17:19)
+
+Alfa unmanaged; management over Ethernet, Intel disconnected from homebase.
+First GNOME start again aborted in libpulse (17:15:57), proving explicit
+PULSE_SERVER is not a fix. Restart ran but initial discovery remained empty;
+p2p_find returned FAIL. Removed the leftover Alfa P2P virtual interface,
+restarted wpa_supplicant and cycled Intel management, then launched a fresh
+sender. This combined cleanup does not isolate which stale state caused failure.
+
+Correct VyOS-TV target B4:8C:9D:A5:01:B7 activated through p2p-dev-wlp3s0 at
+17:17:07. Receiver PBC approved for Intel 1c:1b:b5:43:3d:08. NetworkManager
+activated at 17:17:32, RTSP negotiated 1920x1080@30, STREAMING at 17:17:38.
+ROCK logs show actual H.264 parsed caps, v4l2slh264dec NV12 output and
+waylandsink input caps; receiver peer connected. Intel GO channel 1/2412 MHz;
+station counters during stream: 42,139,485 transmitted bytes, 30,185 packets,
+84 retries, zero tx failures, -32 dBm, 130 Mbit/s link rate. No observed Intel
+firmware error. Connection continued until deliberate recovery around 17:19:10
+(approximately 90 seconds); no preceding stream error observed.
+
+This confirms transport and hardware video decoding again, not measured display
+FPS or physical visible output: user did not know which screen to inspect and
+was told it is the HDMI display attached to ROCK. Audio still fails delayed
+linking from demux to queue1, so no audio/latency approval. All recovery verified:
+ROCK AP/kiosk active, receiver stopped, ThinkPad homebase and LAN connected,
+Alfa returned to managed/disconnected. No main changes.
