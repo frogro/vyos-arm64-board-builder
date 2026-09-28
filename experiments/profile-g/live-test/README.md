@@ -57,3 +57,10 @@ selected Samsung S90CA 55, not ROCK. Fixed UI coordinates selected the wrong
 row. It must not be used as a ROCK regression result. See
 FIRMWARE-COMPARISON-20260928.md. Recovery checks and direct acoustic proof remain
 valid independently of that receiver selection error.
+
+Launcher requirement: run the Python launcher in a Type=oneshot service with
+RemainAfterExit=yes, so systemd does not kill its container descendants when
+the launcher exits. For target selection, mouse injection is not reliable in
+this GNOME/XWayland environment. Visually verified keyboard selection and an
+immediate NetworkManager peer-address check selected the correct ROCK in the
+13:26:50 retry. Do not reuse run-audio-safe.py's fixed-coordinate click.

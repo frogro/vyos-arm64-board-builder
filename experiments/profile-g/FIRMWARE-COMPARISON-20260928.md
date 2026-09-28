@@ -58,3 +58,26 @@ before accepting any test result. Retain host and client recovery timers.
 Collect P2P group role/channel, IP activation, RTSP connection and PLAYING from
 both ends. Only then compare firmware behavior; preferably use wired client
 management so a WLAN reset does not interrupt evidence collection.
+
+## Verified retry at 13:26:50
+
+Mouse coordinate injection still selected an unintended peer despite a window
+screenshot. That attempt was aborted on peer-address mismatch. Keyboard End +
+Return after visually confirming VyOS-TV selected produced the correct
+NetworkManager activation B4:8C:9D:A5:01:B7 at 13:26:50.
+
+Receiver negotiated P2P client on 2412 MHz with the known ThinkPad as GO;
+WPS-SUCCESS and GROUP-FORMATION-SUCCESS were followed by group teardown. Crucial
+sender cause at 13:27:01: NetworkManager says `Peer requested in connection is
+missing for too long, failing connection` and fails with `peer-not-found`.
+It then tears down the GO group; receiver reports FORMATION_FAILED. Thus the
+receiver's EAP failure alone must not be treated as proof of wrong credentials.
+No new Microcode SW error was logged during this retry. Homebase also lost
+beacons and reassociated (5/2.4 GHz roaming observed). This is evidence for a
+peer tracking/radio coexistence investigation, not yet its root cause.
+
+ROCK AP and kiosk were recovered and checked active. The revised start service
+must use Type=oneshot and RemainAfterExit=yes: a default transient service
+terminated its container when the short launcher exited in an earlier attempt.
+No firmware or driver was changed. Stream/audio/latency remain unverified for
+this retry. Raw receiver log kept locally mode 0600; do not commit credentials.
