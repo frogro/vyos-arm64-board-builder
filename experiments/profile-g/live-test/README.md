@@ -64,3 +64,30 @@ the launcher exits. For target selection, mouse injection is not reliable in
 this GNOME/XWayland environment. Visually verified keyboard selection and an
 immediate NetworkManager peer-address check selected the correct ROCK in the
 13:26:50 retry. Do not reuse run-audio-safe.py's fixed-coordinate click.
+
+## GNOME sender latency diagnostic (2026-09-28)
+
+GNOME Network Displays 0.99.0 sets a fixed 500 ms pipeline latency in
+`src/wfd/wfd-media-factory.c`. `gnd-latency-probe.c` is an **opt-in diagnostic**:
+it intercepts only a request of exactly 500 ms and applies 50 ms to that request.
+Other values pass through. It logs requested/applied values. It is not installed
+in the receiver image or enabled globally, and is not a general encoder policy.
+The live test used Intel `vah264enc`; slower software encoders need separate tests.
+
+Build into a temporary directory with:
+
+```sh
+gcc -shared -fPIC -Wall -Wextra -Werror -o /tmp/gnd-latency-probe.so experiments/profile-g/live-test/gnd-latency-probe.c -ldl
+LD_PRELOAD=/tmp/gnd-latency-probe.so gnome-network-displays
+```
+
+Apply only to this sender process, never export LD_PRELOAD globally. Closing it
+restores normal behavior; the installed executable is unchanged. A distributable
+sender fix should use a configurable upstream source patch and encoder-specific
+validation, rather than shipping this diagnostic interposer.
+
+Receiver keeps configured RTP jitter buffering, sets additional tsdemux latency
+to zero, and sets the optional Pulse sink async=false to avoid absent-audio
+preroll blocking video. Pulse buffering is 40 ms rather than its default 200 ms.
+The remaining delayed audio pad warning is **not** an audio success; dynamic
+track detection and verified sound output remain outstanding.

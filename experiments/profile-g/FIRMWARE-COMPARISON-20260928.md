@@ -233,3 +233,31 @@ Restored the probe player from backup after test, AP/kiosk active, homebase and
 LAN restored. This supersedes any interpretation of STREAMING/caps alone as
 full functional approval: visible moving video now confirmed, but latency and
 audio remain blockers. No main or image change.
+
+## Latency optimization and user-confirmed comparison (17:41–17:49)
+
+Installed receiver gst-inspect confirms tsdemux default latency=700 ms. First
+comparison removed this extra latency (latency=0), retained RTP jitter=50 ms,
+and omitted audio. Intel stream 17:41:58; user reported clearly faster picture,
+then clarified that both typing and cursor still lagged (not missing input).
+
+GNOME 0.99.0 source independently confirms fixed gst_pipeline_set_latency(500 ms):
+https://github.com/GNOME/gnome-network-displays/blob/0.99.0/src/wfd/wfd-media-factory.c
+A process-local diagnostic interposer changed only that exact request to 50 ms,
+with runtime log confirmation at 17:47:54. No installed executable replaced.
+Receiver also enabled optional audio with async=false, explicit H264/AAC pad
+filters, 40 ms Pulse buffer/10 ms write latency. User confirmed again:
+"Nochmals deutlich schneller, Bild bewegt sich". Thus absent-audio no longer
+froze the picture in this test. AAC negotiation was logged but demux audio pad
+link still failed: audible audio remains unverified. No objective end-to-end
+latency measurement or 60-fps claim; negotiated format remains 1080p30.
+
+Intermediate audio-safe reconnect at 17:45 established P2P but never reached
+RTSP. After bounded cleanup and fresh supplicant, next stream succeeded. Do not
+count that intermediate connection as a passed audio test.
+
+Receiver changes are in profile-g/container/miracle-player.py; sender probe is
+in live-test/gnd-latency-probe.c with reproduction/limitations. Twenty tests pass,
+including actual GStreamer live-video handoffs while an optional audio source
+supplies no preroll data. Restored AP/kiosk/homebase/LAN and stopped diagnostic
+sender; optimized receiver player remains staged for next G test. No main change.
