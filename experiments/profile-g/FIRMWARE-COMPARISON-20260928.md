@@ -131,3 +131,15 @@ impossible or the hardware is defective. The verified blocker is exposure
 through the current driver/NetworkManager/GNOME path. Direct scan stopped;
 sender stopped; Intel management/homebase restored; Ethernet route retained.
 No kernel/driver patch, reboot or alternative vendor driver installed.
+
+### BrosTrend repeat with confirmed active ROCK receiver
+
+At 16:55 the ROCK receiver was running. With Intel unmanaged, BrosTrend direct
+p2p_find returned FAIL (also after cycling only its NM managed state), and
+GNOME had no usable provider. After enabling Intel again, the same control
+command returned OK and GNOME explicitly created p2p-dev-wlp3s0 provider;
+VyOS-TV B4:8C:9D:A5:01:B7 appeared at 16:55:47 while ROCK remained running.
+Therefore the earlier OK/peer list with Intel enabled cannot be attributed to
+independent BrosTrend operation. The isolated BrosTrend path did not discover
+ROCK; Intel control discovered it within seconds. Both test sides cleaned up,
+AP/kiosk active and homebase restored. No BrosTrend stream established.
