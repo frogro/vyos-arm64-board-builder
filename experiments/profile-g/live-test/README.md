@@ -51,3 +51,9 @@ intervals did not. Gain restored to 100%. This proves direct HDMI acoustic
 output at the test location, not Miracast transport or end-to-end latency.
 Local evidence: /mnt/entwicklung/tmp/profile-g-live-20260928/mic-hdmi-direct.pcm
 and mic-hdmi-test.py. Recordings are not committed.
+
+CORRECTION after detailed NetworkManager audit: the 13:07 WAIT_SOCKET attempt
+selected Samsung S90CA 55, not ROCK. Fixed UI coordinates selected the wrong
+row. It must not be used as a ROCK regression result. See
+FIRMWARE-COMPARISON-20260928.md. Recovery checks and direct acoustic proof remain
+valid independently of that receiver selection error.
