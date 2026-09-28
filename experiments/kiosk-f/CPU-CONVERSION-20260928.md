@@ -154,3 +154,47 @@ and verifies its bytes in both image/ISO squashfs. No global GStreamer
 library replacement. CLI source-recipe pin updated for the reviewed runner.
 Live test configuration and original runner restored after the test; helper
 removed. No save, main merge or active D service left behind.
+
+## Isolated upstream patch-behavior tests
+
+No system libraries replaced. Per-process LD_PRELOAD shims reproduce the
+reviewed diffs on installed GStreamer1.22.0. Copy-plane function extracted
+from1.22 source with fe61bc3 equal-stride branch applied; allocator shim adds
+KEEP_MAPPED at the fd allocator boundary used by this isolated DMA-BUF
+pipeline. These are behavioral probes, not complete rebuilt upstream plugins.
+
+120-frame DMA-BUF BGR1080p capture -> four-thread videoconvert -> NV12:
+- baseline5.96s;
+- copy-plane patch6.04s, instrumented copy-plane calls ZERO: not on hot path;
+- KEEP_MAPPED6.03s, fd allocation calls2: no meaningful improvement.
+
+A forced400-copy BGR1080p microbenchmark exercised the copy-plane function:
+stock0.209857s, patched0.201843s, bytes identical. Single measurements; the
+small difference is not a statistically established gain. Our staging helper
+already uses a single bulk memcpy and does not call this copy-plane function.
+
+First allocator probe shim failed symbol resolution for the dynamically
+loaded allocator and crashed only its disposable gst-launch process. Timeout
+terminated it. Replaced RTLD_NEXT lookup with explicit allocator-library
+lookup and null checking; corrected probe completed. This was a harness
+failure, not evidence of an upstream patch or kernel crash.
+
+Native helper termination via SIGTERM succeeded within the2-second timeout
+(timeout reports124 as expected). Invalid pipeline exits2 with an explicit
+error. Kiosk active, no failed units, no gst-launch test processes left,
+CSC N and unsaved configuration false after cleanup.
+
+### CLI and fallback boundary
+
+Current image is a TEST candidate. Existing negotiated color policy selects
+cached staging only when conversion resolves to CPU and helper is installed.
+This preserves legacy and RGA routes but couples color and allocation policy.
+Before general release, prefer a separately reviewed generic CLI selector
+(e.g. auto/direct/cached); these names are proposals, not available commands.
+
+Current fallback is a startup decision. A runtime RGA failure does not
+transparently rebuild the pipeline on CPU. A cached helper allocation/map
+error fails rather than silently continuing with damaged output; service
+restart is not equivalent to an automatic direct-CPU downgrade. Runtime
+recovery, bounded retry policy and fault injection remain separate work.
+No unproven upstream patch is added to Actions36382869073.
