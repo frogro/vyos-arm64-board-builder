@@ -202,3 +202,12 @@ scan invalid-arguments warning and missing rfkill control access remain to
 investigate during discovery. G was stopped and AP/kiosk restored after the
 startup test. Logs and scripts remain in the directory above. The live session
 fix is a read-only script mount; bake it into the next G runtime.
+
+ThinkPad follow-up: GNOME Network Displays 0.99.0 installed; the user-authorized
+portal screen selection was confirmed through AT-SPI. Sender logged "Created
+screencast session". After reasserting MiracleCast P2PScanning via private bus
+and assigning FriendlyName VyOS-TV, ThinkPad discovered a WFD sink with that
+name. This suggests the initial scan request races supplicant initialization;
+a readiness/retry fix remains necessary. The GTK sink row could not be
+activated through the available accessibility actions. No connection/stream was
+established. Sender was closed (ending screen sharing) and AP/kiosk restored.
