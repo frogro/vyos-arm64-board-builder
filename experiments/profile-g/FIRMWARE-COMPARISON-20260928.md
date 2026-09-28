@@ -161,3 +161,24 @@ created another provider but ALSO found no sinks in this same process before
 control: do not conclude Alfa-only incompatibility from it. Device discovery
 state after adapter switching needs a fresh isolated test. Receiver was stopped
 via recovery, AP/kiosk verified active, sender stopped, homebase restored.
+
+## Final older Alfa MT7610U test (17:07–17:09)
+
+Different adapter: USB 0e8d:7610, mt76x0u, wlx00c0caae67bc (phy5).
+Kernel advertises P2P-client/GO; NetworkManager creates its P2P device.
+LAN management confirmed; Intel unmanaged throughout discovery and connection.
+Fresh GNOME process with explicit Pulse server; ROCK receiver active, recovery
+armed on both hosts. VyOS-TV discovered at 17:07:16, seven seconds after sender
+startup, and ROCK independently discovered the Alfa MAC. Discovery therefore
+works with this adapter without Intel assistance.
+
+After remote-input portal approval, activation at 17:08:14 explicitly targeted
+B4:8C:9D:A5:01:B7 via the Alfa. A duplicate start assertion was logged during UI
+activation; the initial connection proceeded to WAIT_SOCKET. Receiver PBC was
+requested, but no completed P2P group/RTSP stream was observed. NetworkManager
+reported supplicant-timeout after 45 seconds (17:08:59). GNOME then crashed with
+SIGSEGV in libgio at 17:09:01. No WLAN firmware crash observed in this interval.
+Thus discovery passes, streaming does not; this does not establish hardware
+incompatibility or isolate the negotiation failure from sender software state.
+No audio or latency measurement possible. Recovery verified AP and kiosk active,
+receiver stopped, ThinkPad homebase restored and LAN still connected.
