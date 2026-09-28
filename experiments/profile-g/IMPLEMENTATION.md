@@ -174,3 +174,10 @@ advertises P2P-client, P2P-GO and P2P-device. No second wireless interface was
 present. This is capability evidence for the internal radio, not a successful
 Miracast test and not proof of simultaneous AP/P2P operation. The AP and kiosk
 were not stopped or reconfigured.
+
+Native ARM64 build evidence:
+https://github.com/frogro/vyos-arm64-board-builder/actions/runs/36390680164
+completed successfully for cdb8b11: all three pinned receivers compiled and
+help/startup smoke commands passed. Artifact: profile-g-backends-arm64.
+The follow-up run for b6af4ea also checks session-bus/cleanup changes. Neither
+run builds the final F-derived display container or proves an on-screen stream.
