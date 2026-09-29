@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Fail a test build if audited main profile behavior or protected inputs drift."""
 import itertools
+import hashlib
+import json
 import re
 from pathlib import Path
 import subprocess
@@ -34,6 +36,25 @@ if changed:
         if candidate_xml != git('show', f'{ref}:{reviewed}'):
             raise SystemExit('Existing main KVM CLI changed beyond reviewed additive leaves')
         paths.remove(reviewed)
+    # Permit only individually reviewed hardware deltas, pinned on both sides.
+    # Future main changes and further test-branch edits require a new review.
+    delta_file = Path('experiments/profile-g/ci/reviewed-hardware-delta.json')
+    if delta_file.exists():
+        delta = json.loads(delta_file.read_text())
+        if delta.get('schema') != 1:
+            raise SystemExit('Unknown reviewed hardware delta schema')
+        for path in list(paths):
+            approved = delta['files'].get(path)
+            if approved is None:
+                continue
+            result = subprocess.run(['git', 'show', f'{ref}:{path}'], capture_output=True)
+            if result.returncode and subprocess.run(['git', 'cat-file', '-e', f'{ref}^{{commit}}'], capture_output=True).returncode:
+                raise SystemExit('Cannot resolve baseline commit')
+            base_hash = hashlib.sha256(result.stdout).hexdigest() if result.returncode == 0 else None
+            candidate_hash = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+            if (base_hash, candidate_hash) != (approved['base_sha256'], approved['candidate_sha256']):
+                raise SystemExit(f'Reviewed hardware delta drifted: {path}')
+            paths.remove(path)
     changed = '\n'.join(paths)
 if changed:
     raise SystemExit(f'Protected main files differ; review before building:\n{changed}')

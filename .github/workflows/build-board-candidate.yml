@@ -163,10 +163,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check Orange Pi multimedia integration contract
+      - name: Check RK3588 multimedia integration contract
         run: |
           if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes ]]; then
-            test "$BOARD" = orangepi5-plus
+            case "$BOARD" in rock-5b|orangepi5-plus) ;; *) echo "Unsupported multimedia board: $BOARD" >&2; exit 1 ;; esac
             test "$KIOSK_F" = yes
             test "$RECEIVER_G" = yes
             test "$EXTENDED_NETWORK" = true

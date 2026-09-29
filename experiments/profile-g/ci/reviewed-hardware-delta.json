@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "baseline_commit": "316e10d8198681f8301a8b8c4c22e5a5177aa7ce",
+  "reason": "Preserve full ROCK decoder/Panthor requirements and Orange Pi native USB-C routing while integrating current main A hardware. Exact file digests constrain the reviewed differences.",
+  "files": {
+    "profiles/base-hardware/kernel-patches/rock-5b/0001-rk3588-v4l2-decoder.patch": {
+      "base_sha256": null,
+      "candidate_sha256": "d8dc8b9dd89f00e9e56715a96d182ac0471636f664f9a6399b4ff4461d7209b4"
+    },
+    "profiles/base-hardware/kernel-patches/rock-5b/README.md": {
+      "base_sha256": null,
+      "candidate_sha256": "157c290ebc2921c852ce95359194dd76b2fddfb96c2654def37c8d224f9b1277"
+    },
+    "profiles/base-hardware/rock-5b-modules.txt": {
+      "base_sha256": null,
+      "candidate_sha256": "9045a8efadfeab2ad42717688a007bb9681b7bd655e2dfb73778f1e44b7fd9ab"
+    },
+    "profiles/base-hardware/rock-5b-ready.config": {
+      "base_sha256": "afb00ede68cba1933904ab9ff004789d55603304c596d52ef19fd3b95ccf8a35",
+      "candidate_sha256": "f0cf30a632f173cf5823426ff2595b8888a7a6faa146f9d4a86dd2ef83b1feed"
+    },
+    "profiles/base-hardware/rock-5b.config": {
+      "base_sha256": "cdabea0d45058e5121f892ffc3c13f03d4eeef5abd1b751c01f3b0055780f6ef",
+      "candidate_sha256": "e40fbbc03d2e2987cb4b68c755228912afd4b62919fe2b2ed8e0a9bb7ff2af23"
+    },
+    "profiles/kvm-hardware-providers.conf": {
+      "base_sha256": "98f30fde8dafb7a9bf242a6e0d3f58b56777031c23105af8ff279e69b29cf6d3",
+      "candidate_sha256": "cc4b2751fc51c2bf1ca57e41a0644243f701ffb41d42bc55a303ba2842e899ad"
+    },
+    "profiles/kvm-hardware/dt-overlays/orangepi5-plus-mpp.dts": {
+      "base_sha256": null,
+      "candidate_sha256": "4d73dba5bf60224ac6a675af53f026e732e3dfd7dc29062df5614a962d35a7e3"
+    },
+    "profiles/kvm-hardware/runtime/orangepi5-plus/rk3588-synopsys-hdmirx.env": {
+      "base_sha256": null,
+      "candidate_sha256": "99d58fd9e0e4a522474f1a4102b1bc1a11dc6e4060f1082f4d08fd2026654aaa"
+    }
+  }
+}
