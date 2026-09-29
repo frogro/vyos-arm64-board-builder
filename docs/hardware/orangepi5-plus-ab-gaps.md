@@ -43,3 +43,11 @@ Their detailed provenance, validation and remaining limitations are in that
 folder's README. This supersedes the earlier missing-driver inventory above;
 it does not establish a complete tested camera pipeline or DP audio support.
 Full kernel/image and live hardware validation still follow.
+
+## DP audio follow-up
+
+0004 now supplies the audio driver port, internal SPDIF2/DP0 sound card and
+SPDIF module requirement. Source and DT/object compile checks passed; hardware
+acceptance and complete image build remain pending. The earlier statement that
+DP audio has no implementation is superseded by this backport. Retain the
+previous bootable image until USB-C video/audio and hotplug tests pass.
