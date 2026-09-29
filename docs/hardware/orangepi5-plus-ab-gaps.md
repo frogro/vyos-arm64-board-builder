@@ -37,7 +37,7 @@ of this change alone. SD/eMMC and update ISO must use the same verified payload.
 ## Follow-up backport preparation
 
 The DP video and RK3588 decoder source changes are now board-scoped in
-profiles/b-hardware/kernel-patches/orangepi5-plus. Experimental CSI/VICAP/ISP2
+profiles/base-hardware/kernel-patches/orangepi5-plus. Experimental CSI/VICAP/ISP2
 modules and disabled DT blocks are also included after cross-compilation.
 Their detailed provenance, validation and remaining limitations are in that
 folder's README. This supersedes the earlier missing-driver inventory above;

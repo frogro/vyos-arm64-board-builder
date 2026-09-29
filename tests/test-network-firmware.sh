@@ -136,3 +136,18 @@ test -f \
     "$WORK/rootfs/usr/share/doc/vyos-arm64-board-builder/network/network-firmware-manifest.json"
 
 echo "PASS: network firmware closure and rootfs installation"
+
+# Board firmware is baseline even when the optional network layer is disabled.
+# Reuse the fixture's dependency module as an independent board firmware root.
+printf '{"enabled":false,"entries":[]}\n' > "$WORK/input/disabled.json"
+printf 'mt7921_common\n' > "$WORK/input/board.txt"
+PATH="$WORK/bin:$PATH" python3 "$ROOT/tools/stage-network-firmware.py" \
+    --vyos-tree "$WORK/vyos" --modules-root "$WORK/modules" \
+    --kernel-release test-kernel --resolver-report "$WORK/input/disabled.json" \
+    --module-catalog "$WORK/input/modules.tsv" --baseline-modules "$WORK/input/baseline.txt" \
+    --board-modules "$WORK/input/board.txt" --supplements "$WORK/input/supplements.txt" \
+    --cache-dir "$WORK/cache/linux-firmware" --output-dir "$WORK/board-only"
+test -f "$WORK/board-only/root/usr/lib/firmware/mediatek/mt7922-common.bin"
+test ! -f "$WORK/board-only/root/usr/lib/firmware/mediatek/mt7922-test.bin"
+grep -Fq $'baseline\tmt7921_common\tmediatek/mt7922-common.bin' "$WORK/board-only/installed-firmware.txt"
+echo "PASS: A board firmware remains available without B network firmware"

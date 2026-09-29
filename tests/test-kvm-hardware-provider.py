@@ -40,7 +40,7 @@ class KvmHardwareProviderTests(unittest.TestCase):
             result["dt_overlay"],
         )
         self.assertEqual(
-            "profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx",
+            "profiles/base-hardware/kernel-patches/rk3588-synopsys-hdmirx",
             result["kernel_patch_dir"],
         )
         MODULE.validate_paths(ROOT, result)
@@ -114,8 +114,8 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertIn('profiles/kvm-over-ip.config', build)
 
     def test_rock5b_profile_d_enables_encoder_only_mpp(self) -> None:
-        config = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config").read_text(encoding="utf-8")
-        ready = (ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx-ready.config").read_text(encoding="utf-8")
+        config = (ROOT / "profiles/base-hardware/rock-5b.config").read_text(encoding="utf-8")
+        ready = (ROOT / "profiles/base-hardware/rock-5b-ready.config").read_text(encoding="utf-8")
         for expected in (
             "CONFIG_ROCKCHIP_MPP_SERVICE=y",
             "CONFIG_ROCKCHIP_MPP_PROC_FS=y",
@@ -169,7 +169,7 @@ class KvmHardwareProviderTests(unittest.TestCase):
             env_text = env.read_text()
             self.assertIn("KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx", env_text)
             self.assertIn(
-                "KVM_HARDWARE_KERNEL_PATCH_DIR=profiles/kvm-hardware/kernel-patches/"
+                "KVM_HARDWARE_KERNEL_PATCH_DIR=profiles/base-hardware/kernel-patches/"
                 "rk3588-synopsys-hdmirx",
                 env_text,
             )

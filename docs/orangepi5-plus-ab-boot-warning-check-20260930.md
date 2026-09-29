@@ -24,7 +24,7 @@ Full reboot confirmation remains pending.
 
 ## Power domains
 
-See profiles/b-hardware/kernel-patches/orangepi5-plus/README.md, patch 0005.
+See profiles/base-hardware/kernel-patches/orangepi5-plus/README.md, patch 0005.
 No live kernel replacement was performed. Firmware device-link warnings are
 not hidden by this patch and remain separately observable.
 

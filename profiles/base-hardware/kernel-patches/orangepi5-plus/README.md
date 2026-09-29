@@ -1,6 +1,6 @@
 # Orange Pi 5 Plus peripheral backports
 
-Applied only for Orange Pi 5 Plus with profile B, after the shared MPP provider.
+Applied to Orange Pi 5 Plus in base profile A, after the shared MPP provider.
 The patch path and content hash participate in the kernel preparation cache key.
 Other boards do not opt in. SD/eMMC and ISO use the same prepared kernel payload.
 
