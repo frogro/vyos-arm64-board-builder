@@ -4,13 +4,25 @@
     "2026.09.21-0031-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35569047758,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35569050478,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35569053120,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "b5ae37645cc0630543859c4b25fb2927a91c9071"
@@ -18,13 +30,25 @@
     "2026.09.23-0027-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35820296062,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35820298598,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35820300809,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "b744b1a0c794db4ca1a6336053389bbc02e2e6f6"
@@ -32,13 +56,25 @@
     "2026.09.24-0028-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35963796456,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35963799357,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 35963802270,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "b744b1a0c794db4ca1a6336053389bbc02e2e6f6"
@@ -46,13 +82,25 @@
     "2026.09.25-0029-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36110486300,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36110489698,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36110493394,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
@@ -62,13 +110,25 @@
         "radxa-e52c": {
           "dispatched": true,
           "retry_disabled": true,
-          "retry_reason": "User requested waiting for the next Rolling; do not rerun this release."
+          "retry_reason": "User requested waiting for the next Rolling; do not rerun this release.",
+          "run_id": 36474321391,
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36474327429,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36474333214,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
