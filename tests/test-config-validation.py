@@ -23,6 +23,24 @@ SPEC.loader.exec_module(GENERATE_BOARD_CONFIG)
 
 
 class ConfigValidationTests(unittest.TestCase):
+    def test_profile_availability_requirements_merge_without_order_dependency(self):
+        merge = GENERATE_BOARD_CONFIG.merge_feature_value
+        self.assertEqual(merge("CONFIG_TEST", "m", "y"), "y")
+        self.assertEqual(merge("CONFIG_TEST", "y", "m"), "y")
+        self.assertEqual(merge("CONFIG_TEST", "m", "m"), "m")
+        for left, right in (("n", "m"), ("y", "n")):
+            with self.assertRaises(SystemExit):
+                merge("CONFIG_TEST", left, right)
+
+    def test_orangepi_b_and_generic_d_are_compatible(self):
+        values = {}
+        for name in ("b-hardware/bluetooth.config", "b-hardware/orangepi5-plus.config", "kvm-over-ip.config"):
+            for symbol, value in GENERATE_BOARD_CONFIG.read_config(ROOT / "profiles" / name).items():
+                values[symbol] = GENERATE_BOARD_CONFIG.merge_feature_value(symbol, values.get(symbol), value)
+        self.assertEqual(values["CONFIG_VIDEO_TC358743"], "m")
+        self.assertEqual(values["CONFIG_USB_DWC3_DUAL_ROLE"], "y")
+        self.assertEqual(values["CONFIG_ROCKCHIP_MPP_SERVICE"], "m")
+
     def test_boot_only_closure_tracks_transitive_dependencies(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

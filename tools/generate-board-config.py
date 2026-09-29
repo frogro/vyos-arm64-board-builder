@@ -508,6 +508,14 @@ def add_feature_requirements(
         elif value == "m" and current == "n":
             selected[resolved] = "m"
 
+def merge_feature_value(symbol, previous, value):
+    if previous is None or previous == value:
+        return value
+    if {previous, value} == {"y", "m"}:
+        return "y"
+    raise SystemExit(f"Conflicting feature requirement for {symbol}: {previous} versus {value}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a boot-oriented board Kconfig fragment"
@@ -580,12 +588,7 @@ def main():
     for config_path in args.feature_required_config:
         for symbol, value in read_config(Path(config_path)).items():
             previous = feature_required_values.get(symbol)
-            if previous is not None and previous != value:
-                raise SystemExit(
-                    f"Conflicting feature requirement for {symbol}: "
-                    f"{previous} versus {value}"
-                )
-            feature_required_values[symbol] = value
+            feature_required_values[symbol] = merge_feature_value(symbol, previous, value)
 
     #
     # Current VyOS state is needed not only for final validation but

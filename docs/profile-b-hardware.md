@@ -59,3 +59,28 @@ covers USB-C, Bluetooth and analog audio plus common optional peripherals.
 GPU/VPU/NPU and camera-specific pipelines remain explicit coverage gaps, not
 claims of complete hardware readiness. Unsupported hardware needs source/DT
 work; a Kconfig request alone does not establish functioning support.
+
+
+## Multimedia increment
+
+Orange Pi B now requests Panthor, Hantro, upstream rkvdec, RGA, HDMI-RX,
+modular Rockchip MPP/VEPU580 encoder and Rocket NPU. The existing source patch
+set is shared with D, applied once, without enabling D services. The MPP
+vendor decoder stays off to avoid competing with V4L2 rkvdec. Encoder DT nodes
+introduced by the shared patch remain disabled on Orange Pi; a later capture
+configuration must supply the appropriate DT activation (the ROCK overlay is
+not applied to Orange Pi). Panthor's MODULE_FIRMWARE declarations are staged
+through a board-specific module root, including dependency closure.
+
+The Rocket driver is the upstream Mesa-facing NPU API, not the vendor RKNN
+userspace ABI. Availability does not claim an inference test or install Mesa.
+Sensor modules IMX219 (Pi Camera v2), OV5647 (v1), IMX296 (global shutter),
+TC358743, DSI2/DC-PHY, simple panels and common touch controllers are prepared.
+No sensor or panel is selected automatically. IMX477/IMX708 and RK3588 CSI/ISP
+capture are NOT implemented by the selected source tree's sensor/ISP drivers;
+rkisp1 supports older SoCs, so it is not advertised as an RK3588 camera solution.
+These remain explicit missing integrations rather than misleading module checks.
+
+Identical B/D requirements are deduplicated; m/y merges to y. Explicit n versus
+an enabled requirement is rejected before compilation. Firmware uses the shared
+staging destination and module closure, not separate conflicting B/D copies.

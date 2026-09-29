@@ -223,7 +223,14 @@ main() {
     # Kconfig derivation. VyOS patches may themselves introduce Kconfig
     # symbols, so this must happen first.
     #
-    vyos_kernel_prepare "${kernel_version}" "${KVM_HARDWARE_KERNEL_PATCH_DIR:-}"
+    local hardware_patch_dir="${KVM_HARDWARE_KERNEL_PATCH_DIR:-}"
+    if [[ "${extended_network}" == yes && "${board}" == orangepi5-plus ]]; then
+        local b_patch_dir="profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx"
+        [[ -z "${hardware_patch_dir}" || "${hardware_patch_dir}" == "${b_patch_dir}" ]] ||
+            die "Conflicting B/D kernel patch providers"
+        hardware_patch_dir="${b_patch_dir}"
+    fi
+    vyos_kernel_prepare "${kernel_version}" "${hardware_patch_dir}"
 
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"
@@ -873,7 +880,11 @@ main() {
     #
     info "Staging network firmware from the VyOS-pinned source..."
 
-    python3 "${ROOT_DIR}/tools/stage-network-firmware.py" \
+    local board_firmware_args=()
+    if [[ "${EXTENDED_NETWORK:-no}" == yes && -f "${ROOT_DIR}/profiles/b-hardware/${board}-modules.txt" ]]; then
+        board_firmware_args+=(--board-modules "${ROOT_DIR}/profiles/b-hardware/${board}-modules.txt")
+    fi
+    python3 "${ROOT_DIR}/tools/stage-network-firmware.py" "${board_firmware_args[@]}" \
         --vyos-tree "${ROOT_DIR}/cache/vyos-build" \
         --modules-root "${modules_out}" \
         --kernel-release "${kernel_release}" \

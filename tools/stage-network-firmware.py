@@ -278,6 +278,7 @@ def main():
     parser.add_argument("--resolver-report", required=True)
     parser.add_argument("--module-catalog", required=True)
     parser.add_argument("--baseline-modules", required=True)
+    parser.add_argument("--board-modules")
     parser.add_argument("--supplements", required=True)
     parser.add_argument("--cache-dir", required=True)
     parser.add_argument("--output-dir", required=True)
@@ -313,6 +314,9 @@ def main():
             extended_roots.add(entry["module"])
 
     # Explicit baseline roots always win if a future catalog entry overlaps.
+    if resolver.get("enabled") and args.board_modules:
+        extended_roots.update(read_lines(args.board_modules))
+
     extended_roots -= baseline_roots
 
     baseline, baseline_status = module_closure(
