@@ -124,7 +124,11 @@
           "run_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 36474333214,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
