@@ -1,2 +1,0 @@
-# Firmware-bearing B board modules; dependencies included by modinfo.
-panthor

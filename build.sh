@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${ROOT_DIR}/lib/ui.sh"
+source "${ROOT_DIR}/lib/board-hardware.sh"
 source "${ROOT_DIR}/sources/armbian.sh"
 source "${ROOT_DIR}/sources/armbian-resolver.sh"
 source "${ROOT_DIR}/sources/vyos.sh"
@@ -225,17 +226,14 @@ main() {
     # Kconfig derivation. VyOS patches may themselves introduce Kconfig
     # symbols, so this must happen first.
     #
-    local hardware_patch_dir="${KVM_HARDWARE_KERNEL_PATCH_DIR:-}"
-    if [[ "${extended_network}" == yes && "${board}" == orangepi5-plus ]]; then
-        local b_patch_dir="profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx"
-        [[ -z "${hardware_patch_dir}" || "${hardware_patch_dir}" == "${b_patch_dir}" ]] ||
-            die "Conflicting B/D kernel patch providers"
-        hardware_patch_dir="${b_patch_dir}"
+    board_hardware_select "${board}"
+    local hardware_patch_dir="${BOARD_BASE_PATCHES}"
+    if [[ -n "${KVM_HARDWARE_KERNEL_PATCH_DIR:-}" ]]; then
+        [[ -z "${hardware_patch_dir}" || "${hardware_patch_dir}" == "${KVM_HARDWARE_KERNEL_PATCH_DIR}" ]] ||
+            die "Conflicting A/D kernel patch providers"
+        hardware_patch_dir="${KVM_HARDWARE_KERNEL_PATCH_DIR}"
     fi
-    local peripheral_patch_dir=""
-    if [[ "${extended_network}" == yes && "${board}" == orangepi5-plus ]]; then
-        peripheral_patch_dir="profiles/b-hardware/kernel-patches/orangepi5-plus"
-    fi
+    local peripheral_patch_dir="${BOARD_PERIPHERAL_PATCHES}"
     vyos_kernel_prepare "${kernel_version}" "${hardware_patch_dir}" "${peripheral_patch_dir}"
 
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
@@ -534,6 +532,7 @@ main() {
         --boot-profile "${ROOT_DIR}/profiles/boot-media.conf"
         --policy "${ROOT_DIR}/profiles/kernel-policy.conf"
         --feature-required-config "${ROOT_DIR}/profiles/base-cpufreq.config"
+        --feature-required-config "${ROOT_DIR}/profiles/base-hardware/capture-gadget.config"
         --boot-media "${boot_media}"
         --output-dir "${config_out}"
     )
@@ -544,11 +543,12 @@ main() {
         )
     fi
 
+    if [[ -n "${BOARD_BASE_CONFIG}" ]]; then
+        config_args+=(--feature-required-config "${ROOT_DIR}/${BOARD_BASE_CONFIG}")
+    fi
+
     if [[ "${extended_network}" == "yes" ]]; then
         config_args+=(--feature-required-config "${ROOT_DIR}/profiles/b-hardware/bluetooth.config")
-        if [[ -f "${ROOT_DIR}/profiles/b-hardware/${board}.config" ]]; then
-            config_args+=(--feature-required-config "${ROOT_DIR}/profiles/b-hardware/${board}.config")
-        fi
     fi
 
     if [[ "${kvm_over_ip}" == "yes" ]]; then
@@ -594,6 +594,14 @@ main() {
     # can never weaken a boot-critical requirement or make a board build
     # fail merely because one optional symbol is unavailable.
     #
+    local base_peripheral_out="${config_out}/base-peripherals"
+    python3 "${ROOT_DIR}/tools/resolve-extended-network-config.py" \
+        --kernel "${kernel_source}" \
+        --base-config "${config_out}/generated-final.config" \
+        --profile "${ROOT_DIR}/profiles/base-hardware/optional-peripherals.config" \
+        --output-dir "${base_peripheral_out}" --enabled yes
+    cp "${base_peripheral_out}/generated-final.config" "${config_out}/generated-final.config"
+
     local extended_config_out="${config_out}/extended-network"
 
     python3 "${ROOT_DIR}/tools/resolve-extended-network-config.py" \
@@ -725,16 +733,20 @@ main() {
         CROSS_COMPILE="${cross}" \
         olddefconfig
 
+    board_hardware_select "${board}"
+    if [[ -n "${BOARD_BASE_READY}" ]]; then
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${kbuild_out}/.config" \
+            --requirements "${ROOT_DIR}/${BOARD_BASE_READY}" \
+            --output-dir "${artifacts}/base-hardware/${board}" \
+            --report-name base-hardware-ready
+    fi
     if [[ "${EXTENDED_NETWORK:-no}" == "yes" ]]; then
-        for requirement in bluetooth "${board}"; do
-            local readiness="${ROOT_DIR}/profiles/b-hardware/${requirement}-ready.config"
-            [[ -f "${readiness}" ]] || continue
-            python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
-                --kernel-config "${kbuild_out}/.config" \
-                --requirements "${readiness}" \
-                --output-dir "${artifacts}/b-hardware/${requirement}" \
-                --report-name b-hardware-ready
-        done
+        python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+            --kernel-config "${kbuild_out}/.config" \
+            --requirements "${ROOT_DIR}/profiles/b-hardware/bluetooth-ready.config" \
+            --output-dir "${artifacts}/b-hardware/bluetooth" \
+            --report-name b-hardware-ready
     fi
 
     local jobs="${JOBS:-$(nproc)}"
@@ -884,11 +896,11 @@ main() {
     # package pin. Missing optional/runtime firmware is reported but does
     # not turn into a boot failure.
     #
-    info "Staging network firmware from the VyOS-pinned source..."
+    info "Staging board and network firmware from the VyOS-pinned source..."
 
     local board_firmware_args=()
-    if [[ "${EXTENDED_NETWORK:-no}" == yes && -f "${ROOT_DIR}/profiles/b-hardware/${board}-modules.txt" ]]; then
-        board_firmware_args+=(--board-modules "${ROOT_DIR}/profiles/b-hardware/${board}-modules.txt")
+    if [[ -n "${BOARD_BASE_MODULES}" ]]; then
+        board_firmware_args+=(--board-modules "${ROOT_DIR}/${BOARD_BASE_MODULES}")
     fi
     python3 "${ROOT_DIR}/tools/stage-network-firmware.py" "${board_firmware_args[@]}" \
         --vyos-tree "${ROOT_DIR}/cache/vyos-build" \

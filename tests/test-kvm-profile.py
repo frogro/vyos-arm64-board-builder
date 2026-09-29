@@ -194,7 +194,7 @@ class KvmProfileTests(unittest.TestCase):
 
     def test_rock5b_provider_contains_only_opt_in_hardware_delta(self):
         text = (
-            ROOT / "profiles/kvm-hardware/rk3588-synopsys-hdmirx.config"
+            ROOT / "profiles/base-hardware/rock-5b.config"
         ).read_text()
         for line in (
             "CONFIG_VIDEO_SYNOPSYS_HDMIRX=m",

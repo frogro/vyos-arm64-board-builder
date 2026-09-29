@@ -1,86 +1,63 @@
-# Profile B hardware coverage and rollback
+# A board hardware and B network coverage
 
-B adds transport/peripheral support; it does not activate a Bluetooth daemon,
-create a USB gadget, change networking, or claim physical validation.
-`m` modules can autoload when matching hardware is present.
+## Ownership
 
-## Sources and verification
+Profile A owns the board boot chain, Device Tree, kernel, physical hardware
+capabilities and associated firmware. Exact overrides are selected by
+`lib/board-hardware.sh` and stored in `profiles/base-hardware/`. DT-derived
+hardware and model requirements still apply to every board, including Raspberry
+Pi 5 and E52C. Unknown boards do not inherit Orange Pi or ROCK routing.
 
-Use the selected Linux Kconfig/source, actual DT and compiled `.config`.
-Manufacturer specifications are a versioned inventory, not a live build input.
-The builder still uses its existing pinned hardware-reference machinery; this
-change does not replace that pipeline or require downloading specifications.
+Profile B retains additional Ethernet/WLAN/WWAN support and its companion
+Bluetooth additions (`profiles/b-hardware/bluetooth.config`). The optional
+Orange Pi R6 RTL8852BE PCIe/USB card belongs to B. Its PCIe/USB host interfaces
+belong to A. A may preserve drivers already selected by upstream VyOS or by
+physical board discovery; profile separation is not a blacklist of those drivers.
 
-Shared Bluetooth transports and their boolean protocol selectors are in
-`profiles/b-hardware/bluetooth.config`; existing built-in selections are preserved.
-USB covers Intel, Realtek, MediaTek, Broadcom and Qualcomm combo functions.
-UART covers Broadcom/Realtek/Qualcomm; SDIO covers generic and Marvell devices.
-`profiles/wifi-bluetooth-map.tsv` accounts for every optional WLAN catalog entry.
-There is no one-Bluetooth-driver-per-WLAN-driver relationship.
-Firmware supplements are module-scoped and cover runtime-generated BT filenames
-not fully declared by MODULE_FIRMWARE in Linux 6.18.
+Optional non-network peripheral requests (I2C/spidev, USB gadget functions,
+IR, Type-C DP altmode) moved from the network catalog to A. Their resolver
+retains fail-soft, no-capability-downgrade behavior. Network and BT requests
+remain otherwise identical. A now provides generic capture/gadget kernel
+capabilities; D still validates those capabilities and enables the application.
 
-Optional generic B requests add I2C/spidev, gadget function modules and IR.
-Unavailable/unsatisfied optional requests are reported as skipped. The resolver
-rejects changes that weaken any existing built-in/module capability.
+## Board-specific scope
 
-## Orange Pi 5 Plus
+- Orange Pi 5 Plus: all former B hardware requirements, readiness checks,
+  Panthor firmware roots and peripheral patches apply with or without B.
+  This includes USB-C/DP/audio, GPU/NPU/VPU/RGA, camera/ISP and gadget modules.
+- ROCK 5B: existing RK3588 capture/MPP/RGA and dual-role kernel requirements
+  formerly selected by D are now available in A. The D-only USB-A routing
+  overlay and runtime gadget activation remain D-only and ROCK-only.
+- Raspberry Pi 5: existing model requirements and native firmware boot handling
+  remain in A. E52C retains its existing DT-derived board requirements in A.
+  Neither receives RK3588 kernel patches from the exact-board registry.
 
-Exact-board requirements correct the DT OTG versus host-only kernel mismatch:
-DWC3 dual-role, USB role switching, FUSB302/TCPM, USB-DP PHY, DP output/altmode,
-and ES8388/ES8328 analog audio. No other board receives that mode override.
-Readiness checks run against the actual Kbuild `.config` after olddefconfig.
-EDK2 v1.1 is promoted from the already boot-tested Orange Pi test branch to main,
-matching the installed image; this changes the Orange Pi default provider only.
-Existing U-Boot installations must NOT install this EDK2 update ISO.
-Pi/ROCK/E52C provider entries, partition/update code remain unchanged.
+A supplies drivers, not automatic peripheral configuration. Camera DT graphs
+remain sensor-specific; services, receiver applications, media userspace and
+profile-specific port-role activation remain in C/D/F/G. Existing feature
+requirements can still request the same kernel capability: identical values
+are deduplicated, m/y resolves to y, and contradictory disabled/enabled values
+fail before compilation. The shared RK3588 patch set is applied once.
 
-GPU/VPU/NPU, concrete CSI sensor overlays and receiver applications remain separate.
-Profile D already requests VIDEO_TC358743 and validates its availability; that
-alone does not configure a camera/CSI capture pipeline on a new board.
+## Build, firmware and update compatibility
 
-## Fallback
+Readiness checks use the actual Kbuild .config after olddefconfig. Board firmware
+roots are passed to the existing module-closure staging code regardless of B.
+The staging directory keeps its historical network-firmware name, so both the
+SD/eMMC assembler and the update-ISO builder consume the same payload.
+Board identifiers, boot providers, release names, profile IDs and update-channel
+compatibility are unchanged. Repositories still publish A/B images as `network`.
+No installed configuration is migrated or rewritten by this refactor.
 
-Pre-change main: 7d1af73, tag fallback-before-profile-b-hardware-20260929.
-Revert subsequent hardware commits in reverse order rather than resetting history.
-Keep the currently working Orange Pi EDK2 image; do not delete it during update.
-A Git rollback is not a device rollback. New images require boot, USB-C, analog
-audio, BT and network regression tests. No new on-device kernel was installed.
-Build only A+B, assert update provider efi-firmware-dtb, and do not publish the
-candidate as Latest until validation. SD/eMMC raw images and update ISO use the
-same kernel/module payload.
+Before this refactor: main fdd20d2. Revert the refactor commit for source rollback;
+retain the installed working image for device rollback. Existing builds use
+their pinned commit. This source migration does not replace their artifacts or
+restart them. Full rebuilt-image boot validation remains required.
 
-## Target coverage
+## Evidence and limits
 
-The user's target is an Orange Pi A/B image with all supported board drivers
-and firmware already available, so later profiles activate applications and
-hardware configuration without rebuilding the kernel. This first increment
-covers USB-C, Bluetooth and analog audio plus common optional peripherals.
-GPU/VPU/NPU and camera-specific pipelines remain explicit coverage gaps, not
-claims of complete hardware readiness. Unsupported hardware needs source/DT
-work; a Kconfig request alone does not establish functioning support.
-
-
-## Multimedia increment
-
-Orange Pi B now requests Panthor, Hantro, upstream rkvdec, RGA, HDMI-RX,
-modular Rockchip MPP/VEPU580 encoder and Rocket NPU. The existing source patch
-set is shared with D, applied once, without enabling D services. The MPP
-vendor decoder stays off to avoid competing with V4L2 rkvdec. Encoder DT nodes
-introduced by the shared patch remain disabled on Orange Pi; a later capture
-configuration must supply the appropriate DT activation (the ROCK overlay is
-not applied to Orange Pi). Panthor's MODULE_FIRMWARE declarations are staged
-through a board-specific module root, including dependency closure.
-
-The Rocket driver is the upstream Mesa-facing NPU API, not the vendor RKNN
-userspace ABI. Availability does not claim an inference test or install Mesa.
-Sensor modules IMX219 (Pi Camera v2), OV5647 (v1), IMX296 (global shutter),
-TC358743, DSI2/DC-PHY, simple panels and common touch controllers are prepared.
-No sensor or panel is selected automatically. IMX477/IMX708 and RK3588 CSI/ISP
-capture are NOT implemented by the selected source tree's sensor/ISP drivers;
-rkisp1 supports older SoCs, so it is not advertised as an RK3588 camera solution.
-These remain explicit missing integrations rather than misleading module checks.
-
-Identical B/D requirements are deduplicated; m/y merges to y. Explicit n versus
-an enabled requirement is rejected before compilation. Firmware uses the shared
-staging destination and module closure, not separate conflicting B/D copies.
+Board inventory uses pinned kernel/DT sources and checked-in requirements, not
+live manufacturer-page scraping. Tests cover exact board selection independent
+of B/D, retention of the optional Wi-Fi/BT scope, requirements and firmware
+selection. Module availability does not prove physical display/camera/NPU use.
+The hardware-specific acceptance notes in docs/hardware remain applicable.

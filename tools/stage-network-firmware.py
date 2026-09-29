@@ -341,8 +341,8 @@ def main():
             extended_roots.add(entry["module"])
 
     # Explicit baseline roots always win if a future catalog entry overlaps.
-    if resolver.get("enabled") and args.board_modules:
-        extended_roots.update(read_lines(args.board_modules))
+    if args.board_modules:
+        baseline_roots.update(read_lines(args.board_modules))
 
     extended_roots -= baseline_roots
 

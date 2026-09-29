@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "board": "orangepi5-plus",
+  "profile": "network",
+  "repository": "VyARM-Community/orangepi5-plus",
+  "url": "https://github.com/VyARM-Community/orangepi5-plus/releases/latest/download/image-version.json"
+}

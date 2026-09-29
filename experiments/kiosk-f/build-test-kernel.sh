@@ -18,7 +18,7 @@ source "$ROOT_DIR/lib/ui.sh"
 source "$ROOT_DIR/sources/vyos.sh"
 export VYOS_REF=4571978c8542a1f996af8a4913c787eecfb0b15d
 vyos_fetch
-vyos_kernel_prepare 6.18.50 profiles/kvm-hardware/kernel-patches/rk3588-synopsys-hdmirx
+vyos_kernel_prepare 6.18.50 profiles/base-hardware/kernel-patches/rk3588-synopsys-hdmirx
 KERNEL=$(vyos_kernel_source_dir 6.18.50)
 patch --batch -d "$KERNEL" -p1 < "$ROOT_DIR/experiments/kiosk-f/sunshine/rga-investigation/0001-diagnostic-bt601-destination-mode.patch"
 cp "$RUN/reference/kernel.config" "$RUN/kbuild/.config"

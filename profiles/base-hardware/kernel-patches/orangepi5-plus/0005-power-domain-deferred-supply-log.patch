@@ -1,0 +1,25 @@
+From: VyOS ARM64 Builder maintainers
+Subject: [PATCH] pmdomain: rockchip: distinguish deferred regulator acquisition
+
+The Orange Pi GPU/NPU supplies can become available after the power-domain
+controller. Preserve the error and retry path, but use dev_err_probe so that
+-EPROBE_DEFER is debug-level and real supply errors remain errors.
+Local adaptation of the kernel's dev_err_probe convention; no power sequencing
+or Device Tree changes. Build and next-boot validation required.
+
+--- a/drivers/pmdomain/rockchip/pm-domains.c
++++ b/drivers/pmdomain/rockchip/pm-domains.c
+@@ -687,10 +687,9 @@
+ 	int ret;
+ 
+ 	ret = rockchip_pd_regulator_enable(pd);
+-	if (ret) {
+-		dev_err(pd->pmu->dev, "Failed to enable supply: %d\n", ret);
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(pd->pmu->dev, ret,
++				     "Failed to enable power-domain supply\n");
+ 
+ 	ret = rockchip_pd_power(pd, true);
+ 	if (ret)

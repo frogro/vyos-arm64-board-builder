@@ -34,7 +34,7 @@ class ConfigValidationTests(unittest.TestCase):
 
     def test_orangepi_b_and_generic_d_are_compatible(self):
         values = {}
-        for name in ("b-hardware/bluetooth.config", "b-hardware/orangepi5-plus.config", "kvm-over-ip.config"):
+        for name in ("b-hardware/bluetooth.config", "base-hardware/orangepi5-plus.config", "kvm-over-ip.config"):
             for symbol, value in GENERATE_BOARD_CONFIG.read_config(ROOT / "profiles" / name).items():
                 values[symbol] = GENERATE_BOARD_CONFIG.merge_feature_value(symbol, values.get(symbol), value)
         self.assertEqual(values["CONFIG_VIDEO_TC358743"], "m")

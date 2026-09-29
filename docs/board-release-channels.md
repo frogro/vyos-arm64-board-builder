@@ -3,7 +3,9 @@
 Registered channels live in `profiles/update-channels/`. Only the exact `network`
 profile receives a channel; base and profiles including Tailscale or KVM do not.
 Registered: `radxa-e52c` → `VyARM-Community/radxa-e52c` and
-`rock-5b` → `VyARM-Community/rock-5b`.
+`rock-5b` → `VyARM-Community/rock-5b`, and
+`orangepi5-plus` → `VyARM-Community/orangepi5-plus` (EDK2, A/B only).
+Orange Pi enrollment starts with `2026.09.28-0746-rolling`; older Rollings are not backfilled.
 
 The image contains `/usr/share/vyos-arm64-board-builder/update-channel.json`.
 On a fresh installation the existing first-boot DHCP helper seeds the native

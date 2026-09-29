@@ -9,7 +9,9 @@ from datetime import datetime
 
 REPO = 'frogro/vyos-arm64-board-builder'
 STATE = '.github/rolling-build-state.json'
-BOARDS = {'radxa-e52c':'uboot-extlinux', 'rock-5b':'efi-firmware-dtb', 'raspberry-pi-5':'firmware-files'}
+BOARDS = {'radxa-e52c':'uboot-extlinux', 'rock-5b':'efi-firmware-dtb', 'raspberry-pi-5':'firmware-files', 'orangepi5-plus':'efi-firmware-dtb'}
+# Do not backfill old releases when enrolling an additional board.
+BOARD_FIRST_ROLLING = {'orangepi5-plus': '2026.09.28-0746-rolling'}
 MAX_ATTEMPTS = 3  # Initial build plus at most two failed-job reruns.
 
 ARMBIAN = '9de7be05323564424cf64171cb483712ec356bc1'
@@ -88,7 +90,8 @@ def main():
                     raise SystemExit(f'Rerun request failed or uncertain: {run_id}; inspect manually')
             elif action in ('exhausted','attention'):
                 problems.append(f'{tag}/{board}: {action} ({run["html_url"]})')
-        missing=[b for b in BOARDS if b not in record['boards']]
+        missing=[b for b in BOARDS if b not in record['boards']
+                 and tag >= BOARD_FIRST_ROLLING.get(b, '')]
         if not missing: continue
         print(f'{tag}: pending boards: {", ".join(missing)}',flush=True)
         if dry: continue
