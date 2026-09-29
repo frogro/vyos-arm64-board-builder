@@ -8,7 +8,11 @@ curl --fail --location --retry 3 "https://media.steampowered.com/steamlink/rpi/t
 echo "$archive  /tmp/steamlink.tar.gz" | sha256sum -c
 mkdir -p /steam-out/opt
 # Tarball is hash-pinned, not a moving download.
-tar -xzf /tmp/steamlink.tar.gz -C /steam-out/opt
+tar --no-same-owner -xzf /tmp/steamlink.tar.gz -C /steam-out/opt
+# Valve's archive carries private 0700 modes and build-host UID 4009.
+# The packaged client runs as kiosk, while its immutable files stay root-owned.
+chown -R 0:0 /steam-out/opt/steamlink
+chmod -R a+rX /steam-out/opt/steamlink
 echo "$shell  /steam-out/opt/steamlink/bin/shell" | sha256sum -c
 cc -Wall -Wextra -Werror -O2 -shared -fPIC /tmp/steamlink/ifaddrs-guard.c -ldl -pthread -o /steam-out/opt/steamlink/ifaddrs-guard.so
 cc -Wall -Wextra -Werror -O2 -shared -fPIC /tmp/steamlink/request-bridge.c -I/request-out/opt/ffmpeg-request/include -ldl -o /steam-out/opt/steamlink/request-bridge.so

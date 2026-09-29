@@ -22,6 +22,8 @@ jobs:
           python3 -m unittest discover -s experiments/profile-g/tests -v
           python3 experiments/profile-g/ci/check-native-cli.py
           python3 -m unittest discover -s experiments/kiosk-f/tests
+          sudo python3 tests/test-system-image-config-metadata.py
+          python3 tests/test-system-image-dtb-update.py
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-cli.py
           python3 tests/test-kvm-input-config.py
@@ -84,6 +86,7 @@ jobs:
           tag=$(python3 -c 'import json;print(json.load(open("/tmp/g-runtime/runtime.json"))["tag"])')
           docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib /opt/ffmpeg-request/bin/ffmpeg -hide_banner -hwaccels | grep -x v4l2request; gst-inspect-1.0 waylandsink >/dev/null'
           docker run --rm --network none --entrypoint python3 "$tag" -c 'import sys; sys.path.insert(0,"/opt/profile-g"); import steamlink; steamlink.check_runtime()'
+          docker run --rm --network none --user kiosk --entrypoint python3 "$tag" -c 'import sys; sys.path.insert(0,"/opt/profile-g"); import steamlink; steamlink.check_runtime()'
           docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'export LD_LIBRARY_PATH=/opt/steamlink/lib:/opt/steamlink/Qt-5.14.1/lib; ldd /opt/steamlink/bin/shell > /tmp/link-check; cat /tmp/link-check; ! grep -q "not found" /tmp/link-check'
           cp experiments/profile-g/live-test/MOONLIGHT-HARDWARE.md /tmp/g-runtime/
           (cd /tmp/g-runtime && sha256sum runtime.tar runtime.json image.json > SHA256SUMS)

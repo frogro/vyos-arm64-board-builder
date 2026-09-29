@@ -23,6 +23,11 @@ def prepare(out):
     change('finalize-cli.py',"for rel in [", "for rel in ['usr/lib/python3/dist-packages/vyos/receiver.py','usr/libexec/vyos/op_mode/receiver.py','opt/vyatta/share/vyatta-cfg/templates/container/name/node.tag/receiver/method/node.def',")
     change('verify-full.sh',"assert m['features']['kiosk_f']", "assert m['features']['receiver_g'];assert m['features']['kiosk_f']")
     change('verify-full.sh',"assert 'optional_input' in", """assert json.loads((r/'usr/share/vyos-arm64-board-builder/receiver-runtime/runtime.json').read_text())['profile']=='receiver-g'
+import runpy
+update_patch=runpy.run_path('/work/repo/tools/patch-vyos-system-image-dtb.py')
+installer=(r/'usr/libexec/vyos/op_mode/image_installer.py').read_text()
+assert update_patch['METADATA_HELPER'].strip() in installer, 'Configuration metadata helper missing from SD/ISO rootfs'
+assert update_patch['CONFIG_COPY_ANCHOR'] + update_patch['METADATA_CALL'] in installer, 'Configuration metadata migration not called'
 assert not (r/'etc/systemd/system/vyos-container-receiver.service').exists()
 assert (r/'etc/systemd/system/vyos.target.wants/vyarm-receiver-runtime.service').is_symlink()
 assert 'optional_input' in""")
