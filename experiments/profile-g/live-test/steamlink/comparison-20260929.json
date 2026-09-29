@@ -1,0 +1,485 @@
+{
+  "steam-h264-idle-motion-idle": {
+    "samples": [
+      {
+        "elapsed": 5.012,
+        "fps": 61.252992817238635,
+        "send_ms_per_frame": 8.01830618892508
+      },
+      {
+        "elapsed": 10.029,
+        "fps": 59.19872433725333,
+        "send_ms_per_frame": 7.068158249158249
+      },
+      {
+        "elapsed": 15.04,
+        "fps": 60.067850728397524,
+        "send_ms_per_frame": 6.893923588039867
+      },
+      {
+        "elapsed": 20.042,
+        "fps": 59.98800239952009,
+        "send_ms_per_frame": 6.86352
+      },
+      {
+        "elapsed": 25.07,
+        "fps": 51.909307875894996,
+        "send_ms_per_frame": 6.829973180076628
+      },
+      {
+        "elapsed": 30.114,
+        "fps": 22.204599524187156,
+        "send_ms_per_frame": 6.839776785714285
+      },
+      {
+        "elapsed": 35.124,
+        "fps": 22.355289421157686,
+        "send_ms_per_frame": 6.738142857142857
+      },
+      {
+        "elapsed": 40.157,
+        "fps": 22.05444069143652,
+        "send_ms_per_frame": 6.81854954954955
+      },
+      {
+        "elapsed": 45.18,
+        "fps": 22.297431813657177,
+        "send_ms_per_frame": 6.836026785714286
+      },
+      {
+        "elapsed": 50.193,
+        "fps": 29.12427688011171,
+        "send_ms_per_frame": 7.166842465753424
+      },
+      {
+        "elapsed": 55.209,
+        "fps": 60.00797448165869,
+        "send_ms_per_frame": 7.63046511627907
+      },
+      {
+        "elapsed": 60.215,
+        "fps": 60.12784658409908,
+        "send_ms_per_frame": 7.594033222591363
+      },
+      {
+        "elapsed": 65.224,
+        "fps": 59.880239520958085,
+        "send_ms_per_frame": 7.65413
+      },
+      {
+        "elapsed": 70.235,
+        "fps": 60.07984031936128,
+        "send_ms_per_frame": 7.5803322259136205
+      },
+      {
+        "elapsed": 75.243,
+        "fps": 59.89219405070872,
+        "send_ms_per_frame": 7.606756666666667
+      },
+      {
+        "elapsed": 80.254,
+        "fps": 60.067850728397524,
+        "send_ms_per_frame": 7.4236611295681065
+      },
+      {
+        "elapsed": 85.264,
+        "fps": 60.07984031936128,
+        "send_ms_per_frame": 6.9293687707641185
+      },
+      {
+        "elapsed": 90.275,
+        "fps": 59.86828976252245,
+        "send_ms_per_frame": 6.93849
+      },
+      {
+        "elapsed": 95.283,
+        "fps": 60.1038338658147,
+        "send_ms_per_frame": 6.875601328903655
+      },
+      {
+        "elapsed": 100.305,
+        "fps": 59.948217486556466,
+        "send_ms_per_frame": 6.841415282392027
+      },
+      {
+        "elapsed": 105.353,
+        "fps": 49.1283676703645,
+        "send_ms_per_frame": 6.846975806451613
+      },
+      {
+        "elapsed": 110.357,
+        "fps": 21.978021978021978,
+        "send_ms_per_frame": 6.851927272727273
+      },
+      {
+        "elapsed": 115.369,
+        "fps": 21.951706246258233,
+        "send_ms_per_frame": 6.826109090909091
+      },
+      {
+        "elapsed": 120.379,
+        "fps": 22.151267212133305,
+        "send_ms_per_frame": 6.846558558558558
+      },
+      {
+        "elapsed": 125.409,
+        "fps": 21.868787276341948,
+        "send_ms_per_frame": 6.855045454545454
+      },
+      {
+        "elapsed": 130.414,
+        "fps": 21.978021978021978,
+        "send_ms_per_frame": 6.855881818181818
+      },
+      {
+        "elapsed": 135.443,
+        "fps": 21.873135812288726,
+        "send_ms_per_frame": 6.789981818181818
+      },
+      {
+        "elapsed": 140.449,
+        "fps": 21.973631642029563,
+        "send_ms_per_frame": 6.826890909090909
+      },
+      {
+        "elapsed": 145.465,
+        "fps": 21.925453458241975,
+        "send_ms_per_frame": 6.774472727272728
+      },
+      {
+        "elapsed": 150.488,
+        "fps": 22.09834760103524,
+        "send_ms_per_frame": 6.740837837837837
+      }
+    ],
+    "overflows": 0,
+    "notes": "Decode rate, not independent display presentation measurement. Automatic left/right UI navigation started ~50s and ended ~80s; later HEVC samples include unrelated image commit activity after ~120s."
+  },
+  "steam-hevc-idle-motion-idle": {
+    "samples": [
+      {
+        "elapsed": 5.001,
+        "fps": 60.987802439512095,
+        "send_ms_per_frame": 1.7725901639344261
+      },
+      {
+        "elapsed": 10.013,
+        "fps": 59.45730247406225,
+        "send_ms_per_frame": 1.7230805369127515
+      },
+      {
+        "elapsed": 15.024,
+        "fps": 59.880239520958085,
+        "send_ms_per_frame": 1.7098533333333334
+      },
+      {
+        "elapsed": 20.036,
+        "fps": 60.05586592178771,
+        "send_ms_per_frame": 1.7626644518272425
+      },
+      {
+        "elapsed": 25.054,
+        "fps": 51.614188919888406,
+        "send_ms_per_frame": 1.757953667953668
+      },
+      {
+        "elapsed": 30.057,
+        "fps": 21.98680791525085,
+        "send_ms_per_frame": 1.8624545454545456
+      },
+      {
+        "elapsed": 35.095,
+        "fps": 22.032552600238187,
+        "send_ms_per_frame": 1.6923153153153154
+      },
+      {
+        "elapsed": 40.116,
+        "fps": 21.708822943636726,
+        "send_ms_per_frame": 1.8162935779816514
+      },
+      {
+        "elapsed": 45.153,
+        "fps": 22.0369267421084,
+        "send_ms_per_frame": 1.8174324324324325
+      },
+      {
+        "elapsed": 50.16,
+        "fps": 29.564522572912505,
+        "send_ms_per_frame": 1.734952702702703
+      },
+      {
+        "elapsed": 55.165,
+        "fps": 59.94005994005994,
+        "send_ms_per_frame": 1.7059066666666667
+      },
+      {
+        "elapsed": 60.166,
+        "fps": 59.98800239952009,
+        "send_ms_per_frame": 1.72961
+      },
+      {
+        "elapsed": 65.169,
+        "fps": 57.36558065160904,
+        "send_ms_per_frame": 1.695348432055749
+      },
+      {
+        "elapsed": 70.174,
+        "fps": 60.13986013986014,
+        "send_ms_per_frame": 1.7938338870431891
+      },
+      {
+        "elapsed": 75.202,
+        "fps": 59.864757358790776,
+        "send_ms_per_frame": 1.7745049833887043
+      },
+      {
+        "elapsed": 80.217,
+        "fps": 60.01994017946162,
+        "send_ms_per_frame": 1.736910299003322
+      },
+      {
+        "elapsed": 85.226,
+        "fps": 60.091834697544414,
+        "send_ms_per_frame": 1.6736710963455148
+      },
+      {
+        "elapsed": 90.236,
+        "fps": 59.880239520958085,
+        "send_ms_per_frame": 1.6612633333333333
+      },
+      {
+        "elapsed": 95.853,
+        "fps": 53.40929321701976,
+        "send_ms_per_frame": 1.7946566666666668
+      },
+      {
+        "elapsed": 100.862,
+        "fps": 61.888600519065676,
+        "send_ms_per_frame": 1.7901483870967743
+      },
+      {
+        "elapsed": 105.869,
+        "fps": 44.93708807669263,
+        "send_ms_per_frame": 1.7661111111111112
+      },
+      {
+        "elapsed": 110.912,
+        "fps": 22.209002577830656,
+        "send_ms_per_frame": 1.7416517857142857
+      },
+      {
+        "elapsed": 115.93,
+        "fps": 21.925453458241975,
+        "send_ms_per_frame": 1.6681272727272727
+      },
+      {
+        "elapsed": 120.965,
+        "fps": 22.045680238331677,
+        "send_ms_per_frame": 1.6683423423423425
+      },
+      {
+        "elapsed": 125.99,
+        "fps": 22.089552238805968,
+        "send_ms_per_frame": 1.7847027027027027
+      },
+      {
+        "elapsed": 131.035,
+        "fps": 22.001982160555006,
+        "send_ms_per_frame": 1.753927927927928
+      },
+      {
+        "elapsed": 136.045,
+        "fps": 21.956087824351297,
+        "send_ms_per_frame": 1.7521272727272728
+      },
+      {
+        "elapsed": 141.088,
+        "fps": 21.81241324608368,
+        "send_ms_per_frame": 1.8924272727272728
+      },
+      {
+        "elapsed": 146.102,
+        "fps": 21.938571998404466,
+        "send_ms_per_frame": 1.776390909090909
+      },
+      {
+        "elapsed": 151.108,
+        "fps": 21.778221778221777,
+        "send_ms_per_frame": 1.7150733944954129
+      },
+      {
+        "elapsed": 156.136,
+        "fps": 21.877486077963407,
+        "send_ms_per_frame": 1.8221
+      },
+      {
+        "elapsed": 161.141,
+        "fps": 21.978021978021978,
+        "send_ms_per_frame": 1.7957181818181818
+      },
+      {
+        "elapsed": 166.152,
+        "fps": 21.951706246258233,
+        "send_ms_per_frame": 1.7477
+      },
+      {
+        "elapsed": 171.184,
+        "fps": 22.058823529411764,
+        "send_ms_per_frame": 1.7389999999999999
+      },
+      {
+        "elapsed": 176.188,
+        "fps": 21.786927843294023,
+        "send_ms_per_frame": 1.713183486238532
+      },
+      {
+        "elapsed": 181.212,
+        "fps": 22.093949044585987,
+        "send_ms_per_frame": 1.7103873873873874
+      },
+      {
+        "elapsed": 186.252,
+        "fps": 22.22222222222222,
+        "send_ms_per_frame": 1.7901964285714287
+      },
+      {
+        "elapsed": 191.269,
+        "fps": 21.72613115407614,
+        "send_ms_per_frame": 1.790467889908257
+      },
+      {
+        "elapsed": 196.271,
+        "fps": 21.79128348660536,
+        "send_ms_per_frame": 1.7408348623853211
+      },
+      {
+        "elapsed": 201.276,
+        "fps": 21.778221778221777,
+        "send_ms_per_frame": 1.8751100917431194
+      },
+      {
+        "elapsed": 206.31,
+        "fps": 22.248708780294002,
+        "send_ms_per_frame": 1.7985267857142857
+      },
+      {
+        "elapsed": 211.344,
+        "fps": 22.050059594755663,
+        "send_ms_per_frame": 1.8385045045045045
+      },
+      {
+        "elapsed": 216.376,
+        "fps": 21.855752036558712,
+        "send_ms_per_frame": 1.6973636363636364
+      }
+    ],
+    "overflows": 3,
+    "notes": "Decode rate, not independent display presentation measurement. Automatic left/right UI navigation started ~50s and ended ~80s; later HEVC samples include unrelated image commit activity after ~120s."
+  },
+  "steam-hevc-rps-idle-motion": {
+    "samples": [
+      {
+        "elapsed": 5.013,
+        "fps": 60.64232994215041,
+        "send_ms_per_frame": 1.895046052631579
+      },
+      {
+        "elapsed": 10.026,
+        "fps": 59.245960502693,
+        "send_ms_per_frame": 1.7879966329966328
+      },
+      {
+        "elapsed": 15.039,
+        "fps": 60.04388589666866,
+        "send_ms_per_frame": 1.7599601328903656
+      },
+      {
+        "elapsed": 20.058,
+        "fps": 59.9721059972106,
+        "send_ms_per_frame": 1.7301727574750831
+      },
+      {
+        "elapsed": 25.077,
+        "fps": 51.99203187250996,
+        "send_ms_per_frame": 1.78955938697318
+      },
+      {
+        "elapsed": 30.084,
+        "fps": 21.969243059716398,
+        "send_ms_per_frame": 1.7581090909090908
+      },
+      {
+        "elapsed": 35.128,
+        "fps": 22.00634417129263,
+        "send_ms_per_frame": 1.782045045045045
+      },
+      {
+        "elapsed": 40.148,
+        "fps": 22.11155378486056,
+        "send_ms_per_frame": 1.7295495495495494
+      },
+      {
+        "elapsed": 45.173,
+        "fps": 21.89054726368159,
+        "send_ms_per_frame": 1.8702818181818182
+      },
+      {
+        "elapsed": 50.187,
+        "fps": 28.520143597925806,
+        "send_ms_per_frame": 1.8542727272727273
+      },
+      {
+        "elapsed": 55.192,
+        "fps": 59.95203836930456,
+        "send_ms_per_frame": 1.7082833333333334
+      },
+      {
+        "elapsed": 60.202,
+        "fps": 60.067850728397524,
+        "send_ms_per_frame": 1.7649335548172758
+      },
+      {
+        "elapsed": 65.209,
+        "fps": 59.91611743559018,
+        "send_ms_per_frame": 1.7253666666666667
+      },
+      {
+        "elapsed": 70.223,
+        "fps": 60.0319106501795,
+        "send_ms_per_frame": 1.693564784053156
+      },
+      {
+        "elapsed": 75.243,
+        "fps": 59.9721059972106,
+        "send_ms_per_frame": 1.766202657807309
+      },
+      {
+        "elapsed": 80.254,
+        "fps": 60.067850728397524,
+        "send_ms_per_frame": 1.7309700996677742
+      },
+      {
+        "elapsed": 85.277,
+        "fps": 59.92434799920367,
+        "send_ms_per_frame": 1.7445315614617942
+      },
+      {
+        "elapsed": 90.281,
+        "fps": 60.163901659004594,
+        "send_ms_per_frame": 1.692312292358804
+      },
+      {
+        "elapsed": 95.292,
+        "fps": 59.86828976252245,
+        "send_ms_per_frame": 1.6549833333333333
+      },
+      {
+        "elapsed": 100.304,
+        "fps": 60.05586592178771,
+        "send_ms_per_frame": 1.728940199335548
+      }
+    ],
+    "overflows": 0,
+    "notes": "Decode rate, not independent display presentation measurement. Automatic left/right UI navigation started ~50s and ended ~80s; later HEVC samples include unrelated image commit activity after ~120s."
+  }
+}

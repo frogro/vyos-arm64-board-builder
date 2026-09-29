@@ -616,3 +616,482 @@ all G methods or full-image release qualification.
 Temporary live session changes (line-buffered logging, a fixed test PIN,
 and -fs comparison) are not production defaults and are not included in
 the current build. Do not carry the fixed diagnostic PIN into production.
+
+
+### Steam Link first live feasibility probe, 2026-09-29
+
+Valve ARM64 Trixie runtime 1.3.32.316 downloaded from
+https://media.steampowered.com/steamlink/rpi/trixie/arm64/steamlink-rpi-trixie-arm64-1.3.32.316.tar.gz
+Detached signature verified against Valve launcher release key
+BA23DAE64102FBE0BB140CE5387C648A24C0E740. Isolated test container only;
+no Steam Link payload added to production image or CLI. Bundled Qt 5.14.1
+has XCB but no Wayland platform plugin. Dependencies resolved in Trixie.
+Offscreen diagnostic survived until its 15-second timeout; rootful XWayland
+over existing Weston/DRM caused shell SIGSEGV, reproduced with GDB.
+Disabling Qt XCB GL integration did not fix it. Exact application cause
+remains unknown (stripped binary); this does not prove GPU decoding failure.
+
+Windows Steam host LEGION-LAN (192.168.178.180) reachable; user confirmed
+Steam open and Remote Play enabled. No pairing or video stream achieved.
+During repeated display start/stop tests, kernel fdd97e00 IOMMU page faults
+and blocked tasks appeared; Podman/recovery timed out. Tests stopped and
+normal reboot requested to restore the system. Do not repeat display tests
+until recovery and kernel state are checked. Correlation with display
+transitions is not proof of the root cause. Diagnostic evidence is under
+/mnt/entwicklung/tmp/profile-g-steamlink (live-backtrace.log,
+kernel-recovery.log, debug.log). Full launcher environment parity was
+prepared but not successfully tested before recovery. Steam Link remains
+unaccepted; keep out of the combined release image.
+
+### Steam Link startup root cause isolated, 2026-09-29 11:24 CEST
+
+Recovery confirmed: Kiosk and hostapd active, LAN SSH and Podman responsive.
+The following GPU-free tests supersede the unknown application cause above.
+A separate container used host networking, no device passthrough, Xvfb
+1280x720, software GL, UID 1000, and the full launcher environment (including
+TMPDIR and SDL_GAMECONTROLLERCONFIG_FILE). Both XCB and offscreen reproduced
+the same SIGSEGV. Thus neither HDMI nor Panthor is required for this crash.
+
+At shell ELF offset 0x14a5bc, `ldrh w0, [x2]` dereferences x2=0.
+The enclosing list record matches struct ifaddrs: name at +8 is `pim6reg`,
+flags at +16 are 0x100c1, and address at +24 is NULL. The application checks
+interface flags but reads the address family without checking the address.
+Linux getifaddrs explicitly permits NULL ifa_addr; its example skips these:
+https://man7.org/linux/man-pages/man3/getifaddrs.3.html
+ROCK uses 4096-byte pages; no evidence for a page-size explanation.
+
+A debugger-only experiment resumed at the list's next-entry instruction
+(pc minus 28) solely when the stopped record was pim6reg with NULL address.
+Two occurrences were skipped. Steam Link then created its 1280x720 window,
+connected to the Steam Remote Client service, and survived until the
+20-second test timeout. This establishes a startup workaround, not pairing
+or streaming acceptance. No binary was patched and no router interface was
+removed or reconfigured. Kiosk/AP remained active throughout. No new IOMMU
+page-fault or HDMI-codec error was observed. The earlier IOMMU issue is
+separate and still unresolved.
+
+Evidence: /mnt/entwicklung/tmp/profile-g-steamlink/steam-analysis-results/
+(xcb.log, offscreen.log, xcb-skip-null.log); reproduction scripts isolate.py,
+skip-test.py, skip-null.gdb in its parent directory. Test container stopped.
+A production solution should scope a NULL-safe interface enumeration
+workaround to Steam Link, or use a dedicated receiver network namespace
+with discovery/connectivity explicitly tested. Do not disable VyOS multicast
+routing or broadly replace getifaddrs for other applications. HDMI display,
+pairing, actual video/audio and restart tests remain outstanding.
+
+### Steam Link scoped guard and HDMI startup trials, 2026-09-29 11:46 CEST
+
+Added experimental live-test/steamlink/ifaddrs-guard.c, loaded only through
+Steam Link's LD_PRELOAD. It returns cloned list nodes for address-bearing
+entries and retains the complete original allocation for libc freeifaddrs.
+No global preload, router configuration change, or binary patch. ARM64 GCC
+build passed -Wall -Wextra -Werror. Four concurrent callers repeated 1000
+get/free cycles successfully; only NULL-address records were omitted,
+including the addressless tailscale link record while its IPv4/IPv6 entries
+remained present. Xvfb launch survived its 20-second bound without GDB.
+
+HDMI UI starts and discovers Legion automatically. Authorization proof and
+host k_ERemoteDeviceStreamingSuccess are observed, but no working stream.
+The subsequent player startup SIGSEGV is a different bug: shell ELF offset
+0x2ca660 reads through 0x8c while printing Wayland presentation statistics.
+Disassembly shows the accessor merely adds 0x8c to a NULL object, in a
+cleanup path. This may mask an earlier video-object creation failure.
+It is not evidence that decoded frames have ever been displayed.
+
+Test matrix: Qt/XCB UI with rootful XWayland; SDL X11 then SDL Wayland;
+Weston pixman then GL/Panthor; hardware decoding enabled then explicitly
+disabled in UI. All reached player startup and failed; changing SDL to
+Wayland corrects its output mode from 640x480 to 1920x1080 but does not fix
+the failure. No new IOMMU/HDMI codec fault observed in these bounded trials.
+No production Steam method/CLI/image integration or acceptance yet.
+Evidence in /mnt/entwicklung/tmp/profile-g-steamlink/steam-player-crash2.log
+and steam-wayland-gl.log. Kiosk/AP restored and diagnostic container stopped.
+
+Reported logrotate failure was from boot at 11:16: state file already locked
+by concurrent rotation, exit 3. No running rotator remained. Rerun succeeded
+(Result=success, ExecMainStatus=0), with 27 GB free. No lockfile deletion.
+
+Combined CI 36545556131 failed after SD/ISO creation in final verification:
+KeyError receiver_g. Artifacts are not accepted; investigate manifest feature
+propagation separately. This is unrelated to the Steam live payload.
+
+### Steam Link first visible stream, 2026-09-29 11:47 CEST
+
+Line-buffered stdout exposed the earlier video creation failure:
+`vidout_wayland_new_from: Failed to create dmbauf control`. Binary strings
+show the Pi runtime tries /dev/dma_heap/vidbuf_cached, linux,cma, reserved;
+ROCK exposes only /dev/dma_heap/system (root-only), absent from the original
+container device list. Scoped experimental mapping of that system heap to
+vidbuf_cached in the receiver container allowed initialization. A separate
+0600 device node owned by UID 1000 was used, leaving the original host node
+permissions unchanged. This alias uses the system allocator; it does NOT
+provide physically contiguous CMA memory, so this is not proof of suitability
+for all hardware codecs. Derive device numbers from stat for any integration;
+do not ship the live probe's hardcoded major/minor.
+
+Working combination: NULL-interface guard; Qt XCB/rootful XWayland GUI;
+SDL Wayland player; Weston GL/Panthor; system DMA heap passed to the client;
+hardware decoding disabled. The player logs software decoding on Wayland,
+1920x1080 video, authenticated direct UDP connection, and initialized audio
+at 48000 Hz stereo. User confirms 'bild da'. Audio audibility and A/V sync
+remain unconfirmed. One podman sample: ~109% CPU (about 1.09 cores), 199 MB;
+not a sustained performance result. Actual delivered fps not yet measured.
+No new IOMMU/HDMI-codec errors observed during the short successful stream.
+Automatic host recovery remains timed; not a long-duration acceptance.
+
+Similar non-Pi initialization failure reported on Tegra:
+https://steamcommunity.com/app/353380/discussions/6/597400361006796632/
+Our working experiment provides local evidence beyond that report.
+
+
+### Steam Link follow-up: decoder toggle and host audio restoration
+
+User subsequently confirmed moving video and audible sound, with subjective
+A/V synchronization initially good. Hardware Decoding Enabled was verified in
+the client UI, but the stream still reported "Raspberry Pi software decoding
+on Wayland". HEVC and AV1 remained unavailable. No video/media decoder device
+FD was observed in the player; GPU composition does not establish VPU decoding.
+Delivered 60 fps and hardware decoding are not accepted results.
+
+On the latest stop the client logged Stopped audio decoder, StreamStopping,
+and Idle. Only the kiosk container remained running. The user subsequently
+corrected the initial report and confirmed that Windows host audio switching
+back did work; there was no audio restoration failure in this test. Record
+host audio restoration as user-confirmed for this run, not as an open defect.
+
+Research: ffmpeg-rockchip exposes h264_rkmpp/hevc_rkmpp/av1_rkmpp and requires
+compatible MPP kernel interfaces plus access to mpp_service/DMA heap. The ROCK
+has /dev/mpp_service, but the current Steam test does not expose it. Simply
+installing an ffmpeg executable cannot replace Steam's libavcodec usage or
+teach the proprietary player how to choose/import these decoder frames.
+V4L2 Request is a distinct alternative already demonstrated with Moonlight.
+Its private trimmed FFmpeg build must not be blindly injected into Steam:
+ABI and required audio decoders must also match. Steam's exact codec capability
+selection still needs tracing; unavailable UI options are not evidence that
+the RK3588 silicon lacks those codecs.
+
+Sources:
+- https://github.com/nyanmisaka/ffmpeg-rockchip
+- https://github.com/nyanmisaka/ffmpeg-rockchip/wiki/Rendering
+- https://ffmpeg.org/pipermail/ffmpeg-devel/2024-August/332034.html
+
+
+### Steam Link Hantro decode live isolation (2026-09-29)
+
+A scoped LD_PRELOAD observer recorded actual FFmpeg calls. Baseline library
+advertised CUDA, VAAPI, VDPAU, Vulkan and M2M entries, but no V4L2 Request;
+Steam selected H.264 software. A private libavcodec61/libavutil59 build from
+our existing ffmpeg-request output advertises V4L2REQUEST (enum13). Steam
+then attempts hardware but calls av_hwdevice_ctx_create with DRM (enum8),
+which fails with -14. This is a concrete client/library API mismatch.
+
+An isolated translation of that call from DRM to V4L2REQUEST succeeds:
+- device creation and avcodec_open2 return 0;
+- Steam reports Raspberry Pi hardware decoding on Wayland;
+- FFmpeg reports hantro-vpu (6.18.50), S264, 1920x1088 drm_prime;
+- Steam player holds /dev/media0 and /dev/video2 FDs;
+- output dimensions 1920x1080; target59.90FPS is NOT measured delivered FPS;
+- audio decoder initialized 48000Hz stereo.
+
+No ffmpeg-rockchip or MPP device required for this H.264 test. The bridge is
+an ABI-specific experiment, not yet a production integration. A/V appearance,
+synchronization and performance need acceptance; no HEVC/AV1 result inferred.
+
+User accepted this Hantro Steam Link test: "Ja, Bild korrekt, flüssig und Ton synchron". Thus H.264 hardware decode and subjective A/V appearance/sync are confirmed for the bounded live run. HEVC/AV1, long-duration behavior, delivered FPS and production integration remain pending. Original software-capable launcher restored; experiment retained separately.
+
+Recovery returned vyos-container-kiosk.service to active. Receiver log tail includes a Qt XCB display connection failure after compositor shutdown; investigate shutdown ordering/launcher respawn before production integration. This does not invalidate the running-stream decoder evidence.
+
+
+### HEVC Steam follow-up and F settings comparison (2026-09-29)
+
+Reviewed F direct-RGA README portrait HEVC acceptance: Sunshine hevc_rkmpp,
+1080x1920 target60, rendering59.85FPS in its short test. That is a sender path;
+MPP encoder/RGA rotation options do not configure the Steam receiver. F's
+HEVC Main10 decoder investigation separately distinguishes decode success
+from display-format support; therefore this G comparison initially uses
+1080p SDR 8-bit and does not infer HDR/Main10 acceptance.
+
+Steam's UI still shows HEVC unavailable with the Request library and hardware
+H.264 enabled. Two isolated attempts, shell --enable-hevc and additionally
+aliasing advertised Request hardware device type13 to DRM8, both still opened
+H.264. No actual HEVC stream was negotiated. The capability alias added no
+observed benefit and is not selected for integration. The user perceived
+higher framerate during H.264 hardware streaming. Logs target59.90FPS, but
+this is not a measurement of delivered framerate. The bounded second run
+ended with 1017 presented / 15 discarded Wayland buffers, network mean5.89ms;
+these counters alone do not establish displayed FPS or end-to-end latency.
+
+Independent current-kernel HEVC check: locally generated testsrc2, 1920x1080,
+60FPS, yuv420p, libx265 ultrafast, 120 frames. Private FFmpeg with explicit
+-hwaccel v4l2request -hwaccel_output_format drm_prime decoded via rkvdec6.18.50
+S265, all120 frames, zero decode errors, output to null. This proves this
+sample's HEVC decode path, not HDMI playback, broad conformance or Steam HEVC.
+Log: /mnt/entwicklung/tmp/profile-g-steamlink/hevc-request-direct.log.
+Steam logs retained beside it: steam-hevc-flag.log, steam-hevc-capability.log.
+No new matching HDMI-error/IOMMU-fault/rkvdec-error found in the checked
+15-minute kernel journal. Kiosk service restored active. No main/image change.
+
+
+### Actual Steam HEVC stream achieved (2026-09-29)
+
+Tracing avcodec_get_hw_config callers isolated the capability selection at
+shell+0x14042c. Disassembly shows an HEVC-only Raspberry Pi CPU revision gate:
+read /proc/cpuinfo, scan Revision, extract bits12..15, require >2. The ROCK
+lacks this Pi field, so the valid decoder was rejected. A call-site-specific
+fopen override (only return offset0x1405cc, never a global procfs replacement)
+plus the existing Request device bridge allows an actual HEVC stream from
+Legion. Saved config field13 enable_video_hevc was also explicitly set after
+backup. Prior attempts with only --enable-hevc or device-config alias did not.
+
+Evidence: avcodec_open2 codec=hevc returns0; V4L2 rkvdec6.18.50 S265 selected;
+Steam process holds media1/video3; 1920x1080 output, 48kHz stereo audio starts.
+Decoder probes absent video4, then correctly selects video3. One container
+sample56.37% CPU/200.4MB, not a comparative or sustained benchmark. No matching
+new HDMI error/IOMMU fault/rkvdec error in checked four-minute kernel log.
+Visual/audio acceptance pending at time of this entry. This is a diagnostic
+workaround, not a main/image integration; source and exact binary hash recorded
+in live-test/steamlink/README.md.
+
+HEVC visual/audio acceptance received: "Ja, Bild korrekt, flüssig und Ton synchron". This confirms the bounded Legion-to-ROCK Steam HEVC hardware stream. Recovery restored kiosk; HEVC settings saved separately and original defaults restored. No AV1, endurance or measured delivered-FPS acceptance inferred.
+
+HEVC shutdown counters: 3719 Wayland presented / 478 discarded buffers (about11.4% of those feedback events); network reported0.00% frame loss, mean7.07ms. These are different metrics: no network loss does not mean no display drops. User still perceived fluid/synchronous playback. Determine steady-state versus startup/teardown contribution before performance acceptance; counters do not prove sustained60FPS.
+
+
+### Frame-rate follow-up and guarded runtime (2026-09-29)
+
+User clarified previous YouTube playback was fluid but Steam Link's overlay
+reported about24FPS. YouTube was then closed. Do NOT infer the source video's
+framerate; it was not recorded. During the later non-YouTube HEVC run with
+explicit desired60/1, a scoped avcodec_receive_frame observer measured around
+59-61 successful decoded video frames/sec. Steam targeted60.00FPS. The user
+confirmed about60FPS in the ROCK Steam Link overlay. This proves the current
+non-YouTube path can reach60; it does not qualify the earlier YouTube case.
+A controlled60FPS source comparison remains pending.
+
+An earlier experimental Wayland listener observer produced duplicate feedback
+counts and one shell SIGSEGV. It was removed from subsequent runs; do not
+ship it or use its raw total as FPS. Decoder-rate instrumentation does not
+replace listeners and the subsequent run reached the above accepted rate.
+
+Added check-runtime.py: exact SHA256 validation of Valve shell and both
+private FFmpeg libraries before the offset/ABI-specific experiment. Actual
+runtime passed; substituting /bin/true was refused. This is a diagnostic
+preflight, not full profile-G Steam CLI/build integration. Full integration
+must preserve codec settings, allow a documented fallback, and check all
+needed device/audio permissions.
+
+Supervisor shutdown changed from signaling all children before waiting to
+stopping/waiting each child in reverse dependency order, keeping compositor
+and audio alive while the receiver exits. Current live proof tested separately.
+
+
+The next 60FPS-target run later fell to21-22 decoded FPS, also observed by the
+user in Steam's overlay. Earlier ~60FPS acceptance applies only to the short
+interval; sustained60 is NOT confirmed. Decoder samples: first20s about59-60,
+then50.54,21.71,22.07,22.09FPS. Cause not yet isolated (source pacing, delivery,
+decode/render scheduling). No assertion that YouTube itself was24FPS.
+
+Ordered-stop live check returned stream to Idle and kiosk active without the
+previous Qt XCB display-connection failure in that run. Valve usb_sharing.sh
+still emitted Raspberry-Pi revision arithmetic warnings; USB sharing is not
+qualified.20 receiver tests passed; Python compilation passed. Steam decoder
+integration remains experimental, not a completed build/CLI feature.
+
+
+Pipeline timing reproduced the drop at about25s: first20s ~300 submitted
+packets /300 decoded frames per5s, then109-111 packets and the same number of
+decoded frames per5s (~22FPS). avcodec_send_packet aggregate time dropped from
+~500ms/300 frames to~190ms/110 frames (~1.7ms each); receive_frame aggregate
+<2ms per5s. No accumulating packet/frame deficit. This points upstream of
+FFmpeg processing (capture/transport/client scheduling), but does not alone
+prove Windows capture is the cause or exclude presentation-driven pacing.
+Requested user continuous-motion comparison; no result yet at this entry.
+
+The pipeline remained ~22 packets/frames per second beyond120s, with ~1.8ms packet processing and no frame deficit. User continuous-motion reply was not yet available; no conclusive sender/capture attribution. Bounded test stopped and original settings/kiosk restored. Log saved as steam-hevc-pipeline.log.
+
+### Autonomous Steam Link comparison, 2026-09-29 12:30–13:00 CEST
+
+Matched live H264/Hantro and H265/rkvdec tests on Legion's Steam Big Picture
+UI, desired1080p60, native Wayland. Reproduced initial60 -> about22fps after
+~25s. Temporary SDL event-thread instrumentation generated alternating
+left/right key events at50–80s. BOTH codecs immediately returned to~60fps,
+continued at~60 for about25s after input stopped, then returned to22. No
+receiver restart, codec change or thermal intervention between phases.
+This identifies an activity-dependent source/Steam UI behavior for the
+reported drop; it is not evidence of a sustained-motion decoder limit.
+Cannot infer the exact Windows capture mechanism solely from this test.
+Decoded rates are not an independent measurement of every displayed frame.
+
+Five-second samples are in live-test/steamlink/comparison-20260929.json.
+H264 packet decode calls averaged~7ms/frame, H265~1.7–1.9ms/frame. CPU was
+well below full system utilization; temperature~58–60C. No frame count deficit
+between successful packet submissions and decoded pictures. Original H265
+had isolated video queue overflows; test recording flushed each compressed
+packet to disk, so those runs are not an uncontaminated pacing benchmark.
+No claim that RPS patch alone fixes those overflows.
+
+A separate correctness issue WAS found: rkvdec repeatedly reported
+"Long and short term RPS not set". Existing profile-F conformance work already
+explained the need for both EXT_SPS_ST_RPS and LT_RPS controls. The private
+FFmpeg7.1 imported for Steam lacked them. Researched upstream kernel series
+and Collabora FFmpeg; backported commit a8eb4b006d055f0be43d4a03d87472d2f199f177
+into a separate117MB source copy and separate library install. Original
+libraries and strict runtime-hash guard retained. Candidate has its own exact
+hash preflight; no kernel replacement/reboot or system-wide library change.
+
+Pixel verification, ordered visible I420 MD5s, explicit Request hardware:
+-360 actual Steam HEVC frames: original SW/HW and patched SW/HW all identical.
+-RPS_A_docomo_4: original HW4/44 correct; patched HW44/44 correct.
+-LTRPSPS_A_Qualcomm_1: original HW32/500 correct; patched HW500/500 correct.
+-Patched software matches original software on all above frames.
+The two difficult streams are the same SHA256-verified FATE fixtures used
+in profile F. Thus the successful ordinary Steam visual test did not establish
+correct handling of other HEVC reference structures.
+
+Candidate live log explicitly reports EXT_SPS_RPS=1 and rkvdec/S265. In its
+bounded idle/motion run the RPS kernel warnings ceased. Source, attribution,
+exact-context7.1 patch, UAPI compatibility header, reference-hash harness and
+results are in live-test/steamlink/ffmpeg-rps/. Not yet wired into image/CLI.
+The initial n7.1 WIP patch was not used; newer version supports both controls
+and retains raw flags separately from reordered software reference flags.
+
+Sources:
+https://lists.infradead.org/pipermail/linux-arm-kernel/2026-January/1093304.html
+https://gitlab.collabora.com/detlev/ffmpeg/-/commit/a8eb4b006d055f0be43d4a03d87472d2f199f177
+https://steamcommunity.com/app/353380/discussions/0/152393186500495435/
+Valve developer's desktop-capture explanation supports activity-dependent
+capture as an interpretation; our evidence is the repeated live A/B/A test.
+
+20 receiver unit tests and Python compilation pass after the prior ordered
+shutdown correction; diff whitespace check passes. No main merge or new
+image build performed in this diagnostic time window.
+
+Final bounded motion run: candidate HEVC/rkvdec, no stream-dump preload,
+235.386seconds active measurement /14120 decoded frames =59.9866fps;
+five-second samples59.50–60.13fps. Automatic UI navigation lasted240seconds.
+No video queue overflows. Final Wayland feedback16076presented/22discarded;
+these counters describe buffers, not necessarily distinct source content.
+Steam reports9.02ms average network time,0.01% frame loss. No new kernel
+RPS/HDMI-codec/ASoC/decoder-timeout lines during the final candidate interval.
+This is several minutes of Steam UI animation, not hours of game/video load.
+No new subjective A/V-sync confirmation requested in this autonomous period.
+
+H264 regression:360 actual captured Steam frames match original software
+reference exactly in original HW, patched SW and patched HW (360/360 each).
+Original and candidate FFmpeg libraries remain side-by-side. Input-free
+candidate launch recipe exists on ROCK as steamlink-probe/start-rps-verified.py
+(using separate candidate hash preflight); it is prepared, not a native CLI
+feature. Never use the automated-input launchers as normal receiver defaults.
+
+Normal kiosk restored and verified active; only kiosk container running.
+Accepted HEVC60 settings restored, no paired state changed. USB-sharing
+script still produces Pi-Revision arithmetic warnings on stop; separate
+unqualified feature, not a newly observed HDMI/audio or FPS failure.
+Main untouched; no new build triggered. Candidate patch and findings require
+integration and image-level retest before declaring complete A–D/F/G image.
+
+## Autonomous moving-video comparison, 2026-09-29 afternoon
+
+User requested actual video or Melody Mania song video. Launched installed
+Melody Mania 1.7.0 on Legion, but Song Select reported no downloaded songs.
+Closed the game and used a locally generated 1080p60 MP4 with AAC test pulses
+in Chrome on Legion instead. No song import, account change or purchase.
+Temporary LAN HTTP server and explicitly commanded SDL keyboard hook allowed
+operation without user input. No synthetic navigation during measurements.
+
+Patched private FFmpeg/RPS candidate, same content and display path:
+- HEVC/rkvdec: 9872 frames / 165.278 s = 59.7297 fps; five-second windows
+  59.18–60.08 fps; decoder submission calls average 1.72 ms/frame.
+- H264/Hantro: 11376 frames / 190.333 s = 59.7689 fps; five-second windows
+  59.13–60.18 fps; decoder submission calls average 7.16 ms/frame.
+- No video queue overflow in either comparison session. Sender browser itself
+  averages slightly below 60 across 15-second loop boundaries; no additional
+  source dropped frames in steady measurement sections. Not proof of literal
+  uninterrupted 60 unique scanouts/s, but no sustained collapse to 21–22 fps.
+- HDMI PulseAudio sink monitor has nonzero test pulses for both codecs
+  (48 kHz stereo; roughly 7.7 seconds captured per bounded 8-second command).
+  This confirms digital audio delivery, not a fresh human HDMI A/V-sync verdict.
+- No new RPS, HDMI-codec, ASoC or decoder timeout kernel error during video
+  tests; temperatures about 59–60 C. Reported network loss 0.02% HEVC,
+  0.00% H264. Detailed metrics in video-comparison-20260929.json.
+
+Single decoded-frame snapshots were used only for UI verification, outside
+steady measured intervals. A snapshot during an earlier odd narrow source
+surface caused diagnostic overhead; do not enable continuous frame readback
+in the receiver default. Minimize Steam produced a black 340x1080 source;
+Exit Big Picture followed by switching to Chrome worked. This desktop-mode
+transition remains a separate unresolved issue, not a measured codec failure.
+
+Closed the test browser tab, stopped the temporary LAN server, restored the
+exact pre-test settings bytes, stopped receiver and verified normal kiosk
+active. Pairing unchanged. Diagnostic hooks are not installed globally or
+selected in normal launcher. Existing Valve USB-sharing Pi-revision warnings
+remain separate. No main change, image build or CLI integration in this test.
+
+## Desktop transition comparison, 2026-09-29 14:44–14:54
+
+Reproduced Steam > Ein/Aus > Steam minimieren without any subsequent Windows
+Run command. Both HEVC/rkvdec and H264/Hantro switched from 1920x1080 to a
+340x1080 source surface; H264 additionally logs coded 352x1088. Decoder counts
+continue near 60fps. This implicates a common capture/selection path, not the
+HEVC RPS backport specifically. Exact Windows/Valve root cause remains open.
+No automatic retry loop or host restart installed to hide the failure.
+
+Tested workaround again after reconnecting: Steam > Ein/Aus >
+Big-Picture-Modus verlassen, then use the Windows desktop application.
+Local 1080p60 video on Legion was correctly captured again, Hantro hardware,
+1920x1080; final isolated45.079s/2693frames=59.7396fps, no queue overflow.
+HDMI sink RUNNING48kHz stereo. No fresh subjective A/V sync judgment.
+No new HDMI-codec/ASoC/RPS/decoder-timeout kernel warnings across the three
+bounded receiver sessions or cleanup. Kiosk restored after each session;
+final state only kiosk running, original settings bytes restored, test tab
+and temporary LAN server closed. No pairing changes. Fresh-frame helper now
+rejects missing/new-ineligible snapshots rather than showing a stale file.
+Metrics: live-test/steamlink/desktop-transition-20260929.json.
+
+Image audit: Steam is still only live diagnostic, absent from receiver CLI
+method choices, backend/session adapter and Containerfile. The pinned private
+FFmpeg recipe does not yet apply the tested HEVC RPS patch. A rebuild of the
+unchanged recipe will NOT package the accepted Steam tests. 28 G tests pass;
+4 configd upstream tests and native CLI recipe check pass. Main preservation
+check passes against local origin/main cc2ad54; protected D/F paths exactly
+match accepted dba06ef baseline. No new full image built or main modified.
+
+## 2026-09-29: integration audit and minimize isolation
+
+The compressed-packet test now establishes that the minimized black picture
+is upstream of ROCK's decoder: final HEVC VPS segment decodes independently on
+x86 to 30 identical 340x1080 frames, with no errors and all-zero RGB pixels.
+The earlier full-stream keyframe-only parser emitted errors across parameter
+changes and is not used as the proof; the clean final segment is. See
+`live-test/steamlink/minimize-packet-proof-20260929.json`. The precise Windows
+Steam capture API/window-selection cause remains unproven. Do not change
+Windows GPU drivers or disable an iGPU on the strength of forum anecdotes.
+
+Current implementation contract and fallback are in STEAMLINK.md. The audit
+of historical, already-committed, live-only and intentionally excluded changes
+is in ci/INTEGRATION-CHECKS.md. Earlier experiment sections remain historical.
+New source implements the Steam-only guards and adapter; diagnostic frame/input
+hooks and fixed AirPlay PINs are not included in the image.
+
+The integrated session creates the DMA alias privately with an explicit MKNOD
+capability. Host /dev/dma_heap/system stays root:root 0600; private alias is
+kiosk:kiosk 0600. Live integrated HEVC opens media1/video3 and reports rkvdec/S265
+with EXT_SPS_RPS=1. Testing uses a separate frame-counter/input hook without the
+old diagnostic decoder bridge, so those hooks cannot supply the new adapter.
+
+Residual HDMI issue: isolated `hdmi-audio-codec.7.auto: HDMI: Unknown ELD version
+0` warnings still occur around transitions. The previous repeated ASoC -19
+prepare flood was not observed in this bounded run, but HDMI transitions are
+not declared warning-free or fully accepted. Keep this as an installed-image
+and physical hotplug acceptance item, rather than hiding kernel messages.
+
+Live fallback injection: remove all video/media device grants, retain the real
+Steam executable and select `decoder auto` / `codec hevc`. The integrated
+adapter recorded `decoder_selected=software`, `codec_selected=h264`, reason
+`Hantro/rkvdec device grants unavailable`. Streaming then logged Raspberry Pi
+**software** decoding on Wayland, 1920x1080 and 48kHz stereo; first two complete
+five-second buckets were 60.87/58.97 decoded fps. This is a bounded real fallback
+check, not merely a mocked unit test. Original settings were restored and the
+kiosk/AP verified active afterwards. Hardware mode's refusal and wrong-binary
+refusal are separately covered by tests. No image was installed or main changed.

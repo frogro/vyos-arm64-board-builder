@@ -1,0 +1,59 @@
+{
+  "hevc": {
+    "measurement_elapsed_min": 210.0,
+    "samples": 33,
+    "seconds": 165.278,
+    "frames": 9872.0,
+    "fps": 59.72966759036291,
+    "min_5s_fps": 59.17632946821272,
+    "max_5s_fps": 60.07984031936128,
+    "decode_submit_ms_per_frame": 1.721972953808752,
+    "video_overflows_entire_session": 0,
+    "network_summary": [
+      "Streaming session complete, average network time: 9.45ms, stddev: 4.49ms, 0.02 percent frame loss, result: excellent"
+    ],
+    "presentation_summary": [
+      "Video: wayland presented 18515, discarded 83"
+    ]
+  },
+  "h264": {
+    "measurement_elapsed_min": 85.0,
+    "samples": 38,
+    "seconds": 190.333,
+    "frames": 11376.0,
+    "fps": 59.76893129410034,
+    "min_5s_fps": 59.12801114871591,
+    "max_5s_fps": 60.175929628148744,
+    "decode_submit_ms_per_frame": 7.162645569620253,
+    "video_overflows_entire_session": 0,
+    "network_summary": [
+      "8.12 ms average; 0.00% reported frame loss"
+    ],
+    "presentation_summary": [
+      "15219 presented, 77 discarded; whole session, includes navigation"
+    ]
+  },
+  "audio": {
+    "method": "8-second g_hdmi.monitor PCM capture, 48000 Hz stereo s16le",
+    "hevc": {
+      "samples": 742822,
+      "peak": 2108,
+      "rms": 371.84
+    },
+    "h264": {
+      "samples": 743328,
+      "peak": 2110,
+      "rms": 370.15
+    },
+    "limitation": "Digital sink delivery verified; no new subjective HDMI loudspeaker or A/V-sync observation."
+  },
+  "source": "Locally generated 1920x1080 60 fps H264 MP4, 15-second loop with AAC test pulses, Chrome on Legion; served only over LAN.",
+  "scope": "Patched private FFmpeg/RPS candidate; rkvdec HEVC and Hantro H264, Steam Link Wayland. No continuous input during measurement.",
+  "outcome": "No sustained 21-22 fps fall during moving video. Browser source itself averages slightly below 60 across loop boundaries; no added browser dropped frames in measured sections.",
+  "limits": [
+    "Several minutes per codec, not hours",
+    "Melody Mania launched but Song Select reported no downloaded songs",
+    "Minimize Steam produced a black narrow source; Exit Big Picture then switch to browser worked",
+    "Wayland presentation counters cover whole session and are not unique source frame counts"
+  ]
+}

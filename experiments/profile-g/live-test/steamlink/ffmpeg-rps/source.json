@@ -1,0 +1,7 @@
+{
+  "id": "a8eb4b006d055f0be43d4a03d87472d2f199f177",
+  "title": "hevc: Add support for sps_st_rps control",
+  "author_name": "Detlev Casanova",
+  "authored_date": "2025-07-09T15:29:34.000-04:00",
+  "web_url": "https://gitlab.collabora.com/detlev/ffmpeg/-/commit/a8eb4b006d055f0be43d4a03d87472d2f199f177"
+}

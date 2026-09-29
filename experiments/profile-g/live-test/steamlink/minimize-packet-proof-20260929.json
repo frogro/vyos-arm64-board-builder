@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-29",
+  "host": "Legion / Windows Steam",
+  "client": "Steam Link ARM64 1.3.32.316 on ROCK 5B",
+  "action": "Steam minimieren in Big Picture power menu",
+  "capture_point": "compressed HEVC AVPacket before avcodec_send_packet, not framebuffer",
+  "before_dimensions": [1920, 1080],
+  "after_dimensions": [340, 1080],
+  "offline_check": {
+    "decoder": "independent x86 FFmpeg software HEVC",
+    "input": "final VPS segment of captured stream, no earlier resolution switches",
+    "frames": 30,
+    "identical_frame_md5": "0f1d995091c07ef7c004cd955b4d4323",
+    "stderr_lines": 0,
+    "first_frame_rgb_bytes": 1101600,
+    "rgb_min": 0,
+    "rgb_max": 0
+  },
+  "conclusion": "Black narrow image is already encoded upstream of ROCK decoding/display. Windows Steam capture/stream selection issue; exact capture API/driver cause not established.",
+  "workaround": "Big-Picture-Modus verlassen instead of Steam minimieren",
+  "privacy": "Raw capture and desktop screenshots are local test data and are not committed or packaged."
+}

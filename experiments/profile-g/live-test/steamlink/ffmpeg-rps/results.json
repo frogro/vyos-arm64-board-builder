@@ -1,0 +1,36 @@
+{
+  "rps": {
+    "out-1": {
+      "frames": 44,
+      "matching": 4,
+      "first_mismatch": 1
+    },
+    "out-rps-0": {
+      "frames": 44,
+      "matching": 44,
+      "first_mismatch": null
+    },
+    "out-rps-1": {
+      "frames": 44,
+      "matching": 44,
+      "first_mismatch": null
+    }
+  },
+  "ltr": {
+    "out-1": {
+      "frames": 500,
+      "matching": 32,
+      "first_mismatch": 1
+    },
+    "out-rps-0": {
+      "frames": 500,
+      "matching": 500,
+      "first_mismatch": null
+    },
+    "out-rps-1": {
+      "frames": 500,
+      "matching": 500,
+      "first_mismatch": null
+    }
+  }
+}

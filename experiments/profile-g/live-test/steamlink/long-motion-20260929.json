@@ -1,0 +1,394 @@
+{
+  "source": "Legion Steam Big Picture automated alternating navigation",
+  "resolution": "1920x1080",
+  "codec": "HEVC",
+  "decoder": "rkvdec V4L2 Request",
+  "extended_rps": true,
+  "measurement": "decoded frames, not independently measured display FPS",
+  "active_seconds": 235.386,
+  "active_frames": 14120,
+  "mean_fps": 59.986575242367856,
+  "min_5s_fps": 59.50479233226837,
+  "max_5s_fps": 60.12784658409908,
+  "video_overflows": 0,
+  "samples": [
+    {
+      "elapsed": 5.012,
+      "interval": 5.012,
+      "frames": 305,
+      "fps": 60.85395051875499,
+      "send_ms_per_frame": 1.8269967213114755
+    },
+    {
+      "elapsed": 10.02,
+      "interval": 5.008,
+      "frames": 298,
+      "fps": 59.50479233226837,
+      "send_ms_per_frame": 1.682013422818792
+    },
+    {
+      "elapsed": 15.03,
+      "interval": 5.01,
+      "frames": 301,
+      "fps": 60.07984031936128,
+      "send_ms_per_frame": 1.746923588039867
+    },
+    {
+      "elapsed": 20.039,
+      "interval": 5.009,
+      "frames": 300,
+      "fps": 59.89219405070872,
+      "send_ms_per_frame": 1.6384500000000002
+    },
+    {
+      "elapsed": 25.059,
+      "interval": 5.02,
+      "frames": 301,
+      "fps": 59.9601593625498,
+      "send_ms_per_frame": 1.6423820598006647
+    },
+    {
+      "elapsed": 30.067,
+      "interval": 5.008,
+      "frames": 301,
+      "fps": 60.1038338658147,
+      "send_ms_per_frame": 1.661501661129568
+    },
+    {
+      "elapsed": 35.069,
+      "interval": 5.002,
+      "frames": 300,
+      "fps": 59.97600959616154,
+      "send_ms_per_frame": 1.72329
+    },
+    {
+      "elapsed": 40.084,
+      "interval": 5.016,
+      "frames": 301,
+      "fps": 60.00797448165869,
+      "send_ms_per_frame": 1.854106312292359
+    },
+    {
+      "elapsed": 45.087,
+      "interval": 5.002,
+      "frames": 300,
+      "fps": 59.97600959616154,
+      "send_ms_per_frame": 1.7447066666666668
+    },
+    {
+      "elapsed": 50.091,
+      "interval": 5.004,
+      "frames": 300,
+      "fps": 59.95203836930456,
+      "send_ms_per_frame": 1.7154633333333333
+    },
+    {
+      "elapsed": 55.099,
+      "interval": 5.008,
+      "frames": 301,
+      "fps": 60.1038338658147,
+      "send_ms_per_frame": 1.634691029900332
+    },
+    {
+      "elapsed": 60.107,
+      "interval": 5.008,
+      "frames": 300,
+      "fps": 59.90415335463259,
+      "send_ms_per_frame": 1.6712166666666668
+    },
+    {
+      "elapsed": 65.12,
+      "interval": 5.013,
+      "frames": 301,
+      "fps": 60.04388589666866,
+      "send_ms_per_frame": 1.8125714285714285
+    },
+    {
+      "elapsed": 70.126,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.6420733333333333
+    },
+    {
+      "elapsed": 75.141,
+      "interval": 5.015,
+      "frames": 301,
+      "fps": 60.01994017946162,
+      "send_ms_per_frame": 1.6872890365448505
+    },
+    {
+      "elapsed": 80.153,
+      "interval": 5.012,
+      "frames": 301,
+      "fps": 60.05586592178771,
+      "send_ms_per_frame": 1.666737541528239
+    },
+    {
+      "elapsed": 85.167,
+      "interval": 5.014,
+      "frames": 301,
+      "fps": 60.0319106501795,
+      "send_ms_per_frame": 1.7376179401993357
+    },
+    {
+      "elapsed": 90.171,
+      "interval": 5.005,
+      "frames": 300,
+      "fps": 59.94005994005994,
+      "send_ms_per_frame": 1.66257
+    },
+    {
+      "elapsed": 95.177,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.72187
+    },
+    {
+      "elapsed": 100.186,
+      "interval": 5.009,
+      "frames": 301,
+      "fps": 60.091834697544414,
+      "send_ms_per_frame": 1.7065149501661128
+    },
+    {
+      "elapsed": 105.192,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.77236
+    },
+    {
+      "elapsed": 110.203,
+      "interval": 5.011,
+      "frames": 301,
+      "fps": 60.067850728397524,
+      "send_ms_per_frame": 1.7491395348837209
+    },
+    {
+      "elapsed": 115.205,
+      "interval": 5.003,
+      "frames": 300,
+      "fps": 59.96402158704777,
+      "send_ms_per_frame": 1.70008
+    },
+    {
+      "elapsed": 120.219,
+      "interval": 5.014,
+      "frames": 301,
+      "fps": 60.0319106501795,
+      "send_ms_per_frame": 1.6928338870431894
+    },
+    {
+      "elapsed": 125.224,
+      "interval": 5.005,
+      "frames": 300,
+      "fps": 59.94005994005994,
+      "send_ms_per_frame": 1.7189533333333336
+    },
+    {
+      "elapsed": 130.231,
+      "interval": 5.006,
+      "frames": 301,
+      "fps": 60.12784658409908,
+      "send_ms_per_frame": 1.7240897009966778
+    },
+    {
+      "elapsed": 135.243,
+      "interval": 5.013,
+      "frames": 300,
+      "fps": 59.844404548174744,
+      "send_ms_per_frame": 1.6998166666666668
+    },
+    {
+      "elapsed": 140.257,
+      "interval": 5.013,
+      "frames": 301,
+      "fps": 60.04388589666866,
+      "send_ms_per_frame": 1.6715813953488372
+    },
+    {
+      "elapsed": 145.258,
+      "interval": 5.001,
+      "frames": 300,
+      "fps": 59.98800239952009,
+      "send_ms_per_frame": 1.6261233333333334
+    },
+    {
+      "elapsed": 150.267,
+      "interval": 5.009,
+      "frames": 301,
+      "fps": 60.091834697544414,
+      "send_ms_per_frame": 1.626358803986711
+    },
+    {
+      "elapsed": 155.294,
+      "interval": 5.027,
+      "frames": 301,
+      "fps": 59.87666600358066,
+      "send_ms_per_frame": 1.7456710963455149
+    },
+    {
+      "elapsed": 160.309,
+      "interval": 5.015,
+      "frames": 301,
+      "fps": 60.01994017946162,
+      "send_ms_per_frame": 1.6156910299003322
+    },
+    {
+      "elapsed": 165.32,
+      "interval": 5.011,
+      "frames": 301,
+      "fps": 60.067850728397524,
+      "send_ms_per_frame": 1.762079734219269
+    },
+    {
+      "elapsed": 170.322,
+      "interval": 5.002,
+      "frames": 300,
+      "fps": 59.97600959616154,
+      "send_ms_per_frame": 1.67487
+    },
+    {
+      "elapsed": 175.325,
+      "interval": 5.003,
+      "frames": 300,
+      "fps": 59.96402158704777,
+      "send_ms_per_frame": 1.7179933333333335
+    },
+    {
+      "elapsed": 180.334,
+      "interval": 5.009,
+      "frames": 301,
+      "fps": 60.091834697544414,
+      "send_ms_per_frame": 1.8357242524916944
+    },
+    {
+      "elapsed": 185.341,
+      "interval": 5.007,
+      "frames": 299,
+      "fps": 59.71639704413821,
+      "send_ms_per_frame": 1.7391505016722406
+    },
+    {
+      "elapsed": 190.343,
+      "interval": 5.001,
+      "frames": 300,
+      "fps": 59.98800239952009,
+      "send_ms_per_frame": 1.6857799999999998
+    },
+    {
+      "elapsed": 195.35,
+      "interval": 5.008,
+      "frames": 301,
+      "fps": 60.1038338658147,
+      "send_ms_per_frame": 1.6988073089700997
+    },
+    {
+      "elapsed": 200.356,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.7444666666666668
+    },
+    {
+      "elapsed": 205.364,
+      "interval": 5.008,
+      "frames": 301,
+      "fps": 60.1038338658147,
+      "send_ms_per_frame": 1.7245946843853819
+    },
+    {
+      "elapsed": 210.37,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.7161866666666667
+    },
+    {
+      "elapsed": 215.371,
+      "interval": 5.001,
+      "frames": 300,
+      "fps": 59.98800239952009,
+      "send_ms_per_frame": 1.6910066666666668
+    },
+    {
+      "elapsed": 220.373,
+      "interval": 5.002,
+      "frames": 300,
+      "fps": 59.97600959616154,
+      "send_ms_per_frame": 1.6481933333333334
+    },
+    {
+      "elapsed": 225.377,
+      "interval": 5.004,
+      "frames": 300,
+      "fps": 59.95203836930456,
+      "send_ms_per_frame": 1.66724
+    },
+    {
+      "elapsed": 230.383,
+      "interval": 5.006,
+      "frames": 301,
+      "fps": 60.12784658409908,
+      "send_ms_per_frame": 1.6566777408637874
+    },
+    {
+      "elapsed": 235.386,
+      "interval": 5.003,
+      "frames": 300,
+      "fps": 59.96402158704777,
+      "send_ms_per_frame": 1.6407333333333334
+    },
+    {
+      "elapsed": 240.397,
+      "interval": 5.011,
+      "frames": 301,
+      "fps": 60.067850728397524,
+      "send_ms_per_frame": 1.745029900332226
+    },
+    {
+      "elapsed": 245.403,
+      "interval": 5.006,
+      "frames": 300,
+      "fps": 59.92808629644426,
+      "send_ms_per_frame": 1.6831166666666666
+    },
+    {
+      "elapsed": 250.418,
+      "interval": 5.015,
+      "frames": 301,
+      "fps": 60.01994017946162,
+      "send_ms_per_frame": 1.7137973421926909
+    },
+    {
+      "elapsed": 255.432,
+      "interval": 5.014,
+      "frames": 301,
+      "fps": 60.0319106501795,
+      "send_ms_per_frame": 1.6711528239202658
+    },
+    {
+      "elapsed": 260.442,
+      "interval": 5.01,
+      "frames": 300,
+      "fps": 59.880239520958085,
+      "send_ms_per_frame": 1.7672700000000001
+    },
+    {
+      "elapsed": 265.447,
+      "interval": 5.005,
+      "frames": 301,
+      "fps": 60.13986013986014,
+      "send_ms_per_frame": 1.7828272425249168
+    },
+    {
+      "elapsed": 270.464,
+      "interval": 5.017,
+      "frames": 272,
+      "fps": 54.21566673310743,
+      "send_ms_per_frame": 1.8236580882352942
+    }
+  ]
+}
