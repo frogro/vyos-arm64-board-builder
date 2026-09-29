@@ -1,0 +1,15 @@
+[  182.370137] vyos unknown: AV1_CAPTURE_READY
+[  195.128936] vyos unknown: AV1_STAGE_LOAD_BEGIN
+[  196.417311] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=3
+[  196.417384] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[  196.417387] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[  196.417390] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[  196.417588] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[  196.419917] vyos unknown: AV1_STAGE_LOAD_RETURNED
+[  245.785160] vyos unknown: AV1_STAGE_FIRST_FRAME_BEGIN
+[  248.939016] vyos unknown: AV1_STAGE_FIRST_FRAME_RETURNED
+[  264.618935] vyos kernel: perf: interrupt took too long (2519 > 2500), lowering kernel.perf_event_max_sample_rate to 79000
+[  283.176756] vyos unknown: AV1_STAGE_300_BEGIN
+[  295.025039] vyos unknown: AV1_STAGE_300_RETURNED
+[  341.324839] vyos unknown: AV1_STAGE_REMOVE_BEGIN
+Timeout, server 192.168.178.173 not responding.

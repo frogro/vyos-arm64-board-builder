@@ -1,0 +1,213 @@
+{
+  "h264": {
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 98,
+      "duration": 3,
+      "width": 1280,
+      "height": 720,
+      "totalFrames": 90,
+      "droppedFrames": 3,
+      "elapsedMs": 3254.60000000149
+    },
+    "mediaEvents": [
+      {
+        "method": "Media.playerCreated",
+        "params": {
+          "player": {
+            "playerId": "42530657D29B648DA36CB209019ADF08"
+          }
+        },
+        "sessionId": "CD6E8ADACDD444346E661C15F28B177B"
+      },
+      {
+        "method": "Media.playerEventsAdded",
+        "params": {
+          "playerId": "42530657D29B648DA36CB209019ADF08",
+          "events": [
+            {
+              "timestamp": 40189.40296,
+              "value": "{\"created\":\"2026-09-21 11:04:41.949873 UTC\",\"event\":\"kMediaLogCreated\"}"
+            },
+            {
+              "timestamp": 40189.41177,
+              "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"file:///\"}"
+            },
+            {
+              "timestamp": 40189.424137,
+              "value": "{\"event\":\"kLoad\",\"url\":\"file:///fixtures/test-h264.mp4\"}"
+            },
+            {
+              "timestamp": 40189.48806,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+            },
+            {
+              "timestamp": 40189.524326,
+              "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kPlaying\"}"
+            },
+            {
+              "timestamp": 40189.561509,
+              "value": "{\"dimensions\":\"1280x720\",\"event\":\"kVideoSizeChanged\"}"
+            },
+            {
+              "timestamp": 40189.510344,
+              "value": "{\"duration\":3.0,\"event\":\"kDurationChanged\"}"
+            },
+            {
+              "timestamp": 40189.564839,
+              "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+            },
+            {
+              "timestamp": 40189.565057,
+              "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+            },
+            {
+              "timestamp": 40189.512236,
+              "value": "{\"event\":\"kPlay\"}"
+            }
+          ]
+        },
+        "sessionId": "CD6E8ADACDD444346E661C15F28B177B"
+      },
+      {
+        "method": "Media.playerPropertiesChanged",
+        "params": {
+          "playerId": "42530657D29B648DA36CB209019ADF08",
+          "properties": [
+            {
+              "name": "kBitrate",
+              "value": "3062258"
+            },
+            {
+              "name": "kVideoDecoderName",
+              "value": "FFmpegVideoDecoder"
+            },
+            {
+              "name": "kIsStreaming",
+              "value": "false"
+            },
+            {
+              "name": "kVideoTracks",
+              "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1280x720\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1280x720\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1280x720\"}]"
+            },
+            {
+              "name": "kIsPlatformVideoDecoder",
+              "value": "false"
+            },
+            {
+              "name": "kFrameUrl",
+              "value": "file:///fixtures/browser-decode-probe.html?codec=h264"
+            },
+            {
+              "name": "kIsRangeHeaderSupported",
+              "value": "false"
+            },
+            {
+              "name": "kIsVideoDecryptingDemuxerStream",
+              "value": "false"
+            },
+            {
+              "name": "kStartTime",
+              "value": "0.0"
+            },
+            {
+              "name": "kResolution",
+              "value": "1280x720"
+            },
+            {
+              "name": "kRendererName",
+              "value": "RendererImpl"
+            },
+            {
+              "name": "kTotalBytes",
+              "value": "0x1185bb"
+            },
+            {
+              "name": "kMaxDuration",
+              "value": "3.0"
+            },
+            {
+              "name": "kIsSingleOrigin",
+              "value": "true"
+            },
+            {
+              "name": "kFrameTitle",
+              "value": "Isolated browser decode probe"
+            }
+          ]
+        },
+        "sessionId": "CD6E8ADACDD444346E661C15F28B177B"
+      },
+      {
+        "method": "Media.playerMessagesLogged",
+        "params": {
+          "playerId": "42530657D29B648DA36CB209019ADF08",
+          "messages": [
+            {
+              "level": "info",
+              "message": "FFmpegDemuxer: created video stream, config codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1280,720], visible rect: [0,0,1280,720], natural size: [1280,720], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select DecryptingVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedEncryptionMode"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select VpxVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+            },
+            {
+              "level": "info",
+              "message": "Cannot select Dav1dVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedCodec"
+            },
+            {
+              "level": "info",
+              "message": "Effective playback rate changed from 0 to 1"
+            },
+            {
+              "level": "info",
+              "message": "Selected FFmpegVideoDecoder for video decoding, config: codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1280,720], visible rect: [0,0,1280,720], natural size: [1280,720], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+            },
+            {
+              "level": "debug",
+              "message": "FFmpegDemuxer: av_read_frame(): End of file"
+            }
+          ]
+        },
+        "sessionId": "CD6E8ADACDD444346E661C15F28B177B"
+      },
+      {
+        "method": "Media.playerEventsAdded",
+        "params": {
+          "playerId": "42530657D29B648DA36CB209019ADF08",
+          "events": [
+            {
+              "timestamp": 40192.565108,
+              "value": "{\"event\":\"kEnded\"}"
+            }
+          ]
+        },
+        "sessionId": "CD6E8ADACDD444346E661C15F28B177B"
+      }
+    ]
+  },
+  "hevc": {
+    "page": {
+      "codec": "hevc",
+      "state": "play-error",
+      "started": 374.80000000447035,
+      "error": "NotSupportedError: Failed to load because no supported source was found."
+    },
+    "mediaEvents": [
+      {
+        "method": "Media.playerCreated",
+        "params": {
+          "player": {
+            "playerId": "583637B632B1BD1B669542BB1FCA668E"
+          }
+        },
+        "sessionId": "1B3F82D9A1CE6BABEB525C523B8A5F00"
+      }
+    ]
+  }
+}

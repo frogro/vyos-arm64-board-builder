@@ -1,0 +1,20 @@
+{
+  "codec": "h264",
+  "prefs": {
+    "media.autoplay.default": 0,
+    "media.autoplay.blocking_policy": 0,
+    "browser.shell.checkDefaultBrowser": false,
+    "datareporting.policy.dataSubmissionEnabled": false
+  },
+  "page": {
+    "codec": "h264",
+    "state": "ended",
+    "started": 601,
+    "duration": 30,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 1800,
+    "droppedFrames": 64,
+    "elapsedMs": 30852
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "archive": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/chromium-final-20260922/chromium153-arm64-av1-lowdelay.tar.gz",
+  "archive_sha256": "1dbbe9478efb1f79941708db79045034cc288b38b623e0b91383d520653f9aa9",
+  "chrome_sha256": "ddde5d9427dd3b701526a6e8dc3d4bc6f3575a77ed9e99b18a5b214b1f9863a8",
+  "installed_in_production": false,
+  "published": false
+}

@@ -1,0 +1,62 @@
+{
+  "fullhd-results": {
+    "av1": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 2,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "h264": {
+      "state": "ended",
+      "total": 600,
+      "dropped": 7,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "vp9": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 9,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "hevc": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 8,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    }
+  },
+  "postboot-results": {
+    "av1": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 5,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "h264": {
+      "state": "ended",
+      "total": 600,
+      "dropped": 7,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "vp9": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 10,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    },
+    "hevc": {
+      "state": "ended",
+      "total": 300,
+      "dropped": 8,
+      "decoder": "V4L2VideoDecoder",
+      "hardware": "true"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "resolution": "1920x1080",
+    "requested_fps": 60,
+    "bitrate_kbps": 8000,
+    "codec": "HEVC",
+    "decoder": "hardware",
+    "windowed": true,
+    "vsync": false,
+    "frame_pacing": false
+  },
+  "host_encoder": "hevc_rkmpp",
+  "client_decoder": "Intel iHD VAAPI",
+  "encrypted_video": true,
+  "connections": 2,
+  "disconnections": 2,
+  "invalid_pool_or_leaked_group_messages": 0,
+  "rollback_binary_sha256": "b8deb1f5f15348fb6504cc9188ac641d2fc7df4e8df09ff20eb071608e8eef22",
+  "sessions": [
+    {
+      "name": "live",
+      "metrics": [
+        "Incoming frame rate from network: 47.68 FPS",
+        "Decoding frame rate: 47.68 FPS",
+        "Rendering frame rate: 46.52 FPS",
+        "Host processing latency min/max/average: 29.6/620.3/40.7 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 2.00%",
+        "Average network latency: 1 ms (variance: 3 ms)",
+        "Average decoding time: 2.95 ms",
+        "Average rendering time (including monitor V-sync latency): 2.85 ms"
+      ]
+    },
+    {
+      "name": "reconnect",
+      "metrics": [
+        "Incoming frame rate from network: 54.87 FPS",
+        "Decoding frame rate: 54.87 FPS",
+        "Rendering frame rate: 53.98 FPS",
+        "Host processing latency min/max/average: 29.2/310.9/36.0 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 1.62%",
+        "Average network latency: 10 ms (variance: 12 ms)",
+        "Average decoding time: 1.85 ms",
+        "Average rendering time (including monitor V-sync latency): 3.01 ms"
+      ]
+    }
+  ],
+  "limits": "Short static kiosk sessions including startup. No controlled H264 comparison, subjective input test, audio test, or actual 60 FPS guarantee."
+}

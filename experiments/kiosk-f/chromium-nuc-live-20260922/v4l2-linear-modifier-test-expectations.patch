@@ -1,0 +1,81 @@
+--- a/media/gpu/v4l2/v4l2_utils_unittest.cc
++++ b/media/gpu/v4l2/v4l2_utils_unittest.cc
+@@ -9,6 +9,7 @@
+ #include <vector>
+ 
+ #include "base/compiler_specific.h"
++#include "build/build_config.h"
+ #include "media/base/color_plane_layout.h"
+ #include "media/base/video_frame_layout.h"
+ #include "media/base/video_types.h"
+@@ -17,6 +18,16 @@
+ #include "ui/gfx/native_pixmap_handle.h"
+ 
+ namespace {
++
++constexpr uint64_t ExpectedLinearModifier() {
++#if BUILDFLAG(IS_LINUX)
++  // Linux DMA-BUF imports explicitly use DRM_FORMAT_MOD_LINEAR (zero),
++  // rather than the invalid/unspecified modifier sentinel.
++  return 0;
++#else
++  return gfx::NativePixmapHandle::kNoModifier;
++#endif
++}
+ 
+ // Composes a v4l2_format of type V4L2_BUF_TYPE_VIDEO_OUTPUT.
+ v4l2_format V4L2FormatVideoOutput(uint32_t width,
+@@ -93,14 +104,14 @@
+   EXPECT_EQ(layout->is_multi_planar(), false);
+   std::ostringstream ostream;
+   ostream << *layout;
+-  const std::string kNoModifierStr =
+-      ModifierToHexString(gfx::NativePixmapHandle::kNoModifier);
++  const std::string kExpectedModifierStr =
++      ModifierToHexString(ExpectedLinearModifier());
+   EXPECT_EQ(
+       ostream.str(),
+       "VideoFrameLayout(format: PIXEL_FORMAT_NV12, coded_size: 300x180, "
+       "planes (stride, offset, size): [(320, 0, 86400), (320, 57600, 28800)], "
+       "is_multi_planar: 0, buffer_addr_align: 4096, modifier: " +
+-          kNoModifierStr + ")");
++          kExpectedModifierStr + ")");
+ }
+ 
+ // P010 has two 16-bit color planes in a single V4L2 buffer. Preserve
+@@ -131,14 +142,14 @@
+   EXPECT_EQ(layout->is_multi_planar(), true);
+   std::ostringstream ostream;
+   ostream << *layout;
+-  const std::string kNoModifierStr =
+-      ModifierToHexString(gfx::NativePixmapHandle::kNoModifier);
++  const std::string kExpectedModifierStr =
++      ModifierToHexString(ExpectedLinearModifier());
+   EXPECT_EQ(
+       ostream.str(),
+       "VideoFrameLayout(format: PIXEL_FORMAT_NV12, coded_size: 300x180, "
+       "planes (stride, offset, size): [(320, 0, 57600), (320, 0, 28800)], "
+       "is_multi_planar: 1, buffer_addr_align: 4096, modifier: " +
+-          kNoModifierStr + ")");
++          kExpectedModifierStr + ")");
+ }
+ 
+ // Test V4L2FormatToVideoFrameLayout with YUV420 pixelformat, which has one
+@@ -154,14 +165,14 @@
+   EXPECT_EQ(expected_planes, layout->planes());
+   std::ostringstream ostream;
+   ostream << *layout;
+-  const std::string kNoModifierStr =
+-      ModifierToHexString(gfx::NativePixmapHandle::kNoModifier);
++  const std::string kExpectedModifierStr =
++      ModifierToHexString(ExpectedLinearModifier());
+   EXPECT_EQ(ostream.str(),
+             "VideoFrameLayout(format: PIXEL_FORMAT_I420, coded_size: 300x180, "
+             "planes (stride, offset, size): [(320, 0, 86400), (160, 57600, "
+             "14400), (160, 72000, 14400)], "
+             "is_multi_planar: 0, buffer_addr_align: 4096, modifier: " +
+-                kNoModifierStr + ")");
++                kExpectedModifierStr + ")");
+ }
+ 
+ // Test V4L2FormatToVideoFrameLayout with single planar v4l2_format.

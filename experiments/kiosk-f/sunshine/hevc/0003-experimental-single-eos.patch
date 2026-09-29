@@ -1,0 +1,39 @@
+--- a/libavcodec/rkmppenc.c
++++ b/libavcodec/rkmppenc.c
+@@ -1047,7 +1047,10 @@
+                    !(avctx->flags & AV_CODEC_FLAG_LOW_DELAY)
+                    ? MPP_TIMEOUT_NON_BLOCK : MPP_TIMEOUT_BLOCK;
+ 
+-    if (get_used_frame_count(r->frame_list) > r->async_frames)
++    if (!frame && r->eos_sent)
++        goto get;
++
++    if (frame && get_used_frame_count(r->frame_list) > r->async_frames)
+         goto get;
+ 
+     mpp_enc_frame = rkmpp_submit_frame(avctx, (AVFrame *)frame);
+@@ -1062,11 +1065,13 @@
+         goto send;
+     else if (ret)
+         return ret;
++    if (!frame)
++        r->eos_sent = 1;
+ 
+ get:
+     ret = rkmpp_get_packet(avctx, packet, timeout);
+     if (!frame && ret == AVERROR(EAGAIN))
+-        goto send;
++        goto get;
+     if (ret == AVERROR_EOF ||
+         ret == AVERROR(EAGAIN))
+         *got_packet = 0;
+--- a/libavcodec/rkmppenc.h
++++ b/libavcodec/rkmppenc.h
+@@ -69,6 +69,7 @@
+ 
+     MPPEncFrame       *frame_list;
+     int                async_frames;
++    int                eos_sent;
+ 
+     int                rc_mode;
+     int                qp_init;

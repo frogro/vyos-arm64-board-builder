@@ -1,0 +1,13 @@
+Running as unit: vyarm-av1-tlb-direct-watchdog.service
+Running timer as unit: vyarm-av1-tlb-direct-fallback.timer
+Will run service as unit: vyarm-av1-tlb-direct-fallback.service
+SUSPENDED_FLUSH_1
+ACTIVE_FLUSH_1
+CYCLE_1_PASS
+SUSPENDED_FLUSH_2
+ACTIVE_FLUSH_2
+CYCLE_2_PASS
+SUSPENDED_FLUSH_3
+ACTIVE_FLUSH_3
+CYCLE_3_PASS
+TLB_DIRECT_TEST_OK

@@ -1,0 +1,18 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    5414872 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+0a118bd9f4dd476358d0d18ec327783567306b496e1b7a204dee2f1b5934490f
+CYCLE_1_PASS
+CYCLE_2_PASS
+CYCLE_3_PASS
+{"eos": true, "state_change": 2, "elapsed_seconds": 120.04532049899899, "sink_stats": "application/x-gst-base-sink-stats, average-rate=(double)-1, dropped=(guint64)0, rendered=(guint64)7200;"}
+vyarm-h264-neighbor
+TRACE_DECODE_REMOVE_OK
+Running as unit: vyarm-av1-coexistence3-watchdog.service
+Running timer as unit: vyarm-av1-coexistence3-fallback.timer
+Will run service as unit: vyarm-av1-coexistence3-fallback.service
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.

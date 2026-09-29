@@ -1,0 +1,11 @@
+# Experimental only; resolved cleanup builder retains the tested FFmpeg fixes.
+ARG CLEANUP_BUILDER
+ARG RUNTIME_BASE
+FROM ${CLEANUP_BUILDER} AS build
+COPY rga-converter.hpp /build/source/src/platform/linux/rga-converter.hpp
+COPY 0001-opt-in-sunshine-converter.patch /tmp/rga.patch
+RUN cd /build/source && patch --batch --fuzz=0 -p1 < /tmp/rga.patch \
+ && cmake --build /buildcache --target sunshine -j1
+FROM ${RUNTIME_BASE}
+COPY --from=build /buildcache/sunshine /usr/bin/sunshine
+# Deliberately no enabling environment flag and no extra device grants here.

@@ -1,0 +1,292 @@
+[
+  {
+    "file": "browser/1-av1.json",
+    "sha256": "2a6e33027748ec59a43207c50b31e5a935f34f797fd0f25245aa2ee633c148a0",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 344,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 831,
+      "elapsedMs": 125114.20000000007
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 60.00323499236496,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "browser/2-av1.json",
+    "sha256": "b3cdb84cc2a53061afcd3a009881028c456ff499e57033f7a2574fb3fdecdfea",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 495.80000000004657,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 964,
+      "elapsedMs": 125211.79999999993
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 64.08326956285238,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "buffer-control0-1-av1.json",
+    "sha256": "8ae39e3f2af7ca05103b18ac552aecb91922cb89fa360d1fb74637d9b6efabd6",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 83.19999999995343,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 881,
+      "elapsedMs": 123563.30000000005
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 66.32538286722863,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "buffer-extra2-1-av1.json",
+    "sha256": "b8b6a92b94ebe315db51fded21c9862e7128346e2accd50d950934ab7ef739ec",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 86.80000000004657,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 52,
+      "elapsedMs": 120444.69999999995
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 64.61820779559058,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "buffer-extra4-1-av1.json",
+    "sha256": "04adad0e7261df728ad24c4f07ba53f17ae0aec842cae21a0527283326373578",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 367.9000000001397,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 59,
+      "elapsedMs": 120369.3999999999
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 65.58633546142636,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "buffer-repeat2-1-av1.json",
+    "sha256": "cdaa547f7c2bb66d9f137464b9aa06482d37c21d08fb0f725c4eeb1f34b63c46",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 66.10000000009313,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 56,
+      "elapsedMs": 120517.09999999986
+    },
+    "decoder": {
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsPlatformVideoDecoder": "true",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 66.39519150439553,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ]
+  },
+  {
+    "file": "long-1.json",
+    "sha256": "6ac832a2e62b807d40f56b787858457371d83c7346e90e6a269d22bd26ef9f8b",
+    "native": {
+      "eos": true,
+      "state_change": 2,
+      "elapsed_seconds": 36.66707064000002,
+      "sink_stats": "application/x-gst-base-sink-stats, average-rate=(double)-1, dropped=(guint64)0, rendered=(guint64)7200;"
+    }
+  },
+  {
+    "file": "long-2.json",
+    "sha256": "ddd6f584f410cca129fcc71b833e287b5d310b5b6bb0ffddb4d6cc9eb974f40c",
+    "native": {
+      "eos": true,
+      "state_change": 2,
+      "elapsed_seconds": 35.650487491000035,
+      "sink_stats": "application/x-gst-base-sink-stats, average-rate=(double)-1, dropped=(guint64)0, rendered=(guint64)7200;"
+    }
+  },
+  {
+    "file": "long-3.json",
+    "sha256": "788a68d4e368725880e093750be86339ddf5ff1fee77aea4bc7809a37feb48a1",
+    "native": {
+      "eos": true,
+      "state_change": 2,
+      "elapsed_seconds": 35.31443014499996,
+      "sink_stats": "application/x-gst-base-sink-stats, average-rate=(double)-1, dropped=(guint64)0, rendered=(guint64)7200;"
+    }
+  },
+  {
+    "file": "software/1-av1.json",
+    "sha256": "e55a57fd559bd805c89afe551f54134f7fe2d3bdeb4064d2bfe7f0ce8e75c783",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 69.40000000002328,
+      "duration": 119.999,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 7200,
+      "droppedFrames": 176,
+      "elapsedMs": 121125.59999999986
+    },
+    "decoder": {
+      "kVideoDecoderName": "Dav1dVideoDecoder",
+      "kIsPlatformVideoDecoder": "false",
+      "kResolution": "1920x1080",
+      "kFramerate": "60.0"
+    },
+    "cgroup_cpu_percent": 170.25841197231105,
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--disable-accelerated-video-decode"
+    ]
+  }
+]

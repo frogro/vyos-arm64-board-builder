@@ -1,0 +1,38 @@
+{
+  "H264": {
+    "settings": {
+      "resolution": "1080x1920",
+      "fps": 60,
+      "bitrate_kbps": 2000,
+      "capture_rotation": 270,
+      "absolute_input_rotation": 90
+    },
+    "client_statistics": [
+      "Incoming frame rate from network: 60.76 FPS",
+      "Rendering frame rate: 59.97 FPS",
+      "Host processing latency min/max/average: 9.8/123.8/12.9 ms",
+      "Frames dropped by your network connection: 0.00%",
+      "Frames dropped due to network jitter: 0.98%",
+      "Average network latency: 1 ms (variance: 0 ms)"
+    ],
+    "user_confirmation": "Upright picture, correct mouse directions and click positions"
+  },
+  "HEVC": {
+    "settings": {
+      "resolution": "1080x1920",
+      "fps": 60,
+      "bitrate_kbps": 2000,
+      "capture_rotation": 270,
+      "absolute_input_rotation": 90
+    },
+    "client_statistics": [
+      "Incoming frame rate from network: 61.00 FPS",
+      "Rendering frame rate: 59.85 FPS",
+      "Host processing latency min/max/average: 9.7/175.5/12.9 ms",
+      "Frames dropped by your network connection: 0.00%",
+      "Frames dropped due to network jitter: 0.50%",
+      "Average network latency: 1 ms (variance: 0 ms)"
+    ],
+    "user_confirmation": "Upright picture, correct mouse directions and click positions"
+  }
+}

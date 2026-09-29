@@ -1,0 +1,19 @@
+Running as unit: vyarm-av1-domain-watchdog.service
+Running timer as unit: vyarm-av1-domain-fallback.timer
+Will run service as unit: vyarm-av1-domain-fallback.service
+IDENTITY_ATTACH_1
+identity
+IDENTITY_RESUME_1
+DMA_RESTORE_1
+CYCLE_1_PASS
+IDENTITY_ATTACH_2
+identity
+IDENTITY_RESUME_2
+DMA_RESTORE_2
+CYCLE_2_PASS
+IDENTITY_ATTACH_3
+identity
+IDENTITY_RESUME_3
+DMA_RESTORE_3
+CYCLE_3_PASS
+IDENTITY_DOMAIN_TEST_OK

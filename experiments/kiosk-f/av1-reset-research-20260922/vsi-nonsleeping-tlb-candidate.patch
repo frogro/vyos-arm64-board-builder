@@ -1,0 +1,26 @@
+--- a/drivers/iommu/vsi-iommu.c
++++ b/drivers/iommu/vsi-iommu.c
+@@ -196,8 +196,11 @@
+ 		int ret;
+ 
+ 		iommu = list_entry(pos, struct vsi_iommu, node);
+-		ret = pm_runtime_resume_and_get(iommu->dev);
+-		if (ret < 0)
++		/* Cannot synchronously resume under vsi_domain->lock/irqsave.
++		 * A suspended provider is invalidated when re-enabled below.
++		 */
++		ret = pm_runtime_get_if_active(iommu->dev);
++		if (ret <= 0)
+ 			continue;
+ 
+ 		spin_lock(&iommu->lock);
+@@ -536,6 +539,9 @@
+ 	writel(VSI_MMU_OUT_OF_BOUND, iommu->regs + VSI_MMU_CONFIG1_BASE);
+ 	writel(VSI_MMU_BIT_ENABLE, iommu->regs + VSI_MMU_AHB_EXCEPTION_BASE);
+ 	writel(VSI_MMU_BIT_ENABLE, iommu->regs + VSI_MMU_AHB_CONTROL_BASE);
++	/* Also retire invalidations skipped while this provider was suspended. */
++	writel(VSI_MMU_BIT_FLUSH, iommu->regs + VSI_MMU_FLUSH_BASE);
++	writel(0, iommu->regs + VSI_MMU_FLUSH_BASE);
+ }
+ 
+ void vsi_iommu_restore_ctx(struct iommu_domain *domain)

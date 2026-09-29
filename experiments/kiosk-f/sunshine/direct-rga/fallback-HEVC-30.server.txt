@@ -1,0 +1,20 @@
+[2026-09-27 19:58:51.842]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 19:58:51.903]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:51.953]: Info: Creating encoder []
+[2026-09-27 19:58:52.102]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:52.102]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:52.151]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:52.250]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:52.299]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:57.758]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 19:58:57.816]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:57.859]: Info: Creating encoder []
+[2026-09-27 19:58:58.034]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:58.035]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:58.082]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:58.179]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:58.230]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 19:58:58.289]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 19:58:58.291]: Warning: VYARM_DIRECT_RGA fallback: RGA corrected CSC is not enabled: Permission denied; disabled until capture reinitialization
+[2026-09-27 19:59:13.420]: Info: VYARM_KMS_TIMING frames=60 refresh_ms=0.196394 import_ms=0.153603 prepare_ms=0.0262883 readback_ms=251.751 cursor_ms=8.74833e-05 total_ms=252.127 width=1920 height=1080
+[2026-09-27 19:59:28.466]: Info: VYARM_KMS_TIMING frames=60 refresh_ms=0.251868 import_ms=0.141786 prepare_ms=0.026818 readback_ms=250.282 cursor_ms=9.23667e-05 total_ms=250.702 width=1920 height=1080

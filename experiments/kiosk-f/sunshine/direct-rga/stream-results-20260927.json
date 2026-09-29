@@ -1,0 +1,80 @@
+[
+  {
+    "case": "off-HEVC-30",
+    "metrics": {
+      "Incoming frame rate from network": "12.58 FPS",
+      "Rendering frame rate": "12.50 FPS",
+      "Host processing latency min/max/average": "256.7/361.0/291.8 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.66%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": null,
+    "direct_capture_samples": 0
+  },
+  {
+    "case": "fallback-HEVC-30",
+    "metrics": {
+      "Incoming frame rate from network": "13.33 FPS",
+      "Rendering frame rate": "13.22 FPS",
+      "Host processing latency min/max/average": "250.9/418.4/287.6 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.84%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": null,
+    "direct_capture_samples": 0
+  },
+  {
+    "case": "direct-HEVC-30",
+    "metrics": {
+      "Incoming frame rate from network": "30.15 FPS",
+      "Rendering frame rate": "29.98 FPS",
+      "Host processing latency min/max/average": "9.4/244.8/11.7 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.28%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": 4.542227777777779,
+    "direct_capture_samples": 9
+  },
+  {
+    "case": "direct-H.264-60",
+    "metrics": {
+      "Incoming frame rate from network": "60.38 FPS",
+      "Rendering frame rate": "59.95 FPS",
+      "Host processing latency min/max/average": "9.1/140.7/11.6 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.19%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": 4.7910861111111105,
+    "direct_capture_samples": 18
+  },
+  {
+    "case": "direct-HEVC-60",
+    "metrics": {
+      "Incoming frame rate from network": "60.38 FPS",
+      "Rendering frame rate": "59.97 FPS",
+      "Host processing latency min/max/average": "9.3/126.6/12.0 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.32%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": 4.488608888888889,
+    "direct_capture_samples": 18
+  },
+  {
+    "case": "transition-HEVC-30",
+    "metrics": {
+      "Incoming frame rate from network": "21.13 FPS",
+      "Rendering frame rate": "20.96 FPS",
+      "Host processing latency min/max/average": "9.6/405.3/47.2 ms",
+      "Frames dropped by your network connection": "0.00%",
+      "Frames dropped due to network jitter": "0.53%",
+      "Average network latency": "1 ms (variance: 0 ms)"
+    },
+    "direct_capture_ms_mean": 4.649135,
+    "direct_capture_samples": 4
+  }
+]

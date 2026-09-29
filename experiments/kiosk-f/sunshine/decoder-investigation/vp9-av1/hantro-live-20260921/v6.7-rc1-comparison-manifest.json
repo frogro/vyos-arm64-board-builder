@@ -1,0 +1,12 @@
+{
+  "upstream_tag": "v6.7-rc1",
+  "upstream_commit": "b85ea95d086471afb4ad062012a4d73cd328fa86",
+  "files": {
+    "drivers/media/platform/verisilicon/rockchip_vpu981_hw_av1_dec.c": "8bbf26e24022e2a667015005a42d96b802a378819a675c6f52121851a9c2545b",
+    "drivers/media/platform/verisilicon/rockchip_vpu_hw.c": "e61e8894530c0dfae54e0584bc2e6fcd16d29e8924591c7886f027d6d1d81cc8",
+    "drivers/media/platform/verisilicon/hantro_drv.c": "123dcae6abb5cf9708dc6f2f473952e5a6c75534f64c56cc46040c0f263815cc",
+    "drivers/pmdomain/rockchip/pm-domains.c": "286f29062d1e0c4f80fd80c337ac2d32b7e36da9f2dae592eb1f62c10f710e30",
+    "arch/arm64/boot/dts/rockchip/rk3588s.dtsi": "79cd7248b852f1cecc93aeee5851fbca1eb4d60dc2c056cad28beee04e8a4596"
+  },
+  "signed_split_module_sha256": "bc55df802506c70396308527bf63e033f007a982251a4faff51ab5ef9f9d697a"
+}

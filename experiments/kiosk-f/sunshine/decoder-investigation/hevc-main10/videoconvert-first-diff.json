@@ -1,0 +1,16 @@
+{
+  "frame": 0,
+  "samples": 3110400,
+  "capturedBytes": 24883200,
+  "maxError": 1,
+  "meanError": 0.38786458333333335,
+  "differentSamples": 1206414,
+  "referenceRange": [
+    7,
+    1023
+  ],
+  "convertedRange": [
+    7,
+    1023
+  ]
+}

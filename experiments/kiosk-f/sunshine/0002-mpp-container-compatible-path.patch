@@ -1,0 +1,10 @@
+--- a/osal/mpp_soc.c
++++ b/osal/mpp_soc.c
+@@ -1111,6 +1111,7 @@
+ {
+     const char *path = "/proc/device-tree/compatible";
+     char *ptr = NULL;
++    mpp_env_get_str("MPP_DEVICE_TREE_COMPATIBLE", &path, path);
+     rk_s32 fd = open(path, O_RDONLY);
+ 
+     if (fd < 0) {

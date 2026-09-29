@@ -1,0 +1,8 @@
+allocator=rga-export 1920x1080 bt709=0 full=0 frames=120 max_error=20 mean_import_convert_copy_ms=2.66283
+allocator=rga-export 1920x1080 bt709=0 full=1 frames=120 max_error=1 mean_import_convert_copy_ms=2.69
+allocator=rga-export 1920x1080 bt709=1 full=0 frames=120 max_error=16 mean_import_convert_copy_ms=2.68255
+allocator=rga-export 1920x1080 bt709=1 full=1 frames=120 max_error=20 mean_import_convert_copy_ms=2.77294
+allocator=rga-export 1080x1920 bt709=0 full=0 frames=120 max_error=20 mean_import_convert_copy_ms=3.36647
+allocator=rga-export 1080x1920 bt709=0 full=1 frames=120 max_error=1 mean_import_convert_copy_ms=3.36616
+allocator=rga-export 1080x1920 bt709=1 full=0 frames=120 max_error=16 mean_import_convert_copy_ms=3.35241
+allocator=rga-export 1080x1920 bt709=1 full=1 frames=120 max_error=20 mean_import_convert_copy_ms=2.9947

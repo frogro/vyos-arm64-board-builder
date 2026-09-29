@@ -1,0 +1,12 @@
+Sep 22 17:10:21 vyos systemd[1]: Starting Rotate log files...
+Sep 22 17:10:22 vyos logrotate[3908]: error: state file /var/lib/logrotate/status is already locked
+Sep 22 17:10:22 vyos logrotate[3908]: logrotate does not support parallel execution on the same set of logfiles.
+Sep 22 17:10:22 vyos systemd[1]: logrotate.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED
+Sep 22 17:10:22 vyos systemd[1]: logrotate.service: Failed with result 'exit-code'.
+Sep 22 17:10:22 vyos systemd[1]: Failed to start Rotate log files.
+Sep 22 17:13:24 vyos systemd[1]: Starting Rotate log files...
+Sep 22 17:13:24 vyos logrotate[20961]: error: state file /var/lib/logrotate/status is already locked
+Sep 22 17:13:24 vyos logrotate[20961]: logrotate does not support parallel execution on the same set of logfiles.
+Sep 22 17:13:24 vyos systemd[1]: logrotate.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED
+Sep 22 17:13:24 vyos systemd[1]: logrotate.service: Failed with result 'exit-code'.
+Sep 22 17:13:24 vyos systemd[1]: Failed to start Rotate log files.

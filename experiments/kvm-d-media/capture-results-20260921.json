@@ -1,0 +1,115 @@
+{
+  "hardware": "ROCK 5B",
+  "kernel": "6.18.50-vyos-f-test2",
+  "ffmpeg_runtime_image": "1ec163bc98c45a9c1baf29a5e53e1e442e7a76669d98650b2760ddffc3401683",
+  "gstreamer_builder_image": "c2d7a62054a112d056b7204b6c4dcbac2ab9a3e641bac08b840b006667a2f09b",
+  "tests": [
+    {
+      "test": "capture-h264-repeat",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "86a57cc7b5283315112aeced44b0f5f5af4709d7b4f67bd2b86edd97170edb38"
+    },
+    {
+      "test": "capture-h264-v2",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "1a17bab29b4152854657704062feebc458b0245c336d1ccd9ec4ce4804a78d3f"
+    },
+    {
+      "test": "capture-hevc-repeat",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "hevc",
+            "width": 1920,
+            "height": 1080,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "b07df406bd3e34a9e56a7b232d4dcf8417b49be8a7150c751aa4888a339180a4"
+    },
+    {
+      "test": "capture-hevc-v2",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "hevc",
+            "width": 1920,
+            "height": 1080,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "e76f6169b7ad9c7ec6c92685bc4ad5ad6508d9e075ce9318b4579b1dbf3fa01e"
+    },
+    {
+      "test": "capture-rga",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "0913fbb30bd84ca6572e1ffe9635a206c357838ac75ca3f1c987f0090ec99ae0"
+    },
+    {
+      "test": "capture-rga-vui",
+      "stream": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "nb_read_frames": "120"
+          }
+        ]
+      },
+      "encode_log_sha256": "cd4d2b65bcb87aa89d9876eb1ae8e91ac6d08a5372bf2842e918054143c62fa4"
+    }
+  ],
+  "limitations": [
+    "Short local captures; no latency benchmark or WebRTC HEVC compatibility claim.",
+    "Initial FFmpeg builder-only test failed SoC discovery; runtime image supplies container-compatible MPP library.",
+    "No installed binary/plugin/default was replaced."
+  ]
+}

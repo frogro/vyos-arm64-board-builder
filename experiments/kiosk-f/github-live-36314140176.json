@@ -1,0 +1,54 @@
+{
+  "hevc": {
+    "codec": "hevc",
+    "state": "ended",
+    "started": 224.39999999999418,
+    "duration": 5,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 300,
+    "droppedFrames": 3,
+    "elapsedMs": 5456.299999999988,
+    "kVideoDecoderName": "V4L2VideoDecoder",
+    "kIsPlatformVideoDecoder": "true"
+  },
+  "h264": {
+    "codec": "h264",
+    "state": "ended",
+    "started": 129.70000000001164,
+    "duration": 10,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 600,
+    "droppedFrames": 14,
+    "elapsedMs": 10294.700000000012,
+    "kVideoDecoderName": "V4L2VideoDecoder",
+    "kIsPlatformVideoDecoder": "true"
+  },
+  "av1": {
+    "codec": "av1",
+    "state": "ended",
+    "started": 88.20000000001164,
+    "duration": 5,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 300,
+    "droppedFrames": 7,
+    "elapsedMs": 5413.799999999988,
+    "kVideoDecoderName": "V4L2VideoDecoder",
+    "kIsPlatformVideoDecoder": "true"
+  },
+  "vp9": {
+    "codec": "vp9",
+    "state": "ended",
+    "started": 150.5,
+    "duration": 5,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 300,
+    "droppedFrames": 4,
+    "elapsedMs": 5388,
+    "kVideoDecoderName": "V4L2VideoDecoder",
+    "kIsPlatformVideoDecoder": "true"
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "before": {
+    "av1": {
+      "page": {
+        "codec": "av1",
+        "state": "ended",
+        "started": 162.10000000000582,
+        "duration": 5,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 300,
+        "droppedFrames": 4,
+        "elapsedMs": 5432.600000000006
+      },
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-av1",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "h264": {
+      "page": {
+        "codec": "h264",
+        "state": "ended",
+        "started": 112.79999999998836,
+        "duration": 10,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 600,
+        "droppedFrames": 5,
+        "elapsedMs": 10551.200000000012
+      },
+      "decoder": "FFmpegVideoDecoder",
+      "platform": "false",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-h264",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "vp9": {
+      "page": {
+        "codec": "vp9",
+        "state": "ended",
+        "started": 103.89999999999418,
+        "duration": 5,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 300,
+        "droppedFrames": 14,
+        "elapsedMs": 5426.299999999988
+      },
+      "decoder": "VpxVideoDecoder",
+      "platform": "false",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-vp9",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "hevc": {
+      "page": {
+        "codec": "hevc",
+        "state": "play-error",
+        "started": 205.10000000000582,
+        "error": "NotSupportedError: Failed to load because no supported source was found."
+      },
+      "decoder": null,
+      "platform": null,
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-hevc",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    }
+  },
+  "corrected_device": {
+    "av1": {
+      "page": {
+        "codec": "av1",
+        "state": "ended",
+        "started": 104.40000000002328,
+        "duration": 5,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 300,
+        "droppedFrames": 8,
+        "elapsedMs": 5423
+      },
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-av1",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "h264": {
+      "page": {
+        "codec": "h264",
+        "state": "ended",
+        "started": 140,
+        "duration": 10,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 600,
+        "droppedFrames": 2,
+        "elapsedMs": 10400.799999999988
+      },
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-h264",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "vp9": {
+      "page": {
+        "codec": "vp9",
+        "state": "ended",
+        "started": 84.70000000001164,
+        "duration": 5,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 300,
+        "droppedFrames": 9,
+        "elapsedMs": 5368.899999999965
+      },
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-vp9",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    },
+    "hevc": {
+      "page": {
+        "codec": "hevc",
+        "state": "ended",
+        "started": 136.90000000002328,
+        "duration": 5,
+        "width": 1920,
+        "height": 1080,
+        "totalFrames": 300,
+        "droppedFrames": 3,
+        "elapsedMs": 5353.299999999988
+      },
+      "decoder": "V4L2VideoDecoder",
+      "platform": "true",
+      "flags": [
+        "--ozone-platform=wayland",
+        "--enable-gpu",
+        "--use-gl=angle",
+        "--use-angle=gles",
+        "--enable-features=NativePixmapAccurateYuvMatrix,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+        "--no-first-run",
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-networking",
+        "--user-data-dir=/tmp/probe-hevc",
+        "--remote-debugging-pipe",
+        "--enable-logging=stderr",
+        "--start-fullscreen"
+      ]
+    }
+  }
+}

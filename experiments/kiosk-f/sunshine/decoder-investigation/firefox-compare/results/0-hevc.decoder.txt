@@ -1,0 +1,2 @@
+[RDD 122: MediaSupervisor #1]: D/FFmpegVideo FFMPEG: FFmpegVideoDecoder::FFmpegVideoDecoder MIME video/hevc Codec ID 173
+[RDD 122: MediaPDecoder #1]: D/FFmpegVideo FFMPEG: FFmpegVideoDecoder, init, IsHardwareAccelerated=0

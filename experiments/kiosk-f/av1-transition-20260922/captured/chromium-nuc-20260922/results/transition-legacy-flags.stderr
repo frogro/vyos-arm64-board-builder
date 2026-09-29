@@ -1,0 +1,13 @@
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+os_same_file_description couldn't determine if two DRM fds reference the same file description. (Operation not permitted)
+Let's just assume that file descriptors for the same file probablyshare the file description instead. This may cause problems whenthat isn't the case.
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+could not load cursor 'dnd-copy'
+could not load cursor 'dnd-none'
+127.0.0.1 - - [22/Sep/2026 16:48:29] "GET /browser-decode-probe.html?codec=av1&timeout=45000&width=1920 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Sep/2026 16:48:29] "GET /test-av1.webm HTTP/1.1" 206 -
+127.0.0.1 - - [22/Sep/2026 16:48:29] code 404, message File not found
+127.0.0.1 - - [22/Sep/2026 16:48:29] "GET /favicon.ico HTTP/1.1" 404 -
+/probe-wayland.sh: line 1: /dev/null: Transport endpoint is not connected
+/probe-wayland.sh: line 1: cat: command not found

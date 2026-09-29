@@ -1,0 +1,202 @@
+{
+  "h264": {
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2",
+      "--ozone-platform=wayland"
+    ],
+    "page": {
+      "codec": "h264",
+      "state": "ended",
+      "started": 488.1000000005588,
+      "connectionStates": [
+        "connecting",
+        "connected"
+      ],
+      "offeredCodecs": [
+        "a=rtpmap:118 H264/90000",
+        "a=fmtp:118 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+      ],
+      "answerCodecs": [
+        "a=rtpmap:118 H264/90000",
+        "a=fmtp:118 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+      ],
+      "stats": [
+        {
+          "id": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+          "timestamp": 1790001309279.586,
+          "type": "codec",
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "payloadType": 118,
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+          "transportId": "T01"
+        },
+        {
+          "id": "IT01V782045540",
+          "timestamp": 1790001309279.586,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 782045540,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 18810,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 20770069,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 1184,
+          "framesDecoded": 1184,
+          "framesDropped": 2,
+          "framesPerSecond": 61,
+          "framesReceived": 1186,
+          "freezeCount": 0,
+          "headerBytesReceived": 225720,
+          "jitterBufferDelay": 10.705945,
+          "jitterBufferEmittedCount": 1186,
+          "jitterBufferMinimumDelay": 15.451927,
+          "jitterBufferTargetDelay": 15.451927,
+          "keyFramesDecoded": 19,
+          "lastPacketReceivedTimestamp": 1790001309270.961,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 2,
+          "remoteId": "ROV782045540",
+          "totalAssemblyTime": 0.569939,
+          "totalDecodeTime": 4.770258999999999,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 19.553,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 15.509523,
+          "totalSquaredInterFrameDelay": 0.36214699999999517,
+          "trackIdentifier": "f1a69707-5d17-45d8-835a-d3287ba28ff9"
+        }
+      ],
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1184,
+      "droppedFrames": 426,
+      "elapsedMs": 20490.099999999627,
+      "callbackCount": 1012
+    },
+    "decoderLog": [
+      "[79:196:0921/143449.619198:VERBOSE2:media/gpu/v4l2/v4l2_video_decoder.cc:185] V4L2VideoDecoder(): ",
+      "[79:196:0921/143449.649858:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:470] InitializeBackend(): Using a stateless API for profile: h264 high and fourcc: S264"
+    ]
+  },
+  "hevc": {
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+      "--vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2",
+      "--ozone-platform=wayland"
+    ],
+    "page": {
+      "codec": "hevc",
+      "state": "ended",
+      "started": 571.5,
+      "connectionStates": [
+        "connecting",
+        "connected"
+      ],
+      "offeredCodecs": [
+        "a=rtpmap:49 H265/90000",
+        "a=fmtp:49 level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+      ],
+      "answerCodecs": [
+        "a=rtpmap:49 H265/90000",
+        "a=fmtp:49 level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+      ],
+      "stats": [
+        {
+          "id": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "timestamp": 1790001343911.929,
+          "type": "codec",
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "payloadType": 49,
+          "sdpFmtpLine": "level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "transportId": "T01"
+        },
+        {
+          "id": "IT01V2929563761",
+          "timestamp": 1790001343911.929,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_49_level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 2929563761,
+          "transportId": "T01",
+          "jitter": 0.001,
+          "packetsLost": 0,
+          "packetsReceived": 18306,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 21015547,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 1156,
+          "framesDecoded": 1156,
+          "framesDropped": 0,
+          "framesPerSecond": 60,
+          "framesReceived": 1157,
+          "freezeCount": 0,
+          "headerBytesReceived": 219672,
+          "jitterBufferDelay": 11.725724,
+          "jitterBufferEmittedCount": 1156,
+          "jitterBufferMinimumDelay": 16.307603999999998,
+          "jitterBufferTargetDelay": 16.307603999999998,
+          "keyFramesDecoded": 20,
+          "lastPacketReceivedTimestamp": 1790001343897.271,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 3,
+          "remoteId": "ROV2929563761",
+          "totalAssemblyTime": 0.5993069999999999,
+          "totalDecodeTime": 3.290473,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 19.14,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 15.261607999999999,
+          "totalSquaredInterFrameDelay": 0.39060199999999407,
+          "trackIdentifier": "30717406-06ad-4158-96a5-8e3b841002c5"
+        }
+      ],
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1157,
+      "droppedFrames": 412,
+      "elapsedMs": 20395.700000000186,
+      "callbackCount": 1030
+    },
+    "decoderLog": [
+      "[80:207:0921/143524.686627:VERBOSE2:media/gpu/v4l2/v4l2_video_decoder.cc:185] V4L2VideoDecoder(): ",
+      "[80:207:0921/143524.702630:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:470] InitializeBackend(): Using a stateless API for profile: hevc main and fourcc: S265"
+    ]
+  }
+}

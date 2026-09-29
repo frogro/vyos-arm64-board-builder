@@ -1,0 +1,52 @@
+[  155.525178] vyos unknown: AV1_STAGE_MASK0_LOAD_BEGIN
+[  157.310603] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=0
+[  157.310711] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[  157.310715] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[  157.310718] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[  157.310880] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[  157.315878] vyos unknown: AV1_STAGE_MASK0_LOAD_RETURNED
+[  185.289996] vyos unknown: AV1_MASK0_DECODE_BEGIN
+[  195.389087] vyos unknown: AV1_MASK0_DECODE_OK
+[  221.733977] vyos unknown: AV1_MASK0_REMOVE_BEGIN
+[  234.708617] vyos kernel: hantro-vpu fdc70000.video-codec: Removing fdc70000.video-codec
+[  234.708989] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+[  234.708999] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+[  234.709004] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+[  234.709020] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+[  234.709025] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+[  234.709030] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+[  234.709035] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+[  234.709039] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+[  234.766782] vyos unknown: AV1_MASK0_REMOVE_RETURNED
+[  258.948184] vyos kernel: perf: interrupt took too long (2507 > 2500), lowering kernel.perf_event_max_sample_rate to 79000
+[  269.298614] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=0
+[  269.298669] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[  269.298672] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[  269.298675] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[  269.299888] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[  279.635342] vyos kernel: hantro-vpu fdc70000.video-codec: Removing fdc70000.video-codec
+[  279.635556] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+[  279.635563] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+[  279.635565] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+[  279.635574] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+[  279.635576] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+[  279.635579] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+[  279.635580] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+[  279.635582] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+[  287.948068] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_RESET split mode remove mask=0
+[  287.948116] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before runtime-PM setup
+[  287.948118] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: before reset deassert
+[  287.948121] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM probe: reset deassert returned 0
+[  287.948225] vyos kernel: hantro-vpu fdc70000.video-codec: registered rockchip,rk3588-av1-vpu-dec as /dev/video3
+[  299.014902] vyos kernel: hantro-vpu fdc70000.video-codec: Removing fdc70000.video-codec
+[  299.017911] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before clock unprepare
+[  299.017920] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after clock unprepare
+[  299.017922] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before dont_use_autosuspend
+[  299.017936] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after dont_use_autosuspend
+[  299.017938] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before runtime disable
+[  299.017940] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after runtime disable
+[  299.017941] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: before reset assert
+[  299.017943] vyos kernel: hantro-vpu fdc70000.video-codec: VYARM_PM remove: after reset assert
+[  331.101119] vyos systemd-gpt-auto-generator[23863]: EFI loader partition unknown, exiting.
+[  331.101137] vyos systemd-gpt-auto-generator[23863]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+[  345.376937] vyos kernel: perf: interrupt took too long (3138 > 3133), lowering kernel.perf_event_max_sample_rate to 63000

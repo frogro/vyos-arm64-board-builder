@@ -1,0 +1,91 @@
+#!/bin/bash
+set -euo pipefail
+if [ "${KIOSK_SESSION_READY:-0}" != 1 ]; then
+    export KIOSK_SESSION_READY=1
+    setsid --wait /bin/bash -c 'exec /usr/local/bin/start-kiosk </dev/tty8' &
+    leader=$!
+    forward_stop() {
+        trap '' TERM INT
+        kill -TERM "$leader" 2>/dev/null || true
+        wait "$leader" 2>/dev/null || true
+        exit 0
+    }
+    trap forward_stop TERM INT
+    wait "$leader"
+    exit $?
+fi
+# Only explicitly mapped devices inside this container, never host permissions.
+for device in /dev/mpp_service /dev/dma_heap/system /dev/uinput; do
+    if [ -c "$device" ]; then
+        chgrp video "$device"
+        chmod 0660 "$device"
+    fi
+done
+case "${KIOSK_DISPLAY_BACKEND:-x11}" in
+    wayland) exec python3 /usr/local/bin/kiosk-wayland.py ;;
+    x11) ;;
+    *) echo 'Invalid display backend' >&2; exit 1 ;;
+esac
+export DISPLAY=:0 XAUTHORITY=/run/kiosk/Xauthority
+python3 /usr/local/bin/kiosk-display.py validate
+mkdir -p /run/kiosk /state/browser /state/sunshine /state/cache
+# This profile belongs exclusively to this kiosk instance.
+exec 9>/state/kiosk-session.lock
+flock -n 9 || { echo "Kiosk profile already in use" >&2; exit 1; }
+if pgrep -x chromium >/dev/null; then
+    echo "Chromium is already running; refusing profile cleanup" >&2
+    exit 1
+fi
+rm -f /state/browser/SingletonLock /state/browser/SingletonSocket /state/browser/SingletonCookie
+chown -R kiosk:kiosk /run/kiosk /state
+cookie=$(mcookie)
+xauth -f "$XAUTHORITY" add :0 MIT-MAGIC-COOKIE-1 "$cookie"
+chown kiosk:kiosk "$XAUTHORITY"
+# Short setup clients (xdpyinfo/xrandr/xset) must not reset Xorg between calls.
+graphics=$(python3 /usr/local/bin/kiosk-graphics.py)
+xpid=
+session_pid=
+cleanup() {
+    trap '' TERM INT
+    if [ -n "$session_pid" ]; then
+        kill -TERM "$session_pid" 2>/dev/null || true
+        wait "$session_pid" 2>/dev/null || true
+    fi
+    if [ -n "$xpid" ]; then
+        kill -TERM "$xpid" 2>/dev/null || true
+        wait "$xpid" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+trap 'exit 0' TERM INT
+start_display() {
+    XDG_CACHE_HOME=/run/kiosk/xorg-cache Xorg :0 vt8 -noreset -keeptty -nolisten tcp -auth "$XAUTHORITY" -config /run/kiosk/xorg-runtime.conf -logfile /state/Xorg.log &
+    xpid=$!
+    for n in $(seq 1 40); do
+        if xdpyinfo >/dev/null 2>&1; then return 0; fi
+        kill -0 "$xpid" 2>/dev/null || return 1
+        sleep 1
+    done
+    return 1
+}
+ready=no
+if start_display; then ready=yes; fi
+if [ "$graphics" = glamor ]; then
+    # Never equate a working software renderer with GPU acceleration.
+    if [ "$ready" != yes ] || ! grep -q 'glamor X acceleration enabled on' /state/Xorg.log || grep -Eiq 'glamor X acceleration enabled on.*(llvmpipe|softpipe|swrast)' /state/Xorg.log; then
+        echo 'GPU initialization unavailable; retrying Xorg with software rendering' >&2
+        kill -TERM "$xpid" 2>/dev/null || true
+        wait "$xpid" 2>/dev/null || true
+        if [ -f /state/Xorg.log ]; then cp /state/Xorg.log /state/Xorg-glamor-failed.log; fi
+        cp /etc/X11/xorg.conf /run/kiosk/xorg-runtime.conf
+        graphics=software
+        ready=no
+        if start_display; then ready=yes; fi
+    fi
+fi
+[ "$ready" = yes ] || { cat /state/Xorg.log; exit 1; }
+printf '%s\n' "$graphics" > /run/kiosk/graphics-mode
+kiosk_groups=$(python3 /usr/local/bin/kiosk-graphics.py --groups)
+setpriv --reuid kiosk --regid kiosk --groups "$kiosk_groups" -- env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" XDG_RUNTIME_DIR=/run/kiosk XDG_CACHE_HOME=/state/cache HOME=/home/kiosk KIOSK_URL="$KIOSK_URL" /usr/local/bin/kiosk-session &
+session_pid=$!
+wait "$session_pid"

@@ -1,0 +1,20 @@
+[
+  {
+    "image": "localhost/vyarm-kiosk:media-cli-20260922",
+    "reserve": false,
+    "accepted": true,
+    "reason": "accepted"
+  },
+  {
+    "image": "localhost/vyarm-kiosk:media-cli-20260922",
+    "reserve": true,
+    "accepted": false,
+    "reason": "Kiosk image lacks validated av1 capture reserve support"
+  },
+  {
+    "image": "localhost/vyarm-kiosk:touch-reconnect-20260920",
+    "reserve": false,
+    "accepted": false,
+    "reason": "Kiosk image lacks media CLI policy support (version 1)"
+  }
+]

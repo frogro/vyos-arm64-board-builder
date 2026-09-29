@@ -1,0 +1,14 @@
+{
+  "videodev.ko": {
+    "sha256": "b10a358ea46f760ed9531a404147bb60abd6934dc85439dfeb27b74a73cfb827",
+    "vermagic": "6.18.50-vyos-f-test4-av1-iommu SMP preempt mod_unload modversions aarch64"
+  },
+  "v4l2-h264.ko": {
+    "sha256": "f567733e8c1f9d2dea931c7170639047ec9419c3d359a05b670a8ca618f9aadf",
+    "vermagic": "6.18.50-vyos-f-test4-av1-iommu SMP preempt mod_unload modversions aarch64"
+  },
+  "rockchip-vdec.ko": {
+    "sha256": "dd42a6af2c8a7e9daad0f6b64c2bd98bfdbcfe3e83bf94e7ce81a9c060297c70",
+    "vermagic": "6.18.50-vyos-f-test4-av1-iommu SMP preempt mod_unload modversions aarch64"
+  }
+}

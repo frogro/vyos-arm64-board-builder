@@ -1,0 +1,35 @@
+[2026-09-27 20:03:51.578]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 20:03:51.612]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:03:51.653]: Info: Creating encoder []
+[2026-09-27 20:03:51.792]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:51.793]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:03:51.839]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:51.922]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:51.965]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:57.506]: Info: Creating encoder [h264_rkmpp]
+[2026-09-27 20:03:57.555]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:03:57.581]: Info: Creating encoder []
+[2026-09-27 20:03:57.756]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:57.756]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:03:57.806]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:57.873]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:57.918]: Warning: VYARM_DIRECT_RGA fallback: unsupported client color depth/space
+[2026-09-27 20:03:57.977]: Info: Creating encoder [hevc_rkmpp]
+[2026-09-27 20:04:00.062]: Info: VYARM_DIRECT_RGA frames=120 capture_convert_ms=4.97282 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:02.061]: Info: VYARM_DIRECT_RGA frames=240 capture_convert_ms=4.73879 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:04.061]: Info: VYARM_DIRECT_RGA frames=360 capture_convert_ms=4.33483 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:06.061]: Info: VYARM_DIRECT_RGA frames=480 capture_convert_ms=4.05097 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:08.062]: Info: VYARM_DIRECT_RGA frames=600 capture_convert_ms=5.14326 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:10.060]: Info: VYARM_DIRECT_RGA frames=720 capture_convert_ms=4.15029 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:12.062]: Info: VYARM_DIRECT_RGA frames=840 capture_convert_ms=4.64181 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:14.062]: Info: VYARM_DIRECT_RGA frames=960 capture_convert_ms=5.12826 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:16.061]: Info: VYARM_DIRECT_RGA frames=1080 capture_convert_ms=4.42112 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:18.061]: Info: VYARM_DIRECT_RGA frames=1200 capture_convert_ms=4.02652 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:20.061]: Info: VYARM_DIRECT_RGA frames=1320 capture_convert_ms=4.06418 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:22.060]: Info: VYARM_DIRECT_RGA frames=1440 capture_convert_ms=4.41391 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:24.061]: Info: VYARM_DIRECT_RGA frames=1560 capture_convert_ms=4.14019 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:26.061]: Info: VYARM_DIRECT_RGA frames=1680 capture_convert_ms=4.06783 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:28.062]: Info: VYARM_DIRECT_RGA frames=1800 capture_convert_ms=5.22354 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:30.061]: Info: VYARM_DIRECT_RGA frames=1920 capture_convert_ms=4.92088 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:32.061]: Info: VYARM_DIRECT_RGA frames=2040 capture_convert_ms=4.02576 width=1920 height=1080 bt709=false full=false
+[2026-09-27 20:04:34.062]: Info: VYARM_DIRECT_RGA frames=2160 capture_convert_ms=4.33 width=1920 height=1080 bt709=false full=false

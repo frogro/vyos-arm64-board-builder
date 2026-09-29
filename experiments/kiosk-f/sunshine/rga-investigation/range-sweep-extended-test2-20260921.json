@@ -1,0 +1,1196 @@
+{
+  "device": "/dev/video1",
+  "width": 1920,
+  "height": 1080,
+  "tests": [
+    {
+      "colorspace": "smpte170m",
+      "requested_range": "lim-range",
+      "reference_range": "limited",
+      "output_sha256": "0b4577bf36947c4bf6d53cd166f240108679adccec2f0e005beee140c7fa9e13",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : SMPTE 170M\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            82,
+            90,
+            240
+          ],
+          "expected": [
+            81,
+            90,
+            240
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            144,
+            54,
+            34
+          ],
+          "expected": [
+            145,
+            54,
+            34
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            41,
+            240,
+            110
+          ],
+          "expected": [
+            41,
+            240,
+            110
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            210,
+            16,
+            146
+          ],
+          "expected": [
+            210,
+            16,
+            146
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            169,
+            166,
+            16
+          ],
+          "expected": [
+            170,
+            166,
+            16
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            107,
+            202,
+            222
+          ],
+          "expected": [
+            106,
+            202,
+            222
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            16,
+            16,
+            16
+          ],
+          "actual": [
+            30,
+            128,
+            128
+          ],
+          "expected": [
+            30,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            32,
+            32,
+            32
+          ],
+          "actual": [
+            44,
+            128,
+            128
+          ],
+          "expected": [
+            43,
+            128,
+            128
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            64,
+            64,
+            64
+          ],
+          "actual": [
+            71,
+            128,
+            128
+          ],
+          "expected": [
+            71,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            96,
+            96,
+            96
+          ],
+          "actual": [
+            99,
+            128,
+            128
+          ],
+          "expected": [
+            98,
+            128,
+            128
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            128,
+            128,
+            128
+          ],
+          "actual": [
+            126,
+            128,
+            128
+          ],
+          "expected": [
+            126,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            160,
+            160,
+            160
+          ],
+          "actual": [
+            154,
+            128,
+            128
+          ],
+          "expected": [
+            153,
+            128,
+            128
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            192,
+            192,
+            192
+          ],
+          "actual": [
+            181,
+            128,
+            128
+          ],
+          "expected": [
+            181,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            224,
+            224,
+            224
+          ],
+          "actual": [
+            209,
+            128,
+            128
+          ],
+          "expected": [
+            208,
+            128,
+            128
+          ],
+          "max_error": 1
+        }
+      ]
+    },
+    {
+      "colorspace": "smpte170m",
+      "requested_range": "full-range",
+      "reference_range": "full",
+      "output_sha256": "0b4577bf36947c4bf6d53cd166f240108679adccec2f0e005beee140c7fa9e13",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : SMPTE 170M\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            0,
+            128,
+            128
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            255,
+            128,
+            128
+          ],
+          "max_error": 20
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            82,
+            90,
+            240
+          ],
+          "expected": [
+            76,
+            85,
+            255
+          ],
+          "max_error": 15
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            144,
+            54,
+            34
+          ],
+          "expected": [
+            150,
+            44,
+            21
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            41,
+            240,
+            110
+          ],
+          "expected": [
+            29,
+            255,
+            107
+          ],
+          "max_error": 15
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            210,
+            16,
+            146
+          ],
+          "expected": [
+            226,
+            1,
+            149
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            169,
+            166,
+            16
+          ],
+          "expected": [
+            179,
+            171,
+            1
+          ],
+          "max_error": 15
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            107,
+            202,
+            222
+          ],
+          "expected": [
+            105,
+            212,
+            235
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            16,
+            16,
+            16
+          ],
+          "actual": [
+            30,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 14
+        },
+        {
+          "rgb": [
+            32,
+            32,
+            32
+          ],
+          "actual": [
+            44,
+            128,
+            128
+          ],
+          "expected": [
+            32,
+            128,
+            128
+          ],
+          "max_error": 12
+        },
+        {
+          "rgb": [
+            64,
+            64,
+            64
+          ],
+          "actual": [
+            71,
+            128,
+            128
+          ],
+          "expected": [
+            64,
+            128,
+            128
+          ],
+          "max_error": 7
+        },
+        {
+          "rgb": [
+            96,
+            96,
+            96
+          ],
+          "actual": [
+            99,
+            128,
+            128
+          ],
+          "expected": [
+            96,
+            128,
+            128
+          ],
+          "max_error": 3
+        },
+        {
+          "rgb": [
+            128,
+            128,
+            128
+          ],
+          "actual": [
+            126,
+            128,
+            128
+          ],
+          "expected": [
+            128,
+            128,
+            128
+          ],
+          "max_error": 2
+        },
+        {
+          "rgb": [
+            160,
+            160,
+            160
+          ],
+          "actual": [
+            154,
+            128,
+            128
+          ],
+          "expected": [
+            160,
+            128,
+            128
+          ],
+          "max_error": 6
+        },
+        {
+          "rgb": [
+            192,
+            192,
+            192
+          ],
+          "actual": [
+            181,
+            128,
+            128
+          ],
+          "expected": [
+            192,
+            128,
+            128
+          ],
+          "max_error": 11
+        },
+        {
+          "rgb": [
+            224,
+            224,
+            224
+          ],
+          "actual": [
+            209,
+            128,
+            128
+          ],
+          "expected": [
+            224,
+            128,
+            128
+          ],
+          "max_error": 15
+        }
+      ]
+    },
+    {
+      "colorspace": "rec709",
+      "requested_range": "lim-range",
+      "reference_range": "limited",
+      "output_sha256": "2553cebf6d9e2b62100db0074bc389860e37c05e5e5a8f9682247c0ad1723bec",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : Rec. 709\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            54,
+            99,
+            237
+          ],
+          "expected": [
+            63,
+            102,
+            240
+          ],
+          "max_error": 9
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            182,
+            29,
+            19
+          ],
+          "expected": [
+            173,
+            42,
+            26
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            18,
+            237,
+            116
+          ],
+          "expected": [
+            32,
+            240,
+            118
+          ],
+          "max_error": 14
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            235,
+            19,
+            140
+          ],
+          "expected": [
+            219,
+            16,
+            138
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            200,
+            157,
+            19
+          ],
+          "expected": [
+            188,
+            154,
+            16
+          ],
+          "max_error": 12
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            72,
+            227,
+            237
+          ],
+          "expected": [
+            78,
+            214,
+            230
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            16,
+            16,
+            16
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            30,
+            128,
+            128
+          ],
+          "max_error": 14
+        },
+        {
+          "rgb": [
+            32,
+            32,
+            32
+          ],
+          "actual": [
+            32,
+            128,
+            128
+          ],
+          "expected": [
+            43,
+            128,
+            128
+          ],
+          "max_error": 11
+        },
+        {
+          "rgb": [
+            64,
+            64,
+            64
+          ],
+          "actual": [
+            64,
+            128,
+            128
+          ],
+          "expected": [
+            71,
+            128,
+            128
+          ],
+          "max_error": 7
+        },
+        {
+          "rgb": [
+            96,
+            96,
+            96
+          ],
+          "actual": [
+            96,
+            128,
+            128
+          ],
+          "expected": [
+            98,
+            128,
+            128
+          ],
+          "max_error": 2
+        },
+        {
+          "rgb": [
+            128,
+            128,
+            128
+          ],
+          "actual": [
+            128,
+            128,
+            128
+          ],
+          "expected": [
+            126,
+            128,
+            128
+          ],
+          "max_error": 2
+        },
+        {
+          "rgb": [
+            160,
+            160,
+            160
+          ],
+          "actual": [
+            159,
+            128,
+            128
+          ],
+          "expected": [
+            153,
+            128,
+            128
+          ],
+          "max_error": 6
+        },
+        {
+          "rgb": [
+            192,
+            192,
+            192
+          ],
+          "actual": [
+            191,
+            128,
+            128
+          ],
+          "expected": [
+            181,
+            128,
+            128
+          ],
+          "max_error": 10
+        },
+        {
+          "rgb": [
+            224,
+            224,
+            224
+          ],
+          "actual": [
+            223,
+            128,
+            128
+          ],
+          "expected": [
+            208,
+            128,
+            128
+          ],
+          "max_error": 15
+        }
+      ]
+    },
+    {
+      "colorspace": "rec709",
+      "requested_range": "full-range",
+      "reference_range": "full",
+      "output_sha256": "2553cebf6d9e2b62100db0074bc389860e37c05e5e5a8f9682247c0ad1723bec",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : Rec. 709\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            0,
+            128,
+            128
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            255,
+            128,
+            128
+          ],
+          "max_error": 20
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            54,
+            99,
+            237
+          ],
+          "expected": [
+            54,
+            99,
+            255
+          ],
+          "max_error": 18
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            182,
+            29,
+            19
+          ],
+          "expected": [
+            182,
+            30,
+            12
+          ],
+          "max_error": 7
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            18,
+            237,
+            116
+          ],
+          "expected": [
+            18,
+            255,
+            116
+          ],
+          "max_error": 18
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            235,
+            19,
+            140
+          ],
+          "expected": [
+            237,
+            1,
+            140
+          ],
+          "max_error": 18
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            200,
+            157,
+            19
+          ],
+          "expected": [
+            201,
+            157,
+            1
+          ],
+          "max_error": 18
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            72,
+            227,
+            237
+          ],
+          "expected": [
+            73,
+            226,
+            244
+          ],
+          "max_error": 7
+        },
+        {
+          "rgb": [
+            16,
+            16,
+            16
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            32,
+            32,
+            32
+          ],
+          "actual": [
+            32,
+            128,
+            128
+          ],
+          "expected": [
+            32,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            64,
+            64,
+            64
+          ],
+          "actual": [
+            64,
+            128,
+            128
+          ],
+          "expected": [
+            64,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            96,
+            96,
+            96
+          ],
+          "actual": [
+            96,
+            128,
+            128
+          ],
+          "expected": [
+            96,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            128,
+            128,
+            128
+          ],
+          "actual": [
+            128,
+            128,
+            128
+          ],
+          "expected": [
+            128,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            160,
+            160,
+            160
+          ],
+          "actual": [
+            159,
+            128,
+            128
+          ],
+          "expected": [
+            160,
+            128,
+            128
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            192,
+            192,
+            192
+          ],
+          "actual": [
+            191,
+            128,
+            128
+          ],
+          "expected": [
+            192,
+            128,
+            128
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            224,
+            224,
+            224
+          ],
+          "actual": [
+            223,
+            128,
+            128
+          ],
+          "expected": [
+            224,
+            128,
+            128
+          ],
+          "max_error": 1
+        }
+      ]
+    }
+  ],
+  "passed": false
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "run": "1-av1.json",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 153.70000000298023,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 9,
+      "elapsedMs": 5567.79999999702
+    },
+    "decoderEvents": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "Dav1dVideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "false"
+      },
+      {
+        "level": "info",
+        "message": "Selected V4L2VideoDecoder for video decoding, config: codec: av1, profile: av1 profile main, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:INVALID, transfer:INVALID, matrix:INVALID, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+      },
+      {
+        "level": "warning",
+        "message": "video decoder fallback after initial decode error."
+      },
+      {
+        "level": "info",
+        "message": "Selected Dav1dVideoDecoder for video decoding, config: codec: av1, profile: av1 profile main, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:INVALID, transfer:INVALID, matrix:INVALID, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+      }
+    ]
+  },
+  {
+    "run": "2-av1.json",
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 66.10000000149012,
+      "duration": 5,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 300,
+      "droppedFrames": 9,
+      "elapsedMs": 5521.699999999255
+    },
+    "decoderEvents": [
+      {
+        "name": "kVideoDecoderName",
+        "value": "Dav1dVideoDecoder"
+      },
+      {
+        "name": "kIsPlatformVideoDecoder",
+        "value": "false"
+      },
+      {
+        "level": "info",
+        "message": "Selected V4L2VideoDecoder for video decoding, config: codec: av1, profile: av1 profile main, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:INVALID, transfer:INVALID, matrix:INVALID, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+      },
+      {
+        "level": "warning",
+        "message": "video decoder fallback after initial decode error."
+      },
+      {
+        "level": "info",
+        "message": "Selected Dav1dVideoDecoder for video decoding, config: codec: av1, profile: av1 profile main, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:INVALID, transfer:INVALID, matrix:INVALID, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+      }
+    ]
+  }
+]

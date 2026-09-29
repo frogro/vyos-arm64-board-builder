@@ -1,0 +1,81 @@
+<node name="kiosk">
+  <properties><help>Web kiosk settings for a compatible kiosk container image</help></properties>
+  <children>
+    <leafNode name="display-backend"><properties>
+      <help>Display session: x11 (existing default) or wayland (DRM Weston runtime required)</help>
+      <completionHelp><list>x11 wayland</list></completionHelp>
+      <constraint><regex>(x11|wayland)</regex></constraint>
+      <constraintErrorMessage>Choose x11 or wayland</constraintErrorMessage>
+    </properties></leafNode>
+    <leafNode name="url">
+      <properties>
+        <help>Required page URL; quote the complete URL</help>
+        <valueHelp>
+          <format>https://example.org/menu</format>
+          <description>Web page displayed fullscreen; HTTP is also supported</description>
+        </valueHelp>
+        <valueHelp>
+          <format>file:///opt/kiosk/input-test.html</format>
+          <description>Absolute file path inside the container, not on the router host</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="output">
+      <properties>
+        <help>Display output selection (default auto)</help>
+        <completionHelp>
+          <script>sudo -n ${vyos_completion_dir}/list-kiosk-outputs.py '$VAR(../../@)'</script>
+        </completionHelp>
+        <valueHelp>
+          <format>auto</format>
+          <description>Use the primary or sole connected display; otherwise select a name</description>
+        </valueHelp>
+        <valueHelp>
+          <format>&lt;text&gt;</format>
+          <description>Exact output name; detected names require a running kiosk (for example HDMI-1 or DP-1)</description>
+        </valueHelp>
+        <constraint><regex>[A-Za-z0-9][A-Za-z0-9_.:-]*</regex></constraint>
+        <constraintErrorMessage>Use auto or an output name such as HDMI-1; no spaces</constraintErrorMessage>
+      </properties>
+    </leafNode>
+    <leafNode name="rotation">
+      <properties>
+        <help>Display and touch rotation counterclockwise (default 0)</help>
+        <completionHelp><list>0 90 180 270</list></completionHelp>
+        <valueHelp><format>0</format><description>Normal orientation</description></valueHelp>
+        <valueHelp><format>90</format><description>Quarter turn left; touch rotates with the display</description></valueHelp>
+        <valueHelp><format>180</format><description>Upside down</description></valueHelp>
+        <valueHelp><format>270</format><description>Quarter turn right; touch rotates with the display</description></valueHelp>
+        <constraint><regex>(0|90|180|270)</regex></constraint>
+        <constraintErrorMessage>Choose 0, 90, 180 or 270 degrees</constraintErrorMessage>
+      </properties>
+    </leafNode>
+    <leafNode name="graphics">
+      <properties>
+        <help>Graphics acceleration (default software); updated kiosk image required</help>
+        <completionHelp><list>software auto</list></completionHelp>
+        <valueHelp><format>software</format><description>Use software display rendering</description></valueHelp>
+        <valueHelp><format>auto</format><description>Try GPU rendering using explicitly granted render devices; retry in software if initialization fails</description></valueHelp>
+        <constraint><regex>(software|auto)</regex></constraint>
+        <constraintErrorMessage>Choose software or auto; device grants remain separate container settings</constraintErrorMessage>
+      </properties>
+    </leafNode>
+    <leafNode name="video-decode"><properties><help>Browser decoder policy; auto permits codec-dependent fallback; absent preserves existing behavior</help><completionHelp><list>auto software</list></completionHelp><constraint><regex>(auto|software)</regex></constraint><constraintErrorMessage>Choose auto software</constraintErrorMessage><valueHelp><format>auto</format><description>auto: Browser decoder policy; auto permits codec-dependent fallback; absent preserves existing behavior</description></valueHelp><valueHelp><format>software</format><description>software: Browser decoder policy; auto permits codec-dependent fallback; absent preserves existing behavior</description></valueHelp></properties></leafNode>
+    <leafNode name="video-h264-buffers"><properties><help>Expert H264 capture reserve; absent uses image defaults; retained in software mode; compatible image required</help><completionHelp><list>disabled enabled</list></completionHelp><constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled enabled</constraintErrorMessage><valueHelp><format>disabled</format><description>disabled: Expert H264 capture reserve; absent uses image defaults; retained in software mode; compatible image required</description></valueHelp><valueHelp><format>enabled</format><description>enabled: Expert H264 capture reserve; absent uses image defaults; retained in software mode; compatible image required</description></valueHelp></properties></leafNode>
+    <leafNode name="video-av1-buffers"><properties><help>Expert AV1 capture reserve; absent uses image defaults; retained in software mode; compatible image required</help><completionHelp><list>disabled enabled</list></completionHelp><constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled enabled</constraintErrorMessage><valueHelp><format>disabled</format><description>disabled: Expert AV1 capture reserve; absent uses image defaults; retained in software mode; compatible image required</description></valueHelp><valueHelp><format>enabled</format><description>enabled: Expert AV1 capture reserve; absent uses image defaults; retained in software mode; compatible image required</description></valueHelp></properties></leafNode>
+    <node name="remote"><properties><help>Sunshine remote access; compatible supervisor image required</help></properties><children>
+      <leafNode name="access"><properties><help>Remote access (default disabled); changing this ends current streams</help><completionHelp><list>disabled enabled</list></completionHelp>
+<valueHelp><format>disabled</format><description>Stop Sunshine; local kiosk continues; Web UI unavailable</description></valueHelp>
+<valueHelp><format>enabled</format><description>Run Sunshine; encrypted streaming required</description></valueHelp>
+<constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled or enabled</constraintErrorMessage></properties></leafNode>
+      <leafNode name="input"><properties><help>Remote input permission (default view-only); local touch is unaffected</help><completionHelp><list>view-only control</list></completionHelp>
+<valueHelp><format>view-only</format><description>Disable remote keyboard, mouse, touch and gamepad</description></valueHelp>
+<valueHelp><format>control</format><description>Allow remote keyboard, mouse and touch; gamepad stays disabled</description></valueHelp>
+<constraint><regex>(view-only|control)</regex></constraint><constraintErrorMessage>Choose view-only or control</constraintErrorMessage></properties></leafNode>
+      <leafNode name="audio"><properties><help>Stream audio (default disabled); requires a working container audio source</help><completionHelp><list>disabled enabled</list></completionHelp>
+<valueHelp><format>disabled</format><description>Do not transmit audio to Moonlight</description></valueHelp>
+<valueHelp><format>enabled</format><description>Transmit available kiosk audio to Moonlight; local HDMI audio is separate</description></valueHelp>
+<constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled or enabled</constraintErrorMessage></properties></leafNode>
+    </children></node>
+  </children>
+</node>

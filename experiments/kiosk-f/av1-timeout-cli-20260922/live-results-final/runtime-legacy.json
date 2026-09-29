@@ -1,0 +1,1 @@
+{"arguments": [], "status": {"requested": "legacy", "actual_decoder": "unknown: requires per-video browser evidence", "hardware_confirmed": false, "devices": {}, "active_features": [], "fallback_reason": null, "software_fallback": "codec/profile dependent; HEVC may be unsupported", "executable": "chromium", "runtime_version": null, "browser_sha256": null}}

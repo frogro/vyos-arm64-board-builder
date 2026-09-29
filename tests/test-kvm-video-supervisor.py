@@ -40,6 +40,49 @@ class Tests(unittest.TestCase):
                     clock=lambda: event.tick * 10)
         return launches, stops
 
+    def test_runtime_failures_degrade_then_hold_without_restart_loop(self):
+        class Dead:
+            def poll(self): return 1
+        event = Event(9)
+        modes = []
+        def launch(*args, **kwargs):
+            modes.append(kwargs['env'].get('KVM_VIDEO_CONVERSION_RECOVERY', 'primary'))
+            return Dead()
+        with patch.dict(m.os.environ, {'KVM_VIDEO_CONVERSION_FALLBACK': 'enabled'}):
+            m.supervise('/dev/test', 'gstreamer', '/runner', event,
+                        detect=lambda _: (('mode', '1080'),), ready=lambda: True,
+                        launch=launch, stop=lambda _: None)
+        self.assertEqual(modes, ['primary', 'cpu', 'direct'])
+
+    def test_source_change_resets_exhausted_budget(self):
+        class Dead:
+            def poll(self): return 1
+        event = Event(10)
+        modes = []
+        def launch(*args, **kwargs):
+            modes.append(kwargs['env'].get('KVM_VIDEO_CONVERSION_RECOVERY', 'primary'))
+            return Dead()
+        with patch.dict(m.os.environ, {'KVM_VIDEO_CONVERSION_FALLBACK': 'enabled'}):
+            m.supervise('/dev/test', 'gstreamer', '/runner', event,
+                        detect=lambda _: (('mode', '1080' if event.tick < 5 else '720'),),
+                        ready=lambda: True, healthy=lambda: self.fail('No health check without child'),
+                        launch=launch, stop=lambda _: None, clock=lambda: event.tick * 100)
+        self.assertEqual(modes, ['primary', 'cpu', 'direct'] * 2)
+
+    def test_transport_failure_does_not_consume_conversion_budget(self):
+        class Dead:
+            def poll(self): return 1
+        event = Event(6)
+        modes = []
+        def launch(*args, **kwargs):
+            modes.append(kwargs['env'].get('KVM_VIDEO_CONVERSION_RECOVERY', 'primary'))
+            return Dead()
+        with patch.dict(m.os.environ, {'KVM_VIDEO_CONVERSION_FALLBACK': 'enabled'}):
+            m.supervise('/dev/test', 'gstreamer', '/runner', event,
+                        detect=lambda _: (('mode', '1080'),), ready=lambda: event.tick == 0,
+                        launch=launch, stop=lambda _: None)
+        self.assertEqual(modes, ['primary'])
+
     def test_clock_measurement_jitter_does_not_restart(self):
         a = (('Active width', '1920'), ('Pixelclock', '148496000 Hz (60.00 frames per second)'))
         b = (('Active width', '1920'), ('Pixelclock', '148500000 Hz (60.00 frames per second)'))

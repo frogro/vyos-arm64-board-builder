@@ -1,0 +1,25 @@
+{
+  "file": "repeat-baseline.csv",
+  "captureEvents": {
+    "v4l2_qbuf": 1800,
+    "v4l2_dqbuf": 1800
+  },
+  "dequeue_to_requeue": {
+    "count": 1794,
+    "median_ms": 80.23200000025099,
+    "p95_ms": 169.97599999922386,
+    "max_ms": 189.77300000005926
+  },
+  "queue_to_dequeue": {
+    "count": 1800,
+    "median_ms": 3.206999999747495,
+    "p95_ms": 4.2530000009719515,
+    "max_ms": 15.284000000974629
+  },
+  "submission_gaps": {
+    "count": 1799,
+    "median_ms": 16.37999999911699,
+    "p95_ms": 33.87599999950908,
+    "max_ms": 53.096999999979744
+  }
+}

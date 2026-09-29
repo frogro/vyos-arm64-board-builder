@@ -1,0 +1,4 @@
+FROM localhost/vyarm-sunshine:hevc-candidate AS build
+FROM localhost/vyarm-kiosk:touch-reconnect-20260920
+COPY --from=build /build/sunshine-build/sunshine /usr/bin/sunshine
+# Retain existing container-compatible librockchip_mpp, policies and supervisor.

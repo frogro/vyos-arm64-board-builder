@@ -1,0 +1,280 @@
+{
+  "media-cli-software.json": {
+    "incomplete": true
+  },
+  "media-cli-auto.json": {
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 134.10000000009313,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 22,
+      "elapsedMs": 30682.100000000093
+    },
+    "policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video3"
+        ],
+        "media": [
+          "/dev/media1"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/candidate-p010/chrome",
+      "runtime_version": 1,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraAV1CaptureBuffers"
+    ],
+    "properties": {
+      "kBitrate": "2866874",
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsStreaming": "false",
+      "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"av1\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"UNSPECIFIED\",\"range\":\"LIMITED\",\"transfer\":\"UNSPECIFIED\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"av1 profile main\",\"visible rect\":\"0,0 1920x1080\"}]",
+      "kIsPlatformVideoDecoder": "true",
+      "kFrameUrl": "http://127.0.0.1:43831/browser-decode-probe.html?codec=av1&timeout=45000&width=1920",
+      "kIsRangeHeaderSupported": "true",
+      "kIsVideoDecryptingDemuxerStream": "false",
+      "kStartTime": "0.0",
+      "kResolution": "1920x1080",
+      "kRendererName": "RendererImpl",
+      "kTotalBytes": "0xa40b3b",
+      "kMaxDuration": "30.0",
+      "kIsSingleOrigin": "true",
+      "kFrameTitle": "Isolated browser decode probe",
+      "kVideoPlaybackFreezingRatio": "2.093933229627857",
+      "kFramerate": "60.0",
+      "kVideoPlaybackRoughness": "59.492"
+    }
+  },
+  "media-cli-combined-auto.json": {
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 125.59999999997672,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 11,
+      "elapsedMs": 30524.400000000023
+    },
+    "policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [
+          "/dev/video3"
+        ],
+        "media": [
+          "/dev/media1"
+        ],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [
+        "AcceleratedVideoDecoder",
+        "AcceleratedVideoDecodeLinuxGL",
+        "PreferV4L2VideoAcceleration",
+        "V4L2ExtraAV1CaptureBuffers"
+      ],
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/candidate-p010/chrome",
+      "runtime_version": 1,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraAV1CaptureBuffers"
+    ],
+    "properties": {
+      "kBitrate": "2866874",
+      "kVideoDecoderName": "V4L2VideoDecoder",
+      "kIsStreaming": "false",
+      "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"av1\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"UNSPECIFIED\",\"range\":\"LIMITED\",\"transfer\":\"UNSPECIFIED\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"av1 profile main\",\"visible rect\":\"0,0 1920x1080\"}]",
+      "kIsPlatformVideoDecoder": "true",
+      "kFrameUrl": "http://127.0.0.1:37365/browser-decode-probe.html?codec=av1&timeout=45000&width=1920",
+      "kIsRangeHeaderSupported": "true",
+      "kIsVideoDecryptingDemuxerStream": "false",
+      "kStartTime": "0.0",
+      "kResolution": "1920x1080",
+      "kRendererName": "RendererImpl",
+      "kTotalBytes": "0xa40b3b",
+      "kMaxDuration": "30.0",
+      "kIsSingleOrigin": "true",
+      "kFrameTitle": "Isolated browser decode probe",
+      "kVideoPlaybackFreezingRatio": "1.0",
+      "kFramerate": "60.0",
+      "kVideoPlaybackRoughness": "22.188"
+    }
+  },
+  "media-cli-combined-no-decoder.json": {
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 168.5,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 59,
+      "elapsedMs": 30739
+    },
+    "policy": {
+      "requested": "auto",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {
+        "decoder": [],
+        "media": [],
+        "render": [
+          "/dev/dri/renderD128"
+        ]
+      },
+      "active_features": [],
+      "fallback_reason": "Decoder/media/render access missing; keep browser automatic selection",
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/candidate-p010/chrome",
+      "runtime_version": 1,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080"
+    ],
+    "properties": {
+      "kBitrate": "2866874",
+      "kVideoDecoderName": "Dav1dVideoDecoder",
+      "kIsStreaming": "false",
+      "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"av1\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"UNSPECIFIED\",\"range\":\"LIMITED\",\"transfer\":\"UNSPECIFIED\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"av1 profile main\",\"visible rect\":\"0,0 1920x1080\"}]",
+      "kIsPlatformVideoDecoder": "false",
+      "kFrameUrl": "http://127.0.0.1:40311/browser-decode-probe.html?codec=av1&timeout=45000&width=1920",
+      "kIsRangeHeaderSupported": "true",
+      "kIsVideoDecryptingDemuxerStream": "false",
+      "kStartTime": "0.0",
+      "kResolution": "1920x1080",
+      "kRendererName": "RendererImpl",
+      "kTotalBytes": "0xa40b3b",
+      "kMaxDuration": "30.0",
+      "kIsSingleOrigin": "true",
+      "kFrameTitle": "Isolated browser decode probe",
+      "kVideoPlaybackFreezingRatio": "8.092283691347655",
+      "kFramerate": "60.0",
+      "kVideoPlaybackRoughness": "38.465"
+    }
+  },
+  "media-cli-combined-software.json": {
+    "page": {
+      "codec": "av1",
+      "state": "ended",
+      "started": 175.5,
+      "duration": 30,
+      "width": 1920,
+      "height": 1080,
+      "totalFrames": 1800,
+      "droppedFrames": 50,
+      "elapsedMs": 30821.70000000001
+    },
+    "policy": {
+      "requested": "software",
+      "actual_decoder": "unknown: requires per-video browser evidence",
+      "hardware_confirmed": false,
+      "devices": {},
+      "active_features": [],
+      "fallback_reason": null,
+      "software_fallback": "codec/profile dependent; HEVC may be unsupported",
+      "executable": "/candidate-p010/chrome",
+      "runtime_version": 1,
+      "browser_sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6"
+    },
+    "flags": [
+      "--no-first-run",
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-background-networking",
+      "--user-data-dir=/tmp/probe-profile",
+      "--remote-debugging-pipe",
+      "--enable-logging=stderr",
+      "--enable-gpu",
+      "--use-gl=angle",
+      "--use-angle=gles",
+      "--ozone-platform=wayland",
+      "--start-fullscreen",
+      "--window-size=1920,1080",
+      "--disable-accelerated-video-decode"
+    ],
+    "properties": {
+      "kBitrate": "2866874",
+      "kVideoDecoderName": "Dav1dVideoDecoder",
+      "kIsStreaming": "false",
+      "kVideoTracks": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"av1\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"UNSPECIFIED\",\"range\":\"LIMITED\",\"transfer\":\"UNSPECIFIED\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"av1 profile main\",\"visible rect\":\"0,0 1920x1080\"}]",
+      "kIsPlatformVideoDecoder": "false",
+      "kFrameUrl": "http://127.0.0.1:33437/browser-decode-probe.html?codec=av1&timeout=45000&width=1920",
+      "kIsRangeHeaderSupported": "true",
+      "kIsVideoDecryptingDemuxerStream": "false",
+      "kStartTime": "0.0",
+      "kResolution": "1920x1080",
+      "kRendererName": "RendererImpl",
+      "kTotalBytes": "0xa40b3b",
+      "kMaxDuration": "30.0",
+      "kIsSingleOrigin": "true",
+      "kFrameTitle": "Isolated browser decode probe",
+      "kVideoPlaybackFreezingRatio": "5.1868493478521005",
+      "kFramerate": "60.0",
+      "kVideoPlaybackRoughness": "23.521"
+    }
+  }
+}

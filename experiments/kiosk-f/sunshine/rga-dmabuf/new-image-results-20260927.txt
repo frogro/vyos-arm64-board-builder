@@ -1,0 +1,30 @@
+panthor-sunshine-probe
+1920x1080 bt709=0 full=0 max_error=1 mean_ms=6.82946
+1920x1080 bt709=0 full=1 max_error=1 mean_ms=4.11295
+1920x1080 bt709=1 full=0 max_error=1 mean_ms=4.32134
+1920x1080 bt709=1 full=1 max_error=1 mean_ms=4.11904
+1080x1920 bt709=0 full=0 max_error=1 mean_ms=4.24285
+1080x1920 bt709=0 full=1 max_error=1 mean_ms=4.97642
+1080x1920 bt709=1 full=0 max_error=1 mean_ms=4.21237
+1080x1920 bt709=1 full=1 max_error=1 mean_ms=4.24276
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1920x1080 bt709=0 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.52121
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1920x1080 bt709=0 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.49284
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1920x1080 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.53868
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1920x1080 bt709=1 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.92362
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1080x1920 bt709=0 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.58698
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1080x1920 bt709=0 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.55855
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1080x1920 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.53272
+gpu_renderer=Mali-G610 (Panfrost)
+allocator=rga-export 1080x1920 bt709=1 full=1 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.54841
+gpu_renderer=Mali-G610 (Panfrost)
+kms_fb=91 modifier=0x800000000000051 pitch=7680
+kms_reference_chroma_max_error=1 flat_samples=1842
+kms_reference_luma_max_error=1 luma_min=17 luma_max=234
+allocator=rga-export 1920x1080 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=4.6161

@@ -1,0 +1,142 @@
+<node name="receiver">
+  <properties>
+    <help>Profile G local display receiver; dedicated runtime required</help>
+  </properties>
+  <children>
+    <leafNode name="mode"><properties><help>Receive a stream or open Moonlight/Steam Link pairing GUI</help><completionHelp><list>receive pair</list></completionHelp><constraint><regex>(receive|pair)</regex></constraint></properties></leafNode>
+    <leafNode name="method">
+      <properties>
+        <help>Receiver protocol; Miracast and Steam Link are experimental</help>
+        <completionHelp>
+          <list>airplay moonlight miracast steamlink</list>
+        </completionHelp>
+        <constraint>
+          <regex>(airplay|moonlight|miracast|steamlink)</regex>
+        </constraint>
+      </properties>
+    </leafNode>
+    <leafNode name="name">
+      <properties>
+        <help>AirPlay display name (default VyOS-Display)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>AirPlay display name (default VyOS-Display)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="output">
+      <properties>
+        <help>DRM connector (default auto)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>DRM connector (default auto)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="drm-device">
+      <properties>
+        <help>DRM card (default card0)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>DRM card (default card0)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="rotation">
+      <properties>
+        <help>Counterclockwise display rotation</help>
+        <completionHelp>
+          <list>0 90 180 270</list>
+        </completionHelp>
+        <constraint>
+          <regex>(0|90|180|270)</regex>
+        </constraint>
+      </properties>
+    </leafNode>
+    <leafNode name="decoder">
+      <properties>
+        <help>Decoder policy; hardware requires an available decoder</help>
+        <completionHelp>
+          <list>auto software hardware</list>
+        </completionHelp>
+        <constraint>
+          <regex>(auto|software|hardware)</regex>
+        </constraint>
+      </properties>
+    </leafNode>
+    <leafNode name="resolution">
+      <properties>
+        <help>Requested resolution (default 1920x1080)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Requested resolution (default 1920x1080)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="fps">
+      <properties>
+        <help>Requested maximum frame rate (default 60)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Requested maximum frame rate (default 60)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="bitrate">
+      <properties>
+        <help>Moonlight/Steam Link Kbit/s (default 20000)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Moonlight/Steam Link Kbit/s (default 20000)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="codec">
+      <properties>
+        <help>Moonlight/Steam Link codec preference (Steam Link: auto H264, h264 or hevc)</help>
+        <completionHelp>
+          <list>auto h264 hevc av1</list>
+        </completionHelp>
+        <constraint>
+          <regex>(auto|h264|hevc|av1)</regex>
+        </constraint>
+      </properties>
+    </leafNode>
+    <leafNode name="host">
+      <properties>
+        <help>Moonlight sender address; Sunshine on sender</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Moonlight sender address; Sunshine on sender</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="app">
+      <properties>
+        <help>Moonlight application name (default Desktop)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Moonlight application name (default Desktop)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="wifi-interface">
+      <properties>
+        <help>Unused dedicated WLAN interface for experimental Miracast</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Unused dedicated WLAN interface for experimental Miracast</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+    <leafNode name="latency">
+      <properties>
+        <help>Miracast jitter buffer in milliseconds (default 50)</help>
+        <valueHelp>
+          <format>txt</format>
+          <description>Miracast jitter buffer in milliseconds (default 50)</description>
+        </valueHelp>
+      </properties>
+    </leafNode>
+  </children>
+</node>

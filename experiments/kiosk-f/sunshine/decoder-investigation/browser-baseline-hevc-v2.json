@@ -1,0 +1,136 @@
+{
+  "page": {
+    "codec": "hevc",
+    "state": "play-error",
+    "frames": [],
+    "started": 202.60000000149012,
+    "error": "NotSupportedError: Failed to load because no supported source was found."
+  },
+  "support": {
+    "h264": "probably",
+    "hevc": ""
+  },
+  "mediaEvents": [
+    {
+      "method": "Media.playerCreated",
+      "params": {
+        "player": {
+          "playerId": "772FAA6593D4F3045C4452197959395A"
+        }
+      },
+      "sessionId": "E7AB860B6A77F52136132EC583064009"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "772FAA6593D4F3045C4452197959395A",
+        "events": [
+          {
+            "timestamp": 40531.506621,
+            "value": "{\"created\":\"2026-09-21 11:10:24.053534 UTC\",\"event\":\"kMediaLogCreated\"}"
+          },
+          {
+            "timestamp": 40531.508829,
+            "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"file:///\"}"
+          },
+          {
+            "timestamp": 40531.509688,
+            "value": "{\"event\":\"kLoad\",\"url\":\"file:///fixtures/test-hevc.mp4\"}"
+          },
+          {
+            "timestamp": 40531.656431,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+          },
+          {
+            "timestamp": 40531.661228,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopping\"}"
+          },
+          {
+            "timestamp": 40531.661236,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStopped\"}"
+          }
+        ]
+      },
+      "sessionId": "E7AB860B6A77F52136132EC583064009"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "772FAA6593D4F3045C4452197959395A",
+        "properties": [
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "false"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "false"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0xbdaca"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "file:///fixtures/browser-decode-probe.html?codec=hevc"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          }
+        ]
+      },
+      "sessionId": "E7AB860B6A77F52136132EC583064009"
+    },
+    {
+      "method": "Media.playerMessagesLogged",
+      "params": {
+        "playerId": "772FAA6593D4F3045C4452197959395A",
+        "messages": [
+          {
+            "level": "debug",
+            "message": "Warning, FFmpegDemuxer failed to create a valid/supported video decoder configuration from muxed stream, config:codec: hevc, profile: hevc main, level: not available, alpha_mode: is_opaque, coded size: [1280,720], visible rect: [0,0,1280,720], natural size: [1280,720], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+          },
+          {
+            "level": "info",
+            "message": "FFmpegDemuxer: skipping invalid or unsupported video track"
+          },
+          {
+            "level": "error",
+            "message": "FFmpegDemuxer: no supported streams"
+          }
+        ]
+      },
+      "sessionId": "E7AB860B6A77F52136132EC583064009"
+    },
+    {
+      "method": "Media.playerErrorsRaised",
+      "params": {
+        "playerId": "772FAA6593D4F3045C4452197959395A",
+        "errors": [
+          {
+            "errorType": "PipelineStatus::DEMUXER_ERROR_NO_SUPPORTED_STREAMS",
+            "code": 14,
+            "stack": [
+              {
+                "file": "media/filters/ffmpeg_demuxer.cc",
+                "line": 1498
+              }
+            ],
+            "cause": [],
+            "data": {}
+          }
+        ]
+      },
+      "sessionId": "E7AB860B6A77F52136132EC583064009"
+    }
+  ]
+}

@@ -7,20 +7,28 @@ ARTIFACTS="$(readlink -f "${2:?Profile package artifact directory required}")"
 for item in dev proc sys run; do
     mountpoint -q "$ROOTFS/$item" || { echo "Missing chroot mount: $item" >&2; exit 1; }
 done
-python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" <<'PY'
-import hashlib, json, shutil, subprocess, sys
+python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" "${5:-no}" "${6:-no}" <<'PY'
+import hashlib, json, os, shutil, subprocess, sys
 from pathlib import Path
 root, artifacts = map(Path,sys.argv[1:3])
-kvm, tailscale = sys.argv[3:5]
-assert kvm in ('yes','no') and tailscale in ('yes','no')
-expected = (['kvm-over-ip'] if kvm=='yes' else []) + (['tailscale-subnet-router'] if tailscale=='yes' else [])
+kvm, tailscale, kiosk, receiver = sys.argv[3:7]
+assert receiver in ('yes','no')
+assert kvm in ('yes','no') and tailscale in ('yes','no') and kiosk in ('yes','no')
+expected = (['kvm-over-ip'] if kvm=='yes' else []) + (['tailscale-subnet-router'] if tailscale=='yes' else []) + (['kiosk-f'] if kiosk=='yes' else []) + (['receiver-g'] if receiver=='yes' else [])
 meta=json.loads((artifacts/'build.json').read_text())
 assert expected and meta['profiles']==expected, 'Package profiles do not match image selection'
 name=meta['package']; assert Path(name).name==name and name.endswith('.deb')
 package=artifacts/name
 assert hashlib.sha256(package.read_bytes()).hexdigest()==meta['package_sha256']
 version=subprocess.check_output(['dpkg-query','--admindir='+str(root/'var/lib/dpkg'),'-W','-f=${Version}','vyos-1x'],text=True).strip()
-assert version==meta['base_package_version'], 'Profile package does not match this base image'
+if version != meta['base_package_version']:
+    # An already assembled profile image can be extended only from the same
+    # exact upstream package; never infer compatibility from a version suffix.
+    prior_path = root/'usr/share/vyos-arm64-board-builder/native-cli/build.json'
+    prior = json.loads(prior_path.read_text()) if prior_path.is_file() else {}
+    assert (prior.get('package_version') == version and
+            prior.get('base_package_version') == meta['base_package_version']), \
+        'Profile package does not match this base image'
 policy=root/'usr/sbin/policy-rc.d'
 assert not policy.is_symlink(), 'Unexpected policy-rc.d symlink'
 previous=policy.read_bytes() if policy.exists() else None
@@ -40,6 +48,8 @@ assert runner.stat().st_uid==0 and runner.stat().st_mode & 0o4000, 'Operator run
 owners=[]
 if kvm=='yes': owners.append((['service','kvm-over-ip','local-input','keyboard'],'service_kvm_over_ip'))
 if tailscale=='yes': owners.append((['service','tailscale','advertise-route'],'service_tailscale'))
+if kiosk=='yes': owners.append((['container','name','test','kiosk','rotation'],'container'))
+if receiver=='yes': owners.append((['container','name','test','receiver','method'],'container'))
 for path, handler in owners:
     code='from vyos.xml_ref import owner; assert owner('+repr(path)+', with_tag=True)=='+repr(handler)
     subprocess.run(['chroot',str(root),'python3','-c',code],check=True)
@@ -47,6 +57,9 @@ installed=subprocess.check_output(['chroot',str(root),'dpkg-query','-W','-f=${Ve
 assert installed==meta['package_version']
 for directory in ['native-cli'] + (['kvm-cli'] if kvm=='yes' else []):
     dest=root/'usr/share/vyos-arm64-board-builder'/directory;dest.mkdir(parents=True,exist_ok=True)
-    shutil.copy2(artifacts/'build.json',dest/'build.json')
+    target=dest/'build.json'
+    shutil.copyfile(artifacts/'build.json',target)
+    target.chmod(0o644)
+    os.chown(target,0,0)
 print('Installed source-built vyos-1x profile package:',installed,expected)
 PY

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+<node name="show"><children><node name="kiosk"><properties><help>Kiosk administration</help></properties><children>
+<tagNode name="media"><properties><help>Browser media policy and device availability; not proof of current decoder use</help><completionHelp><path>container name</path></completionHelp></properties>
+<command>${vyos_op_scripts_dir}/kiosk_media.py "$4"</command>
+</tagNode></children></node></children></node>
+</interfaceDefinition>

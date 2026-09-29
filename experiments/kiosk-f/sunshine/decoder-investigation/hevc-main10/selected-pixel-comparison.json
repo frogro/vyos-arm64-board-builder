@@ -1,0 +1,38 @@
+[
+  {
+    "frame": 0,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  },
+  {
+    "frame": 1,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  },
+  {
+    "frame": 2,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  },
+  {
+    "frame": 297,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  },
+  {
+    "frame": 298,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  },
+  {
+    "frame": 299,
+    "maxError": 0,
+    "meanError": 0.0,
+    "differentSamples": 0
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "run": 1,
+    "frames": 300,
+    "all_reference_hashes_match": true,
+    "remove_mask": 3,
+    "independent_load_decode_unload": true
+  },
+  {
+    "run": 2,
+    "frames": 300,
+    "all_reference_hashes_match": true,
+    "remove_mask": 3,
+    "independent_load_decode_unload": true
+  },
+  {
+    "run": 3,
+    "frames": 300,
+    "all_reference_hashes_match": true,
+    "remove_mask": 3,
+    "independent_load_decode_unload": true
+  }
+]

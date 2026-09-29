@@ -1,0 +1,170 @@
+name: Compare local and native ARM64 A-D plus F build
+run-name: "ROCK 5B A-D+F / Sunshine timing and optional Panthor kernel"
+on:
+  push:
+    branches: [ci/adf-compare-20260927]
+  workflow_dispatch:
+    inputs:
+      reuse_kernel_run:
+        description: "Optional successful Panthor kernel artifact run (same audited source/config)"
+        type: string
+        default: ''
+permissions:
+  # Draft-release assets require repository write visibility; no publishing step.
+  contents: write
+  actions: read
+defaults:
+  run:
+    shell: bash
+concurrency:
+  group: adf-compare-20260927
+  cancel-in-progress: false
+jobs:
+  panthor-kernel:
+    if: ${{ inputs.reuse_kernel_run == '' }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare native kernel build tools
+        run: |
+          sudo apt-get update
+          mapfile -t packages < <(sed '/^#/d; /^$/d' tools/ci/board-build-packages.txt)
+          sudo apt-get install -y "${packages[@]}" dwarves cpio git
+          sudo mkdir -p /work/panthor
+          sudo chown -R "$(id -u):$(id -g)" /work
+      - name: Build isolated Panthor kernel and matching signed modules
+        run: bash experiments/kiosk-f/panthor-test/build.sh /work/panthor 2>&1 | tee /work/panthor-build.log
+      - name: Upload optional test kernel only
+        uses: actions/upload-artifact@v4
+        with:
+          name: panthor-test-kernel-${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: error
+          path: /work/panthor/artifacts/*
+      - name: Preserve kernel build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: panthor-test-log-${{ github.run_id }}
+          retention-days: 7
+          path: /work/panthor-build.log
+  image:
+    if: ${{ !cancelled() && (needs.panthor-kernel.result == 'success' || (needs.panthor-kernel.result == 'skipped' && inputs.reuse_kernel_run != '')) }}
+    needs: panthor-kernel
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check established baseline ancestry and D/F regressions
+        run: |
+          git merge-base --is-ancestor 21febba HEAD
+          git fetch origin main
+          python3 experiments/kiosk-f/ci/check-main-preservation.py origin/main
+          python3 experiments/kiosk-f/ci/check-cli-recipe.py
+          python3 experiments/kiosk-f/panthor-test/test-menu.py
+          python3 -m unittest discover -s experiments/kiosk-f/tests -p 'test_*.py'
+          python3 tests/test-kiosk-host-fixes.py
+          python3 tests/test-console-log-source.py
+          sudo python3 tests/test-kvm-media-file-ownership.py
+          python3 tests/test-vyos-1x-profile.py
+          python3 tests/test-kvm-cli.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-video-supervisor.py
+          python3 tests/test-grub-board-dtb-persistence.py
+          for script in experiments/kiosk-f/ci/*.sh experiments/kiosk-f/panthor-test/*.sh; do bash -n "$script"; done
+      - name: Prepare runner storage and native packing tools
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          sudo apt-get update
+          sudo apt-get install -y squashfs-tools gcc pkg-config libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+          sudo mkdir /work
+          sudo chown "$(id -u):$(id -g)" /work
+          gcc -Wall -Wextra -Werror -O2 experiments/kiosk-f/cpu-conversion-proof/cached-launch.c $(pkg-config --cflags --libs gstreamer-video-1.0) -o /work/cached-launch
+          cp experiments/kiosk-f/ci/* /work/
+          git archive HEAD -o /work/repo.tar
+          df -h /work
+      - name: Download exact A-D base and unpublished comparison inputs
+        run: |
+          gh run download 36267716867 --repo "$GITHUB_REPOSITORY" --name vyos-rock-5b-current-candidate --dir /work/input-ad
+          mkdir /work/inputs
+          gh release download adf-compare-inputs-20260927 --repo "$GITHUB_REPOSITORY" --dir /work/inputs --pattern 'runtime-kernel-inputs.tar.gz' --pattern 'cli-builder.tar.gz' --pattern 'assembly-runner.tar.gz' --pattern 'sunshine-source.tar.gz' --pattern '*-image-inspect.json'
+          (cd /work/inputs && sha256sum -c /work/inputs.sha256)
+          tar -xzf /work/inputs/runtime-kernel-inputs.tar.gz -C /work
+          docker load -i /work/inputs/cli-builder.tar.gz
+          docker load -i /work/inputs/assembly-runner.tar.gz
+          python3 /work/verify-build-environments.py
+          python3 /work/native-pack.py
+          docker run --rm --platform linux/arm64 --network none -v /work:/work --entrypoint /bin/bash vyarm-board-runner:20260922 /work/test-native-pack.sh
+      - name: Prepare identical image inputs and firmware
+        run: |
+          docker run --rm --privileged --platform linux/arm64 --network none -v /work:/work -v /dev:/dev -v /run/udev:/run/udev:ro --entrypoint /bin/bash vyarm-board-runner:20260922 /work/prepare-full.sh 2>&1 | tee /work/preparation.log
+          sudo mkdir -p /work/repo/work/build/rock-5b/boot/edk2
+          curl --fail --location --retry 3 'https://github.com/edk2-porting/edk2-rk3588/releases/download/v1.1/rock-5b_UEFI_Release_v1.1.img' -o /work/edk2.img
+          echo '47029c528318a8ec153aa060597b0615605a65a741cbb70b64f6ccaf11348e42  /work/edk2.img' | sha256sum -c
+          sudo cp /work/edk2.img /work/repo/work/build/rock-5b/boot/edk2/rock-5b_UEFI_Release_v1.1.img
+      - uses: actions/download-artifact@v4
+        with:
+          name: panthor-test-kernel-${{ inputs.reuse_kernel_run || github.run_id }}
+          run-id: ${{ inputs.reuse_kernel_run || github.run_id }}
+          github-token: ${{ github.token }}
+          path: /work/panthor-artifacts
+      - name: Verify optional kernel input and record source run
+        env:
+          KERNEL_SOURCE_RUN: ${{ inputs.reuse_kernel_run || github.run_id }}
+        run: |
+          [[ "$KERNEL_SOURCE_RUN" =~ ^[0-9]+$ ]]
+          (cd /work/panthor-artifacts && sha256sum -c SHA256SUMS)
+          test "$(cat /work/panthor-artifacts/kernel.release)" = 6.18.50-vyos-panthor-cache-test
+          printf '%s\n' "$KERNEL_SOURCE_RUN" > /work/panthor-source-run.txt
+      - name: Build instrumented Sunshine into existing Chromium runtime
+        run: bash /work/build-runtime.sh
+      - name: Rebuild complete native CLI with upstream checks
+        run: bash /work/build-cli.sh
+      - name: Assemble and verify SD image plus update ISO
+        run: |
+          docker run --rm --privileged --platform linux/arm64 --network host --memory=8g --cpus=4 -e GITHUB_RUN_ID -e GITHUB_SHA -v /work:/work -v /dev:/dev -v /run/udev:/run/udev:ro --entrypoint /bin/bash vyarm-board-runner:20260922 /work/assemble.sh 2>&1 | tee /work/full-build.log
+      - name: Require verified complete output set
+        run: |
+          test "$(cat /work/verification-complete)" = FULL_ARTIFACT_VERIFICATION_OK
+          test -s /work/output/build-provenance.json
+          test -s /work/output/content-inventory.json
+          test -s /work/output/vyos-999.202609250800-rock-5b-network-tailscale-kvm-kiosk.img.xz
+          test -s /work/output/vyos-999.202609250800-rock-5b-network-tailscale-kvm-kiosk.iso
+          (cd /work/output && sha256sum -c ./*.sha256)
+      - name: Upload comparison images
+        uses: actions/upload-artifact@v4
+        with:
+          name: rock5b-adf-comparison-${{ github.run_id }}
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            /work/output/*.img.xz
+            /work/output/*.iso
+            /work/output/*.sha256
+            /work/output/*.json
+            /work/output/*.env
+      - name: Preserve logs and CLI provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: adf-comparison-logs-${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            /work/*.log
+            /work/cli-artifacts/*
+            /work/native-pack/SHA256.json
+            /work/build-environments.json
+            /work/verification-complete
+            /work/inputs.sha256
+            /work/runtime-next/binary-hashes.txt
+            /work/runtime-artifacts/runtime.json
+            /work/panthor-artifacts/initrd-files.txt

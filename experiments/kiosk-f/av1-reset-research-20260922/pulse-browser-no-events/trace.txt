@@ -1,0 +1,18 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 6/6   #P:8
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+           <...>-541463  [003] ...1.  9206.177258: tracing_mark_write: LOAD_BEGIN
+           <...>-541463  [003] ...1.  9208.338496: tracing_mark_write: DECODE_BEGIN
+           <...>-541463  [000] ...1.  9249.241730: tracing_mark_write: DECODE_DONE
+           <...>-541463  [002] ...1.  9252.251250: tracing_mark_write: REMOVE_BEGIN
+           <...>-541463  [004] ...1.  9252.309827: tracing_mark_write: REMOVE_DONE
+           <...>-541463  [006] ...1.  9257.313563: tracing_mark_write: IDLE_DONE

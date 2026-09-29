@@ -1,0 +1,15 @@
+--- a/0001.patch
++++ b/0001.patch
+@@ -308,9 +308,9 @@
+      return PIXEL_FORMAT_P010LE;
+ +  } else if (format == viz::MultiPlaneFormat::kNV15) {
+ +    return PIXEL_FORMAT_NV15;
+-   } else {
+-     DLOG(WARNING) << "Unsupported SharedImageFormat: " << format.ToString();
+-     return std::nullopt;
++   } else if (format == viz::MultiPlaneFormat::kP210) {
++     return PIXEL_FORMAT_P210LE;
++   } else if (format == viz::MultiPlaneFormat::kP410) {
+ @@ -67,6 +69,8 @@ std::optional<viz::SharedImageFormat> VideoPixelFormatToSharedImageFormat(
+        return viz::MultiPlaneFormat::kNV12A;
+      case PIXEL_FORMAT_P010LE:

@@ -1,0 +1,26 @@
+{
+  "candidate_Image": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-reset-candidates-20260922/Image",
+    "sha256": "fa7a43eb41f9dabfa380707c63acbb16bf7e82061deab90fc5a694b05735ac63"
+  },
+  "candidate_source": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-reset-candidates-20260922/vsi-iommu.c",
+    "sha256": "f2bde358f9a5fa3e44c059c4d7c7208934b7f399c6e0bedb999ee4c3d14d76bc"
+  },
+  "baseline_source": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-iommu-test4/source/drivers/iommu/vsi-iommu.c",
+    "sha256": "f1890ed37de77e7b065fbdc2ad989c6acd901ce6b839270151aa9123b3a16cfd"
+  },
+  "baseline_config": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-iommu-test4/kbuild/.config",
+    "sha256": "282dc315e7fff7e9dc4054c07b7e6141e6d15137246a53d2a070487b11952ad7"
+  },
+  "candidate_config": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-reset-candidates-20260922/kbuild/.config",
+    "sha256": "282dc315e7fff7e9dc4054c07b7e6141e6d15137246a53d2a070487b11952ad7"
+  },
+  "flush_module": {
+    "path": "/mnt/entwicklung/projekte/VyOS/arm/vyos-arm64-board-builder/tmp/av1-reset-candidates-20260922/flush-helper/vyarm_av1_flush.ko",
+    "sha256": "46a812327c549150431b425f85b15c9e929cb904ab9417c0c34f3a50cfbd73b4"
+  }
+}

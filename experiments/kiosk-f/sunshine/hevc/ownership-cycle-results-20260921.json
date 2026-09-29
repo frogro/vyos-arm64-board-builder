@@ -1,0 +1,128 @@
+[
+  {
+    "case": "full-h264",
+    "completed_cycles": 10,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "full-hevc",
+    "completed_cycles": 10,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-0-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 0
+  },
+  {
+    "case": "h264-0-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 0
+  },
+  {
+    "case": "h264-1-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-1-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-2-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-2-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-5-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "h264-5-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-0-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 0
+  },
+  {
+    "case": "hevc-0-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 0
+  },
+  {
+    "case": "hevc-1-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-1-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-2-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-2-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-5-cancel",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  },
+  {
+    "case": "hevc-5-drain",
+    "completed_cycles": 3,
+    "invalid_pool": 0,
+    "leaked_groups": 0,
+    "misc_cleanup": 1
+  }
+]

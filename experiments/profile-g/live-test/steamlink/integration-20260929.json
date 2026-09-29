@@ -1,0 +1,27 @@
+{
+  "source_branch": "test/profile-g-steamlink-integration-20260929",
+  "hardware": {
+    "codec": "hevc",
+    "driver": "rkvdec / S265",
+    "ext_sps_rps": true,
+    "open_devices": ["/dev/media1", "/dev/video3"],
+    "heap_host_mode": "root:root 0600",
+    "heap_private_mode": "kiosk:kiosk 0600",
+    "new_guarded_adapter": true,
+    "old_diagnostic_decoder_bridge_loaded": false
+  },
+  "fallback": {
+    "fault_injection": "video/media grants omitted",
+    "requested_decoder": "auto",
+    "requested_codec": "hevc",
+    "actual_decoder": "software",
+    "actual_codec": "h264",
+    "actual_resolution": [1920,1080],
+    "audio": "initialized 48000 Hz stereo",
+    "first_5s_decode_fps": [60.87,58.97],
+    "subjective_av_acceptance_repeated": false
+  },
+  "recovery": {"settings_restored":true,"kiosk_active":true,"ap_active":true},
+  "open_issue": "isolated HDMI Unknown ELD version 0 warnings around transitions",
+  "installed_combined_image_tested": false
+}

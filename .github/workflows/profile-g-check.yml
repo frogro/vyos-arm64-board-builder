@@ -1,0 +1,108 @@
+name: Profile G receiver test build
+on:
+  push:
+    branches: [feature/profile-g, "test/profile-g-*"]
+  workflow_dispatch:
+permissions:
+  # Reading the existing draft-release inputs requires write visibility.
+  contents: write
+concurrency:
+  group: profile-g-check-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  policy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GStreamer test dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-gstreamer-1.0 gstreamer1.0-plugins-bad
+      - run: |
+          git fetch origin main
+          python3 experiments/kiosk-f/ci/check-main-preservation.py origin/main
+          python3 -m unittest discover -s experiments/profile-g/tests -v
+          python3 experiments/profile-g/ci/check-native-cli.py
+          python3 -m unittest discover -s experiments/kiosk-f/tests
+          sudo python3 tests/test-system-image-config-metadata.py
+          python3 tests/test-system-image-dtb-update.py
+          python3 tests/test-vyos-1x-profile.py
+          python3 tests/test-kvm-cli.py
+          python3 tests/test-kvm-input-config.py
+          python3 tests/test-kvm-video-supervisor.py
+          python3 experiments/kiosk-f/ci/check-cli-recipe.py
+          bash -n experiments/profile-g/build-runtime.sh tools/assemble-board-image.sh tools/finalize-vyos-rootfs.sh tools/install-kvm-cli.sh
+  native-receivers:
+    needs: policy
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile pinned receivers on ARM64 (no router access)
+        run: |
+          docker build --target build --build-arg BASE_IMAGE=debian:trixie-slim -f experiments/profile-g/container/Containerfile -t profile-g-backends .
+          docker run --rm --entrypoint /out/usr/local/bin/uxplay profile-g-backends -h
+          docker run --rm --entrypoint /out/usr/bin/miracle-sinkctl profile-g-backends --help
+          docker run --rm -e QT_QPA_PLATFORM=offscreen --entrypoint /out/usr/local/bin/moonlight profile-g-backends --help
+      - name: Export compiled backends and provenance
+        run: |
+          mkdir /tmp/g-native-backends
+          container=$(docker create profile-g-backends)
+          docker cp "$container:/out/." /tmp/g-native-backends/
+          docker rm "$container"
+          git rev-parse HEAD > /tmp/g-native-backends/source-commit.txt
+          cp experiments/profile-g/container/Containerfile /tmp/g-native-backends/
+          tar -C /tmp/g-native-backends -czf /tmp/profile-g-backends-arm64.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: profile-g-backends-arm64
+          path: /tmp/profile-g-backends-arm64.tar.gz
+          retention-days: 7
+
+      - name: Load verified F runtime base
+        run: |
+          mkdir -p /tmp/g-inputs
+          gh release download adf-compare-inputs-20260927 --repo "$GITHUB_REPOSITORY" --dir /tmp/g-inputs --pattern runtime-kernel-inputs.tar.gz
+          expected=$(awk '$2=="runtime-kernel-inputs.tar.gz" {print $1}' experiments/kiosk-f/ci/inputs.sha256)
+          test -n "$expected"
+          echo "$expected  /tmp/g-inputs/runtime-kernel-inputs.tar.gz" | sha256sum -c
+          tar -xzf /tmp/g-inputs/runtime-kernel-inputs.tar.gz -C /tmp/g-inputs
+          python3 - <<'PYTHON'
+          import hashlib,json,pathlib,subprocess
+          p=pathlib.Path('/tmp/g-inputs/runtime-artifacts')
+          m=json.loads((p/'runtime.json').read_text())
+          a=p/'runtime.tar'
+          with a.open('rb') as f: digest=hashlib.file_digest(f,'sha256').hexdigest()
+          assert digest==m['archive_sha256'], 'Runtime archive checksum mismatch'
+          subprocess.run(['docker','load','-i',str(a)],check=True)
+          ident=m['image_id']
+          actual=subprocess.check_output(['docker','image','inspect','--format','{{.Id}}',ident],text=True).strip()
+          assert actual==ident
+          subprocess.run(['docker','tag',ident,'localhost/vyarm-g-base:verified'],check=True)
+          PYTHON
+      - name: Build complete receiver container with private hardware decoder
+        run: |
+          CONTAINER_ENGINE=docker bash experiments/profile-g/build-runtime.sh localhost/vyarm-g-base:verified /tmp/g-runtime
+          tag=$(python3 -c 'import json;print(json.load(open("/tmp/g-runtime/runtime.json"))["tag"])')
+          docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib /opt/ffmpeg-request/bin/ffmpeg -hide_banner -hwaccels | grep -x v4l2request; gst-inspect-1.0 waylandsink >/dev/null'
+          docker run --rm --network none --entrypoint python3 "$tag" -c 'import sys; sys.path.insert(0,"/opt/profile-g"); import steamlink; steamlink.check_runtime()'
+          docker run --rm --network none --user kiosk --entrypoint python3 "$tag" -c 'import sys; sys.path.insert(0,"/opt/profile-g"); import steamlink; steamlink.check_runtime()'
+          docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'export LD_LIBRARY_PATH=/opt/steamlink/lib:/opt/steamlink/Qt-5.14.1/lib; ldd /opt/steamlink/bin/shell > /tmp/link-check; cat /tmp/link-check; ! grep -q "not found" /tmp/link-check'
+          cp experiments/profile-g/live-test/MOONLIGHT-HARDWARE.md /tmp/g-runtime/
+          (cd /tmp/g-runtime && sha256sum runtime.tar runtime.json image.json > SHA256SUMS)
+      - name: Upload loadable Profile G runtime (not SD/ISO)
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-g-runtime-arm64-${{ github.run_id }}
+          path: /tmp/g-runtime/
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Preserve runtime build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-g-build-log-${{ github.run_id }}
+          path: /tmp/g-runtime/build.log
+          if-no-files-found: ignore

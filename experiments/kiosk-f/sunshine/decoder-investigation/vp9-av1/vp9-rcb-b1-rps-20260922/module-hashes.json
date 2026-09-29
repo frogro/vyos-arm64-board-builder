@@ -1,0 +1,5 @@
+{
+  "core/videodev.ko": "98f87a7f334e85a6c6a6278ec7175a78b8526380a9b8a507fa1ea4efc43f6acf",
+  "core/v4l2-h264.ko": "01401b38f706ffe5ca81d3e13054cbeb8f31ce2b56a935187a17c5a352c6f681",
+  "drivers/media/platform/rockchip/rkvdec/rockchip-vdec.ko": "87f4039b1c737bd906bbfe77253d89ad4d1a13cd754cd6ba1e46782970d21eb5"
+}

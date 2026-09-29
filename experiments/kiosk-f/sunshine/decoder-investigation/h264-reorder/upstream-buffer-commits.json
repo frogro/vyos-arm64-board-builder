@@ -1,0 +1,58 @@
+[
+  {
+    "sha": "0e161fedd432c74ab27cb248d2171cae01b78a98",
+    "url": "https://github.com/chromium/chromium/commit/0e161fedd432c74ab27cb248d2171cae01b78a98",
+    "date": "2024-06-06T18:00:09Z",
+    "message": "v4l2/stateless: Increase input buffer count\n\nThe decoder client was developed with a single OUTPUT buffer.\nThis works, but is not as performant as multiple buffers. There\nis dimishing returns as the buffer count is increased. The larges\nbenefit is moving from 1 buffer to 2. 4 is choosen here because\nit performs slight better.\n\nBug: b:345478646\nChange-Id: Ia3506347ffcddd2901e42d8ff0cedc5cac35b5f4\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5605146\nReviewed-by: Nathan Hebert <nhebert@chromium.org>\nAuto-Submit: Fritz Koenig <frkoenig@chromium.org>\nCommit-Queue: Nathan Hebert <nhebert@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1311404}",
+    "files": [
+      "media/gpu/v4l2/stateless/v4l2_stateless_video_decoder.cc"
+    ]
+  },
+  {
+    "sha": "957303566b38d1ce324f0c288d1103b72ba2bc7a",
+    "url": "https://github.com/chromium/chromium/commit/957303566b38d1ce324f0c288d1103b72ba2bc7a",
+    "date": "2022-11-09T22:18:36Z",
+    "message": "Reland \"media/gpu/v4l2: increase allocated video buffers on stateful backends\"\n\nThis reverts commit 33dd60a2353c398dac3e9685379a865e1adee349.\n\nReason for revert: CTS failures (b:257880924) on VAAPI boards shows VAAPI is effected by this buffer allocation, but not V4L2.  This CL setup for the follow on.  Since that one has been reverted, revert this one as well to get back to the improved V4L2 state, but not VAAPI impacted state.\n\nOriginal change's description:\n> Revert \"media/gpu/v4l2: increase allocated video buffers on stateful backends\"\n>\n> This reverts commit b81d1376b2a09109d361dd56986e62eccd8cd7af.\n>\n> This is to allow the next CL in the series, where the amount\n> of video buffers is calculated in VideoDecoderPipeline.\n>\n>\n> Bug: b:250187354\n> Bug: b:254657177\n>\n> Change-Id: If28ba47e13977324dc42d3bd6f22a33a3f7ad469\n> Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/3980635\n> Reviewed-by: Fritz Koenig <frkoenig@chromium.org>\n> Commit-Queue: Miguel Casas-Sanchez <mcasas@chromium.org>\n> Cr-Commit-Position: refs/heads/main@{#1066564}\n\nBug: b:250187354\nBug: b:254657177\nChange-Id: I640e2a81c8a76ccc1aa50ca31c19732c80ebfafe\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/4018212\nCommit-Queue: Fritz Koenig <frkoenig@chromium.org>\nBot-Commit: Rubber Stamper <rubber-stamper@appspot.gserviceaccount.com>\nCr-Commit-Position: refs/heads/main@{#1069362}",
+    "files": [
+      "media/gpu/v4l2/v4l2_video_decoder.cc",
+      "media/gpu/v4l2/v4l2_video_decoder.h",
+      "media/gpu/v4l2/v4l2_video_decoder_backend_stateful.cc",
+      "media/gpu/v4l2/v4l2_video_decoder_backend_stateful.h"
+    ]
+  },
+  {
+    "sha": "f0755cd00b1a5011f826987cef22ca08c36cb09d",
+    "url": "https://github.com/chromium/chromium/commit/f0755cd00b1a5011f826987cef22ca08c36cb09d",
+    "date": "2024-01-08T19:36:04Z",
+    "message": "v4l2/stateless: Use |decoder_| reference buffer count for allocation\n\nAllocating the correct number of reference frames requires\nquerying the |decoder_|. This is done from\n|V4L2StatelessVideoDecoder| instead of adding logic to the\n|*Queue|s because the |decoder_| object which holds the\ninformation lives there.\n\nCq-Include-Trybots: luci.chromium.try:linux-v4l2-codec-rel\nBug: b:278935312\nChange-Id: Ied8f0da1830983e6b2c3f158fdd559eb8dd7f83f\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5174017\nCommit-Queue: Fritz Koenig <frkoenig@chromium.org>\nReviewed-by: Steve Cho <stevecho@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1244203}",
+    "files": [
+      "media/gpu/v4l2/stateless/queue.cc",
+      "media/gpu/v4l2/stateless/queue.h",
+      "media/gpu/v4l2/stateless/v4l2_stateless_video_decoder.cc"
+    ]
+  },
+  {
+    "sha": "b420223e76b0cee710e680b500595ec5f76ab279",
+    "url": "https://github.com/chromium/chromium/commit/b420223e76b0cee710e680b500595ec5f76ab279",
+    "date": "2023-12-21T21:44:17Z",
+    "message": "v4l2/stateless: Clear surface references after dequeue\n\nSurfaces hold onto references to other surfaces\nwhile decoding. Once the buffer has been dequeued,\nthese references are no longer needed.\n\nCq-Include-Trybots: luci.chromium.try:linux-v4l2-codec-rel\nBug: b:278935312\n\nChange-Id: I7f691360a92880783ee9e76d276836482edfc16e\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5146249\nCommit-Queue: Fritz Koenig <frkoenig@chromium.org>\nReviewed-by: Bijan Choobineh\u200e <bchoobineh@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1240327}",
+    "files": [
+      "media/gpu/v4l2/stateless/stateless_decode_surface_handler.h",
+      "media/gpu/v4l2/stateless/v4l2_stateless_video_decoder.cc",
+      "media/gpu/v4l2/stateless/v4l2_stateless_video_decoder.h",
+      "media/gpu/v4l2/stateless/vp8_delegate.cc",
+      "media/gpu/v4l2/stateless/vp9_delegate.cc"
+    ]
+  },
+  {
+    "sha": "760e144c9a3636c064ac1b74649bcc11ed4e1144",
+    "url": "https://github.com/chromium/chromium/commit/760e144c9a3636c064ac1b74649bcc11ed4e1144",
+    "date": "2023-12-21T22:08:55Z",
+    "message": "v4l2/stateless: Move enqueue to surface reference destructor\n\nThere are two consumers of a buffer. The |StatelessDecodeSurface|\nand the |VideoFrame|. Only when both are done with the buffer\ncan it be enqueued.\n\nThe |VideoFrame| destructor observer can not be the one\nto enqueue the buffer because a |VideoFrame| is only constructed\non visible frames. Some codecs have non visible frames that are\nused for reference.\n\nThe |StatelessDecodeSurface| enqueues on the destructor, but the\n|VideoFrame| holds a reference. This prevents the enqueuing of\na buffer until both references are released. In the case of a\nnon visible frame there is no reference held by the |VideoFrame|\nso it can be enqueued once all decoded frame references are\nsatisfied.\n\nCq-Include-Trybots: luci.chromium.try:linux-v4l2-codec-rel\nBug: b:278935312\n\nChange-Id: Ic94378c13f58373d6d99edbcebbe1eb17760c745\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/5146250\nReviewed-by: Nathan Hebert <nhebert@chromium.org>\nCommit-Queue: Fritz Koenig <frkoenig@chromium.org>\nCr-Commit-Position: refs/heads/main@{#1240338}",
+    "files": [
+      "media/gpu/v4l2/stateless/stateless_decode_surface.cc",
+      "media/gpu/v4l2/stateless/stateless_decode_surface.h",
+      "media/gpu/v4l2/stateless/v4l2_stateless_video_decoder.cc"
+    ]
+  }
+]

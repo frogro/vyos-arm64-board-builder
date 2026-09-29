@@ -1,0 +1,12 @@
+6.18.50-vyos-f-test4-av1-iommu
+BOOT_IMAGE=/boot/999.202609191517/vmlinuz-f-test4 boot=live rootdelay=5 noautologin net.ifnames=0 biosdevname=0 vyos-union=/boot/999.202609191517 console=tty0 modprobe.blacklist=hantro_vpu
+active
+active
+active
+active
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+0 loaded units listed.
+inactive
+next_entry=
+kiosk-test localhost/vyarm-kiosk:touch-reconnect-20260920
+74c30cefa4d0ce8327537e858eef190252f90e7d795af27b5e3aa00efd2aa6ae  /boot/grub/grub.cfg.d/20-vyos-defaults-autoload.cfg

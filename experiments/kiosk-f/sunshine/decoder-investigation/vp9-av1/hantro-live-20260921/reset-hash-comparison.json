@@ -1,0 +1,20 @@
+[
+  {
+    "run": 1,
+    "frames": 300,
+    "reference": "fixed-nv12-hashes.json:software",
+    "all_frames_match": true
+  },
+  {
+    "run": 2,
+    "frames": 300,
+    "reference": "fixed-nv12-hashes.json:software",
+    "all_frames_match": true
+  },
+  {
+    "run": 3,
+    "frames": 300,
+    "reference": "fixed-nv12-hashes.json:software",
+    "all_frames_match": true
+  }
+]

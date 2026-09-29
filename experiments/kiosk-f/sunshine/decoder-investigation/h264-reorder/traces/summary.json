@@ -1,0 +1,72 @@
+[
+  {
+    "variant": "buffer-trace-no-pyramid",
+    "codec": "1-h264",
+    "dropped": 8,
+    "samples": 3681,
+    "captureQueuedHistogram": {
+      "6": 1,
+      "4": 15,
+      "3": 5,
+      "2": 11,
+      "1": 1860,
+      "0": 1789
+    },
+    "zeroToNextCounterGapMedianMs": 16.451500000000003,
+    "zeroToNextCounterGapP95Ms": 18.537
+  },
+  {
+    "variant": "buffer-trace-no-pyramid",
+    "codec": "1-hevc",
+    "dropped": 11,
+    "samples": 4038,
+    "captureQueuedHistogram": {
+      "8": 1,
+      "6": 6,
+      "5": 2,
+      "4": 3,
+      "3": 5,
+      "2": 416,
+      "1": 2182,
+      "0": 1423
+    },
+    "zeroToNextCounterGapMedianMs": 16.621000000000002,
+    "zeroToNextCounterGapP95Ms": 33.99
+  },
+  {
+    "variant": "buffer-trace-baseline",
+    "codec": "1-h264",
+    "dropped": 272,
+    "samples": 3729,
+    "captureQueuedHistogram": {
+      "6": 2,
+      "5": 3,
+      "4": 2,
+      "3": 3,
+      "2": 33,
+      "1": 1919,
+      "0": 1767
+    },
+    "zeroToNextCounterGapMedianMs": 15.379,
+    "zeroToNextCounterGapP95Ms": 35.02
+  },
+  {
+    "variant": "buffer-trace-baseline",
+    "codec": "1-hevc",
+    "dropped": 10,
+    "samples": 4045,
+    "captureQueuedHistogram": {
+      "8": 1,
+      "7": 9,
+      "6": 3,
+      "5": 2,
+      "4": 3,
+      "3": 3,
+      "2": 406,
+      "1": 2190,
+      "0": 1428
+    },
+    "zeroToNextCounterGapMedianMs": 16.619,
+    "zeroToNextCounterGapP95Ms": 33.847
+  }
+]

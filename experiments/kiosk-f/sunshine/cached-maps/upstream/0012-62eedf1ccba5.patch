@@ -1,0 +1,169 @@
+From 62eedf1ccba534b318ca85d3890bf0951b9e0f87 Mon Sep 17 00:00:00 2001
+From: Faith Ekstrand <faith.ekstrand@collabora.com>
+Date: Mon, 8 Dec 2025 11:08:39 +0100
+Subject: [PATCH] drm/panfrost: Add flag to map GEM object Write-Back Cacheable
+
+Will be used by the UMD to optimize CPU accesses to buffers
+that are frequently read by the CPU, or on which the access
+pattern makes non-cacheable mappings inefficient.
+
+Mapping buffers CPU-cached implies taking care of the CPU
+cache maintenance in the UMD, unless the GPU is IO coherent.
+
+v2:
+- Add more to the commit message
+
+v3:
+- No changes
+
+v4:
+- Fix the map_wc test in panfrost_ioctl_query_bo_info()
+
+v5:
+- Drop Steve's R-b (enough has changed to justify a new review)
+
+v6:
+- Collect R-b
+
+v7:
+- No changes
+
+v8:
+- Fix double drm_gem_object_funcs::export assignment
+
+Signed-off-by: Faith Ekstrand <faith.ekstrand@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Link: https://patch.msgid.link/20251208100841.730527-13-boris.brezillon@collabora.com
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+ drivers/gpu/drm/panfrost/panfrost_drv.c | 10 ++++++--
+ drivers/gpu/drm/panfrost/panfrost_gem.c | 32 +++++++++++++++++++++++++
+ drivers/gpu/drm/panfrost/panfrost_gem.h |  5 ++++
+ include/uapi/drm/panfrost_drm.h         |  5 +++-
+ 4 files changed, 49 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index d461ecf8829dd6..34969179544c5f 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -126,6 +126,10 @@ static int panfrost_ioctl_get_param(struct drm_device *ddev, void *data, struct
+ 	return 0;
+ }
+ 
++#define PANFROST_BO_FLAGS	(PANFROST_BO_NOEXEC | \
++				 PANFROST_BO_HEAP | \
++				 PANFROST_BO_WB_MMAP)
++
+ static int panfrost_ioctl_create_bo(struct drm_device *dev, void *data,
+ 		struct drm_file *file)
+ {
+@@ -135,8 +139,7 @@ static int panfrost_ioctl_create_bo(struct drm_device *dev, void *data,
+ 	struct panfrost_gem_mapping *mapping;
+ 	int ret;
+ 
+-	if (!args->size || args->pad ||
+-	    (args->flags & ~(PANFROST_BO_NOEXEC | PANFROST_BO_HEAP)))
++	if (!args->size || args->pad || (args->flags & ~PANFROST_BO_FLAGS))
+ 		return -EINVAL;
+ 
+ 	/* Heaps should never be executable */
+@@ -656,6 +659,9 @@ static int panfrost_ioctl_query_bo_info(struct drm_device *dev, void *data,
+ 
+ 		if (bo->is_heap)
+ 			args->create_flags |= PANFROST_BO_HEAP;
++
++		if (!bo->base.map_wc)
++			args->create_flags |= PANFROST_BO_WB_MMAP;
+ 	}
+ 
+ 	drm_gem_object_put(gem_obj);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+index 62c9e3a6b0e96c..44985b51521276 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -444,12 +444,42 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
+ 	return &obj->base.base;
+ }
+ 
++static bool
++should_map_wc(struct panfrost_gem_object *bo)
++{
++	struct panfrost_device *pfdev = to_panfrost_device(bo->base.base.dev);
++
++	/* We can't do uncached mappings if the device is coherent,
++	 * because the zeroing done by the shmem layer at page allocation
++	 * time happens on a cached mapping which isn't CPU-flushed (at least
++	 * not on Arm64 where the flush is deferred to PTE setup time, and
++	 * only done conditionally based on the mapping permissions). We can't
++	 * rely on dma_map_sgtable()/dma_sync_sgtable_for_xxx() either to flush
++	 * those, because they are NOPed if dma_dev_coherent() returns true.
++	 */
++	if (pfdev->coherent)
++		return false;
++
++	/* Cached mappings are explicitly requested, so no write-combine. */
++	if (bo->wb_mmap)
++		return false;
++
++	/* The default is write-combine. */
++	return true;
++}
++
+ struct panfrost_gem_object *
+ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
+ {
+ 	struct drm_gem_shmem_object *shmem;
+ 	struct panfrost_gem_object *bo;
+ 
++	/* The heap buffer is not supposed to be CPU-visible, so don't allow
++	 * WB_MMAP on those.
++	 */
++	if ((flags & PANFROST_BO_HEAP) && (flags & PANFROST_BO_WB_MMAP))
++		return ERR_PTR(-EINVAL);
++
+ 	/* Round up heap allocations to 2MB to keep fault handling simple */
+ 	if (flags & PANFROST_BO_HEAP)
+ 		size = roundup(size, SZ_2M);
+@@ -461,6 +491,8 @@ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
+ 	bo = to_panfrost_bo(&shmem->base);
+ 	bo->noexec = !!(flags & PANFROST_BO_NOEXEC);
+ 	bo->is_heap = !!(flags & PANFROST_BO_HEAP);
++	bo->wb_mmap = !!(flags & PANFROST_BO_WB_MMAP);
++	bo->base.map_wc = should_map_wc(bo);
+ 
+ 	return bo;
+ }
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
+index 45e2aa846cc784..79d4377019e9e7 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.h
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
+@@ -98,6 +98,11 @@ struct panfrost_gem_object {
+ 	bool noexec		:1;
+ 	bool is_heap		:1;
+ 
++	/* On coherent devices, this reflects the creation flags, not the true
++	 * cacheability attribute of the mapping.
++	 */
++	bool wb_mmap		:1;
++
+ #ifdef CONFIG_DEBUG_FS
+ 	struct panfrost_gem_debugfs debugfs;
+ #endif
+diff --git a/include/uapi/drm/panfrost_drm.h b/include/uapi/drm/panfrost_drm.h
+index 36ae48ea50d3fe..50d5337f35ef25 100644
+--- a/include/uapi/drm/panfrost_drm.h
++++ b/include/uapi/drm/panfrost_drm.h
+@@ -124,9 +124,12 @@ struct drm_panfrost_wait_bo {
+ 	__s64 timeout_ns;
+ };
+ 
+-/* Valid flags to pass to drm_panfrost_create_bo */
++/* Valid flags to pass to drm_panfrost_create_bo.
++ * PANFROST_BO_WB_MMAP can't be set if PANFROST_BO_HEAP is.
++ */
+ #define PANFROST_BO_NOEXEC	1
+ #define PANFROST_BO_HEAP	2
++#define PANFROST_BO_WB_MMAP	4
+ 
+ /**
+  * struct drm_panfrost_create_bo - ioctl argument for creating Panfrost BOs.

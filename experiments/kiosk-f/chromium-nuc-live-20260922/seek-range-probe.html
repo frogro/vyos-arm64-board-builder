@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><video muted playsinline width="1920"></video><script>
+const v=document.querySelector('video'),codec=new URLSearchParams(location.search).get('codec');
+const r=window.decodeProbe={codec,state:'loading',cycles:[],frames:[]};
+const once=(event,ms=6000)=>new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(Error('timeout '+event)),ms);v.addEventListener(event,()=>{clearTimeout(t);resolve();},{once:true});});
+v.onerror=()=>{r.state='error';r.error=v.error?.message;};
+(async()=>{try{
+ const loaded=once('loadeddata');v.src='test-'+codec+'.mp4';await loaded;await v.play();r.state='playing';
+ for(const target of [15,3,22,8,18,1,25,5]){
+  await new Promise(resolve=>setTimeout(resolve,700));v.pause();
+  const seeked=once('seeked');v.currentTime=target;await seeked;
+  const next=new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(Error('frame stalled')),6000);const nextFrame=(now,m)=>{if(Math.abs(m.mediaTime-target)>0.25){v.requestVideoFrameCallback(nextFrame);return;}clearTimeout(t);resolve({target,mediaTime:m.mediaTime});};v.requestVideoFrameCallback(nextFrame);});
+  await v.play();const actual=await next;r.cycles.push(actual);if(Math.abs(actual.mediaTime-target)>0.25)throw Error('wrong seek position '+JSON.stringify(actual));
+ }
+ await new Promise(resolve=>setTimeout(resolve,1000));v.pause();const q=v.getVideoPlaybackQuality();r.totalFrames=q.totalVideoFrames;r.droppedFrames=q.droppedVideoFrames;r.state='ended';
+}catch(e){r.state='error';r.error=String(e);}})();
+</script>

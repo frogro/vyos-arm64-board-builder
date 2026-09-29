@@ -1,0 +1,4 @@
+# Isolated comparison only; never replaces the production kiosk image.
+FROM localhost/vyarm-kiosk:touch-reconnect-20260920
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends weston && rm -rf /var/lib/apt/lists/*

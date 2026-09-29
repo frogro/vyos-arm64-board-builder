@@ -1,0 +1,16 @@
+--- a/drivers/media/platform/rockchip/rga/rga-hw.c
++++ b/drivers/media/platform/rockchip/rga/rga-hw.c
+@@ -164,8 +164,11 @@
+ 	bool full;
+ 	u32 value;
+ 
+-	if (ctx->in.fmt->fourcc != V4L2_PIX_FMT_XBGR32 ||
+-	    ctx->out.fmt->fourcc != V4L2_PIX_FMT_NV12 ||
++	if ((ctx->in.fmt->fourcc != V4L2_PIX_FMT_XBGR32 &&
++	     ctx->in.fmt->fourcc != V4L2_PIX_FMT_BGR24 &&
++	     ctx->in.fmt->fourcc != V4L2_PIX_FMT_RGB24) ||
++	    (ctx->out.fmt->fourcc != V4L2_PIX_FMT_NV12 &&
++	     ctx->out.fmt->fourcc != V4L2_PIX_FMT_NV12M) ||
+ 	    ctx->in.pix.quantization != V4L2_QUANTIZATION_FULL_RANGE ||
+ 	    (ctx->out.colorspace != V4L2_COLORSPACE_REC709 &&
+ 	     ctx->out.colorspace != V4L2_COLORSPACE_SMPTE170M) ||

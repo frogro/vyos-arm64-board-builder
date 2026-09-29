@@ -1,0 +1,43 @@
+--- a/src/video.cpp
++++ b/src/video.cpp
+@@ -1446,6 +1446,30 @@
+   };
+ #endif
+ 
++#if defined(__linux__) || defined(linux) || defined(__linux)
++  // Rockchip MPP via an FFmpeg build providing h264_rkmpp. Selection is based
++  // on Sunshine's real encoder validation, never on board names or USB IDs.
++  // CPU-backed NV12 is intentional for this first integration: GPU rendering
++  // and DMA-BUF zero-copy are separate optimizations.
++  encoder_t rkmpp {
++    "rkmpp"sv,
++    std::make_unique<encoder_platform_formats_avcodec>(
++      AV_HWDEVICE_TYPE_NONE, AV_HWDEVICE_TYPE_NONE, AV_PIX_FMT_NONE,
++      AV_PIX_FMT_NV12, AV_PIX_FMT_NONE, AV_PIX_FMT_NONE, AV_PIX_FMT_NONE,
++      nullptr
++    ),
++    {}, // AV1 is not advertised by this backend.
++    {}, // HEVC is deferred until the H.264 path is validated.
++    {
++      {{"rc_mode"s, 1}}, // CBR, as exposed by ffmpeg-rockchip.
++      {}, {}, {}, {}, {},
++      "h264_rkmpp"s,
++      {}
++    },
++    H264_ONLY | PARALLEL_ENCODING | LIMITED_GOP_SIZE | SINGLE_SLICE_ONLY
++  };
++#endif
++
+   static const std::vector encoders {
+ #ifndef __APPLE__
+     &nvenc,
+@@ -1460,6 +1484,9 @@
+     &vulkan,
+   #endif
+     &vaapi,
++  #if defined(__linux__) || defined(linux) || defined(__linux)
++    &rkmpp,
++  #endif
+ #endif
+ #ifdef __APPLE__
+     &videotoolbox,

@@ -1,0 +1,2 @@
+[RDD 144: MediaSupervisor #1]: D/FFmpegVideo FFMPEG: FFmpegVideoDecoder::FFmpegVideoDecoder MIME video/avc Codec ID 27
+[RDD 144: MediaPDecoder #1]: D/FFmpegVideo FFMPEG: FFmpegVideoDecoder, init, IsHardwareAccelerated=0

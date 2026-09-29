@@ -1,0 +1,11 @@
+--- a/media/base/format_utils.cc
++++ b/media/base/format_utils.cc
+@@ -39,6 +39,8 @@
+     return PIXEL_FORMAT_NV12A;
+   } else if (format == viz::MultiPlaneFormat::kP010) {
+     return PIXEL_FORMAT_P010LE;
++  } else if (format == viz::MultiPlaneFormat::kNV15) {
++    return PIXEL_FORMAT_NV15;
+   } else if (format == viz::MultiPlaneFormat::kP210) {
+     return PIXEL_FORMAT_P210LE;
+   } else if (format == viz::MultiPlaneFormat::kP410) {

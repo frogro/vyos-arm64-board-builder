@@ -1,0 +1,45 @@
+From 76e8173ba92e15eeb0421b7cdbaef20513193b51 Mon Sep 17 00:00:00 2001
+From: Akash Goel <akash.goel@arm.com>
+Date: Thu, 5 Mar 2026 11:07:23 +0000
+Subject: [PATCH] drm/panthor: Correct the order of arguments passed to
+ gem_sync
+
+This commit corrects the order of arguments passed to panthor_gem_sync()
+function, called when the SYNC_WAIT condition has to be evaluated for a
+blocked GPU queue.
+
+Fixes: cd2c9c3015e6 ("drm/panthor: Add flag to map GEM object Write-Back Cacheable")
+Signed-off-by: Akash Goel <akash.goel@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patch.msgid.link/20260305110723.2871733-1-akash.goel@arm.com
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+---
+ drivers/gpu/drm/panthor/panthor_sched.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/panthor/panthor_sched.c b/drivers/gpu/drm/panthor/panthor_sched.c
+index bd703a2904a168..a70f1db0764e93 100644
+--- a/drivers/gpu/drm/panthor/panthor_sched.c
++++ b/drivers/gpu/drm/panthor/panthor_sched.c
+@@ -893,14 +893,15 @@ panthor_queue_get_syncwait_obj(struct panthor_group *group, struct panthor_queue
+ 
+ out_sync:
+ 	/* Make sure the CPU caches are invalidated before the seqno is read.
+-	 * drm_gem_shmem_sync() is a NOP if map_wc=true, so no need to check
++	 * panthor_gem_sync() is a NOP if map_wc=true, so no need to check
+ 	 * it here.
+ 	 */
+-	panthor_gem_sync(&bo->base.base, queue->syncwait.offset,
++	panthor_gem_sync(&bo->base.base,
++			 DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE,
++			 queue->syncwait.offset,
+ 			 queue->syncwait.sync64 ?
+ 			 sizeof(struct panthor_syncobj_64b) :
+-			 sizeof(struct panthor_syncobj_32b),
+-			 DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE);
++			 sizeof(struct panthor_syncobj_32b));
+ 
+ 	return queue->syncwait.kmap + queue->syncwait.offset;
+ 

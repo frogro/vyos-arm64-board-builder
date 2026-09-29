@@ -1,0 +1,135 @@
+--- a/src/platform/common.h
++++ b/src/platform/common.h
+@@ -530,6 +530,8 @@
+     img_t &operator=(img_t &&) = delete;
+     img_t &operator=(const img_t &) = delete;
+ 
++    int vyarm_nv12_matrix = 0;  // 0=ordinary input, 1=BT601, 2=BT709 direct RGA
++    bool vyarm_nv12_full = false;
+     std::uint8_t *data {};  ///< Pointer to the captured image buffer.
+     std::int32_t width {};  ///< Image width in pixels.
+     std::int32_t height {};  ///< Image height in pixels.
+--- a/src/platform/linux/kmsgrab.cpp
++++ b/src/platform/linux/kmsgrab.cpp
+@@ -1,3 +1,4 @@
++#include "direct-rga.hpp"
+ /**
+  * @file src/platform/linux/kmsgrab.cpp
+  * @brief Definitions for KMS screen capture.
+@@ -1660,6 +1661,15 @@
+ 
+         ctx = std::move(*ctx_opt);
+ 
++        const char *opt = std::getenv("SUNSHINE_VYARM_DIRECT_RGA");
++        auto cs = ::video::colorspace_from_client_config(config, false);
++        direct_bt709 = cs.colorspace == ::video::colorspace_e::rec709;
++        direct_full = cs.full_range;
++        direct_allowed = opt && std::string(opt) == "1" && config.dynamicRange == 0 &&
++          (cs.colorspace == ::video::colorspace_e::rec601 || direct_bt709);
++        if (opt && std::string(opt) == "1" && !direct_allowed) {
++          BOOST_LOG(warning) << "VYARM_DIRECT_RGA fallback: unsupported client color depth/space";
++        }
+         return 0;
+       }
+ 
+@@ -1796,6 +1806,46 @@
+         }
+ 
+         const auto t1 = timing ? std::chrono::steady_clock::now() : t0;
++        if (!pull_free_image_cb(img_out)) {
++          return platf::capture_e::interrupted;
++        }
++        // Allocated buffers keep full RGB capacity so any failure can fall back
++        // in this same frame. Metadata is reset before every capture attempt.
++        img_out->pixel_pitch = 4;
++        img_out->row_pitch = width * 4;
++        img_out->vyarm_nv12_matrix = 0;
++        img_out->vyarm_nv12_full = false;
++        if (direct_allowed) {
++          const auto begin = std::chrono::steady_clock::now();
++          if (!direct) direct = std::make_unique<vyarm::direct_rga>();
++          vyarm::direct_cursor overlay;
++          if (cursor && captured_cursor.visible) {
++            overlay = {captured_cursor.pixels.data(), captured_cursor.src_w, captured_cursor.src_h,
++                       captured_cursor.x - img_offset_x, captured_cursor.y - img_offset_y};
++          }
++          std::string error;
++          bool single = sd.fds[1] < 0 && sd.fds[2] < 0 && sd.fds[3] < 0;
++          if (single && direct->capture({sd.fds[0],sd.width,sd.height,sd.fourcc,sd.pitches[0],sd.offsets[0],sd.modifier},
++              img_offset_x,img_offset_y,width,height,direct_bt709,direct_full,overlay,img_out->data,error)) {
++            img_out->pixel_pitch = 1;
++            img_out->row_pitch = width;
++            img_out->vyarm_nv12_matrix = direct_bt709 ? 2 : 1;
++            img_out->vyarm_nv12_full = direct_full;
++            img_out->frame_timestamp = frame_timestamp;
++            direct_ms += std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
++            if (++direct_frames % 120 == 0) {
++              BOOST_LOG(info) << "VYARM_DIRECT_RGA frames=" << direct_frames << " capture_convert_ms=" << direct_ms/120
++                              << " width=" << width << " height=" << height << " bt709=" << direct_bt709 << " full=" << direct_full;
++              direct_ms = 0;
++            }
++            return capture_e::ok;
++          }
++          BOOST_LOG(warning) << "VYARM_DIRECT_RGA fallback: " << (single ? error : "multi-plane source")
++                            << "; disabled until capture reinitialization";
++          direct.reset();
++          direct_allowed = false;
++        }
++
+         auto rgb_opt = egl::import_source(display.get(), sd);
+ 
+         if (!rgb_opt) {
+@@ -1814,9 +1864,6 @@
+         gl::ctx.GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+         BOOST_LOG(debug) << "width and height: w "sv << w << " h "sv << h;
+ 
+-        if (!pull_free_image_cb(img_out)) {
+-          return platf::capture_e::interrupted;
+-        }
+ 
+         const auto t3 = timing ? std::chrono::steady_clock::now() : t0;
+         gl::ctx.GetTextureSubImage(rgb->tex[0], 0, img_offset_x, img_offset_y, 0, width, height, 1, GL_BGRA, GL_UNSIGNED_BYTE, img_out->height * img_out->row_pitch, img_out->data);
+@@ -1882,6 +1929,10 @@
+         return 0;
+       }
+ 
++      bool direct_allowed = false, direct_bt709 = true, direct_full = false;
++      std::unique_ptr<vyarm::direct_rga> direct;
++      uint64_t direct_frames = 0;
++      double direct_ms = 0;
+       gbm::gbm_t gbm;  ///< GBM device used for buffer allocation.
+       egl::display_t display;  ///< EGL display created from the GBM device.
+       egl::ctx_t ctx;  ///< EGL context used to copy KMS frames into RAM.
+--- a/src/video.cpp
++++ b/src/video.cpp
+@@ -245,6 +245,17 @@
+         return -1;
+       }
+       // The colorspace details were applied to the previous sws context.
++      apply_colorspace();
++    }
++
++    // Direct capture already converted RGB according to its negotiated matrix.
++    // Set both sides explicitly, including when a later frame falls back to RGB.
++    if (img.vyarm_nv12_matrix) {
++      auto cs = avcodec_colorspace_from_sunshine_colorspace(colorspace);
++      sws_setColorspaceDetails(sws.get(), sws_getCoefficients(img.vyarm_nv12_matrix == 2 ? SWS_CS_ITU709 : SWS_CS_ITU601),
++                              img.vyarm_nv12_full ? 1 : 0, sws_getCoefficients(cs.software_format),
++                              cs.range - 1, 0, 1 << 16, 1 << 16);
++    } else {
+       apply_colorspace();
+     }
+ 
+--- a/cmake/compile_definitions/linux.cmake
++++ b/cmake/compile_definitions/linux.cmake
+@@ -94,7 +94,9 @@
+         list(APPEND PLATFORM_LIBRARIES ${LIBDRM_LIBRARIES})
+         add_compile_definitions(SUNSHINE_BUILD_DRM)
+         list(APPEND PLATFORM_TARGET_FILES
+-                "${CMAKE_SOURCE_DIR}/src/platform/linux/kmsgrab.cpp")
++                "${CMAKE_SOURCE_DIR}/src/platform/linux/kmsgrab.cpp"
++                "${CMAKE_SOURCE_DIR}/src/platform/linux/direct-rga.cpp")
++        list(APPEND PLATFORM_LIBRARIES EGL GLESv2)
+         list(APPEND SUNSHINE_DEFINITIONS EGL_NO_X11=1)
+     endif()
+ endif()

@@ -1,0 +1,142 @@
+{
+  "driver": {
+    "ref": "v7.0",
+    "files": {
+      "Kconfig": "5f3bdd848a2cf65b3b0cda78d6bd255c9826cb47",
+      "Makefile": "e629d571e4d8933259e1d7853ab5fdb9f6f60ba3",
+      "rkvdec-cabac.c": "068bc0cd5f43d72c0c70e58db3db7c736fdd1367",
+      "rkvdec-cabac.h": "3b721c854b9b334ca97d047aa3808bd708270436",
+      "rkvdec-h264-common.c": "e28f063944705bb2e8e9981c80330e56cf3c97e9",
+      "rkvdec-h264-common.h": "5336370507d66652648c656c6b7fc401e6db9048",
+      "rkvdec-h264.c": "d3202cecb98805b04554c4d5c4573876cbe1913e",
+      "rkvdec-hevc-common.c": "3119f3bc9f98bd22232fbefa1a8197b247f3d64d",
+      "rkvdec-hevc-common.h": "6f4faca4c091cbb96d2d9b200c0127980dcf6b2d",
+      "rkvdec-hevc.c": "ac8b825d080a254a8624ff8591926630e6dd983d",
+      "rkvdec-rcb.c": "fdcf1f1773797ef19761b18af9ecb010ddcbbec4",
+      "rkvdec-rcb.h": "30e8002555c8a9cfa1420db0ea60efad0a3bc5c0",
+      "rkvdec-regs.h": "1af66c5f1c9b6aed798781f845fb9d4160d70b97",
+      "rkvdec-vdpu381-h264.c": "b961fddc8583a118bf8598dac3de7a712d78e4e5",
+      "rkvdec-vdpu381-hevc.c": "fe6414a175510c30cb7c8d170ec4888eadd7be05",
+      "rkvdec-vdpu381-regs.h": "6da36031df2dc5da596990d85392b7e96d155e07",
+      "rkvdec-vdpu383-h264.c": "fb4f849d73668471f96279158342656b0aa6dd16",
+      "rkvdec-vdpu383-hevc.c": "96d938ee70b04c1077dac0c26bf7130c2dc45c4e",
+      "rkvdec-vdpu383-regs.h": "04eb23297e37c87379cf54cb324141fff6365bd4",
+      "rkvdec-vp9.c": "2751f5396ee8017e53645c5fe9b03c52ffb37b1b",
+      "rkvdec.c": "1d1e9bfef8e96e2661758774aae7b2d8715348e5",
+      "rkvdec.h": "a24be6638b6b7a88c59371cbbef62bb7dc6a036f"
+    }
+  },
+  "hevc_controls_commit": "fa05705107a40131a8335ad37817153709261738",
+  "additional_fixes": [
+    "f0b9d7e5be061b4858279d451f5a6ad0ed20b1be",
+    "052c5ed5a1d96a6b24fd50ccda16fc6841ee7ca3",
+    "28ceb7eb73c90ef6f59c24a7fcc4fe8e42183b2c",
+    "81ad46bb33d8fd279aaa33af5296c648814c964b"
+  ],
+  "files": {
+    "arch/arm64/boot/dts/rockchip/rk3588-base.dtsi": {
+      "before_sha256": "5053a4c44e6e59ecca704caec5771f159c5347899019fd7359b23449f1d15bd1",
+      "after_sha256": "5da68d368f9187ab1c3250cbd0787645fbdb3530fb800b54cd1837011449118e"
+    },
+    "drivers/media/platform/rockchip/rkvdec/Makefile": {
+      "before_sha256": "9157230bfe2c19266cf6a11f9f4f8f2686dbb61d070c5a6cb74bf8e8f79b23a8",
+      "after_sha256": "ea50f12f5e2ca4cf13f18efa77fee0c65722bdc757e142f89ce10a4ae164e555"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-cabac.c": {
+      "before_sha256": null,
+      "after_sha256": "5e3fbcd5e454f9215e357beaa3280a8da568f664c7af8a319fff1185a54c3e3a"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-cabac.h": {
+      "before_sha256": null,
+      "after_sha256": "8bd70311b6e846d509ee68cece164a49c334c7b9f125d4ea5ad25ee201f337a0"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264-common.c": {
+      "before_sha256": null,
+      "after_sha256": "bb83f83fd72e1bfbc217aef0baa1cf9ff9693fe788341ed912504da212290007"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264-common.h": {
+      "before_sha256": null,
+      "after_sha256": "39bc5be6248099695a5f039a28ada97ec3ae4d2af6f9dbc7b2ef13910a3faa87"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264.c": {
+      "before_sha256": "5238514e669d089c3e37c66dc0510b093e099d445414ef1ec45c859019bcae0b",
+      "after_sha256": "e4971ff1410bc452dc0c40494b97e2ce4ff5d924e0b8663d1f41600f579f82b1"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc-common.c": {
+      "before_sha256": null,
+      "after_sha256": "a4c57ec75003456a28d0f98afd88898888dc8e72aba654b171d7e3dfd15acc0a"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc-common.h": {
+      "before_sha256": null,
+      "after_sha256": "ab57504583bc58e4b07247bdf07706d873de29bfdfcb372b056c8c1b2ab99b60"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc.c": {
+      "before_sha256": null,
+      "after_sha256": "7ece5d43d48980054f499d722e9a4fb8bbb830df0105a1f42f27f36676fbd45e"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-rcb.c": {
+      "before_sha256": null,
+      "after_sha256": "92812145bb7fccea76112a132ffb3182409d44836c89a05f15d39e5afb9539d4"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-rcb.h": {
+      "before_sha256": null,
+      "after_sha256": "5a7bf008d0062f6cac7c5e05ab041bbb304e4b0b72c01a4250162480c2ba0b85"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-regs.h": {
+      "before_sha256": "49615ca14f56b1d5f66992f8caa256a052d0baa0014e2c2dc07de3c721134af0",
+      "after_sha256": "5e0efa94888196060dc0e7baa286ec0b30bda466fb6dd4be11ba9b6fa46a988b"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-h264.c": {
+      "before_sha256": null,
+      "after_sha256": "40a44d7292a216d59ebded41679e8e5093ea1a61d578b34d8f91c9974f0e03ce"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-hevc.c": {
+      "before_sha256": null,
+      "after_sha256": "3addcedf0f8abe542853b8ba684ed13799a4640c9362df198d2f5404438e0ec2"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-regs.h": {
+      "before_sha256": null,
+      "after_sha256": "ba50f70b2454830de5a272ac85ee650e7d439847673363c522e6717ea4abc2ed"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-h264.c": {
+      "before_sha256": null,
+      "after_sha256": "07318b6ee6064e8568eb566511693cf3a111e425bee59b9c9db8befe3c8a2131"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-hevc.c": {
+      "before_sha256": null,
+      "after_sha256": "ddcdcad9eb717d0a31b1346ac30874bd968a2faa528cce0dcd8e3f5cb09df604"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-regs.h": {
+      "before_sha256": null,
+      "after_sha256": "4bfec8d37d0737150576816a390b41631c7971ba9f71d3b843c4203886cfa919"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vp9.c": {
+      "before_sha256": "1736516b121d865c2150fbac11dd83759b01e9b53aef5be5998241c6d4628f6f",
+      "after_sha256": "efaa00f4fb1304377997f973f2dd862c4b29d73a56046514271f4feee2f83e87"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec.c": {
+      "before_sha256": "8f43eb4baa208edc0e4bf9c7b5b2333989b696d853c5e28afbf3e46f66c1a4ed",
+      "after_sha256": "a9eaaaec2ae2e9d3c5de4c1f78f4b4cd0bb136dfc8c412ea2e4c2b6ba064fe43"
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec.h": {
+      "before_sha256": "085a1e5ccc89ea652bc56618b839457f67a0d984d91edc8d9637e6a94e0c6cc5",
+      "after_sha256": "4e3cfe80c86bcb99034156e7a0f7345debb5b6b50ca662a9b4d90d29af3f755d"
+    },
+    "drivers/media/v4l2-core/v4l2-ctrls-core.c": {
+      "before_sha256": "d1657074f878c786f1337567caf3373ee9eb8ace203283f5f55224d97bf36283",
+      "after_sha256": "9456114130f7072c3f7ae4e2b4683ef0a94fc2e9c63295c2a19d44b796c2ae20"
+    },
+    "drivers/media/v4l2-core/v4l2-ctrls-defs.c": {
+      "before_sha256": "9341bf36249ea744eda60c2f89045589b49fc6fe6fb4364287b1914d2c228007",
+      "after_sha256": "4321dd805d7b436823c71812871f7dccb3522dcc02e02e1e2e70bf041808e47e"
+    },
+    "include/media/v4l2-hevc.h": {
+      "before_sha256": null,
+      "after_sha256": "8b9f926f4ffe90de849155dd44aa68132ffe58785f6b9e941de78a6385858c8e"
+    },
+    "include/uapi/linux/v4l2-controls.h": {
+      "before_sha256": "dd81a8654b85f1b3ca95451c689b59a015a465d0c02fa96589af0322d5bb7db0",
+      "after_sha256": "36d6efd6e831bf0a3cc59a869817bbe9d73a857cec6079ae0c097a340e221423"
+    }
+  }
+}

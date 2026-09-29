@@ -1,0 +1,1846 @@
+{
+  "webrtc": {
+    "receive": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=1"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=3"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=1;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/flexfec-03",
+          "sdpFmtpLine": "repair-window=10000000"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    },
+    "send": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    }
+  },
+  "cpuSamples": [
+    {
+      "monotonic": 4098.948628675,
+      "usage_usec": 6516438,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4099.464209976,
+      "usage_usec": 8893833,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4099.967831726,
+      "usage_usec": 9544731,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4100.469680976,
+      "usage_usec": 10280996,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4100.972673199,
+      "usage_usec": 11107119,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4101.474841608,
+      "usage_usec": 12020988,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4101.979563457,
+      "usage_usec": 12924158,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4102.484461968,
+      "usage_usec": 13755247,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4102.989276065,
+      "usage_usec": 14632768,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4103.491397767,
+      "usage_usec": 15400241,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4103.992820193,
+      "usage_usec": 16013329,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4104.49531022,
+      "usage_usec": 16741342,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4104.998615477,
+      "usage_usec": 17479859,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4105.500785844,
+      "usage_usec": 18268944,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4106.002851256,
+      "usage_usec": 19037626,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4106.505941435,
+      "usage_usec": 19840597,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4107.008292048,
+      "usage_usec": 20577870,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4107.510099216,
+      "usage_usec": 21344119,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4108.012662657,
+      "usage_usec": 22139912,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4108.515298055,
+      "usage_usec": 22905370,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4109.017466922,
+      "usage_usec": 23666537,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4109.520159194,
+      "usage_usec": 24449197,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4110.022313312,
+      "usage_usec": 25253686,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4110.526695627,
+      "usage_usec": 25990056,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4111.029382399,
+      "usage_usec": 26826270,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4111.531423269,
+      "usage_usec": 27673901,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4112.033166147,
+      "usage_usec": 28406032,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4112.535480927,
+      "usage_usec": 29139407,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4113.037994537,
+      "usage_usec": 29918564,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4113.542111025,
+      "usage_usec": 30690649,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4114.044524011,
+      "usage_usec": 31586352,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4114.548902285,
+      "usage_usec": 32407612,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4115.051131026,
+      "usage_usec": 33119251,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4115.553388391,
+      "usage_usec": 33824185,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4116.059128799,
+      "usage_usec": 34587139,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4116.562651468,
+      "usage_usec": 35263582,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4117.064246308,
+      "usage_usec": 36062618,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4117.566984161,
+      "usage_usec": 36861806,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4118.071172648,
+      "usage_usec": 37671405,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4118.573618592,
+      "usage_usec": 38483417,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4119.077761955,
+      "usage_usec": 39425718,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4119.579777284,
+      "usage_usec": 40231921,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4120.082262269,
+      "usage_usec": 40915778,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4120.584627507,
+      "usage_usec": 41729163,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4121.087460192,
+      "usage_usec": 42474961,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4121.58924011,
+      "usage_usec": 43293532,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4122.092317748,
+      "usage_usec": 44114971,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4122.597250758,
+      "usage_usec": 44851352,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4123.10079676,
+      "usage_usec": 45611625,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4123.604026352,
+      "usage_usec": 46317192,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4124.108761117,
+      "usage_usec": 46970929,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4124.610934985,
+      "usage_usec": 47633737,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4125.113226057,
+      "usage_usec": 48461018,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4125.615584587,
+      "usage_usec": 49308754,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4126.118643683,
+      "usage_usec": 50055125,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4126.620795343,
+      "usage_usec": 50833454,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4127.122669634,
+      "usage_usec": 51589124,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4127.625204118,
+      "usage_usec": 52326804,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4128.1295646,
+      "usage_usec": 53168258,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4128.631514931,
+      "usage_usec": 54005885,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4129.134798355,
+      "usage_usec": 54813921,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4129.641418534,
+      "usage_usec": 55694323,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4130.144107181,
+      "usage_usec": 56463443,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4130.646255007,
+      "usage_usec": 57282686,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4131.148374501,
+      "usage_usec": 57985991,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4131.650709531,
+      "usage_usec": 58906502,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4132.153138642,
+      "usage_usec": 59706351,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4132.656157531,
+      "usage_usec": 60443621,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4133.162484842,
+      "usage_usec": 61248487,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4133.665167698,
+      "usage_usec": 61958249,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4134.167469229,
+      "usage_usec": 62764557,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4134.669705136,
+      "usage_usec": 63507163,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4135.172178621,
+      "usage_usec": 64232845,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4135.675856953,
+      "usage_usec": 65015724,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4136.178565558,
+      "usage_usec": 65783584,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4136.680278019,
+      "usage_usec": 66535731,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4137.182354347,
+      "usage_usec": 67328643,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4137.684425758,
+      "usage_usec": 68078631,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4138.187272901,
+      "usage_usec": 68823848,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4138.693382509,
+      "usage_usec": 69676666,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4139.195267217,
+      "usage_usec": 70426050,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4139.697273713,
+      "usage_usec": 71169432,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4140.200224812,
+      "usage_usec": 71854675,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4140.703276367,
+      "usage_usec": 72656513,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4141.20553469,
+      "usage_usec": 73454874,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4141.708739117,
+      "usage_usec": 74257367,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4142.211008898,
+      "usage_usec": 75049551,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4142.716877179,
+      "usage_usec": 75780522,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4143.2192445,
+      "usage_usec": 76620050,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4143.721604279,
+      "usage_usec": 77317583,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4144.223464612,
+      "usage_usec": 78115238,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4144.726394003,
+      "usage_usec": 78934523,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4145.229467308,
+      "usage_usec": 79685549,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4145.731993333,
+      "usage_usec": 80460085,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4146.233875707,
+      "usage_usec": 81222093,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4146.736218112,
+      "usage_usec": 81934336,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4147.2382464,
+      "usage_usec": 82638059,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4147.740402351,
+      "usage_usec": 83392073,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4148.242728673,
+      "usage_usec": 84266937,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4148.745329322,
+      "usage_usec": 85112247,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4149.247251195,
+      "usage_usec": 85810570,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4149.748851076,
+      "usage_usec": 86631005,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4150.251529223,
+      "usage_usec": 87342951,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4150.75456707,
+      "usage_usec": 88107344,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4151.257102553,
+      "usage_usec": 88793465,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4151.759807366,
+      "usage_usec": 89628584,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4152.262445973,
+      "usage_usec": 90435927,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4152.764725546,
+      "usage_usec": 91144599,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4153.267207448,
+      "usage_usec": 92018994,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4153.769706099,
+      "usage_usec": 92811852,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4154.272238166,
+      "usage_usec": 93579798,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4154.775117183,
+      "usage_usec": 94360137,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4155.277986992,
+      "usage_usec": 95144265,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4155.780718055,
+      "usage_usec": 95900452,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4156.283038085,
+      "usage_usec": 96664637,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4156.785440947,
+      "usage_usec": 97437425,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4157.28801968,
+      "usage_usec": 98184962,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4157.790739243,
+      "usage_usec": 98931697,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4158.293150688,
+      "usage_usec": 99712216,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4158.796497736,
+      "usage_usec": 100536793,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4159.29852644,
+      "usage_usec": 101310614,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4159.800575602,
+      "usage_usec": 101927194,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4160.305206536,
+      "usage_usec": 102625701,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4160.806962538,
+      "usage_usec": 103435695,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4161.310585496,
+      "usage_usec": 104314779,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4161.812891235,
+      "usage_usec": 105027522,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4162.315435094,
+      "usage_usec": 105849740,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4162.817780457,
+      "usage_usec": 106678342,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4163.320725181,
+      "usage_usec": 107488725,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4163.82283355,
+      "usage_usec": 108239842,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4164.328563542,
+      "usage_usec": 109009665,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4164.830668244,
+      "usage_usec": 109835823,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4165.333287101,
+      "usage_usec": 110589945,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4165.83468257,
+      "usage_usec": 111431352,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4166.336685399,
+      "usage_usec": 112248397,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4166.838647397,
+      "usage_usec": 112967716,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4167.34227798,
+      "usage_usec": 113689665,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4167.847600981,
+      "usage_usec": 114547210,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4168.349402857,
+      "usage_usec": 115337581,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4168.851440686,
+      "usage_usec": 116149194,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4169.3561982,
+      "usage_usec": 116931023,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4169.859441709,
+      "usage_usec": 117807848,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4170.361777281,
+      "usage_usec": 118644259,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4170.864216434,
+      "usage_usec": 119400276,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4171.368415753,
+      "usage_usec": 120150836,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4171.870563038,
+      "usage_usec": 120909837,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4172.376131242,
+      "usage_usec": 121666659,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4172.879155172,
+      "usage_usec": 122454815,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4173.3829995,
+      "usage_usec": 123190231,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4173.885448569,
+      "usage_usec": 123996355,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4174.389306147,
+      "usage_usec": 124854716,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4174.89110269,
+      "usage_usec": 125715815,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4175.397269754,
+      "usage_usec": 126458264,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4175.900085315,
+      "usage_usec": 127161470,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4176.40214806,
+      "usage_usec": 127873897,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4176.90695474,
+      "usage_usec": 128678703,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4177.409456016,
+      "usage_usec": 129359286,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4177.913974703,
+      "usage_usec": 130182842,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4178.416096655,
+      "usage_usec": 130968658,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4178.918295355,
+      "usage_usec": 131715448,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4179.420420765,
+      "usage_usec": 132403974,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4179.923151286,
+      "usage_usec": 133119030,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4180.425167698,
+      "usage_usec": 133839832,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4180.929377518,
+      "usage_usec": 134565917,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4181.431559676,
+      "usage_usec": 135410990,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4181.939229081,
+      "usage_usec": 136167286,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4182.442501339,
+      "usage_usec": 137006314,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4182.9442248,
+      "usage_usec": 137805833,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4183.448844193,
+      "usage_usec": 138548825,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4183.951767126,
+      "usage_usec": 139323155,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4184.454658268,
+      "usage_usec": 140094938,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4184.957582993,
+      "usage_usec": 140905225,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4185.460256306,
+      "usage_usec": 141699841,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4185.965282815,
+      "usage_usec": 142570213,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4186.467633636,
+      "usage_usec": 143413339,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4186.970826188,
+      "usage_usec": 144311357,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4187.474248109,
+      "usage_usec": 145012421,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4187.979412322,
+      "usage_usec": 145799049,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4188.483636891,
+      "usage_usec": 146536248,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4188.986394495,
+      "usage_usec": 147366951,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4189.489175764,
+      "usage_usec": 148111468,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4189.993535538,
+      "usage_usec": 148789315,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4190.495656282,
+      "usage_usec": 149571513,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4190.997824441,
+      "usage_usec": 150345637,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4191.500139013,
+      "usage_usec": 151084303,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4192.001828475,
+      "usage_usec": 151862319,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4192.504495081,
+      "usage_usec": 152621973,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4193.008441656,
+      "usage_usec": 153446181,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4193.511063222,
+      "usage_usec": 154179620,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4194.012610437,
+      "usage_usec": 154886850,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4194.515711449,
+      "usage_usec": 155538046,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4195.018908625,
+      "usage_usec": 156375118,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4195.521488316,
+      "usage_usec": 157266568,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4196.025097233,
+      "usage_usec": 158117859,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4196.528093498,
+      "usage_usec": 158910566,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4197.031857619,
+      "usage_usec": 159645396,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4197.534367395,
+      "usage_usec": 160360855,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4198.037713527,
+      "usage_usec": 161142364,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4198.539934476,
+      "usage_usec": 161903592,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4199.042480043,
+      "usage_usec": 162649849,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4199.546407952,
+      "usage_usec": 163348692,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4200.051324046,
+      "usage_usec": 164200694,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4200.553339001,
+      "usage_usec": 165019607,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4201.055618574,
+      "usage_usec": 165836374,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4201.557310161,
+      "usage_usec": 166690133,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4202.061560187,
+      "usage_usec": 167417060,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4202.564151003,
+      "usage_usec": 168266704,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4203.066534116,
+      "usage_usec": 169005253,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4203.568866187,
+      "usage_usec": 169764619,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4204.071854952,
+      "usage_usec": 170572783,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4204.573706369,
+      "usage_usec": 171349873,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4205.075660575,
+      "usage_usec": 172135017,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4205.577085668,
+      "usage_usec": 172845215,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4206.079804481,
+      "usage_usec": 173631583,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4206.581766728,
+      "usage_usec": 174310659,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4207.085038903,
+      "usage_usec": 175049229,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4207.588203371,
+      "usage_usec": 175828881,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4208.092807765,
+      "usage_usec": 176574684,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4208.596595177,
+      "usage_usec": 177345932,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4209.099692814,
+      "usage_usec": 178082824,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4209.602978072,
+      "usage_usec": 178842159,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4210.106576114,
+      "usage_usec": 179699194,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4210.608646567,
+      "usage_usec": 180456655,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4211.111290715,
+      "usage_usec": 181230391,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4211.613325961,
+      "usage_usec": 181901099,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4212.116460097,
+      "usage_usec": 182743115,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4212.619254283,
+      "usage_usec": 183571842,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4213.12113299,
+      "usage_usec": 184297022,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4213.623042322,
+      "usage_usec": 185031696,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4214.125533515,
+      "usage_usec": 185842245,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4214.62740389,
+      "usage_usec": 186709906,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4215.130980266,
+      "usage_usec": 187458277,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4215.632824182,
+      "usage_usec": 188210859,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4216.135185795,
+      "usage_usec": 188880529,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4216.638921792,
+      "usage_usec": 189585556,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4217.142087803,
+      "usage_usec": 190357978,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4217.644877572,
+      "usage_usec": 191160940,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4218.146828195,
+      "usage_usec": 191869091,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4218.648339536,
+      "usage_usec": 192735810,
+      "state": "playing"
+    },
+    {
+      "monotonic": 4219.150651358,
+      "usage_usec": 193266401,
+      "state": "ended"
+    }
+  ],
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers",
+    "--ozone-platform=wayland",
+    "--start-fullscreen",
+    "--window-size=1920,1080",
+    "--disable-accelerated-video-decode"
+  ],
+  "gpu": {
+    "gpu": {
+      "devices": [
+        {
+          "vendorId": 0,
+          "deviceId": 0,
+          "vendorString": "Google Inc. (Mesa)",
+          "deviceString": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+          "driverVendor": "Mesa",
+          "driverVersion": "25.0.7"
+        }
+      ],
+      "auxAttributes": {
+        "amdSwitchable": false,
+        "canSupportThreadedTextureMailbox": false,
+        "directRenderingVersion": "",
+        "displayType": "ANGLE_OPENGLES",
+        "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_compressed_texture_etc GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_size GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_robust_client_memory GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_translated_shader_source GL_ARM_rgba8 GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_blend_func_extended GL_EXT_blend_minmax GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_render_snorm GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_debug GL_KHR_parallel_shader_compile GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_read_depth GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth24 GL_OES_draw_buffers_indexed GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object ",
+        "glImplementationParts": "(gl=egl-angle,angle=opengles)",
+        "glRenderer": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+        "glResetNotificationStrategy": 0,
+        "glVendor": "Google Inc. (Mesa)",
+        "glVersion": "OpenGL ES 3.0 (ANGLE 2.1 git hash: unknown hash)",
+        "glWsExtensions": "EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANDROID_native_fence_sync EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_KHR_create_context_no_error EGL_EXT_image_dma_buf_import EGL_EXT_image_dma_buf_import_modifiers EGL_KHR_reusable_sync EGL_ANGLE_external_context_and_surface EGL_EXT_buffer_age EGL_ANGLE_context_virtualization EGL_ANGLE_memory_usage_report EGL_ANGLE_create_context_passthrough_shaders ",
+        "glWsVendor": "Google Inc. (Mesa)",
+        "glWsVersion": "1.5 (ANGLE 2.1 git hash: unknown hash)",
+        "hardwareSupportsVulkan": false,
+        "inProcessGpu": false,
+        "initializationTime": 0.146085,
+        "isAsan": false,
+        "isClangCoverage": false,
+        "jpegDecodeAcceleratorSupported": false,
+        "maxMsaaSamples": "4",
+        "optimus": false,
+        "passthroughCmdDecoder": true,
+        "pixelShaderVersion": "3.00",
+        "processCrashCount": 0,
+        "sandboxed": false,
+        "skiaBackendType": "GaneshGL",
+        "subpixelFontRendering": true,
+        "targetCpuBits": 64,
+        "vertexShaderVersion": "3.00",
+        "visibilityCallbackCallCount": 0
+      },
+      "featureStatus": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "enabled_on",
+        "opengl": "enabled_on",
+        "rasterization": "enabled",
+        "raw_draw": "disabled_off_ok",
+        "skia_graphite": "disabled_off",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "disabled_software",
+        "video_encode": "disabled_software",
+        "vulkan": "disabled_off",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webgpu_on_vk_via_gl_interop": "disabled_off",
+        "webnn": "disabled_off"
+      },
+      "driverBugWorkarounds": [
+        "enable_webgl_timer_query_extensions",
+        "exit_on_context_lost",
+        "disabled_extension_GL_KHR_blend_equation_advanced",
+        "disabled_extension_GL_KHR_blend_equation_advanced_coherent"
+      ],
+      "videoDecoding": [],
+      "videoEncoding": []
+    },
+    "modelName": "",
+    "modelVersion": "",
+    "commandLine": "/candidate-fixed/chrome --no-first-run --autoplay-policy=no-user-gesture-required --disable-background-networking --user-data-dir=/tmp/probe-profile --remote-debugging-pipe --enable-logging=stderr --enable-gpu --use-gl=angle --use-angle=gles --enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers,V4L2ExtraAV1CaptureBuffers --ozone-platform=wayland --start-fullscreen --window-size=1920,1080 --disable-accelerated-video-decode --flag-switches-begin --flag-switches-end --render-node-override=/dev/dri/renderD128"
+  },
+  "page": {
+    "codec": "h264",
+    "state": "ended",
+    "started": 61.299999999813735,
+    "duration": 120,
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 7200,
+    "droppedFrames": 39,
+    "elapsedMs": 120313.8999999999
+  },
+  "support": {
+    "h264": "probably",
+    "hevc": ""
+  },
+  "mediaEvents": [
+    {
+      "method": "Media.playerCreated",
+      "params": {
+        "player": {
+          "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F"
+        }
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "events": [
+          {
+            "timestamp": 4098.532663,
+            "value": "{\"created\":\"2026-09-22 12:46:21.815875 UTC\",\"event\":\"kMediaLogCreated\"}"
+          },
+          {
+            "timestamp": 4098.542147,
+            "value": "{\"event\":\"kWebMediaPlayerCreated\",\"origin_url\":\"http://127.0.0.1:38779/\"}"
+          },
+          {
+            "timestamp": 4098.54275,
+            "value": "{\"event\":\"kLoad\",\"url\":\"http://127.0.0.1:38779/test-h264.mp4\"}"
+          },
+          {
+            "timestamp": 4098.607083,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kStarting\"}"
+          },
+          {
+            "timestamp": 4098.695257,
+            "value": "{\"event\":\"kPipelineStateChange\",\"pipeline_state\":\"kPlaying\"}"
+          },
+          {
+            "timestamp": 4098.740208,
+            "value": "{\"dimensions\":\"1920x1080\",\"event\":\"kVideoSizeChanged\"}"
+          },
+          {
+            "timestamp": 4098.692266,
+            "value": "{\"duration\":120.0,\"event\":\"kDurationChanged\"}"
+          },
+          {
+            "timestamp": 4098.773547,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"video_buffering_state\":{\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 4098.773644,
+            "value": "{\"event\":\"kBufferingStateChanged\",\"pipeline_buffering_state\":{\"for_suspended_start\":false,\"state\":\"BUFFERING_HAVE_ENOUGH\"}}"
+          },
+          {
+            "timestamp": 4098.693618,
+            "value": "{\"event\":\"kPlay\"}"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "properties": [
+          {
+            "name": "kBitrate",
+            "value": "8096513"
+          },
+          {
+            "name": "kVideoDecoderName",
+            "value": "FFmpegVideoDecoder"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "false"
+          },
+          {
+            "name": "kVideoTracks",
+            "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1920x1080\"}]"
+          },
+          {
+            "name": "kIsPlatformVideoDecoder",
+            "value": "false"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "http://127.0.0.1:38779/browser-decode-probe.html?codec=h264&timeout=150000&width=1920"
+          },
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "true"
+          },
+          {
+            "name": "kIsVideoDecryptingDemuxerStream",
+            "value": "false"
+          },
+          {
+            "name": "kStartTime",
+            "value": "0.0"
+          },
+          {
+            "name": "kResolution",
+            "value": "1920x1080"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0x73d2516"
+          },
+          {
+            "name": "kMaxDuration",
+            "value": "120.0"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerMessagesLogged",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "messages": [
+          {
+            "level": "info",
+            "message": "FFmpegDemuxer: created video stream, config codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+          },
+          {
+            "level": "info",
+            "message": "Cannot select DecryptingVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedEncryptionMode"
+          },
+          {
+            "level": "info",
+            "message": "Cannot select VpxVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedConfig"
+          },
+          {
+            "level": "info",
+            "message": "Cannot select Dav1dVideoDecoder for video decoding. status=DecoderStatus::Codes::kUnsupportedCodec"
+          },
+          {
+            "level": "info",
+            "message": "Effective playback rate changed from 0 to 1"
+          },
+          {
+            "level": "info",
+            "message": "Selected FFmpegVideoDecoder for video decoding, config: codec: h264, profile: h264 high, level: not available, alpha_mode: is_opaque, coded size: [1920,1080], visible rect: [0,0,1920,1080], natural size: [1920,1080], has extra data: true, encryption scheme: Unencrypted, rotation: 0\u00b0, flipped: 0, color space: {primaries:BT709, transfer:BT709, matrix:BT709, range:LIMITED}, spatial format: [projection_type: none, stereo_mode: mono]"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerPropertiesChanged",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "properties": [
+          {
+            "name": "kVideoDecoderName",
+            "value": "FFmpegVideoDecoder"
+          },
+          {
+            "name": "kIsStreaming",
+            "value": "false"
+          },
+          {
+            "name": "kVideoPlaybackFreezingRatio",
+            "value": "1.0559222368894754"
+          },
+          {
+            "name": "kFrameUrl",
+            "value": "http://127.0.0.1:38779/browser-decode-probe.html?codec=h264&timeout=150000&width=1920"
+          },
+          {
+            "name": "kResolution",
+            "value": "1920x1080"
+          },
+          {
+            "name": "kRendererName",
+            "value": "RendererImpl"
+          },
+          {
+            "name": "kTotalBytes",
+            "value": "0x73d2516"
+          },
+          {
+            "name": "kMaxDuration",
+            "value": "120.0"
+          },
+          {
+            "name": "kFrameTitle",
+            "value": "Isolated browser decode probe"
+          },
+          {
+            "name": "kFramerate",
+            "value": "60.0"
+          },
+          {
+            "name": "kVideoTracks",
+            "value": "[{\"alpha mode\":\"is_opaque\",\"codec\":\"h264\",\"coded size\":\"1920x1080\",\"color space\":{\"matrix\":\"BT709\",\"primaries\":\"BT709\",\"range\":\"LIMITED\",\"transfer\":\"BT709\"},\"encryption scheme\":\"Unencrypted\",\"has extra data\":true,\"hdr metadata\":{},\"natural size\":\"1920x1080\",\"orientation\":\"0\u00b0\",\"profile\":\"h264 high\",\"visible rect\":\"0,0 1920x1080\"}]"
+          },
+          {
+            "name": "kIsRangeHeaderSupported",
+            "value": "true"
+          },
+          {
+            "name": "kIsVideoDecryptingDemuxerStream",
+            "value": "false"
+          },
+          {
+            "name": "kVideoPlaybackRoughness",
+            "value": "9.917"
+          },
+          {
+            "name": "kStartTime",
+            "value": "0.0"
+          },
+          {
+            "name": "kBitrate",
+            "value": "8096513"
+          },
+          {
+            "name": "kIsPlatformVideoDecoder",
+            "value": "false"
+          },
+          {
+            "name": "kIsSingleOrigin",
+            "value": "true"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerMessagesLogged",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "messages": [
+          {
+            "level": "debug",
+            "message": "FFmpegDemuxer: av_read_frame(): End of file"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "events": [
+          {
+            "timestamp": 4218.775672,
+            "value": "{\"event\":\"kEnded\"}"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "CCD4E1E0C1A14DD61F2B3FE79594F87F",
+        "events": [
+          {
+            "timestamp": 4218.776118,
+            "value": "{\"event\":\"kPause\"}"
+          }
+        ]
+      },
+      "sessionId": "1525D4D097611829B5C0181992AEE93E"
+    }
+  ]
+}

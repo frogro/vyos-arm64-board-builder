@@ -1,0 +1,27 @@
+Tue Sep 22 17:11:20 CEST 2026
+6.18.50-vyos-f-test4-av1-iommu
+BOOT_IMAGE=/boot/999.202609191517/vmlinuz-f-test4 boot=live rootdelay=5 noautologin net.ifnames=0 biosdevname=0 vyos-union=/boot/999.202609191517 console=tty0 modprobe.blacklist=hantro_vpu
+CANDIDATE_PARAMETERS_ABSENT
+inactive
+  UNIT              LOAD   ACTIVE SUB    DESCRIPTION
+● logrotate.service loaded failed failed Rotate log files
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+1 loaded units listed.
+kiosk-test Up 27 seconds
+active
+active
+active
+active
+next_entry=
+DMA
+/sys/bus/platform/devices/fdb50000.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdba0000.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdba4000.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdba8000.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdbac000.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdc38100.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdc40100.video-codec/driver_override: (null)
+/sys/bus/platform/devices/fdc70000.video-codec/driver_override: (null)

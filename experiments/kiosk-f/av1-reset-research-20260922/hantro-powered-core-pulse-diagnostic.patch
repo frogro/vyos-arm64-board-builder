@@ -1,0 +1,85 @@
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -12,6 +12,7 @@
+ 
+ #include <dt-bindings/reset/rockchip,rk3588-cru.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+@@ -53,6 +54,40 @@
+ 			return ret;
+ 	}
+ 	return 0;
++}
++
++/* Experimental only: isolate held-reset vs powered reset-pulse behavior.
++ * Unlike the vendor path this does NOT implement the PMU idle handshake.
++ * Restricted to the already-validated split AV1 reset resources and mask 3.
++ */
++static bool vyarm_test_av1_remove_pulse;
++module_param(vyarm_test_av1_remove_pulse, bool, 0444);
++MODULE_PARM_DESC(vyarm_test_av1_remove_pulse,
++                "TEST ONLY: pulse AV1 core resets before PM/clock teardown");
++
++static int vyarm_test_av1_pulse(struct hantro_dev *vpu)
++{
++	int ret, deassert_ret;
++
++	ret = pm_runtime_resume_and_get(vpu->dev);
++	if (ret < 0)
++		return ret;
++	ret = clk_bulk_enable(vpu->variant->num_clocks, vpu->clocks);
++	if (ret)
++		goto out_pm;
++	dev_info(vpu->dev, "VYARM_PULSE: powered core assertion begin\n");
++	ret = vyarm_test_reset(vpu, true, 3);
++	udelay(5);
++	/* Always attempt to release both lines, including on partial failure. */
++	deassert_ret = vyarm_test_reset(vpu, false, 3);
++	dev_info(vpu->dev, "VYARM_PULSE: released cores assert=%d deassert=%d\n",
++		 ret, deassert_ret);
++	if (!ret)
++		ret = deassert_ret;
++	clk_bulk_disable(vpu->variant->num_clocks, vpu->clocks);
++out_pm:
++	pm_runtime_put_sync_suspend(vpu->dev);
++	return ret;
+ }
+ 
+ int hantro_debug;
+@@ -1220,6 +1255,10 @@
+ 		}
+ 	}
+ 
++	if (vyarm_test_av1_remove_pulse &&
++	    (!vpu->vyarm_test_split_resets || vyarm_test_remove_reset_mask != 3))
++		return -EINVAL;
++
+ 	dev_info(vpu->dev, "VYARM_PM probe: before runtime-PM setup\n");
+ 	pm_runtime_set_autosuspend_delay(vpu->dev, 100);
+ 	pm_runtime_use_autosuspend(vpu->dev);
+@@ -1313,6 +1352,12 @@
+ 	media_device_cleanup(&vpu->mdev);
+ 	v4l2_m2m_release(vpu->m2m_dev);
+ 	v4l2_device_unregister(&vpu->v4l2_dev);
++	if (vyarm_test_av1_remove_pulse) {
++		int ret = vyarm_test_av1_pulse(vpu);
++
++		if (ret)
++			dev_err(vpu->dev, "VYARM_PULSE failed: %d\n", ret);
++	}
+ 	dev_info(vpu->dev, "VYARM_PM remove: before clock unprepare\n");
+ 	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
+ 	dev_info(vpu->dev, "VYARM_PM remove: after clock unprepare\n");
+@@ -1323,7 +1368,8 @@
+ 	pm_runtime_disable(vpu->dev);
+ 	dev_info(vpu->dev, "VYARM_PM remove: after runtime disable\n");
+ 	dev_info(vpu->dev, "VYARM_PM remove: before reset assert\n");
+-	if (vyarm_test_reset(vpu, true, vpu->vyarm_test_split_resets ?
++	if (!vyarm_test_av1_remove_pulse &&
++	    vyarm_test_reset(vpu, true, vpu->vyarm_test_split_resets ?
+ 			     vyarm_test_remove_reset_mask : 15))
+ 		dev_err(vpu->dev, "VYARM_RESET remove reset operation failed\n");
+ 	dev_info(vpu->dev, "VYARM_PM remove: after reset assert\n");

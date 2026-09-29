@@ -1,0 +1,75 @@
+def generate_cmdline_for_kexec(options):
+    """
+    Build an updated kernel cmdline string based on desired options and the
+    currently running /proc/cmdline.
+
+    Returns:
+        tuple: (kexec_required, new_cmdline)
+            - kexec_required (bool): True if kernel options were added, removed or modified.
+            - new_cmdline (str): The updated kernel command line string.
+    """
+    # Read current cmdline and parse it
+    current_cmdline = get_kernel_boot_arg().strip()
+    current_parsed = parse_cmdline(current_cmdline)
+
+    # Parse desired options from options['cmdline_options']
+    desired_options = options.get('cmdline_options', '')
+    desired_parsed = parse_cmdline(desired_options)
+
+    # Compare dicts to define if kexec is needed
+    kexec_required = current_parsed != desired_parsed
+    if not kexec_required:
+        return kexec_required, current_cmdline
+
+    # Clean managed params and surrounding whitespaces
+    clean_patterns = [entry['clean'] for entry in MANAGED_PARAMS.values()]
+    combined_pattern = (
+        r'(?:(?<=^)|(?<=\s))(?:' + '|'.join(clean_patterns) + r')(?=\s|$)'
+    )
+    cleaned = re.sub(combined_pattern, ' ', current_cmdline)
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
+    # Build new cmdline
+    parts = []
+    for key, entry in MANAGED_PARAMS.items():
+        val = desired_parsed[key]
+        if val is None or val is False:
+            continue
+
+        if 'build' in entry:
+            parts.append(entry['build'](val))
+        elif entry['type'] is bool:
+            parts.append(key)
+        else:
+            parts.append(f'{key}={val}')
+
+    rebuilt = ' '.join(parts)
+
+    new_cmdline = (cleaned + ' ' + rebuilt).strip() if cleaned else rebuilt
+
+    return kexec_required, new_cmdline
+
+
+def apply(options):
+    running_as_container = image.is_running_as_container()
+    kexec_required, cmdline_new = generate_cmdline_for_kexec(options)
+    # T9269: a container does not own the Kernel cmdline - it belongs to the
+    # host system, thus neither kexec nor a reboot would apply anything and the
+    # options always compare as changed
+    if running_as_container:
+        kexec_required = False
+    if kexec_required:
+        if not boot_configuration_complete() and os.getenv('VYOS_CONFIGD'):
+            cmdl([
+                'kexec', '-l', '/boot/vmlinuz', '--initrd=/boot/initrd.img',
+                f'--command-line={cmdline_new}', '--kexec-file-syscall',
+            ])
+            os.sync()
+            cmdl(['systemctl', 'kexec'])
+        elif boot_configuration_complete():
+            Warning(
+                'Kernel configuration options have changed. '
+                'To apply these changes, you must save the configuration and reboot the system!'
+            )
+
+    # System bootup beep

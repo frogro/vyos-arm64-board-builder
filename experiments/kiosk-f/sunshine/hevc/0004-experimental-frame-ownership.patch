@@ -1,0 +1,114 @@
+--- a/libavcodec/rkmppenc.c
++++ b/libavcodec/rkmppenc.c
+@@ -220,6 +220,7 @@
+             if (mpp_buf &&
+                 mpp_buffer_get_index(mpp_buf) < 0) {
+                 mpp_buffer_put(mpp_buf);
++                list->imported_buffer = NULL;
+ 
+                 mpp_frame_deinit(&list->mpp_frame);
+                 list->mpp_frame = NULL;
+@@ -238,27 +239,13 @@
+ static void clear_frame_list(MPPEncFrame **list)
+ {
+     while (*list) {
+-        MPPEncFrame *frame = NULL;
+-        MppFrame mpp_frame = NULL;
+-        MppBuffer mpp_buf = NULL;
+-
+-        frame = *list;
+-        *list = (*list)->next;
+-
+-        mpp_frame = frame->mpp_frame;
+-        if (mpp_frame) {
+-            mpp_buf = mpp_frame_get_buffer(mpp_frame);
+-            if (mpp_buf &&
+-                mpp_buffer_get_index(mpp_buf) >= 0)
+-                mpp_buffer_put(mpp_buf);
+-
++        MPPEncFrame *frame = *list;
++        *list = frame->next;
++        if (frame->imported_buffer)
++            mpp_buffer_put(frame->imported_buffer);
++        if (frame->mpp_frame)
+             mpp_frame_deinit(&frame->mpp_frame);
+-            frame->mpp_frame = NULL;
+-        }
+-
+         av_freep(&frame->mpp_sei_set.datas);
+-        frame->mpp_sei_set.count = 0;
+-
+         av_frame_free(&frame->frame);
+         av_freep(&frame);
+     }
+@@ -885,6 +872,7 @@
+         av_log(avctx, AV_LOG_ERROR, "Failed to import MPP buffer: %d\n", ret);
+         goto exit;
+     }
++    mpp_enc_frame->imported_buffer = mpp_buf;
+     mpp_frame_set_buffer(mpp_frame, mpp_buf);
+     mpp_frame_set_buf_size(mpp_frame, drm_desc->objects[0].size);
+ 
+@@ -936,9 +924,11 @@
+         ret = (ret == MPP_NOK) ? AVERROR(EAGAIN) : AVERROR_EXTERNAL;
+         av_log(avctx, log_level, "Failed to put frame to encoder input queue: %d\n", ret);
+         goto exit;
+-    } else
++    } else {
++        mpp_enc_frame->submitted = 1;
+         av_log(avctx, AV_LOG_DEBUG, "Wrote %ld bytes to encoder\n",
+                mpp_frame_get_buf_size(mpp_frame));
++    }
+ 
+ exit:
+     return ret;
+@@ -969,6 +959,16 @@
+     if (!mpp_pkt)
+         return AVERROR(ENOMEM);
+ 
++    mpp_meta = mpp_packet_get_meta(mpp_pkt);
++    if (mpp_meta && mpp_meta_get_frame(mpp_meta, KEY_INPUT_FRAME, &mpp_frame) == MPP_OK) {
++        for (MPPEncFrame *entry = r->frame_list; entry; entry = entry->next) {
++            if (entry->mpp_frame == mpp_frame) {
++                entry->submitted = 0;
++                break;
++            }
++        }
++    }
++
+     if (mpp_packet_get_eos(mpp_pkt)) {
+         av_log(avctx, AV_LOG_DEBUG, "Received an EOS packet\n");
+         ret = AVERROR_EOF;
+@@ -1009,7 +1009,7 @@
+                                       (packet->flags & AV_PKT_FLAG_KEY) ?
+                                       AV_PICTURE_TYPE_I : AV_PICTURE_TYPE_P);
+ 
+-    if ((ret = mpp_meta_get_frame(mpp_meta, KEY_INPUT_FRAME, &mpp_frame)) != MPP_OK) {
++    if (!mpp_frame) {
+         av_log(avctx, AV_LOG_ERROR, "Failed to get key input frame from packet meta: %d\n", ret);
+         ret = AVERROR_EXTERNAL;
+         goto exit;
+@@ -1095,6 +1095,12 @@
+         r->mcfg = NULL;
+     }
+ 
++    /* MPP owns frames still queued at destruction; retain only our buffer ref. */
++    for (MPPEncFrame *entry = r->frame_list; entry; entry = entry->next) {
++        if (entry->submitted)
++            entry->mpp_frame = NULL;
++    }
++
+     if (r->mapi) {
+         r->mapi->reset(r->mctx);
+         mpp_destroy(r->mctx);
+--- a/libavcodec/rkmppenc.h
++++ b/libavcodec/rkmppenc.h
+@@ -51,6 +51,8 @@
+     MppEncUserDataSet   mpp_sei_set;
+     struct MPPEncFrame *next;
+     int                 queued;
++    int                 submitted;
++    MppBuffer           imported_buffer;
+ } MPPEncFrame;
+ 
+ typedef struct RKMPPEncContext {

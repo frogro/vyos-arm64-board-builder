@@ -1,0 +1,38 @@
+{
+  "upstream": {
+    "repo": "torvalds/linux",
+    "ref": "master",
+    "sha": "f0100363d8c374bd8e9ea7c9ba02744f0b802ca4",
+    "date": "2026-09-21T15:22:53Z"
+  },
+  "vendor": {
+    "repo": "rockchip-linux/kernel",
+    "ref": "develop-6.1",
+    "sha": "77168c8d5ab82399f65a80e9f807b50ba37cf483",
+    "date": "2026-07-29T01:57:14Z"
+  },
+  "armbian": {
+    "repo": "armbian/build",
+    "ref": "main",
+    "sha": "f5356be7c836d6c1efe360b341189b04867e34d4",
+    "date": "2026-09-22T11:06:57Z"
+  },
+  "local_test4_vsi_sha256": "f1890ed37de77e7b065fbdc2ad989c6acd901ce6b839270151aa9123b3a16cfd",
+  "downloads": {
+    "rock5bplus-README.md": "5614166e94f74f78c63e4e2cae9b819f3fd0b77bc066316bfafa9153ab44ff1e",
+    "rk3588-fwport-0091-iommu-rockchip-quiesce-MPP-fault-callbacks-on-clear.patch": "cd39e91f71220b9d95a22ae114f599e6922687ef25a34f424b9432b2dd26a1d8",
+    "vendor-rk3588s.dtsi": "5991b46733afaa284d0356e57ed7adb333985440c45249b793218447f89035b7",
+    "upstream-hantro.c": "c8205e785b807712d8b94b2ccaebd4681510016a33f4561882345a6430a18a9d",
+    "rk3588-fwport-0004-media-rockchip-mpp-add-mpp_iommu_shared_domain-CCU-h.patch": "0ec9e853e3e83020e1d901d09abf0537d670f94d84dfb7adc9a583585ec554ed",
+    "mpp_av1dec.c": "13f2e8f5a37f95d85816b54949fdbeac23e5e57efca77bd98488b7381f966c62",
+    "rk3588-fwport-0005-iommu-add-Verisilicon-IOMMU-provider-and-Rockchip-pr.patch": "138742a33aaaaebfdf60169e00bbd4b3ebfa2c41c87431cd0e02368e57a3e4a2",
+    "vendor-pm_domains.c": "6320fc5ef0c2b47d6629908c0e0066acd35f18477940d21c990c1c302fbdb034",
+    "rk3588-fwport-0007-video-rockchip-mpp-add-RKMPP-AV1-decoder.patch": "59f42dcf9e5b8d2c0ce23b3177e20a1e9cab45f6c5ac41abe597502fca2af973",
+    "rk3588-fwport-0012-iommu-rockchip-restore-large-DMA-segment-support.patch": "c37e7743b0a67fe08709f34fc3a91c671fb2bab43755eed0039f9fc2e3a0031c",
+    "ysp-index.md": "44d7327402e1972e9c47cce7387e9411059c4a5d72da64d4fd2b902de0ae8b58",
+    "rk3588-fwport-0003-media-rockchip-mpp-route-iommu-fault-handling-throug.patch": "a618a938f7b14e22d75c9d8ee91df2e5c61c00fad0d5930df703c1d660a1fd5d",
+    "rk3588-fwport-0009-arm64-dts-rockchip-rk3588-add-decoder-AV1-IOMMUs-SRA.patch": "875af3ac6dbe67acdbae7626d484fbf0d9731aa80de47f3d3f5c55f0a3bb049e",
+    "upstream-vsi.c": "bf5642d2e5f8754d6f47bea6b858cdfebbc42d945527bdde536d9848bcceb910"
+  },
+  "pulse_signed_module_sha256": "5046eb52a2818f924efed93cfa2749ba1617fdf6fddb990a4875f75cca625e0d"
+}

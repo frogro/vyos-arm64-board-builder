@@ -1,0 +1,30 @@
+{
+  "measurement_elapsed_min": 165.0,
+  "samples": 9,
+  "seconds": 45.079,
+  "frames": 2693.0,
+  "fps": 59.73956831340536,
+  "min_5s_fps": 59.293272110201634,
+  "max_5s_fps": 60.11583782704214,
+  "decode_submit_ms_per_frame": 7.203436316375789,
+  "video_overflows_entire_session": 0,
+  "network_summary": [],
+  "presentation_summary": [],
+  "minimize": {
+    "hevc_rkvdec": "340x1080 stream after minimizing; ~60 decode fps",
+    "h264_hantro": "340x1080 stream after minimizing; coded 352x1088; ~60 decode fps",
+    "interpretation": "Common capture/selection path is implicated; specific root cause not proven or fixed."
+  },
+  "workaround": "Steam menu > Ein/Aus > Big-Picture-Modus verlassen; switch to desired desktop application. Do not choose Steam minimieren.",
+  "cleanup": "Three bounded receiver sessions restored kiosk; original settings restored; test tab and LAN server closed.",
+  "image_gaps": [
+    "Steam Link binary/adapter/guard/device setup not yet in Containerfile or native CLI",
+    "Private FFmpeg build recipe does not apply verified HEVC RPS patch"
+  ],
+  "validation": [
+    "28 profile G tests pass",
+    "4 native configd tests and CLI recipe pass",
+    "Main preservation checker passes against local origin/main cc2ad54",
+    "Protected D/F paths identical to accepted baseline dba06ef"
+  ]
+}

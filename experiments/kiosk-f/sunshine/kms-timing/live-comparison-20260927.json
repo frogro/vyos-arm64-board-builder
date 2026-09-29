@@ -1,0 +1,84 @@
+{
+  "image": "999.202609250800-adf-panthor-20260927",
+  "runtime": "localhost/vyarm-kiosk:github-36339240710",
+  "requested": {
+    "codec": "HEVC",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "kbps": 2000,
+    "seconds": 40
+  },
+  "normal_kernel": "6.18.50-vyos",
+  "sessions": [
+    {
+      "kernel": "6.18.50-vyos",
+      "mode": "CPU color conversion",
+      "metrics": [
+        "Incoming frame rate from network: 13.30 FPS",
+        "Rendering frame rate: 13.22 FPS",
+        "Host processing latency min/max/average: 252.5/371.1/288.9 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.63%",
+        "Average network latency: 1 ms (variance: 0 ms)"
+      ]
+    },
+    {
+      "kernel": "6.18.50-vyos",
+      "mode": "RGA color conversion",
+      "metrics": [
+        "Incoming frame rate from network: 15.81 FPS",
+        "Rendering frame rate: 15.70 FPS",
+        "Host processing latency min/max/average: 251.5/274.2/266.8 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.69%",
+        "Average network latency: 1 ms (variance: 0 ms)"
+      ]
+    },
+    {
+      "kernel": "6.18.50-vyos-panthor-cache-test",
+      "mode": "CPU color conversion",
+      "codec": "HEVC",
+      "metrics": [
+        "Incoming frame rate from network: 13.70 FPS",
+        "Rendering frame rate: 13.59 FPS",
+        "Host processing latency min/max/average: 259.5/366.5/284.9 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.81%",
+        "Average network latency: 1 ms (variance: 0 ms)"
+      ]
+    },
+    {
+      "kernel": "6.18.50-vyos-panthor-cache-test",
+      "mode": "RGA color conversion",
+      "codec": "HEVC",
+      "metrics": [
+        "Incoming frame rate from network: 16.00 FPS",
+        "Rendering frame rate: 15.92 FPS",
+        "Host processing latency min/max/average: 242.1/389.2/264.4 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.51%",
+        "Average network latency: 1 ms (variance: 0 ms)"
+      ]
+    },
+    {
+      "kernel": "6.18.50-vyos-panthor-cache-test",
+      "mode": "RGA color conversion",
+      "codec": "H264",
+      "metrics": [
+        "Incoming frame rate from network: 15.99 FPS",
+        "Rendering frame rate: 15.85 FPS",
+        "Host processing latency min/max/average: 249.8/269.7/264.1 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.51%",
+        "Average network latency: 1 ms (variance: 0 ms)"
+      ]
+    }
+  ],
+  "limits": [
+    "single short controlled comparisons, not sustained/moving-content qualification",
+    "direct GPU/RGA path tested independently, not integrated into Sunshine",
+    "Moonlight incoming FPS can include repeated frames; no proof of unique capture rate",
+    "audio and physical input not requalified in these isolated sessions"
+  ]
+}

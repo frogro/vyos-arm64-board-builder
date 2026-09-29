@@ -1,0 +1,37 @@
+--- a/media/gpu/v4l2/v4l2_utils.cc
++++ b/media/gpu/v4l2/v4l2_utils.cc
+@@ -289,7 +289,10 @@
+       // NV12: the UV plane shares the Y stride and is half the height. The
+       // driver's bytesperline already accounts for the packed 10-bit rows.
+       case V4L2_PIX_FMT_NV15:
+-        // The stride of UV is the same as Y in NV12.
++      // P010 stores each component in 16 bits. bytesperline is already a
++      // byte stride; its interleaved UV plane shares the Y byte stride.
++      case V4L2_PIX_FMT_P010:
++        // The stride of UV is the same as Y in these semiplanar formats.
+         // The height is half of Y plane.
+         planes.emplace_back(y_stride, y_stride_abs * pix_mp.height,
+                             y_stride_abs * pix_mp.height / 2);
+--- a/media/gpu/v4l2/v4l2_utils_unittest.cc
++++ b/media/gpu/v4l2/v4l2_utils_unittest.cc
+@@ -103,6 +103,20 @@
+           kNoModifierStr + ")");
+ }
+ 
++// P010 has two 16-bit color planes in a single V4L2 buffer. Preserve
++// driver-provided byte stride, including row padding, for the UV offset.
++TEST(V4L2UtilsTest, V4L2FormatToVideoFrameLayoutP010) {
++  auto layout = V4L2FormatToVideoFrameLayout(V4L2FormatVideoOutputMplane(
++      300, 180, V4L2_PIX_FMT_P010, V4L2_FIELD_ANY, {640}, {172800}));
++  ASSERT_TRUE(layout.has_value());
++  EXPECT_EQ(PIXEL_FORMAT_P010LE, layout->format());
++  EXPECT_EQ(gfx::Size(300, 180), layout->coded_size());
++  std::vector<ColorPlaneLayout> expected_planes(
++      {{640, 0u, 172800u}, {640, 115200u, 57600u}});
++  EXPECT_EQ(expected_planes, layout->planes());
++  EXPECT_FALSE(layout->is_multi_planar());
++}
++
+ // Test V4L2FormatToVideoFrameLayout with NV12M pixelformat, which has two
+ // buffers and two color planes.
+ TEST(V4L2UtilsTest, V4L2FormatToVideoFrameLayoutNV12M) {

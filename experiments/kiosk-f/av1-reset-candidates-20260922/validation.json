@@ -1,0 +1,26 @@
+{
+  "exact_frame_hash_files": [
+    "both/hardware-2.json",
+    "both/hardware-3.json",
+    "both/hardware-1.json",
+    "identity/hardware-2.json",
+    "identity/hardware-3.json",
+    "identity/hardware-1.json",
+    "client-abort/hardware.json",
+    "control/hardware-1.json",
+    "coexistence/hardware-2.json",
+    "coexistence/hardware-3.json",
+    "coexistence/hardware-1.json",
+    "tlb/hardware-2.json",
+    "tlb/hardware-3.json",
+    "tlb/hardware-1.json"
+  ],
+  "frames_each": 300,
+  "successful_pulse_removals": 15,
+  "identity_guard_hits": 6,
+  "suspended_flush_hits": 3,
+  "active_flush_hits": 3,
+  "kernel_bug_oops_serror": "none observed",
+  "json_python_shell_syntax": "pass",
+  "patch_dry_run": "pass"
+}

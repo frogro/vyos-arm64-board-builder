@@ -1,0 +1,21 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "codec_name": "h264",
+            "profile": "High",
+            "width": 1920,
+            "height": 1080,
+            "has_b_frames": 1,
+            "refs": 1,
+            "r_frame_rate": "60/1",
+            "bit_rate": "8094895",
+            "nb_frames": "1800"
+        }
+    ]
+}

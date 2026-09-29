@@ -1,0 +1,39 @@
+--- a/media/gpu/v4l2/v4l2_video_decoder.cc
++++ b/media/gpu/v4l2/v4l2_video_decoder.cc
+@@ -63,6 +63,12 @@
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ constexpr base::FeatureParam<int> kExtraCaptureBuffers{
+     &kV4L2ExtraCaptureBuffers, "extra_buffers", 2};
++// Separately opt in to AV1: enabling the H.264 experiment must not change
++// other codecs. Keep WebRTC/low-delay and non-MMAP paths unchanged.
++BASE_FEATURE(kV4L2ExtraAV1CaptureBuffers, "V4L2ExtraAV1CaptureBuffers",
++             base::FEATURE_DISABLED_BY_DEFAULT);
++constexpr base::FeatureParam<int> kExtraAV1CaptureBuffers{
++    &kV4L2ExtraAV1CaptureBuffers, "extra_buffers", 2};
+ 
+ // See http://crbug.com/255116.
+ constexpr int k480pArea = 720 * 480;
+@@ -1215,12 +1221,17 @@
+   size_t v4l2_num_buffers = use_v4l2_allocated_buffers
+                                 ? num_codec_reference_frames + 2
+                                 : VIDEO_MAX_FRAME;
+-  if (!low_delay_ && profile_ >= H264PROFILE_MIN &&
+-      profile_ <= H264PROFILE_MAX && use_v4l2_allocated_buffers &&
+-      input_queue_->SupportsRequests() &&
+-      base::FeatureList::IsEnabled(kV4L2ExtraCaptureBuffers) &&
+-      v4l2_num_buffers < VIDEO_MAX_FRAME) {
+-    const size_t extra = std::clamp(kExtraCaptureBuffers.Get(), 0, 8);
++  int extra_capture_buffers = 0;
++  if (profile_ >= H264PROFILE_MIN && profile_ <= H264PROFILE_MAX &&
++      base::FeatureList::IsEnabled(kV4L2ExtraCaptureBuffers)) {
++    extra_capture_buffers = kExtraCaptureBuffers.Get();
++  } else if (profile_ >= AV1PROFILE_MIN && profile_ <= AV1PROFILE_MAX &&
++             base::FeatureList::IsEnabled(kV4L2ExtraAV1CaptureBuffers)) {
++    extra_capture_buffers = kExtraAV1CaptureBuffers.Get();
++  }
++  if (!low_delay_ && use_v4l2_allocated_buffers &&
++      input_queue_->SupportsRequests() && v4l2_num_buffers < VIDEO_MAX_FRAME) {
++    const size_t extra = std::clamp(extra_capture_buffers, 0, 8);
+     v4l2_num_buffers += std::min(extra, VIDEO_MAX_FRAME - v4l2_num_buffers);
+   }
+ 

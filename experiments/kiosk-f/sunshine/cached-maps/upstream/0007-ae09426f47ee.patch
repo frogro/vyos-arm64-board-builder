@@ -1,0 +1,61 @@
+From ae09426f47ee64bd3f34fbe815ff61eb94cc3a6b Mon Sep 17 00:00:00 2001
+From: Faith Ekstrand <faith.ekstrand@collabora.com>
+Date: Mon, 8 Dec 2025 11:08:34 +0100
+Subject: [PATCH] drm/panthor: Bump the driver version to 1.7
+
+Bump the driver version to reflect the new cached-CPU mapping
+capability.
+
+v2:
+- Quickly describe what the new version exposes in the commit message
+
+v3:
+- Add Steve's R-b
+
+v4:
+- No changes
+
+v5:
+- No changes
+
+v6:
+- No changes
+
+v7:
+- No changes
+
+v8:
+- Bump to 1.7 (1.6 was picked in the meantime)
+
+Signed-off-by: Faith Ekstrand <faith.ekstrand@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Link: https://patch.msgid.link/20251208100841.730527-8-boris.brezillon@collabora.com
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+ drivers/gpu/drm/panthor/panthor_drv.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/panthor/panthor_drv.c b/drivers/gpu/drm/panthor/panthor_drv.c
+index 598c7ad6f2b659..98d4e8d867ed46 100644
+--- a/drivers/gpu/drm/panthor/panthor_drv.c
++++ b/drivers/gpu/drm/panthor/panthor_drv.c
+@@ -1674,6 +1674,10 @@ static void panthor_debugfs_init(struct drm_minor *minor)
+  * - 1.4 - adds DRM_IOCTL_PANTHOR_BO_SET_LABEL ioctl
+  * - 1.5 - adds DRM_PANTHOR_SET_USER_MMIO_OFFSET ioctl
+  * - 1.6 - enables GLB_COUNTER_EN
++ * - 1.7 - adds DRM_PANTHOR_BO_WB_MMAP flag
++ *       - adds DRM_IOCTL_PANTHOR_BO_SYNC ioctl
++ *       - adds DRM_IOCTL_PANTHOR_BO_QUERY_INFO ioctl
++ *       - adds drm_panthor_gpu_info::selected_coherency
+  */
+ static const struct drm_driver panthor_drm_driver = {
+ 	.driver_features = DRIVER_RENDER | DRIVER_GEM | DRIVER_SYNCOBJ |
+@@ -1687,7 +1691,7 @@ static const struct drm_driver panthor_drm_driver = {
+ 	.name = "panthor",
+ 	.desc = "Panthor DRM driver",
+ 	.major = 1,
+-	.minor = 6,
++	.minor = 7,
+ 
+ 	.gem_create_object = panthor_gem_create_object,
+ 	.gem_prime_import_sg_table = drm_gem_shmem_prime_import_sg_table,

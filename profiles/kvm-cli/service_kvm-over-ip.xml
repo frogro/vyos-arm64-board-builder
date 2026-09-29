@@ -16,6 +16,20 @@
               <help>Video capture and streaming</help>
             </properties>
             <children>
+              <leafNode name="cpu-conversion">
+                <properties>
+                  <help>CPU memory conversion policy (default direct)</help>
+                  <completionHelp><list>direct cached auto</list></completionHelp>
+                  <constraint><regex>(direct|cached|auto)</regex></constraint>
+                </properties>
+              </leafNode>
+              <leafNode name="conversion-fallback">
+                <properties>
+                  <help>Bounded runtime conversion recovery (default disabled)</help>
+                  <completionHelp><list>enabled disabled</list></completionHelp>
+                  <constraint><regex>(enabled|disabled)</regex></constraint>
+                </properties>
+              </leafNode>
               <leafNode name="colorimetry">
                 <properties>
                   <help>GStreamer color metadata policy (default legacy)</help>

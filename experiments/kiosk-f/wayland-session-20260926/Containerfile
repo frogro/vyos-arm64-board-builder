@@ -1,0 +1,7 @@
+ARG BASE_IMAGE=localhost/vyarm-kiosk:wayland-corrected-20260923
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+LABEL io.vyarm.kiosk.wayland-session="user-seatd-v1"
+COPY kiosk-wayland.py /usr/local/bin/kiosk-wayland.py
+RUN chmod 755 /usr/local/bin/kiosk-wayland.py && python3 -m py_compile /usr/local/bin/kiosk-wayland.py && command -v seatd && test -x /usr/bin/weston

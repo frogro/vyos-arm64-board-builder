@@ -1,0 +1,14 @@
+logLevel: info
+rtspAddress: 127.0.0.1:18554
+rtspTransports: [tcp]
+rtmp: no
+hls: no
+srt: no
+webrtcAddress: 127.0.0.1:18889
+webrtcLocalUDPAddress: :18890
+webrtcIPsFromInterfaces: yes
+webrtcAdditionalHosts: [127.0.0.1]
+paths:
+  probe:
+
+moq: no

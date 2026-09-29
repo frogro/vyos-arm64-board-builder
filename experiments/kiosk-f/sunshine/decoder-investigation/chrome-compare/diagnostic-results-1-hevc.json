@@ -1,0 +1,38 @@
+{
+  "page": {
+    "codec": "hevc",
+    "state": "play-error",
+    "started": 68.09999999962747,
+    "error": "NotSupportedError: Failed to load because no supported source was found."
+  },
+  "decoderProperties": {
+    "kIsRangeHeaderSupported": "false",
+    "kIsStreaming": "true",
+    "kRendererName": "RendererImpl",
+    "kTotalBytes": "0x1cd3478",
+    "kFrameUrl": "http://127.0.0.1:34039/browser-decode-probe.html?codec=hevc&timeout=50000&width=1920&seconds=20",
+    "kIsSingleOrigin": "true",
+    "kFrameTitle": "Isolated browser decode probe"
+  },
+  "gpuVideoDecoding": [],
+  "support": {
+    "h264": "probably",
+    "hevc": ""
+  },
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration",
+    "--ozone-platform=wayland",
+    "--vmodule=*v4l2*=3,*video_decoder*=2,*gpu_mojo_media_client*=2,*vaapi*=2",
+    "--start-fullscreen",
+    "--window-size=1920,1080"
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "high-ref",
+    "sha256": "8dcf61c10e897841d7ba8ac6b9731747e5f8b6d2b426d221ab3943531f95bddd",
+    "encoder": "libx265 ultrafast; pools=2 frame-threads=1; ref=6:bframes=4:b-pyramid=1",
+    "source": "testsrc2 1920x1080@60, 10 seconds, 8M target, yuv420p BT709 limited",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "profile": "Main",
+          "width": 1920,
+          "height": 1080,
+          "has_b_frames": 2,
+          "pix_fmt": "yuv420p",
+          "nb_frames": "600"
+        }
+      ]
+    }
+  },
+  {
+    "name": "no-b",
+    "sha256": "4bad49ba2c8beed5fe53c6133bd5503abc016d37c60463adaadd56f3e3530c0b",
+    "encoder": "libx265 ultrafast; pools=2 frame-threads=1; ref=1:bframes=0",
+    "source": "testsrc2 1920x1080@60, 10 seconds, 8M target, yuv420p BT709 limited",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "profile": "Main",
+          "width": 1920,
+          "height": 1080,
+          "has_b_frames": 0,
+          "pix_fmt": "yuv420p",
+          "nb_frames": "600"
+        }
+      ]
+    }
+  }
+]

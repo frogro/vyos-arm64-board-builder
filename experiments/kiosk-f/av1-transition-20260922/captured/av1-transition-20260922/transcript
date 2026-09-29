@@ -1,0 +1,4 @@
+Running as unit: vyarm-transition-watchdog.service
+Running timer as unit: vyarm-transition-fallback.timer
+Will run service as unit: vyarm-transition-fallback.service
+2026-09-22T18:38:05+02:00 BEGIN_transition-software-before

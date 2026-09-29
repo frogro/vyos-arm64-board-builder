@@ -1,0 +1,229 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Standalone feasibility probe, not a Sunshine integration or zero-copy encoder.
+#include <linux/dma-heap.h>
+#include <linux/dma-buf.h>
+#include <linux/videodev2.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <poll.h>
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+static void need(bool good, const char *message) {
+  if (!good) throw std::runtime_error(std::string(message)+": "+strerror(errno));
+}
+static int ctl(int fd, unsigned long op, void *arg) {
+  int ret; do {ret=ioctl(fd,op,arg);} while(ret<0 && errno==EINTR); return ret;
+}
+struct Fd {int fd=-1; ~Fd(){if(fd>=0)close(fd);} };
+struct Map {void *ptr=MAP_FAILED; size_t len=0; ~Map(){if(ptr!=MAP_FAILED)munmap(ptr,len);} };
+struct Queue {
+  int fd; v4l2_buf_type type; bool active=false;
+  ~Queue(){if(active)ctl(fd,VIDIOC_STREAMOFF,&type);}
+};
+static constexpr auto input=V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+static constexpr auto output=V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+static unsigned colors[8][3]={{0,0,0},{255,255,255},{255,0,0},{0,255,0},
+  {0,0,255},{255,255,0},{0,255,255},{255,0,255}};
+#ifdef VYARM_GPU_PROBE
+#include "gpu-fill.hpp"
+#include "kms-source.hpp"
+#endif
+static std::string discover() {
+  for(auto &e:std::filesystem::directory_iterator("/sys/class/video4linux")) {
+    std::ifstream file(e.path()/"name"); std::string name; getline(file,name);
+    if(name=="rockchip-rga") return "/dev/"+e.path().filename().string();
+  }
+  throw std::runtime_error("No rockchip-rga node");
+}
+static v4l2_format format(int fd,v4l2_buf_type type,unsigned w,unsigned h,
+                           bool bt709,bool full,unsigned pitch) {
+  v4l2_format f{}; f.type=type; auto &p=f.fmt.pix_mp;
+  p.width=w; p.height=h; p.pixelformat=type==input?V4L2_PIX_FMT_XBGR32:V4L2_PIX_FMT_NV12;
+  p.field=V4L2_FIELD_NONE; p.num_planes=1;
+  p.colorspace=bt709?V4L2_COLORSPACE_REC709:V4L2_COLORSPACE_SMPTE170M;
+  p.ycbcr_enc=bt709?V4L2_YCBCR_ENC_709:V4L2_YCBCR_ENC_601;
+  p.quantization=(type==input || full)?V4L2_QUANTIZATION_FULL_RANGE:V4L2_QUANTIZATION_LIM_RANGE;
+  p.plane_fmt[0].bytesperline=pitch;
+  auto requested=p;
+  need(ctl(fd,VIDIOC_S_FMT,&f)==0,"S_FMT");
+  need(p.width==w && p.height==h && p.pixelformat==requested.pixelformat &&
+       p.num_planes==1 && p.colorspace==requested.colorspace &&
+       p.ycbcr_enc==requested.ycbcr_enc && p.quantization==requested.quantization &&
+       p.plane_fmt[0].bytesperline==pitch,"format changed");
+  return f;
+}
+static void req(int fd,v4l2_buf_type type,v4l2_memory memory) {
+  v4l2_requestbuffers r{};r.type=type;r.memory=memory;r.count=1;
+  need(ctl(fd,VIDIOC_REQBUFS,&r)==0 && r.count>=1,"REQBUFS");
+}
+static void queue(int fd,v4l2_buf_type type,size_t length,int dmafd) {
+  v4l2_plane plane{}; plane.length=length;
+  if(type==input){plane.m.fd=dmafd;plane.bytesused=length;}
+  v4l2_buffer b{};b.type=type;b.memory=type==input?V4L2_MEMORY_DMABUF:V4L2_MEMORY_MMAP;
+  b.length=1;b.m.planes=&plane;
+  need(ctl(fd,VIDIOC_QBUF,&b)==0,"QBUF");
+}
+static bool dequeue(int fd,v4l2_buf_type type,size_t minimum) {
+  v4l2_plane plane{};v4l2_buffer b{};b.type=type;
+  b.memory=type==input?V4L2_MEMORY_DMABUF:V4L2_MEMORY_MMAP;b.length=1;b.m.planes=&plane;
+  if(ctl(fd,VIDIOC_DQBUF,&b)<0){need(errno==EAGAIN,"DQBUF");return false;}
+  need(b.index==0 && !(b.flags&V4L2_BUF_FLAG_ERROR),"bad completed buffer");
+  if(type==output)need(plane.data_offset==0 && plane.bytesused>=minimum,"short capture");
+  return true;
+}
+int main(int argc, char **argv) try {
+  const bool rga_export=argc==2 && std::string(argv[1])=="rga-export";
+  need(argc==1 || rga_export,"usage: probe [rga-export]");
+  const char *kms_node=std::getenv("RGA_PROBE_KMS");
+  need(!kms_node || (rga_export && std::getenv("RGA_PROBE_GPU")),"KMS needs GPU/RGA export");
+  std::string node=discover();
+  bool colors_ok=true;
+  for(auto dims:{std::pair<unsigned,unsigned>{1920,1080},{1080,1920}})
+  for(bool bt709:{false,true})for(bool full:{false,true}) {
+    if(kms_node && (dims.first!=1920 || !bt709 || full))continue;
+    unsigned w=dims.first,h=dims.second;
+    const bool use_gpu=std::getenv("RGA_PROBE_GPU")!=nullptr;
+    unsigned storage_w=use_gpu?((w+15)&~15u):w;
+    size_t srcsize=size_t(storage_w)*h*4;
+    Fd rga;rga.fd=open(node.c_str(),O_RDWR|O_NONBLOCK|O_CLOEXEC);need(rga.fd>=0,"open RGA");
+    v4l2_capability cap{};need(ctl(rga.fd,VIDIOC_QUERYCAP,&cap)==0,"QUERYCAP");
+    unsigned caps=(cap.capabilities&V4L2_CAP_DEVICE_CAPS)?cap.device_caps:cap.capabilities;
+    need((caps&(V4L2_CAP_VIDEO_M2M_MPLANE|V4L2_CAP_STREAMING))==
+         (V4L2_CAP_VIDEO_M2M_MPLANE|V4L2_CAP_STREAMING),"capabilities");
+    format(rga.fd,input,storage_w,h,bt709,true,storage_w*4);
+    v4l2_selection crop{};crop.type=input;crop.target=V4L2_SEL_TGT_CROP;
+    crop.r.width=w;crop.r.height=h;
+    need(ctl(rga.fd,VIDIOC_S_SELECTION,&crop)==0 && crop.r.width==w && crop.r.height==h,"source crop");
+    auto outfmt=format(rga.fd,output,w,h,bt709,full,w);
+    req(rga.fd,input,V4L2_MEMORY_DMABUF);req(rga.fd,output,V4L2_MEMORY_MMAP);
+    Fd allocator,dma;
+    if(rga_export) {
+      allocator.fd=open(node.c_str(),O_RDWR|O_NONBLOCK|O_CLOEXEC);
+      need(allocator.fd>=0,"open source allocator");
+      format(allocator.fd,input,storage_w,h,bt709,true,storage_w*4);
+      req(allocator.fd,input,V4L2_MEMORY_MMAP);
+      v4l2_exportbuffer exp{};exp.type=input;exp.flags=O_RDWR|O_CLOEXEC;
+      need(ctl(allocator.fd,VIDIOC_EXPBUF,&exp)==0,"export RGA buffer");
+      dma.fd=exp.fd;
+    } else {
+      allocator.fd=open("/dev/dma_heap/system",O_RDWR|O_CLOEXEC);
+      need(allocator.fd>=0,"open heap");
+      dma_heap_allocation_data alloc{};alloc.len=srcsize;alloc.fd_flags=O_RDWR|O_CLOEXEC;
+      need(ctl(allocator.fd,DMA_HEAP_IOCTL_ALLOC,&alloc)==0,"heap alloc");
+      dma.fd=alloc.fd;
+    }
+#ifdef VYARM_GPU_PROBE
+    gpu_fill gpu;
+    if(use_gpu)gpu.draw(dma.fd,w,h,storage_w);
+    std::unique_ptr<kms_source> kms;
+    if(kms_node)kms=std::make_unique<kms_source>(kms_node);
+#else
+    need(!use_gpu,"GPU probe not compiled");
+#endif
+    Map src;
+    if(!use_gpu) {
+    src.len=srcsize;src.ptr=mmap(nullptr,src.len,PROT_READ|PROT_WRITE,MAP_SHARED,dma.fd,0);
+    need(src.ptr!=MAP_FAILED,"source map");
+    dma_buf_sync sync{};sync.flags=DMA_BUF_SYNC_START|DMA_BUF_SYNC_WRITE;
+    need(ctl(dma.fd,DMA_BUF_IOCTL_SYNC,&sync)==0,"source CPU begin");
+    for(unsigned row=0;row<h;++row)for(unsigned x=0;x<w;++x) {
+      auto &c=colors[x*8/w];auto p=static_cast<unsigned char*>(src.ptr)+(size_t(row)*w+x)*4;
+      p[0]=c[2];p[1]=c[1];p[2]=c[0];p[3]=255;
+    }
+    sync.flags=DMA_BUF_SYNC_END|DMA_BUF_SYNC_WRITE;
+    need(ctl(dma.fd,DMA_BUF_IOCTL_SYNC,&sync)==0,"source CPU end");
+    }
+    v4l2_plane plane{};v4l2_buffer b{};b.type=output;b.memory=V4L2_MEMORY_MMAP;b.length=1;b.m.planes=&plane;
+    need(ctl(rga.fd,VIDIOC_QUERYBUF,&b)==0,"QUERYBUF");
+    Map dst;dst.len=plane.length;
+    need(dst.len>=outfmt.fmt.pix_mp.plane_fmt[0].sizeimage && dst.len>=size_t(w)*h*3/2,"destination length");
+    dst.ptr=mmap(nullptr,dst.len,PROT_READ|PROT_WRITE,MAP_SHARED,rga.fd,plane.m.mem_offset);
+    need(dst.ptr!=MAP_FAILED,"destination map");
+    // Queues destruct before mappings and source fd, including error paths.
+    Queue qi{rga.fd,input},qo{rga.fd,output};
+    std::vector<unsigned char> copy(size_t(w)*h*3/2);
+    double elapsed=0;int error=0;
+    for(int n=0;n<120;++n) {
+      auto start=std::chrono::steady_clock::now();
+#ifdef VYARM_GPU_PROBE
+      if(kms)kms->copy(gpu,w,h);
+      else if(use_gpu)gpu.paint(w,h,n&1);
+#endif
+      queue(rga.fd,output,dst.len,-1);queue(rga.fd,input,srcsize,dma.fd);
+      for(auto q:{&qo,&qi})if(!q->active){need(ctl(rga.fd,VIDIOC_STREAMON,&q->type)==0,"STREAMON");q->active=true;}
+      bool a=false,b=false;auto deadline=start+std::chrono::milliseconds(200);
+      while(!(a&&b)) {
+        if(!a)a=dequeue(rga.fd,output,copy.size());
+        if(!b)b=dequeue(rga.fd,input,0);
+        need(std::chrono::steady_clock::now()<deadline,"conversion deadline");
+        if(!(a&&b)){pollfd p{rga.fd,POLLIN|POLLOUT,0};need(poll(&p,1,2)>=0 || errno==EINTR,"poll");}
+      }
+      memcpy(copy.data(),dst.ptr,copy.size());
+      elapsed+=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
+      if(kms_node) {
+#ifdef VYARM_GPU_PROBE
+        // One reference readback, outside timing; checks RGA luma against GPU target.
+        if(n==119){
+          std::vector<unsigned char> rgb(size_t(w)*h*4);
+          glReadPixels(0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,rgb.data());
+          need(glGetError()==GL_NO_ERROR,"reference readback");
+          unsigned min_y=255,max_y=0,chroma_samples=0;
+          int chroma_error=0;
+          for(unsigned y=8;y<h;y+=31)for(unsigned x=8;x<w;x+=31){
+            auto p=&rgb[(size_t(y)*w+x)*4];
+            int expected=int(lround(16+(.2126*p[0]+.7152*p[1]+.0722*p[2])*219/255));
+            unsigned actual=copy[size_t(y)*w+x];
+            error=std::max(error,std::abs(int(actual)-expected));
+            min_y=std::min(min_y,actual);max_y=std::max(max_y,actual);
+          }
+          for(unsigned y=8;y+1<h;y+=32)for(unsigned x=8;x+1<w;x+=32){
+            double avg[3]={};bool flat=true;
+            for(unsigned c=0;c<3;++c){
+              int lo=255,hi=0;
+              for(unsigned dy=0;dy<2;++dy)for(unsigned dx=0;dx<2;++dx){
+                int v=rgb[((size_t(y+dy)*w+x+dx)*4)+c];
+                lo=std::min(lo,v);hi=std::max(hi,v);avg[c]+=v*.25;
+              }
+              flat=flat && hi-lo<=2;
+            }
+            if(!flat)continue;
+            double lum=.2126*avg[0]+.7152*avg[1]+.0722*avg[2];
+            int u=int(lround(128+(avg[2]-lum)*(112.0/255)/.9278));
+            int v=int(lround(128+(avg[0]-lum)*(112.0/255)/.7874));
+            auto off=size_t(w)*h+size_t(y/2)*w+x;
+            chroma_error=std::max({chroma_error,std::abs(int(copy[off])-u),std::abs(int(copy[off+1])-v)});
+            ++chroma_samples;
+          }
+          need(chroma_samples>=16 && chroma_error<=3,"KMS chroma reference");
+          std::cout<<"kms_reference_chroma_max_error="<<chroma_error<<" flat_samples="<<chroma_samples<<std::endl;
+          std::cout<<"kms_reference_luma_max_error="<<error<<" luma_min="<<min_y<<" luma_max="<<max_y<<std::endl;
+          need(max_y>min_y+16,"KMS output lacks contrast");
+        }
+#endif
+        continue;
+      }
+      for(unsigned i=0;i<8;++i) {
+        unsigned x=(i*w/8+w/16)&~1u;auto &c=colors[use_gpu && (n&1)?7-i:i];double kr=bt709?.2126:.299,kb=bt709?.0722:.114;
+        double y=kr*c[0]+(1-kr-kb)*c[1]+kb*c[2];
+        int expected[3]={int(lround(full?y:16+y*219/255)),int(lround(128+(c[2]-y)*(full?.5:112.0/255)/(1-kb))),int(lround(128+(c[0]-y)*(full?.5:112.0/255)/(1-kr)))};
+        int actual[3]={copy[size_t(h/2)*w+x],copy[size_t(w)*h+size_t(h/4)*w+x],copy[size_t(w)*h+size_t(h/4)*w+x+1]};
+        for(int j=0;j<3;++j)error=std::max(error,std::abs(actual[j]-std::clamp(expected[j],0,255)));
+      }
+    }
+    std::cout<<"allocator="<<(rga_export?"rga-export":"system-heap")<<" "<<w<<"x"<<h<<" bt709="<<bt709<<" full="<<full<<" gpu_updates="<<use_gpu<<" frames=120 max_error="<<error<<" mean_frame_ms="<<elapsed/120<<std::endl;
+    colors_ok=colors_ok && error<=3;
+  }
+  return colors_ok?0:2;
+} catch(const std::exception &e){std::cerr<<e.what()<<std::endl;return 1;}

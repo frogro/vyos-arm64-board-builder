@@ -1,0 +1,127 @@
+{
+  "candidate-range-v2-result.json": {
+    "passed": false,
+    "cases": [
+      {
+        "colorspace": "smpte170m",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "smpte170m",
+        "range": "full-range",
+        "max_error": 20
+      },
+      {
+        "colorspace": "rec709",
+        "range": "lim-range",
+        "max_error": 3
+      },
+      {
+        "colorspace": "rec709",
+        "range": "full-range",
+        "max_error": 20
+      }
+    ]
+  },
+  "candidate-range-v3-result.json": {
+    "passed": false,
+    "cases": [
+      {
+        "colorspace": "smpte170m",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "smpte170m",
+        "range": "full-range",
+        "max_error": 20
+      },
+      {
+        "colorspace": "rec709",
+        "range": "lim-range",
+        "max_error": 3
+      },
+      {
+        "colorspace": "rec709",
+        "range": "full-range",
+        "max_error": 20
+      }
+    ]
+  },
+  "candidate-range-v4-random.json": {
+    "passed": true,
+    "cases": [
+      {
+        "colorspace": "smpte170m",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "smpte170m",
+        "range": "full-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "rec709",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "rec709",
+        "range": "full-range",
+        "max_error": 1
+      }
+    ]
+  },
+  "candidate-range-v4-result.json": {
+    "passed": true,
+    "cases": [
+      {
+        "colorspace": "smpte170m",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "smpte170m",
+        "range": "full-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "rec709",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "rec709",
+        "range": "full-range",
+        "max_error": 1
+      }
+    ]
+  },
+  "candidate-result.json": {
+    "passed": false,
+    "cases": [
+      {
+        "colorspace": "smpte170m",
+        "range": "lim-range",
+        "max_error": 1
+      },
+      {
+        "colorspace": "smpte170m",
+        "range": "full-range",
+        "max_error": 20
+      },
+      {
+        "colorspace": "rec709",
+        "range": "lim-range",
+        "max_error": 3
+      },
+      {
+        "colorspace": "rec709",
+        "range": "full-range",
+        "max_error": 21
+      }
+    ]
+  }
+}

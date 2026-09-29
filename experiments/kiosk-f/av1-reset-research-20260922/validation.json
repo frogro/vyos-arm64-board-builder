@@ -1,0 +1,23 @@
+{
+  "reference_frames": 300,
+  "matching_frame_hash_files": [
+    "hardware.json",
+    "pulse-repeat/hardware-2.json",
+    "pulse-repeat/hardware-3.json",
+    "pulse-repeat/hardware-4.json",
+    "pulse-repeat/hardware-1.json",
+    "pulse-repeat/hardware-5.json",
+    "pulse-browser-abort/hardware.json",
+    "pulse-coexistence3/hardware-2.json",
+    "pulse-coexistence3/hardware-3.json",
+    "pulse-coexistence3/hardware-1.json",
+    "pulse-second/hardware.json",
+    "pulse-idle-soak/hardware-2.json",
+    "pulse-idle-soak/hardware-3.json",
+    "pulse-idle-soak/hardware-1.json"
+  ],
+  "json_parse": "pass",
+  "python_syntax": "pass",
+  "shell_syntax": "pass",
+  "patch_apply_dry_run": "pass"
+}

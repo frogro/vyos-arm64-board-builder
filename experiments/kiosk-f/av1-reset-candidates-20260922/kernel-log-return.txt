@@ -1,0 +1,37 @@
+Sep 22 17:10:23 vyos kernel: tun: Universal TUN/TAP device driver, 1.6
+Sep 22 17:10:25 vyos kernel: NOTICE: Automounting of tracing to debugfs is deprecated and will be removed in 2030
+Sep 22 17:10:26 vyos systemd-gpt-auto-generator[4328]: EFI loader partition unknown, exiting.
+Sep 22 17:10:26 vyos systemd-gpt-auto-generator[4328]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:27 vyos systemd-gpt-auto-generator[4470]: EFI loader partition unknown, exiting.
+Sep 22 17:10:27 vyos systemd-gpt-auto-generator[4470]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:28 vyos systemd-gpt-auto-generator[4516]: EFI loader partition unknown, exiting.
+Sep 22 17:10:28 vyos systemd-gpt-auto-generator[4516]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:32 vyos systemd-gpt-auto-generator[4769]: EFI loader partition unknown, exiting.
+Sep 22 17:10:32 vyos systemd-gpt-auto-generator[4769]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:33 vyos systemd-gpt-auto-generator[4945]: EFI loader partition unknown, exiting.
+Sep 22 17:10:33 vyos systemd-gpt-auto-generator[4945]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5026]: EFI loader partition unknown, exiting.
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5026]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:34 vyos kernel: usbcore: registered new interface driver cdc_ether
+Sep 22 17:10:34 vyos kernel: usbcore: registered new interface driver rndis_host
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5099]: EFI loader partition unknown, exiting.
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5099]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5205]: EFI loader partition unknown, exiting.
+Sep 22 17:10:34 vyos systemd-gpt-auto-generator[5205]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:35 vyos systemd-gpt-auto-generator[5247]: EFI loader partition unknown, exiting.
+Sep 22 17:10:35 vyos systemd-gpt-auto-generator[5247]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:50 vyos systemd-gpt-auto-generator[6791]: EFI loader partition unknown, exiting.
+Sep 22 17:10:50 vyos systemd-gpt-auto-generator[6791]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:10:51 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered disabled state
+Sep 22 17:10:51 vyos kernel: veth-kiosk-test (unregistering): left allmulticast mode
+Sep 22 17:10:51 vyos kernel: veth-kiosk-test (unregistering): left promiscuous mode
+Sep 22 17:10:51 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered disabled state
+Sep 22 17:10:52 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered blocking state
+Sep 22 17:10:52 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered disabled state
+Sep 22 17:10:52 vyos kernel: veth-kiosk-test: entered allmulticast mode
+Sep 22 17:10:52 vyos kernel: veth-kiosk-test: entered promiscuous mode
+Sep 22 17:10:52 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered blocking state
+Sep 22 17:10:52 vyos kernel: pod-kiosk-test: port 1(veth-kiosk-test) entered forwarding state
+Sep 22 17:11:20 vyos systemd-gpt-auto-generator[9971]: EFI loader partition unknown, exiting.
+Sep 22 17:11:20 vyos systemd-gpt-auto-generator[9971]: (The boot loader did not set EFI variable LoaderDevicePartUUID.)
+Sep 22 17:13:17 vyos kernel: perf: interrupt took too long (2508 > 2500), lowering kernel.perf_event_max_sample_rate to 79000

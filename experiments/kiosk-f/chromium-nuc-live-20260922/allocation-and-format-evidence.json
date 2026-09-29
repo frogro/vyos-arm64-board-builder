@@ -1,0 +1,65 @@
+{
+  "results/h264-extra-first.stderr": [],
+  "results/h264-combined-final.stderr": [],
+  "results/av1-new-extra-long.stderr": [],
+  "results/h264-baseline-repeat.stderr": [],
+  "results/hevc-main10-first.stderr": [],
+  "results/av1-new-on-repeat.stderr": [],
+  "results/av1-new-debug-on.stderr": [
+    "[55:164:0922/115458.078532:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[55:164:0922/115458.102059:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[55:164:0922/115458.102351:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 12 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ],
+  "results/h264-first.stderr": [],
+  "results/h264-new-extra.stderr": [],
+  "results/vp9-final-browser.stderr": [],
+  "results/hevc-combined-final.stderr": [],
+  "results/av1-software-long.stderr": [],
+  "results/av1-first.stderr": [],
+  "results/av1-baseline-long.stderr": [],
+  "results/hevc-new-av1-flag.stderr": [],
+  "results/stock-main10.stderr": [
+    "[68:190:0922/115323.222616:ERROR:media/gpu/v4l2/v4l2_video_decoder.cc:123] SetupOutputFormat failed at ContinueChangeResolution@media/gpu/v4l2/v4l2_video_decoder.cc:1188 : Failed to setup output format, status= 5",
+    "[68:190:0922/115323.223055:ERROR:media/gpu/v4l2/v4l2_video_decoder_backend_stateless.cc:628] Backend failure when changing resolution (9).",
+    "[119:1:0922/115323.228290:WARNING:media/gpu/v4l2/v4l2_video_decoder.cc:1398] DecoderStatus::1"
+  ],
+  "results/hevc-first.stderr": [],
+  "results/av1-new-debug-off.stderr": [
+    "[56:164:0922/115446.801002:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[56:164:0922/115446.823391:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[56:164:0922/115446.825971:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 10 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ],
+  "results/h264-extra-repeat.stderr": [],
+  "results/av1-baseline-long-v2.stderr": [],
+  "results/hevc-rps-first.stderr": [],
+  "results/codec-reuse-both-flags.stderr": [],
+  "results/reuse-fixed-both-flags.stderr": [],
+  "results/av1-fixed-extra-long.stderr": [],
+  "results/av1-no-device-fallback.stderr": [],
+  "results/av1-new-off-long.stderr": [],
+  "results/main10-final-long.stderr": [],
+  "webrtc-off/h264.stderr": [
+    "[66:180:0922/120204.102128:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[66:180:0922/120204.111689:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[66:180:0922/120204.128102:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[66:180:0922/120204.128607:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 6 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ],
+  "webrtc-fixed-0/h264.stderr": [
+    "[62:183:0922/121025.223923:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[62:183:0922/121025.231234:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[62:183:0922/121025.243959:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[62:183:0922/121025.244239:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 6 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ],
+  "webrtc-on/h264.stderr": [
+    "[66:186:0922/120234.928827:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[66:186:0922/120234.938818:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[66:186:0922/120234.954457:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[66:186:0922/120234.954672:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 8 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ],
+  "webrtc-fixed-1/h264.stderr": [
+    "[63:174:0922/121054.332625:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[63:174:0922/121054.343949:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:642] AllocateInputBuffers(): Requesting: 17 OUTPUT buffers of type V4L2_MEMORY_MMAP",
+    "[63:174:0922/121054.358928:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:675] SetupOutputFormat(): Output (CAPTURE queue) candidate: NV12",
+    "[63:174:0922/121054.359316:VERBOSE1:media/gpu/v4l2/v4l2_video_decoder.cc:1238] ContinueChangeResolution(): Requesting: 6 CAPTURE buffers of type V4L2_MEMORY_MMAP"
+  ]
+}

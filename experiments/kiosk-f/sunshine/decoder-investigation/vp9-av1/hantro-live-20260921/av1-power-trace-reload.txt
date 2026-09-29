@@ -1,0 +1,48 @@
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 36/36   #P:8
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+          insmod-68155   [007] d....  1390.122282: power: (rockchip_pd_power+0x0/0x5e0) power_on=1
+          insmod-68155   [007] d....  1390.122329: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=0
+          insmod-68155   [007] d..1.  1390.122332: idle_return: (rockchip_pd_power+0x484/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+          insmod-68155   [007] d..1.  1390.122353: power_return: (rockchip_pd_power_on+0x54/0x100 <- rockchip_pd_power) ret=0
+          insmod-68155   [007] d....  1390.122354: power: (rockchip_pd_power+0x0/0x5e0) power_on=1
+          insmod-68155   [007] d....  1390.122414: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=0
+   kworker/u32:1-52507   [006] d....  1391.106545: power: (rockchip_pd_power+0x0/0x5e0) power_on=1
+          insmod-68155   [007] dN.1.  1393.174038: idle_return: (rockchip_pd_power+0x484/0x5e0 <- rockchip_pmu_set_idle_request) ret=-110
+          insmod-68155   [007] dN.1.  1393.174049: power_return: (rockchip_pd_power_on+0x54/0x100 <- rockchip_pd_power) ret=-110
+          insmod-68155   [007] dN...  1393.174056: power: (rockchip_pd_power+0x0/0x5e0) power_on=0
+          insmod-68155   [007] dN...  1393.174088: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=1
+          insmod-68155   [007] dN.1.  1393.174091: idle_return: (rockchip_pd_power+0x14c/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+          insmod-68155   [007] dN.1.  1393.174100: power_return: (rockchip_pd_power_off+0x24/0x80 <- rockchip_pd_power) ret=0
+   kworker/u32:1-52507   [006] d....  1393.174163: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=0
+   kworker/u32:1-52507   [006] d..1.  1393.174165: idle_return: (rockchip_pd_power+0x484/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+   kworker/u32:1-52507   [006] d..1.  1393.174169: power_return: (rockchip_pd_power_on+0x54/0x100 <- rockchip_pd_power) ret=0
+     kworker/0:0-64505   [000] d....  1393.227453: power: (rockchip_pd_power+0x0/0x5e0) power_on=0
+     kworker/0:0-64505   [000] d....  1393.227476: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=1
+     kworker/0:0-64505   [000] d..1.  1393.227492: idle_return: (rockchip_pd_power+0x14c/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+     kworker/0:0-64505   [000] d..1.  1393.227505: power_return: (rockchip_pd_power_off+0x24/0x80 <- rockchip_pd_power) ret=0
+    in:imjournal-2544    [007] d....  1393.581856: power: (rockchip_pd_power+0x0/0x5e0) power_on=1
+    in:imjournal-2544    [007] d....  1393.581878: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=0
+    in:imjournal-2544    [007] d..1.  1393.581881: idle_return: (rockchip_pd_power+0x484/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+    in:imjournal-2544    [007] d..1.  1393.581886: power_return: (rockchip_pd_power_on+0x54/0x100 <- rockchip_pd_power) ret=0
+     kworker/0:0-64505   [000] d....  1393.645593: power: (rockchip_pd_power+0x0/0x5e0) power_on=0
+     kworker/0:0-64505   [000] d....  1393.645615: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=1
+     kworker/0:0-64505   [000] d..1.  1393.645619: idle_return: (rockchip_pd_power+0x14c/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+     kworker/0:0-64505   [000] d..1.  1393.645631: power_return: (rockchip_pd_power_off+0x24/0x80 <- rockchip_pd_power) ret=0
+ jbd2/mmcblk1p3--345     [005] d....  1395.202763: power: (rockchip_pd_power+0x0/0x5e0) power_on=1
+ jbd2/mmcblk1p3--345     [005] d....  1395.202785: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=0
+ jbd2/mmcblk1p3--345     [005] d..1.  1395.202787: idle_return: (rockchip_pd_power+0x484/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+ jbd2/mmcblk1p3--345     [005] d..1.  1395.202793: power_return: (rockchip_pd_power_on+0x54/0x100 <- rockchip_pd_power) ret=0
+     kworker/0:0-64505   [000] dN...  1395.263931: power: (rockchip_pd_power+0x0/0x5e0) power_on=0
+     kworker/0:0-64505   [000] dN...  1395.263951: idle: (rockchip_pmu_set_idle_request+0x0/0x1b0) idle=1
+     kworker/0:0-64505   [000] dN.1.  1395.263956: idle_return: (rockchip_pd_power+0x14c/0x5e0 <- rockchip_pmu_set_idle_request) ret=0
+     kworker/0:0-64505   [000] dN.1.  1395.263967: power_return: (rockchip_pd_power_off+0x24/0x80 <- rockchip_pd_power) ret=0

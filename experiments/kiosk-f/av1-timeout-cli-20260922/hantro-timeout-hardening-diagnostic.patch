@@ -1,0 +1,124 @@
+--- a/drivers/media/platform/verisilicon/hantro_drv.c
++++ b/drivers/media/platform/verisilicon/hantro_drv.c
+@@ -40,7 +40,7 @@
+ 
+ static int vyarm_test_reset(struct hantro_dev *vpu, bool assert, unsigned int mask)
+ {
+-	int i, ret;
++	int i, ret, first_error = 0;
+ 
+ 	if (!vpu->vyarm_test_split_resets)
+ 		return assert ? reset_control_assert(vpu->resets) :
+@@ -50,10 +50,10 @@
+ 			continue;
+ 		ret = assert ? reset_control_assert(vpu->vyarm_test_resets[i]) :
+ 			       reset_control_deassert(vpu->vyarm_test_resets[i]);
+-		if (ret)
+-			return ret;
+-	}
+-	return 0;
++		if (ret && !first_error)
++			first_error = ret;
++	}
++	return first_error;
+ }
+ 
+ /* Experimental only: isolate held-reset vs powered reset-pulse behavior.
+@@ -67,7 +67,7 @@
+ 
+ static int vyarm_test_av1_pulse(struct hantro_dev *vpu)
+ {
+-	int ret, deassert_ret;
++	int ret, deassert_ret, pm_ret;
+ 
+ 	ret = pm_runtime_resume_and_get(vpu->dev);
+ 	if (ret < 0)
+@@ -86,9 +86,13 @@
+ 		ret = deassert_ret;
+ 	clk_bulk_disable(vpu->variant->num_clocks, vpu->clocks);
+ out_pm:
+-	pm_runtime_put_sync_suspend(vpu->dev);
+-	return ret;
+-}
++	pm_ret = pm_runtime_put_sync_suspend(vpu->dev);
++	return ret ? ret : (pm_ret < 0 ? pm_ret : 0);
++}
++
++static int vyarm_test_drop_av1_completion;
++module_param(vyarm_test_drop_av1_completion, int, 0644);
++MODULE_PARM_DESC(vyarm_test_drop_av1_completion, "TEST ONLY: consume one AV1 completion to exercise watchdog");
+ 
+ int hantro_debug;
+ module_param_named(debug, hantro_debug, int, 0644);
+@@ -161,6 +165,13 @@
+ {
+ 	struct hantro_ctx *ctx =
+ 		v4l2_m2m_get_curr_priv(vpu->m2m_dev);
++
++	if (ctx && vpu->variant->codec == HANTRO_AV1_DECODER &&
++	    vyarm_test_av1_remove_pulse &&
++	    xchg(&vyarm_test_drop_av1_completion, 0)) {
++		dev_info(vpu->dev, "VYARM_TIMEOUT: acknowledged completion withheld\n");
++		return;
++	}
+ 
+ 	/*
+ 	 * If cancel_delayed_work returns false
+@@ -184,6 +195,12 @@
+ 	ctx = v4l2_m2m_get_curr_priv(vpu->m2m_dev);
+ 	if (ctx) {
+ 		vpu_err("frame processing timed out!\n");
++		if (vpu->variant->codec == HANTRO_AV1_DECODER &&
++		    vyarm_test_av1_remove_pulse) {
++			int ret = vyarm_test_av1_pulse(vpu);
++
++			dev_info(vpu->dev, "VYARM_TIMEOUT: powered recovery returned %d\n", ret);
++		}
+ 		if (ctx->codec_ops->reset)
+ 			ctx->codec_ops->reset(ctx);
+ 		hantro_job_finish(vpu, ctx, VB2_BUF_STATE_ERROR);
+@@ -241,15 +258,20 @@
+ 
+ 	ret = clk_bulk_enable(ctx->dev->variant->num_clocks, ctx->dev->clocks);
+ 	if (ret)
+-		goto err_cancel_job;
++		goto err_put_pm;
+ 
+ 	v4l2_m2m_buf_copy_metadata(src, dst, true);
+ 
+ 	if (ctx->codec_ops->run(ctx))
+-		goto err_cancel_job;
++		goto err_disable_clocks;
+ 
+ 	return;
+ 
++err_disable_clocks:
++	cancel_delayed_work_sync(&ctx->dev->watchdog_work);
++	clk_bulk_disable(ctx->dev->variant->num_clocks, ctx->dev->clocks);
++err_put_pm:
++	pm_runtime_put_autosuspend(ctx->dev->dev);
+ err_cancel_job:
+ 	hantro_job_finish_no_pm(ctx->dev, ctx, VB2_BUF_STATE_ERROR);
+ }
+@@ -1247,6 +1269,10 @@
+ 		}
+ 	}
+ 
++	if (vyarm_test_av1_remove_pulse &&
++	    (!vpu->vyarm_test_split_resets || vyarm_test_remove_reset_mask != 3))
++		return -EINVAL;
++
+ 	if (vpu->variant->init) {
+ 		ret = vpu->variant->init(vpu);
+ 		if (ret) {
+@@ -1254,10 +1280,6 @@
+ 			return ret;
+ 		}
+ 	}
+-
+-	if (vyarm_test_av1_remove_pulse &&
+-	    (!vpu->vyarm_test_split_resets || vyarm_test_remove_reset_mask != 3))
+-		return -EINVAL;
+ 
+ 	dev_info(vpu->dev, "VYARM_PM probe: before runtime-PM setup\n");
+ 	pm_runtime_set_autosuspend_delay(vpu->dev, 100);

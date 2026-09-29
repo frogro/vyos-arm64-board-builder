@@ -1,0 +1,16 @@
+{
+  "bt709-full-0": {
+    "mean_rgb_abs_vs_reference": 7.120155928497943
+  },
+  "bt709-full-1": {
+    "mean_rgb_abs_vs_reference": 0.7109942451131688
+  },
+  "bt709-full-off-on-identical": false,
+  "bt601-limited-0": {
+    "mean_rgb_abs_vs_reference": 1.1289634773662551
+  },
+  "bt601-limited-1": {
+    "mean_rgb_abs_vs_reference": 1.1289634773662551
+  },
+  "bt601-limited-off-on-identical": true
+}

@@ -1,0 +1,72 @@
+{
+  "full.h264": {
+    "sha256": "0b39f465ebb4478dc8495d22a4fea2886afee9a21a71c3427d2576a91d6fed4d",
+    "bytes": 161633,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuv420p",
+          "color_range": "tv",
+          "color_space": "bt709",
+          "nb_read_frames": "120"
+        }
+      ]
+    },
+    "decode_exit": 0,
+    "decode_stderr": "",
+    "reference_check": [
+      {
+        "frame": 0,
+        "sampled_luma_max_error": 0,
+        "sampled_luma_mean_error": 0.0,
+        "chroma_max_error": 0
+      },
+      {
+        "frame": 119,
+        "sampled_luma_max_error": 0,
+        "sampled_luma_mean_error": 0.0,
+        "chroma_max_error": 0
+      }
+    ]
+  },
+  "full.hevc": {
+    "sha256": "f8a2ff3e8397d72c9b97dbd2e675f82c94b358b6809761ea6a387b4ef53edabf",
+    "bytes": 51543,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "hevc",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuv420p",
+          "color_range": "tv",
+          "color_space": "bt709",
+          "nb_read_frames": "120"
+        }
+      ]
+    },
+    "decode_exit": 0,
+    "decode_stderr": "",
+    "reference_check": [
+      {
+        "frame": 0,
+        "sampled_luma_max_error": 0,
+        "sampled_luma_mean_error": 0.0,
+        "chroma_max_error": 0
+      },
+      {
+        "frame": 119,
+        "sampled_luma_max_error": 0,
+        "sampled_luma_mean_error": 0.0,
+        "chroma_max_error": 0
+      }
+    ]
+  }
+}

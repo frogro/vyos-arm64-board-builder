@@ -1,0 +1,10 @@
+FROM localhost/vyarm-kiosk:browser-wayland-test3 AS build
+USER root
+RUN sed -i 's/Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources && apt-get update && apt-get install -y --no-install-recommends build-essential meson ninja-build dpkg-dev && apt-get build-dep -y weston
+WORKDIR /src
+RUN apt-get source weston=14.0.2-1
+COPY 0001-headless-use-frame-timer.patch /src/fix.patch
+RUN cd weston-14.0.2 && patch -p1 < /src/fix.patch && meson setup build -Dtests=false -Ddemo-clients=false && ninja -C build -j1 libweston/backend-headless/headless-backend.so
+FROM localhost/vyarm-kiosk:browser-wayland-test3
+USER root
+COPY --from=build /src/weston-14.0.2/build/libweston/backend-headless/headless-backend.so /usr/lib/aarch64-linux-gnu/libweston-14/headless-backend.so

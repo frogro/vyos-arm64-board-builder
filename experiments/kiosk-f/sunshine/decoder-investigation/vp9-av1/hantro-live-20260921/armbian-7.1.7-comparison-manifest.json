@@ -1,0 +1,13 @@
+{
+  "release": "https://github.com/frogro/vyos-build/releases/tag/armbian-rock5b-dwc3-fix",
+  "kernel": "7.1.7-edge-rockchip64",
+  "build_repository_commit": "815a50b664f97bcf8357f5e31e2b610603034c0e",
+  "patch_path": "patch/kernel/archive/rockchip64-7.1/media-0007-add-verisilicon-AV1-iommu-driver.patch",
+  "patch_sha256": "c1c9d7fef2d5a752129d8640d31e9cd6125b0b0980853a7c8f687c918a20da26",
+  "artifacts": {
+    "Armbian-unofficial_26.08.0-trunk_Rock-5b_trixie_edge_7.1.7_minimal.img.xz": "fb33a9f3625274cc235468ce2e24abfa8cefdbaa2dcc1aaeb104b1a5f81189b8",
+    "kernel.config": "282f76b691ce30f0800a308cdd6a15f71a0ffb206732c740e44db5ee30a265da",
+    "rock5b.dtb": "fb4fd403738bbc6e3fe81d94ef4fa72ae6d64449f20a72c730dc97658ff88eaf",
+    "hantro-vpu.ko": "348c98aad241fbc81dd1a823f5db81272c261f1530a22263ed459b28f5587061"
+  }
+}

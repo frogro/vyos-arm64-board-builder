@@ -1,0 +1,24 @@
+--- a/src/video.cpp
++++ b/src/video.cpp
+@@ -1459,14 +1459,19 @@
+       nullptr
+     ),
+     {}, // AV1 is not advertised by this backend.
+-    {}, // HEVC is deferred until the H.264 path is validated.
++    {
++      {{"rc_mode"s, 1}}, // CBR, same as the validated H.264 path.
++      {}, {}, {}, {}, {},
++      "hevc_rkmpp"s,
++      {}
++    },
+     {
+       {{"rc_mode"s, 1}}, // CBR, as exposed by ffmpeg-rockchip.
+       {}, {}, {}, {}, {},
+       "h264_rkmpp"s,
+       {}
+     },
+-    H264_ONLY | PARALLEL_ENCODING | LIMITED_GOP_SIZE | SINGLE_SLICE_ONLY
++    PARALLEL_ENCODING | LIMITED_GOP_SIZE | SINGLE_SLICE_ONLY
+   };
+ #endif
+ 

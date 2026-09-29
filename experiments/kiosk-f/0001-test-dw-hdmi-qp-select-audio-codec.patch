@@ -1,0 +1,9 @@
+--- a/drivers/gpu/drm/bridge/synopsys/Kconfig
++++ b/drivers/gpu/drm/bridge/synopsys/Kconfig
+@@ -57,5 +57,6 @@
+ config DRM_DW_HDMI_QP
+ 	tristate
++	select SND_SOC_HDMI_CODEC if SND_SOC
+ 	select DRM_DISPLAY_HDMI_HELPER
+ 	select DRM_DISPLAY_HDMI_STATE_HELPER
+ 	select DRM_DISPLAY_HELPER

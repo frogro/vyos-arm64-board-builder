@@ -1,0 +1,18 @@
+{
+  "vp9-profile2-color-0": {
+    "rgb_mean_abs_vs_bt709": 7.279420653292181,
+    "flat_red": [
+      234,
+      0,
+      3
+    ]
+  },
+  "vp9-profile2-color-1": {
+    "rgb_mean_abs_vs_bt709": 0.9477083333333334,
+    "flat_red": [
+      255,
+      0,
+      1
+    ]
+  }
+}

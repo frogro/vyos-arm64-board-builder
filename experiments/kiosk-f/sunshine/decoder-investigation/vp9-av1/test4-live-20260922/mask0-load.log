@@ -1,0 +1,12 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    6330712 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+STAGE_MASK0_LOAD_BEGIN
+STAGE_MASK0_LOAD_RETURNED
+/sys/devices/platform/fdc70000.video-codec/media1
+/sys/devices/platform/fdc70000.video-codec/video4linux
+/sys/devices/platform/fdc70000.video-codec/video4linux/video3

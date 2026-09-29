@@ -1,0 +1,33 @@
+FROM docker.io/library/debian:trixie-slim
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+ ca-certificates git build-essential cmake ninja-build pkg-config python3 python3-jinja2 \
+ libcap-dev libcurl4-openssl-dev libdrm-dev libevdev-dev libgbm-dev \
+ libminiupnpc-dev libnuma-dev libopus-dev libpulse-dev libssl-dev libsystemd-dev \
+ libudev-dev libwayland-dev libx11-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb1-dev \
+ libxfixes-dev libxrandr-dev libxtst-dev libva-dev libx264-dev libx265-dev \
+ libvulkan-dev libpipewire-0.3-dev npm patch curl xz-utils && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+RUN git init mpp && cd mpp && git remote add origin https://github.com/rockchip-linux/mpp.git \
+ && git fetch --depth 1 origin c08762ebfadeb4e986d2fed993bc7a54862d3ebe \
+ && git checkout --detach FETCH_HEAD \
+ && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/mpp -DBUILD_SHARED_LIBS=ON -DBUILD_TEST=OFF \
+ && cmake --build build -j2 && cmake --install build
+RUN git init ffmpeg && cd ffmpeg && git remote add origin https://github.com/nyanmisaka/ffmpeg-rockchip.git \
+ && git fetch --depth 1 origin d90e3a1c18d7929383cf88c1b3da2e2d1c966cbf && git checkout --detach FETCH_HEAD
+ENV PKG_CONFIG_PATH=/opt/mpp/lib/pkgconfig
+ENV LD_LIBRARY_PATH=/opt/mpp/lib
+RUN cd ffmpeg && ./configure --prefix=/opt/ffmpeg --disable-all --disable-autodetect \
+ --disable-programs --disable-doc --enable-gpl --enable-version3 --enable-static --disable-shared --enable-pic \
+ --enable-avcodec --enable-avutil --enable-swscale --enable-bsfs \
+ --enable-libdrm --enable-rkmpp --enable-libx264 --enable-libx265 --enable-vaapi \
+ --enable-encoder=h264_rkmpp,libx264,libx265,h264_vaapi,hevc_vaapi \
+ && make -j2 && make install \
+ && cp -a libavcodec/*.h /opt/ffmpeg/include/libavcodec/ \
+ && cp -a libavcodec/hevc /opt/ffmpeg/include/libavcodec/ \
+ && cp -a libavutil/*.h /opt/ffmpeg/include/libavutil/ \
+ && cp config.h /opt/ffmpeg/include/ \
+ && mkdir -p /opt/ffmpeg/include/libavutil/aarch64 \
+ && cp libavutil/aarch64/*.h /opt/ffmpeg/include/libavutil/aarch64/ \
+ && cp -a libavutil/arm /opt/ffmpeg/include/libavutil/ \
+ && ar rcs /opt/ffmpeg/lib/libcbs.a

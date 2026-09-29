@@ -1,0 +1,16 @@
+IOMMU driver: /sys/bus/platform/drivers/vsi_iommu
+AV1 IOMMU group (may appear only on decoder attach): /sys/kernel/iommu_groups/6
+IOMMU runtime status: suspended
+MemAvailable:    4620032 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+PREFLIGHT_OK: no modules loaded, no settings changed
+BROWSER_MAIN10 {'codec': 'av1', 'state': 'ended', 'started': 573.8999999985099, 'duration': 30, 'width': 1920, 'height': 1080, 'totalFrames': 1800, 'droppedFrames': 43, 'elapsedMs': 30512.700000001118}
+vyarm-av1-pulse-browser
+vyarm-av1-pulse-browser
+CLIENT_ABORT_RECOVERY_EXACT
+TRACE_DECODE_REMOVE_OK
+Running as unit: vyarm-av1-pulse-browser-watchdog.service
+Running timer as unit: vyarm-av1-pulse-browser-fallback.timer
+Will run service as unit: vyarm-av1-pulse-browser-fallback.service
+Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.

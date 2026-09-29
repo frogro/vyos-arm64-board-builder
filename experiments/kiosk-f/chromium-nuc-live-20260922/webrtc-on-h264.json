@@ -1,0 +1,787 @@
+{
+  "webrtc": {
+    "receive": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=1"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=3"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=f4001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=1;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=64001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=1;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H265",
+          "sdpFmtpLine": "level-id=30;profile-id=2;tier-flag=0;tx-mode=SRST"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/flexfec-03",
+          "sdpFmtpLine": "repair-window=10000000"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    },
+    "send": {
+      "codecs": [
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP8"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/rtx"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/H264",
+          "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/AV1",
+          "sdpFmtpLine": "level-idx=5;profile=0;tier=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=0"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/VP9",
+          "sdpFmtpLine": "profile-id=2"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/red"
+        },
+        {
+          "clockRate": 90000,
+          "mimeType": "video/ulpfec"
+        }
+      ],
+      "headerExtensions": [
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:toffset"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:3gpp:video-orientation"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/video-timing"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "http://www.webrtc.org/experiments/rtp-hdrext/color-space"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:mid"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id"
+        },
+        {
+          "direction": "sendrecv",
+          "uri": "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id"
+        }
+      ]
+    }
+  },
+  "cpuSamples": [
+    {
+      "monotonic": 1471.168782369,
+      "usage_usec": 6409665,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1471.670640697,
+      "usage_usec": 7962021,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1472.173542792,
+      "usage_usec": 8377237,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1472.676602675,
+      "usage_usec": 8773844,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1473.180330541,
+      "usage_usec": 9232202,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1473.684174863,
+      "usage_usec": 9646709,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1474.187127207,
+      "usage_usec": 10031358,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1474.69066612,
+      "usage_usec": 10470678,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1475.196769262,
+      "usage_usec": 10936364,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1475.700756914,
+      "usage_usec": 11308693,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1476.203741882,
+      "usage_usec": 11711800,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1476.706918803,
+      "usage_usec": 12120254,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1477.211962596,
+      "usage_usec": 12498976,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1477.71523964,
+      "usage_usec": 12889951,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1478.218898925,
+      "usage_usec": 13279553,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1478.721740438,
+      "usage_usec": 13651460,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1479.224698365,
+      "usage_usec": 14041157,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1480.080466581,
+      "usage_usec": 14696711,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1480.585038343,
+      "usage_usec": 15086762,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1481.089088827,
+      "usage_usec": 15447434,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1481.593261849,
+      "usage_usec": 15873708,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1482.09974694,
+      "usage_usec": 16270872,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1482.605366886,
+      "usage_usec": 16682290,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1483.108482934,
+      "usage_usec": 17085712,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1483.613089987,
+      "usage_usec": 17495981,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1484.115665257,
+      "usage_usec": 17822140,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1484.620030816,
+      "usage_usec": 18184344,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1485.123565854,
+      "usage_usec": 18572411,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1485.627409509,
+      "usage_usec": 18961615,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1486.132870125,
+      "usage_usec": 19363292,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1486.637649258,
+      "usage_usec": 19722967,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1487.140818555,
+      "usage_usec": 20095573,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1487.646415167,
+      "usage_usec": 20482470,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1488.152481852,
+      "usage_usec": 20863291,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1488.654838418,
+      "usage_usec": 21269835,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1489.159502179,
+      "usage_usec": 21637816,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1489.666715002,
+      "usage_usec": 22040078,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1490.172991557,
+      "usage_usec": 22433178,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1490.677370866,
+      "usage_usec": 22861139,
+      "state": "playing"
+    },
+    {
+      "monotonic": 1491.184451317,
+      "usage_usec": 23293807,
+      "state": "ended"
+    }
+  ],
+  "flags": [
+    "--no-first-run",
+    "--autoplay-policy=no-user-gesture-required",
+    "--disable-background-networking",
+    "--user-data-dir=/tmp/probe-profile",
+    "--remote-debugging-pipe",
+    "--enable-logging=stderr",
+    "--enable-gpu",
+    "--use-gl=angle",
+    "--use-angle=gles",
+    "--enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers",
+    "--ozone-platform=wayland",
+    "--start-fullscreen",
+    "--window-size=1920,1080",
+    "--vmodule=v4l2_video_decoder=1"
+  ],
+  "gpu": {
+    "gpu": {
+      "devices": [
+        {
+          "vendorId": 0,
+          "deviceId": 0,
+          "vendorString": "Google Inc. (Mesa)",
+          "deviceString": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+          "driverVendor": "Mesa",
+          "driverVersion": "25.0.7"
+        }
+      ],
+      "auxAttributes": {
+        "amdSwitchable": false,
+        "canSupportThreadedTextureMailbox": false,
+        "directRenderingVersion": "",
+        "displayType": "ANGLE_OPENGLES",
+        "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_compressed_texture_etc GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_size GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_robust_client_memory GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_translated_shader_source GL_ARM_rgba8 GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_blend_func_extended GL_EXT_blend_minmax GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_render_snorm GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_norm16 GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_debug GL_KHR_parallel_shader_compile GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_read_depth GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth24 GL_OES_draw_buffers_indexed GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object ",
+        "glImplementationParts": "(gl=egl-angle,angle=opengles)",
+        "glRenderer": "ANGLE (Mesa, Mali-G610 (Panfrost), OpenGL ES 3.1 Mesa 25.0.7-2+deb13u1)",
+        "glResetNotificationStrategy": 0,
+        "glVendor": "Google Inc. (Mesa)",
+        "glVersion": "OpenGL ES 3.0 (ANGLE 2.1 git hash: unknown hash)",
+        "glWsExtensions": "EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANDROID_native_fence_sync EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_KHR_create_context_no_error EGL_EXT_image_dma_buf_import EGL_EXT_image_dma_buf_import_modifiers EGL_KHR_reusable_sync EGL_ANGLE_external_context_and_surface EGL_EXT_buffer_age EGL_ANGLE_context_virtualization EGL_ANGLE_memory_usage_report EGL_ANGLE_create_context_passthrough_shaders ",
+        "glWsVendor": "Google Inc. (Mesa)",
+        "glWsVersion": "1.5 (ANGLE 2.1 git hash: unknown hash)",
+        "hardwareSupportsVulkan": false,
+        "inProcessGpu": false,
+        "initializationTime": 0.202658,
+        "isAsan": false,
+        "isClangCoverage": false,
+        "jpegDecodeAcceleratorSupported": false,
+        "maxMsaaSamples": "4",
+        "optimus": false,
+        "passthroughCmdDecoder": true,
+        "pixelShaderVersion": "3.00",
+        "processCrashCount": 0,
+        "sandboxed": false,
+        "skiaBackendType": "GaneshGL",
+        "subpixelFontRendering": true,
+        "targetCpuBits": 64,
+        "vertexShaderVersion": "3.00",
+        "visibilityCallbackCallCount": 0
+      },
+      "featureStatus": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "enabled_on",
+        "opengl": "enabled_on",
+        "rasterization": "enabled",
+        "raw_draw": "disabled_off_ok",
+        "skia_graphite": "disabled_off",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "enabled",
+        "video_encode": "disabled_software",
+        "vulkan": "disabled_off",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webgpu_on_vk_via_gl_interop": "disabled_off",
+        "webnn": "disabled_off"
+      },
+      "driverBugWorkarounds": [
+        "enable_webgl_timer_query_extensions",
+        "exit_on_context_lost",
+        "disabled_extension_GL_KHR_blend_equation_advanced",
+        "disabled_extension_GL_KHR_blend_equation_advanced_coherent"
+      ],
+      "videoDecoding": [],
+      "videoEncoding": []
+    },
+    "modelName": "",
+    "modelVersion": "",
+    "commandLine": "/candidate-av1/chrome --no-first-run --autoplay-policy=no-user-gesture-required --disable-background-networking --user-data-dir=/tmp/probe-profile --remote-debugging-pipe --enable-logging=stderr --enable-gpu --use-gl=angle --use-angle=gles --enable-features=AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL,PreferV4L2VideoAcceleration,V4L2ExtraCaptureBuffers --ozone-platform=wayland --start-fullscreen --window-size=1920,1080 --vmodule=v4l2_video_decoder=1 --flag-switches-begin --flag-switches-end --render-node-override=/dev/dri/renderD128"
+  },
+  "page": {
+    "codec": "h264",
+    "state": "ended",
+    "callbackCount": 993,
+    "snapshots": [
+      [
+        {
+          "id": "IT01V1891305583",
+          "timestamp": 1790078564183.253,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 1891305583,
+          "transportId": "T01",
+          "jitter": 0.007,
+          "packetsLost": 0,
+          "packetsReceived": 9442,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 10420092,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 558,
+          "framesDecoded": 558,
+          "framesDropped": 0,
+          "framesPerSecond": 61,
+          "framesReceived": 559,
+          "freezeCount": 0,
+          "headerBytesReceived": 113304,
+          "jitterBufferDelay": 5.191508,
+          "jitterBufferEmittedCount": 558,
+          "jitterBufferMinimumDelay": 8.532929,
+          "jitterBufferTargetDelay": 8.532929,
+          "keyFramesDecoded": 10,
+          "lastPacketReceivedTimestamp": 1790078564177.551,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 4,
+          "remoteId": "ROV1891305583",
+          "totalAssemblyTime": 0.364019,
+          "totalDecodeTime": 2.2730069999999998,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 9.207,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 7.590148999999999,
+          "totalSquaredInterFrameDelay": 0.18237900000000135,
+          "trackIdentifier": "d93f2e88-9a7a-49c5-9070-560b73aeca5f"
+        }
+      ],
+      [
+        {
+          "id": "IT01V1891305583",
+          "timestamp": 1790078574187.135,
+          "type": "inbound-rtp",
+          "codecId": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+          "kind": "video",
+          "mediaType": "video",
+          "ssrc": 1891305583,
+          "transportId": "T01",
+          "jitter": 0,
+          "packetsLost": 0,
+          "packetsReceived": 18820,
+          "packetsReceivedWithCe": 0,
+          "packetsReceivedWithEct1": 0,
+          "bytesReceived": 20787248,
+          "firCount": 0,
+          "frameHeight": 1080,
+          "frameWidth": 1920,
+          "framesAssembledFromMultiplePackets": 1157,
+          "framesDecoded": 1157,
+          "framesDropped": 0,
+          "framesPerSecond": 59,
+          "framesReceived": 1157,
+          "freezeCount": 0,
+          "headerBytesReceived": 225840,
+          "jitterBufferDelay": 10.577147,
+          "jitterBufferEmittedCount": 1157,
+          "jitterBufferMinimumDelay": 17.269800999999998,
+          "jitterBufferTargetDelay": 17.269800999999998,
+          "keyFramesDecoded": 20,
+          "lastPacketReceivedTimestamp": 1790078574144.751,
+          "mid": "0",
+          "nackCount": 0,
+          "pauseCount": 0,
+          "pliCount": 4,
+          "remoteId": "ROV1891305583",
+          "totalAssemblyTime": 0.7148329999999999,
+          "totalDecodeTime": 4.502594,
+          "totalFreezesDuration": 0,
+          "totalInterFrameDelay": 19.194,
+          "totalPausesDuration": 0,
+          "totalProcessingDelay": 15.301741999999999,
+          "totalSquaredInterFrameDelay": 0.37581199999999504,
+          "trackIdentifier": "d93f2e88-9a7a-49c5-9070-560b73aeca5f"
+        }
+      ]
+    ],
+    "started": 163.5999999998603,
+    "connectionStates": [
+      "connecting",
+      "connected"
+    ],
+    "offeredCodecs": [
+      "a=rtpmap:118 H264/90000",
+      "a=fmtp:118 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+    ],
+    "answerCodecs": [
+      "a=rtpmap:118 H264/90000",
+      "a=fmtp:118 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f"
+    ],
+    "finalConnectionState": "connected",
+    "requestedSeconds": 20,
+    "stats": [
+      {
+        "id": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+        "timestamp": 1790078574187.135,
+        "type": "codec",
+        "clockRate": 90000,
+        "mimeType": "video/H264",
+        "payloadType": 118,
+        "sdpFmtpLine": "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+        "transportId": "T01"
+      },
+      {
+        "id": "IT01V1891305583",
+        "timestamp": 1790078574187.135,
+        "type": "inbound-rtp",
+        "codecId": "CIT01_118_level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f",
+        "kind": "video",
+        "mediaType": "video",
+        "ssrc": 1891305583,
+        "transportId": "T01",
+        "jitter": 0,
+        "packetsLost": 0,
+        "packetsReceived": 18820,
+        "packetsReceivedWithCe": 0,
+        "packetsReceivedWithEct1": 0,
+        "bytesReceived": 20787248,
+        "firCount": 0,
+        "frameHeight": 1080,
+        "frameWidth": 1920,
+        "framesAssembledFromMultiplePackets": 1157,
+        "framesDecoded": 1157,
+        "framesDropped": 0,
+        "framesPerSecond": 59,
+        "framesReceived": 1157,
+        "freezeCount": 0,
+        "headerBytesReceived": 225840,
+        "jitterBufferDelay": 10.577147,
+        "jitterBufferEmittedCount": 1157,
+        "jitterBufferMinimumDelay": 17.269800999999998,
+        "jitterBufferTargetDelay": 17.269800999999998,
+        "keyFramesDecoded": 20,
+        "lastPacketReceivedTimestamp": 1790078574144.751,
+        "mid": "0",
+        "nackCount": 0,
+        "pauseCount": 0,
+        "pliCount": 4,
+        "remoteId": "ROV1891305583",
+        "totalAssemblyTime": 0.7148329999999999,
+        "totalDecodeTime": 4.502594,
+        "totalFreezesDuration": 0,
+        "totalInterFrameDelay": 19.194,
+        "totalPausesDuration": 0,
+        "totalProcessingDelay": 15.301741999999999,
+        "totalSquaredInterFrameDelay": 0.37581199999999504,
+        "trackIdentifier": "d93f2e88-9a7a-49c5-9070-560b73aeca5f"
+      }
+    ],
+    "width": 1920,
+    "height": 1080,
+    "totalFrames": 1157,
+    "droppedFrames": 89,
+    "elapsedMs": 20133.100000000093
+  },
+  "support": {
+    "h264": "probably",
+    "hevc": "probably"
+  },
+  "mediaEvents": [
+    {
+      "method": "Media.playerCreated",
+      "params": {
+        "player": {
+          "playerId": "82A7DD4D727D4C90407D256275845D8B"
+        }
+      },
+      "sessionId": "CD801591166007FCF87144B5EECD65A4"
+    },
+    {
+      "method": "Media.playerEventsAdded",
+      "params": {
+        "playerId": "82A7DD4D727D4C90407D256275845D8B",
+        "events": [
+          {
+            "timestamp": 1470.898761,
+            "value": "{\"created\":\"2026-09-22 12:02:34.181973 UTC\",\"event\":\"kMediaLogCreated\"}"
+          },
+          {
+            "timestamp": 1470.899105,
+            "value": "{\"event\":\"kWebMediaPlayerCreated\"}"
+          },
+          {
+            "timestamp": 1470.899368,
+            "value": "{\"event\":\"kLoad\",\"url\":\"mediamtx\"}"
+          },
+          {
+            "timestamp": 1471.687829,
+            "value": "{\"event\":\"kPlay\"}"
+          }
+        ]
+      },
+      "sessionId": "CD801591166007FCF87144B5EECD65A4"
+    }
+  ]
+}

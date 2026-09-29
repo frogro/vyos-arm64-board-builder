@@ -1,0 +1,122 @@
+{
+  "date": "2026-09-27",
+  "runtime": "localhost/vyarm-kiosk:audio-hevc-test3-20260927",
+  "codec": "HEVC",
+  "bitrate_kbps": 2000,
+  "duration_seconds": 35,
+  "vsync": false,
+  "frame_pacing": false,
+  "client_decoder": "hardware",
+  "rotation": 90,
+  "network": "Tailscale via Samsung hotspot/DERP",
+  "rga_enabled": false,
+  "sessions": [
+    {
+      "display_backend": "x11",
+      "capture": "x11",
+      "resolution": "1920x1080",
+      "requested_fps": 30,
+      "animated": false,
+      "client_log": "stream-latency-x11.log",
+      "metrics": [
+        "Incoming frame rate from network: 28.97 FPS",
+        "Decoding frame rate: 28.97 FPS",
+        "Rendering frame rate: 28.73 FPS",
+        "Host processing latency min/max/average: 29.1/202.9/41.0 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.73%",
+        "Average network latency: 56 ms (variance: 7 ms)",
+        "Average decoding time: 0.37 ms",
+        "Average frame queue delay: 0.13 ms",
+        "Average rendering time (including monitor V-sync latency): 2.71 ms"
+      ]
+    },
+    {
+      "display_backend": "x11",
+      "capture": "x11",
+      "resolution": "1080x1920",
+      "requested_fps": 60,
+      "animated": false,
+      "client_log": "stream-latency-x11-portrait60.log",
+      "metrics": [
+        "Incoming frame rate from network: 55.75 FPS",
+        "Decoding frame rate: 55.75 FPS",
+        "Rendering frame rate: 55.24 FPS",
+        "Host processing latency min/max/average: 27.9/216.8/35.9 ms",
+        "Frames dropped by your network connection: 0.55%",
+        "Frames dropped due to network jitter: 0.86%",
+        "Average network latency: 70 ms (variance: 12 ms)",
+        "Average decoding time: 0.66 ms",
+        "Average frame queue delay: 0.26 ms",
+        "Average rendering time (including monitor V-sync latency): 2.36 ms"
+      ]
+    },
+    {
+      "display_backend": "wayland",
+      "capture": "kms",
+      "resolution": "1920x1080",
+      "requested_fps": 30,
+      "animated": false,
+      "client_log": "stream-latency-kms-repeat.log",
+      "metrics": [
+        "Incoming frame rate from network: 13.70 FPS",
+        "Decoding frame rate: 13.70 FPS",
+        "Rendering frame rate: 13.56 FPS",
+        "Host processing latency min/max/average: 245.3/425.7/280.6 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 1.03%",
+        "Average network latency: 56 ms (variance: 5 ms)",
+        "Average decoding time: 1.33 ms",
+        "Average frame queue delay: 0.09 ms",
+        "Average rendering time (including monitor V-sync latency): 2.53 ms"
+      ]
+    },
+    {
+      "display_backend": "x11",
+      "capture": "kms",
+      "resolution": "1920x1080",
+      "requested_fps": 30,
+      "animated": false,
+      "client_log": "stream-latency-x11-kms.log",
+      "metrics": [
+        "Incoming frame rate from network: 13.38 FPS",
+        "Decoding frame rate: 13.38 FPS",
+        "Rendering frame rate: 13.31 FPS",
+        "Host processing latency min/max/average: 248.5/287.0/277.5 ms",
+        "Frames dropped by your network connection: 0.77%",
+        "Frames dropped due to network jitter: 0.51%",
+        "Average network latency: 59 ms (variance: 6 ms)",
+        "Average decoding time: 0.96 ms",
+        "Average frame queue delay: 0.09 ms",
+        "Average rendering time (including monitor V-sync latency): 2.63 ms"
+      ]
+    },
+    {
+      "display_backend": "x11",
+      "capture": "kms",
+      "resolution": "1920x1080",
+      "requested_fps": 30,
+      "animated": true,
+      "client_log": "stream-latency-x11-kms-animated.log",
+      "metrics": [
+        "Incoming frame rate from network: 13.12 FPS",
+        "Decoding frame rate: 13.12 FPS",
+        "Rendering frame rate: 13.05 FPS",
+        "Host processing latency min/max/average: 254.9/291.8/281.2 ms",
+        "Frames dropped by your network connection: 0.00%",
+        "Frames dropped due to network jitter: 0.52%",
+        "Average network latency: 62 ms (variance: 4 ms)",
+        "Average decoding time: 1.11 ms",
+        "Average frame queue delay: 0.08 ms",
+        "Average rendering time (including monitor V-sync latency): 2.64 ms"
+      ]
+    }
+  ],
+  "limitations": [
+    "Short trials, not sustained acceptance",
+    "X11 portrait60 differs in resolution and requested rate; compare separately",
+    "CPU sample from animated X11+KMS: capture97%, encoder session15.4%, five-second sample",
+    "No new kernel or encoder patch applied",
+    "EGL probe without supplementary groups fell back to llvmpipe; repeat with actual Wayland session groups showed Mali-G610 on both DRM nodes; do not infer actual Sunshine renderer from first probe"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "rgb_abs_mean": 5.468727816358025,
+  "channel_abs_p99": 22,
+  "maximum": 40,
+  "fraction_pixels_any_channel_diff_over_8": 0.6578534915123457,
+  "note": "Browser canvas final RGB comparison; not native 10-bit or HDR output validation."
+}

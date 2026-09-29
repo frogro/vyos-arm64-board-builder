@@ -1,0 +1,5 @@
+gpu_renderer=Mali-G610 MC4 (Panfrost)
+kms_fb=91 modifier=0x800000000000051 pitch=7680
+kms_reference_chroma_max_error=1 flat_samples=1842
+kms_reference_luma_max_error=1 luma_min=17 luma_max=234
+allocator=rga-export 1920x1080 bt709=1 full=0 gpu_updates=1 frames=120 max_error=1 mean_frame_ms=3.79747

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "binary": "/candidate-p010/chrome",
+  "sha256": "d1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6",
+  "backend": "v4l2-request",
+  "graphics_backend": "wayland",
+  "arguments": [],
+  "base_features": [
+    "AcceleratedVideoDecoder",
+    "AcceleratedVideoDecodeLinuxGL",
+    "PreferV4L2VideoAcceleration"
+  ],
+  "features": [
+    "V4L2ExtraCaptureBuffers",
+    "V4L2ExtraAV1CaptureBuffers"
+  ]
+}

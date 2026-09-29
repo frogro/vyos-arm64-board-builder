@@ -1,0 +1,237 @@
+--- a/media/parsers/h265_parser.h
++++ b/media/parsers/h265_parser.h
+@@ -116,6 +116,16 @@
+ 
+ struct MEDIA_EXPORT H265StRefPicSet {
+   bool operator==(const H265StRefPicSet&) const = default;
++
++  // Preserve coded syntax for stateless drivers which build SPS RPS tables.
++  bool inter_ref_pic_set_prediction_flag = false;
++  int delta_idx_minus1 = 0;
++  int delta_rps_sign = 0;
++  int abs_delta_rps_minus1 = 0;
++  std::array<bool, kMaxShortTermRefPicSets> used_by_curr_pic_flag = {};
++  std::array<bool, kMaxShortTermRefPicSets> use_delta_flag = {};
++  std::array<int, kMaxShortTermRefPicSets> delta_poc_s0_minus1 = {};
++  std::array<int, kMaxShortTermRefPicSets> delta_poc_s1_minus1 = {};
+ 
+   // Syntax elements.
+   int num_negative_pics = 0;
+--- a/media/parsers/h265_parser.cc
++++ b/media/parsers/h265_parser.cc
+@@ -1728,23 +1728,29 @@
+                                                 const H265SPS& sps,
+                                                 H265StRefPicSet* st_ref_pic_set,
+                                                 bool is_slice_hdr) {
++  *st_ref_pic_set = H265StRefPicSet{};
+   // 7.4.8
+   bool inter_ref_pic_set_prediction_flag = false;
+   if (st_rps_idx != 0) {
+     READ_BOOL_OR_RETURN(&inter_ref_pic_set_prediction_flag);
+   }
++  st_ref_pic_set->inter_ref_pic_set_prediction_flag =
++      inter_ref_pic_set_prediction_flag;
+   if (inter_ref_pic_set_prediction_flag) {
+     int delta_idx_minus1 = 0;
+     if (st_rps_idx == sps.num_short_term_ref_pic_sets) {
+       READ_UE_OR_RETURN(&delta_idx_minus1);
+       IN_RANGE_OR_RETURN(delta_idx_minus1, 0, st_rps_idx - 1);
+     }
++    st_ref_pic_set->delta_idx_minus1 = delta_idx_minus1;
+     int ref_rps_idx = st_rps_idx - (delta_idx_minus1 + 1);
+     int delta_rps_sign;
+     int abs_delta_rps_minus1;
+     READ_BOOL_OR_RETURN(&delta_rps_sign);
+     READ_UE_OR_RETURN(&abs_delta_rps_minus1);
+     IN_RANGE_OR_RETURN(abs_delta_rps_minus1, 0, 0x7FFF);
++    st_ref_pic_set->delta_rps_sign = delta_rps_sign;
++    st_ref_pic_set->abs_delta_rps_minus1 = abs_delta_rps_minus1;
+     int delta_rps = (1 - 2 * delta_rps_sign) * (abs_delta_rps_minus1 + 1);
+     const H265StRefPicSet& ref_set = sps.st_ref_pic_set[ref_rps_idx];
+     if (is_slice_hdr) {
+@@ -1757,9 +1763,13 @@
+ 
+     for (int j = 0; j <= ref_set.num_delta_pocs; j++) {
+       READ_BOOL_OR_RETURN(&used_by_curr_pic_flag[j]);
++      st_ref_pic_set->used_by_curr_pic_flag[j] = used_by_curr_pic_flag[j];
+       if (!used_by_curr_pic_flag[j]) {
+         READ_BOOL_OR_RETURN(&use_delta_flag[j]);
+       }
++    }
++    for (int j = 0; j <= ref_set.num_delta_pocs; ++j) {
++      st_ref_pic_set->use_delta_flag[j] = use_delta_flag[j];
+     }
+     // Calculate delta_poc_s{0,1}, used_by_curr_pic_s{0,1}, num_negative_pics
+     // and num_positive_pics.
+@@ -1830,6 +1840,7 @@
+       int delta_poc_s0_minus1;
+       READ_UE_OR_RETURN(&delta_poc_s0_minus1);
+       IN_RANGE_OR_RETURN(delta_poc_s0_minus1, 0, 0x7FFF);
++      st_ref_pic_set->delta_poc_s0_minus1[i] = delta_poc_s0_minus1;
+       if (i == 0) {
+         st_ref_pic_set->delta_poc_s0[i] = -(delta_poc_s0_minus1 + 1);
+       } else {
+@@ -1842,6 +1853,7 @@
+       int delta_poc_s1_minus1;
+       READ_UE_OR_RETURN(&delta_poc_s1_minus1);
+       IN_RANGE_OR_RETURN(delta_poc_s1_minus1, 0, 0x7FFF);
++      st_ref_pic_set->delta_poc_s1_minus1[i] = delta_poc_s1_minus1;
+       if (i == 0) {
+         st_ref_pic_set->delta_poc_s1[i] = delta_poc_s1_minus1 + 1;
+       } else {
+--- a/media/gpu/v4l2/v4l2_video_decoder_delegate_h265.cc
++++ b/media/gpu/v4l2/v4l2_video_decoder_delegate_h265.cc
+@@ -9,6 +9,7 @@
+ #include <linux/videodev2.h>
+ 
+ #include <algorithm>
++#include <cerrno>
+ #include <tuple>
+ #include <type_traits>
+ 
+@@ -20,6 +21,7 @@
+ #include "media/gpu/v4l2/v4l2_decode_surface.h"
+ #include "media/gpu/v4l2/v4l2_decode_surface_handler.h"
+ #include "media/gpu/v4l2/v4l2_device.h"
++#include "media/gpu/v4l2/v4l2_hevc_sps_rps.h"
+ 
+ namespace media {
+ 
+@@ -209,6 +211,52 @@
+ 
+   struct v4l2_ext_control ctrl = {};
+   std::vector<struct v4l2_ext_control> ctrls;
++
++  // Optional upstream controls: capability based, never board-name based.
++  // Keep payloads alive until the request's VIDIOC_S_EXT_CTRLS below.
++  std::array<v4l2_ctrl_hevc_ext_sps_st_rps, 64> short_rps = {};
++  std::array<v4l2_ctrl_hevc_ext_sps_lt_rps, 32> long_rps = {};
++  auto add_rps_control = [&](uint32_t id, auto& payload, int count) {
++    v4l2_query_ext_ctrl query = {};
++    query.id = id;
++    if (device_->Ioctl(VIDIOC_QUERY_EXT_CTRL, &query) != 0)
++      return errno == EINVAL;  // Older drivers do not expose these controls.
++    if (count < 0 || static_cast<size_t>(count) > payload.size() ||
++        (query.flags & V4L2_CTRL_FLAG_DISABLED) ||
++        query.elem_size != sizeof(payload[0]) || query.nr_of_dims != 1 ||
++        static_cast<uint32_t>(count) > query.dims[0])
++      return false;
++    if (count == 0)
++      return true;  // No zero-sized dynamic-array controls.
++    v4l2_ext_control rps_ctrl = {};
++    rps_ctrl.id = id;
++    rps_ctrl.size = count * sizeof(payload[0]);
++    rps_ctrl.ptr = payload.data();
++    ctrls.push_back(rps_ctrl);
++    return true;
++  };
++  if (sps->num_short_term_ref_pic_sets < 0 ||
++      sps->num_short_term_ref_pic_sets > 64 ||
++      sps->num_long_term_ref_pics_sps < 0 ||
++      sps->num_long_term_ref_pics_sps > 32)
++    return Status::kFail;
++  for (int i = 0; i < sps->num_short_term_ref_pic_sets; ++i) {
++    if (!FillHevcShortTermRps(sps->st_ref_pic_set[i], short_rps[i]))
++      return Status::kFail;
++  }
++  for (int i = 0; i < sps->num_long_term_ref_pics_sps; ++i) {
++    int poc = sps->lt_ref_pic_poc_lsb_sps[i];
++    if (poc < 0 || poc > 65535)
++      return Status::kFail;
++    long_rps[i].lt_ref_pic_poc_lsb_sps = poc;
++    long_rps[i].flags = sps->used_by_curr_pic_lt_sps_flag[i]
++                           ? V4L2_HEVC_EXT_SPS_LT_RPS_FLAG_USED_LT : 0;
++  }
++  if (!add_rps_control(V4L2_CID_STATELESS_HEVC_EXT_SPS_ST_RPS,
++                       short_rps, sps->num_short_term_ref_pic_sets) ||
++      !add_rps_control(V4L2_CID_STATELESS_HEVC_EXT_SPS_LT_RPS,
++                       long_rps, sps->num_long_term_ref_pics_sps))
++    return Status::kFail;
+ 
+   struct v4l2_ctrl_hevc_sps v4l2_sps = {};
+ 
+--- /dev/null
++++ b/media/gpu/v4l2/v4l2_hevc_sps_rps.h
+@@ -0,0 +1,72 @@
++// Experimental Chromium 153 stateless HEVC SPS RPS support.
++#ifndef MEDIA_GPU_V4L2_V4L2_HEVC_SPS_RPS_H_
++#define MEDIA_GPU_V4L2_V4L2_HEVC_SPS_RPS_H_
++#include <linux/v4l2-controls.h>
++#include <array>
++#include <cstdint>
++#include <iterator>
++#ifndef V4L2_CID_STATELESS_HEVC_EXT_SPS_ST_RPS
++#define V4L2_CID_STATELESS_HEVC_EXT_SPS_ST_RPS (V4L2_CID_CODEC_STATELESS_BASE + 408)
++#define V4L2_HEVC_EXT_SPS_ST_RPS_FLAG_INTER_REF_PIC_SET_PRED 0x1
++struct v4l2_ctrl_hevc_ext_sps_st_rps {
++  __u8 delta_idx_minus1, delta_rps_sign, num_negative_pics, num_positive_pics;
++  __u32 used_by_curr_pic, use_delta_flag;
++  __u16 abs_delta_rps_minus1;
++  __u16 delta_poc_s0_minus1[16], delta_poc_s1_minus1[16];
++  __u16 flags;
++};
++#endif
++#ifndef V4L2_CID_STATELESS_HEVC_EXT_SPS_LT_RPS
++#define V4L2_CID_STATELESS_HEVC_EXT_SPS_LT_RPS (V4L2_CID_CODEC_STATELESS_BASE + 409)
++#define V4L2_HEVC_EXT_SPS_LT_RPS_FLAG_USED_LT 0x1
++struct v4l2_ctrl_hevc_ext_sps_lt_rps {
++  __u16 lt_ref_pic_poc_lsb_sps, flags;
++};
++#endif
++namespace media {
++// Templated to allow the pure conversion to be exercised without a browser build.
++template <typename Rps>
++bool FillHevcShortTermRps(const Rps& in,
++                          v4l2_ctrl_hevc_ext_sps_st_rps& out) {
++  out = {};
++  if (in.num_negative_pics < 0 || in.num_positive_pics < 0 ||
++      in.num_negative_pics + in.num_positive_pics > 16 ||
++      in.delta_idx_minus1 < 0 || in.delta_idx_minus1 > 255 ||
++      in.delta_rps_sign < 0 || in.delta_rps_sign > 1 ||
++      in.abs_delta_rps_minus1 < 0 || in.abs_delta_rps_minus1 > 32767)
++    return false;
++  out.delta_idx_minus1 = in.delta_idx_minus1;
++  out.delta_rps_sign = in.delta_rps_sign;
++  out.abs_delta_rps_minus1 = in.abs_delta_rps_minus1;
++  out.num_negative_pics = in.num_negative_pics;
++  out.num_positive_pics = in.num_positive_pics;
++  if (in.inter_ref_pic_set_prediction_flag) {
++    out.flags = V4L2_HEVC_EXT_SPS_ST_RPS_FLAG_INTER_REF_PIC_SET_PRED;
++    for (size_t j = 0; j < in.used_by_curr_pic_flag.size(); ++j) {
++      if (j >= 32) {
++        if (in.used_by_curr_pic_flag[j] || in.use_delta_flag[j])
++          return false;
++      } else {
++        out.used_by_curr_pic |= uint32_t(in.used_by_curr_pic_flag[j]) << j;
++        out.use_delta_flag |= uint32_t(in.use_delta_flag[j]) << j;
++      }
++    }
++  } else {
++    for (int j = 0; j < in.num_negative_pics; ++j) {
++      if (in.delta_poc_s0_minus1[j] < 0 || in.delta_poc_s0_minus1[j] > 32767)
++        return false;
++      out.delta_poc_s0_minus1[j] = in.delta_poc_s0_minus1[j];
++      out.used_by_curr_pic |= uint32_t(!!in.used_by_curr_pic_s0[j]) << j;
++    }
++    for (int j = 0; j < in.num_positive_pics; ++j) {
++      if (in.delta_poc_s1_minus1[j] < 0 || in.delta_poc_s1_minus1[j] > 32767)
++        return false;
++      out.delta_poc_s1_minus1[j] = in.delta_poc_s1_minus1[j];
++      out.used_by_curr_pic |= uint32_t(!!in.used_by_curr_pic_s1[j])
++                             << (in.num_negative_pics + j);
++    }
++  }
++  return true;
++}
++}  // namespace media
++#endif
+--- a/media/gpu/v4l2/BUILD.gn
++++ b/media/gpu/v4l2/BUILD.gn
+@@ -71,6 +71,7 @@
+   if (enable_hevc_parser_and_hw_decoder) {
+     sources += [
+       "v4l2_video_decoder_delegate_h265.cc",
++      "v4l2_hevc_sps_rps.h",
+       "v4l2_video_decoder_delegate_h265.h",
+     ]
+   }

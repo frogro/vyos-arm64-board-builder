@@ -1,0 +1,742 @@
+--- a/drivers/gpu/drm/panthor/panthor_drv.c
++++ b/drivers/gpu/drm/panthor/panthor_drv.c
+@@ -175,7 +175,8 @@
+ 		 PANTHOR_UOBJ_DECL(struct drm_panthor_sync_op, timeline_value), \
+ 		 PANTHOR_UOBJ_DECL(struct drm_panthor_queue_submit, syncs), \
+ 		 PANTHOR_UOBJ_DECL(struct drm_panthor_queue_create, ringbuf_size), \
+-		 PANTHOR_UOBJ_DECL(struct drm_panthor_vm_bind_op, syncs))
++		 PANTHOR_UOBJ_DECL(struct drm_panthor_vm_bind_op, syncs), \
++		 PANTHOR_UOBJ_DECL(struct drm_panthor_bo_sync_op, size))
+ 
+ /**
+  * PANTHOR_UOBJ_SET() - Copy a kernel object to a user object.
+@@ -899,7 +900,8 @@
+ 	return panthor_vm_pool_destroy_vm(pfile->vms, args->id);
+ }
+ 
+-#define PANTHOR_BO_FLAGS		DRM_PANTHOR_BO_NO_MMAP
++#define PANTHOR_BO_FLAGS		(DRM_PANTHOR_BO_NO_MMAP | \
++					 DRM_PANTHOR_BO_WB_MMAP)
+ 
+ static int panthor_ioctl_bo_create(struct drm_device *ddev, void *data,
+ 				   struct drm_file *file)
+@@ -914,6 +916,12 @@
+ 
+ 	if (!args->size || args->pad ||
+ 	    (args->flags & ~PANTHOR_BO_FLAGS)) {
++		ret = -EINVAL;
++		goto out_dev_exit;
++	}
++
++	if ((args->flags & DRM_PANTHOR_BO_NO_MMAP) &&
++	    (args->flags & DRM_PANTHOR_BO_WB_MMAP)) {
+ 		ret = -EINVAL;
+ 		goto out_dev_exit;
+ 	}
+@@ -1394,6 +1402,66 @@
+ 	return 0;
+ }
+ 
++static int panthor_ioctl_bo_sync(struct drm_device *ddev, void *data,
++				 struct drm_file *file)
++{
++	struct drm_panthor_bo_sync *args = data;
++	struct drm_panthor_bo_sync_op *ops;
++	struct drm_gem_object *obj;
++	int ret;
++
++	if (!args->ops.count)
++		return 0;
++
++	ret = PANTHOR_UOBJ_GET_ARRAY(ops, &args->ops);
++	if (ret)
++		return ret;
++
++	for (u32 i = 0; i < args->ops.count; i++) {
++		obj = drm_gem_object_lookup(file, ops[i].handle);
++		if (!obj) {
++			ret = -ENOENT;
++			goto err_ops;
++		}
++
++		ret = panthor_gem_sync(obj, ops[i].type, ops[i].offset,
++				       ops[i].size);
++
++		drm_gem_object_put(obj);
++
++		if (ret)
++			goto err_ops;
++	}
++
++err_ops:
++	kvfree(ops);
++
++	return ret;
++}
++
++static int panthor_ioctl_bo_query_info(struct drm_device *ddev, void *data,
++				       struct drm_file *file)
++{
++	struct drm_panthor_bo_query_info *args = data;
++	struct panthor_gem_object *bo;
++	struct drm_gem_object *obj;
++
++	obj = drm_gem_object_lookup(file, args->handle);
++	if (!obj)
++		return -ENOENT;
++
++	bo = to_panthor_bo(obj);
++	args->pad = 0;
++	args->create_flags = bo->flags;
++
++	args->extra_flags = 0;
++	if (drm_gem_is_imported(&bo->base.base))
++		args->extra_flags |= DRM_PANTHOR_BO_IS_IMPORTED;
++
++	drm_gem_object_put(obj);
++	return 0;
++}
++
+ static int
+ panthor_open(struct drm_device *ddev, struct drm_file *file)
+ {
+@@ -1468,6 +1536,8 @@
+ 	PANTHOR_IOCTL(GROUP_SUBMIT, group_submit, DRM_RENDER_ALLOW),
+ 	PANTHOR_IOCTL(BO_SET_LABEL, bo_set_label, DRM_RENDER_ALLOW),
+ 	PANTHOR_IOCTL(SET_USER_MMIO_OFFSET, set_user_mmio_offset, DRM_RENDER_ALLOW),
++	PANTHOR_IOCTL(BO_SYNC, bo_sync, DRM_RENDER_ALLOW),
++	PANTHOR_IOCTL(BO_QUERY_INFO, bo_query_info, DRM_RENDER_ALLOW),
+ };
+ 
+ static int panthor_mmap(struct file *filp, struct vm_area_struct *vma)
+@@ -1601,6 +1671,11 @@
+  * - 1.3 - adds DRM_PANTHOR_GROUP_STATE_INNOCENT flag
+  * - 1.4 - adds DRM_IOCTL_PANTHOR_BO_SET_LABEL ioctl
+  * - 1.5 - adds DRM_PANTHOR_SET_USER_MMIO_OFFSET ioctl
++ * - 1.6 - enables GLB_COUNTER_EN
++ * - 1.7 - adds DRM_PANTHOR_BO_WB_MMAP flag
++ *       - adds DRM_IOCTL_PANTHOR_BO_SYNC ioctl
++ *       - adds DRM_IOCTL_PANTHOR_BO_QUERY_INFO ioctl
++ *       - adds drm_panthor_gpu_info::selected_coherency
+  */
+ static const struct drm_driver panthor_drm_driver = {
+ 	.driver_features = DRIVER_RENDER | DRIVER_GEM | DRIVER_SYNCOBJ |
+@@ -1614,10 +1689,11 @@
+ 	.name = "panthor",
+ 	.desc = "Panthor DRM driver",
+ 	.major = 1,
+-	.minor = 5,
++	.minor = 7,
+ 
+ 	.gem_create_object = panthor_gem_create_object,
+ 	.gem_prime_import_sg_table = drm_gem_shmem_prime_import_sg_table,
++	.gem_prime_import = panthor_gem_prime_import,
+ #ifdef CONFIG_DEBUG_FS
+ 	.debugfs_init = panthor_debugfs_init,
+ #endif
+--- a/drivers/gpu/drm/panthor/panthor_gem.h
++++ b/drivers/gpu/drm/panthor/panthor_gem.h
+@@ -146,6 +146,12 @@
+ 
+ void panthor_gem_bo_set_label(struct drm_gem_object *obj, const char *label);
+ void panthor_gem_kernel_bo_set_label(struct panthor_kernel_bo *bo, const char *label);
++int panthor_gem_sync(struct drm_gem_object *obj,
++		     u32 type, u64 offset, u64 size);
++
++struct drm_gem_object *
++panthor_gem_prime_import(struct drm_device *dev,
++			 struct dma_buf *dma_buf);
+ 
+ static inline u64
+ panthor_kernel_bo_gpuva(struct panthor_kernel_bo *bo)
+--- a/drivers/gpu/drm/panthor/panthor_sched.c
++++ b/drivers/gpu/drm/panthor/panthor_sched.c
+@@ -872,8 +872,11 @@
+ 	struct iosys_map map;
+ 	int ret;
+ 
+-	if (queue->syncwait.kmap)
+-		return queue->syncwait.kmap + queue->syncwait.offset;
++	if (queue->syncwait.kmap) {
++		bo = container_of(queue->syncwait.obj,
++				  struct panthor_gem_object, base.base);
++		goto out_sync;
++	}
+ 
+ 	bo = panthor_vm_get_bo_for_va(group->vm,
+ 				      queue->syncwait.gpu_va,
+@@ -889,6 +892,18 @@
+ 	queue->syncwait.kmap = map.vaddr;
+ 	if (drm_WARN_ON(&ptdev->base, !queue->syncwait.kmap))
+ 		goto err_put_syncwait_obj;
++
++out_sync:
++	/* Make sure the CPU caches are invalidated before the seqno is read.
++	 * panthor_gem_sync() is a NOP if map_wc=true, so no need to check
++	 * it here.
++	 */
++	panthor_gem_sync(&bo->base.base,
++			 DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE,
++			 queue->syncwait.offset,
++			 queue->syncwait.sync64 ?
++			 sizeof(struct panthor_syncobj_64b) :
++			 sizeof(struct panthor_syncobj_32b));
+ 
+ 	return queue->syncwait.kmap + queue->syncwait.offset;
+ 
+--- a/drivers/gpu/drm/panthor/panthor_fw.c
++++ b/drivers/gpu/drm/panthor/panthor_fw.c
+@@ -1018,7 +1018,8 @@
+ 					 GLB_IDLE_EN |
+ 					 GLB_IDLE;
+ 
+-	panthor_fw_update_reqs(glb_iface, req, GLB_IDLE_EN, GLB_IDLE_EN);
++	panthor_fw_update_reqs(glb_iface, req, GLB_IDLE_EN | GLB_COUNTER_EN,
++			       GLB_IDLE_EN | GLB_COUNTER_EN);
+ 	panthor_fw_toggle_reqs(glb_iface, req, ack,
+ 			       GLB_CFG_ALLOC_EN |
+ 			       GLB_CFG_POWEROFF_TIMER |
+--- a/drivers/gpu/drm/panthor/panthor_gem.c
++++ b/drivers/gpu/drm/panthor/panthor_gem.c
+@@ -57,6 +57,39 @@
+ static void panthor_gem_debugfs_set_usage_flags(struct panthor_gem_object *bo, u32 usage_flags) {}
+ static void panthor_gem_debugfs_bo_init(struct panthor_gem_object *bo) {}
+ #endif
++
++static bool
++should_map_wc(struct panthor_gem_object *bo, struct panthor_vm *exclusive_vm)
++{
++	struct panthor_device *ptdev = container_of(bo->base.base.dev, struct panthor_device, base);
++
++	/* We can't do uncached mappings if the device is coherent,
++	 * because the zeroing done by the shmem layer at page allocation
++	 * time happens on a cached mapping which isn't CPU-flushed (at least
++	 * not on Arm64 where the flush is deferred to PTE setup time, and
++	 * only done conditionally based on the mapping permissions). We can't
++	 * rely on dma_map_sgtable()/dma_sync_sgtable_for_xxx() either to flush
++	 * those, because they are NOPed if dma_dev_coherent() returns true.
++	 *
++	 * FIXME: Note that this problem is going to pop up again when we
++	 * decide to support mapping buffers with the NO_MMAP flag as
++	 * non-shareable (AKA buffers accessed only by the GPU), because we
++	 * need the same CPU flush to happen after page allocation, otherwise
++	 * there's a risk of data leak or late corruption caused by a dirty
++	 * cacheline being evicted. At this point we'll need a way to force
++	 * CPU cache maintenance regardless of whether the device is coherent
++	 * or not.
++	 */
++	if (ptdev->coherent)
++		return false;
++
++	/* Cached mappings are explicitly requested, so no write-combine. */
++	if (bo->flags & DRM_PANTHOR_BO_WB_MMAP)
++		return false;
++
++	/* The default is write-combine. */
++	return true;
++}
+ 
+ static void panthor_gem_free_object(struct drm_gem_object *obj)
+ {
+@@ -144,6 +177,7 @@
+ 	bo = to_panthor_bo(&obj->base);
+ 	kbo->obj = &obj->base;
+ 	bo->flags = bo_flags;
++	bo->base.map_wc = should_map_wc(bo, vm);
+ 	bo->exclusive_vm_root_gem = panthor_vm_root_gem(vm);
+ 	drm_gem_object_get(bo->exclusive_vm_root_gem);
+ 	bo->base.base.resv = bo->exclusive_vm_root_gem->resv;
+@@ -183,14 +217,130 @@
+ 	return ERR_PTR(ret);
+ }
+ 
++static struct sg_table *
++panthor_gem_prime_map_dma_buf(struct dma_buf_attachment *attach,
++			      enum dma_data_direction dir)
++{
++	struct sg_table *sgt = drm_gem_map_dma_buf(attach, dir);
++
++	if (!IS_ERR(sgt))
++		attach->priv = sgt;
++
++	return sgt;
++}
++
++static void
++panthor_gem_prime_unmap_dma_buf(struct dma_buf_attachment *attach,
++				struct sg_table *sgt,
++				enum dma_data_direction dir)
++{
++	attach->priv = NULL;
++	drm_gem_unmap_dma_buf(attach, sgt, dir);
++}
++
++static int
++panthor_gem_prime_begin_cpu_access(struct dma_buf *dma_buf,
++				   enum dma_data_direction dir)
++{
++	struct drm_gem_object *obj = dma_buf->priv;
++	struct drm_device *dev = obj->dev;
++	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++	struct dma_buf_attachment *attach;
++
++	dma_resv_lock(obj->resv, NULL);
++	if (shmem->sgt)
++		dma_sync_sgtable_for_cpu(dev->dev, shmem->sgt, dir);
++
++	if (shmem->vaddr)
++		invalidate_kernel_vmap_range(shmem->vaddr, shmem->base.size);
++
++	list_for_each_entry(attach, &dma_buf->attachments, node) {
++		struct sg_table *sgt = attach->priv;
++
++		if (sgt)
++			dma_sync_sgtable_for_cpu(attach->dev, sgt, dir);
++	}
++	dma_resv_unlock(obj->resv);
++
++	return 0;
++}
++
++static int
++panthor_gem_prime_end_cpu_access(struct dma_buf *dma_buf,
++				 enum dma_data_direction dir)
++{
++	struct drm_gem_object *obj = dma_buf->priv;
++	struct drm_device *dev = obj->dev;
++	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++	struct dma_buf_attachment *attach;
++
++	dma_resv_lock(obj->resv, NULL);
++	list_for_each_entry(attach, &dma_buf->attachments, node) {
++		struct sg_table *sgt = attach->priv;
++
++		if (sgt)
++			dma_sync_sgtable_for_device(attach->dev, sgt, dir);
++	}
++
++	if (shmem->vaddr)
++		flush_kernel_vmap_range(shmem->vaddr, shmem->base.size);
++
++	if (shmem->sgt)
++		dma_sync_sgtable_for_device(dev->dev, shmem->sgt, dir);
++
++	dma_resv_unlock(obj->resv);
++	return 0;
++}
++
++static const struct dma_buf_ops panthor_dma_buf_ops = {
++	.attach = drm_gem_map_attach,
++	.detach = drm_gem_map_detach,
++	.map_dma_buf = panthor_gem_prime_map_dma_buf,
++	.unmap_dma_buf = panthor_gem_prime_unmap_dma_buf,
++	.release = drm_gem_dmabuf_release,
++	.mmap = drm_gem_dmabuf_mmap,
++	.vmap = drm_gem_dmabuf_vmap,
++	.vunmap = drm_gem_dmabuf_vunmap,
++	.begin_cpu_access = panthor_gem_prime_begin_cpu_access,
++	.end_cpu_access = panthor_gem_prime_end_cpu_access,
++};
++
+ static struct dma_buf *
+ panthor_gem_prime_export(struct drm_gem_object *obj, int flags)
+ {
++	struct drm_device *dev = obj->dev;
++	struct dma_buf_export_info exp_info = {
++		.exp_name = KBUILD_MODNAME,
++		.owner = THIS_MODULE,
++		.ops = &panthor_dma_buf_ops,
++		.size = obj->size,
++		.flags = flags,
++		.priv = obj,
++		.resv = obj->resv,
++	};
++
+ 	/* We can't export GEMs that have an exclusive VM. */
+ 	if (to_panthor_bo(obj)->exclusive_vm_root_gem)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	return drm_gem_prime_export(obj, flags);
++	return drm_gem_dmabuf_export(dev, &exp_info);
++}
++
++struct drm_gem_object *
++panthor_gem_prime_import(struct drm_device *dev,
++			 struct dma_buf *dma_buf)
++{
++	struct drm_gem_object *obj = dma_buf->priv;
++
++	if (dma_buf->ops == &panthor_dma_buf_ops && obj->dev == dev) {
++		/* Importing dmabuf exported from our own gem increases
++		 * refcount on gem itself instead of f_count of dmabuf.
++		 */
++		drm_gem_object_get(obj);
++		return obj;
++	}
++
++	return drm_gem_prime_import(dev, dma_buf);
+ }
+ 
+ static enum drm_gem_object_status panthor_gem_status(struct drm_gem_object *obj)
+@@ -228,7 +378,6 @@
+  */
+ struct drm_gem_object *panthor_gem_create_object(struct drm_device *ddev, size_t size)
+ {
+-	struct panthor_device *ptdev = container_of(ddev, struct panthor_device, base);
+ 	struct panthor_gem_object *obj;
+ 
+ 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
+@@ -236,7 +385,6 @@
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	obj->base.base.funcs = &panthor_gem_funcs;
+-	obj->base.map_wc = !ptdev->coherent;
+ 	mutex_init(&obj->label.lock);
+ 
+ 	panthor_gem_debugfs_bo_init(obj);
+@@ -271,6 +419,7 @@
+ 
+ 	bo = to_panthor_bo(&shmem->base);
+ 	bo->flags = flags;
++	bo->base.map_wc = should_map_wc(bo, exclusive_vm);
+ 
+ 	if (exclusive_vm) {
+ 		bo->exclusive_vm_root_gem = panthor_vm_root_gem(exclusive_vm);
+@@ -348,6 +497,91 @@
+ 	panthor_gem_bo_set_label(bo->obj, str);
+ }
+ 
++int
++panthor_gem_sync(struct drm_gem_object *obj, u32 type,
++		 u64 offset, u64 size)
++{
++	struct panthor_gem_object *bo = to_panthor_bo(obj);
++	struct drm_gem_shmem_object *shmem = &bo->base;
++	const struct drm_device *dev = shmem->base.dev;
++	struct sg_table *sgt;
++	struct scatterlist *sgl;
++	unsigned int count;
++
++	/* Make sure the range is in bounds. */
++	if (offset + size < offset || offset + size > shmem->base.size)
++		return -EINVAL;
++
++	/* Disallow CPU-cache maintenance on imported buffers. */
++	if (drm_gem_is_imported(&shmem->base))
++		return -EINVAL;
++
++	switch (type) {
++	case DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH:
++	case DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE:
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
++	/* Don't bother if it's WC-mapped */
++	if (shmem->map_wc)
++		return 0;
++
++	/* Nothing to do if the size is zero. */
++	if (size == 0)
++		return 0;
++
++	sgt = drm_gem_shmem_get_pages_sgt(shmem);
++	if (IS_ERR(sgt))
++		return PTR_ERR(sgt);
++
++	for_each_sgtable_dma_sg(sgt, sgl, count) {
++		if (size == 0)
++			break;
++
++		dma_addr_t paddr = sg_dma_address(sgl);
++		size_t len = sg_dma_len(sgl);
++
++		if (len <= offset) {
++			offset -= len;
++			continue;
++		}
++
++		paddr += offset;
++		len -= offset;
++		len = min_t(size_t, len, size);
++		size -= len;
++		offset = 0;
++
++		/* It's unclear whether dma_sync_xxx() is the right API to do CPU
++		 * cache maintenance given an IOMMU can register their own
++		 * implementation doing more than just CPU cache flushes/invalidation,
++		 * and what we really care about here is CPU caches only, but that's
++		 * the best we have that is both arch-agnostic and does at least the
++		 * CPU cache maintenance on a <page,offset,size> tuple.
++		 *
++		 * Also, I wish we could do a single
++		 *
++		 *      dma_sync_single_for_device(BIDIR)
++		 *
++		 * and get a flush+invalidate, but that's not how it's implemented
++		 * in practice (at least on arm64), so we have to make it
++		 *
++		 *      dma_sync_single_for_device(TO_DEVICE)
++		 *      dma_sync_single_for_cpu(FROM_DEVICE)
++		 *
++		 * for the flush+invalidate case.
++		 */
++		dma_sync_single_for_device(dev->dev, paddr, len, DMA_TO_DEVICE);
++		if (type == DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE)
++			dma_sync_single_for_cpu(dev->dev, paddr, len, DMA_FROM_DEVICE);
++	}
++
++	return 0;
++}
++
+ #ifdef CONFIG_DEBUG_FS
+ struct gem_size_totals {
+ 	size_t size;
+--- a/drivers/gpu/drm/panthor/panthor_device.c
++++ b/drivers/gpu/drm/panthor/panthor_device.c
+@@ -25,6 +25,12 @@
+ 
+ static int panthor_gpu_coherency_init(struct panthor_device *ptdev)
+ {
++	BUILD_BUG_ON(GPU_COHERENCY_NONE != DRM_PANTHOR_GPU_COHERENCY_NONE);
++	BUILD_BUG_ON(GPU_COHERENCY_ACE_LITE != DRM_PANTHOR_GPU_COHERENCY_ACE_LITE);
++	BUILD_BUG_ON(GPU_COHERENCY_ACE != DRM_PANTHOR_GPU_COHERENCY_ACE);
++
++	/* Start with no coherency, and update it if the device is flagged coherent. */
++	ptdev->gpu_info.selected_coherency = GPU_COHERENCY_NONE;
+ 	ptdev->coherent = device_get_dma_attr(ptdev->base.dev) == DEV_DMA_COHERENT;
+ 
+ 	if (!ptdev->coherent)
+@@ -34,8 +40,10 @@
+ 	 * ACE protocol has never been supported for command stream frontend GPUs.
+ 	 */
+ 	if ((gpu_read(ptdev, GPU_COHERENCY_FEATURES) &
+-		      GPU_COHERENCY_PROT_BIT(ACE_LITE)))
++		      GPU_COHERENCY_PROT_BIT(ACE_LITE))) {
++		ptdev->gpu_info.selected_coherency = GPU_COHERENCY_ACE_LITE;
+ 		return 0;
++	}
+ 
+ 	drm_err(&ptdev->base, "Coherency not supported by the device");
+ 	return -ENOTSUPP;
+--- a/drivers/gpu/drm/panthor/panthor_gpu.c
++++ b/drivers/gpu/drm/panthor/panthor_gpu.c
+@@ -49,7 +49,7 @@
+ static void panthor_gpu_coherency_set(struct panthor_device *ptdev)
+ {
+ 	gpu_write(ptdev, GPU_COHERENCY_PROTOCOL,
+-		  ptdev->coherent ? GPU_COHERENCY_ACE_LITE : GPU_COHERENCY_NONE);
++		  ptdev->gpu_info.selected_coherency);
+ }
+ 
+ static void panthor_gpu_irq_handler(struct panthor_device *ptdev, u32 status)
+--- a/include/uapi/drm/panthor_drm.h
++++ b/include/uapi/drm/panthor_drm.h
+@@ -144,6 +144,16 @@
+ 	 * pgoff_t size.
+ 	 */
+ 	DRM_PANTHOR_SET_USER_MMIO_OFFSET,
++
++	/** @DRM_PANTHOR_BO_SYNC: Sync BO data to/from the device */
++	DRM_PANTHOR_BO_SYNC,
++
++	/**
++	 * @DRM_PANTHOR_BO_QUERY_INFO: Query information about a BO.
++	 *
++	 * This is useful for imported BOs.
++	 */
++	DRM_PANTHOR_BO_QUERY_INFO,
+ };
+ 
+ /**
+@@ -243,6 +253,26 @@
+ 	 * @DRM_PANTHOR_DEV_QUERY_GROUP_PRIORITIES_INFO: Query allowed group priorities information.
+ 	 */
+ 	DRM_PANTHOR_DEV_QUERY_GROUP_PRIORITIES_INFO,
++};
++
++/**
++ * enum drm_panthor_gpu_coherency: Type of GPU coherency
++ */
++enum drm_panthor_gpu_coherency {
++	/**
++	 * @DRM_PANTHOR_GPU_COHERENCY_ACE_LITE: ACE Lite coherency.
++	 */
++	DRM_PANTHOR_GPU_COHERENCY_ACE_LITE = 0,
++
++	/**
++	 * @DRM_PANTHOR_GPU_COHERENCY_ACE: ACE coherency.
++	 */
++	DRM_PANTHOR_GPU_COHERENCY_ACE = 1,
++
++	/**
++	 * @DRM_PANTHOR_GPU_COHERENCY_NONE: No coherency.
++	 */
++	DRM_PANTHOR_GPU_COHERENCY_NONE = 31,
+ };
+ 
+ /**
+@@ -301,7 +331,16 @@
+ 	 */
+ 	__u32 thread_max_barrier_size;
+ 
+-	/** @coherency_features: Coherency features. */
++	/**
++	 * @coherency_features: Coherency features.
++	 *
++	 * Combination of drm_panthor_gpu_coherency flags.
++	 *
++	 * Note that this is just what the coherency protocols supported by the
++	 * GPU, but the actual coherency in place depends on the SoC
++	 * integration and is reflected by
++	 * drm_panthor_gpu_info::selected_coherency.
++	 */
+ 	__u32 coherency_features;
+ 
+ 	/** @texture_features: Texture features. */
+@@ -310,8 +349,12 @@
+ 	/** @as_present: Bitmask encoding the number of address-space exposed by the MMU. */
+ 	__u32 as_present;
+ 
+-	/** @pad0: MBZ. */
+-	__u32 pad0;
++	/**
++	 * @select_coherency: Coherency selected for this device.
++	 *
++	 * One of drm_panthor_gpu_coherency.
++	 */
++	__u32 selected_coherency;
+ 
+ 	/** @shader_present: Bitmask encoding the shader cores exposed by the GPU. */
+ 	__u64 shader_present;
+@@ -638,6 +681,15 @@
+ enum drm_panthor_bo_flags {
+ 	/** @DRM_PANTHOR_BO_NO_MMAP: The buffer object will never be CPU-mapped in userspace. */
+ 	DRM_PANTHOR_BO_NO_MMAP = (1 << 0),
++
++	/**
++	 * @DRM_PANTHOR_BO_WB_MMAP: Force "Write-Back Cacheable" CPU mapping.
++	 *
++	 * CPU map the buffer object in userspace by forcing the "Write-Back
++	 * Cacheable" cacheability attribute. The mapping otherwise uses the
++	 * "Non-Cacheable" attribute if the GPU is not IO coherent.
++	 */
++	DRM_PANTHOR_BO_WB_MMAP = (1 << 1),
+ };
+ 
+ /**
+@@ -1038,6 +1090,101 @@
+ 	 * have a very good reason to overrule this decision.
+ 	 */
+ 	__u64 offset;
++};
++
++/**
++ * enum drm_panthor_bo_sync_op_type - BO sync type
++ */
++enum drm_panthor_bo_sync_op_type {
++	/** @DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH: Flush CPU caches. */
++	DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH = 0,
++
++	/** @DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE: Flush and invalidate CPU caches. */
++	DRM_PANTHOR_BO_SYNC_CPU_CACHE_FLUSH_AND_INVALIDATE = 1,
++};
++
++/**
++ * struct drm_panthor_bo_sync_op - BO map sync op
++ */
++struct drm_panthor_bo_sync_op {
++	/** @handle: Handle of the buffer object to sync. */
++	__u32 handle;
++
++	/** @type: Type of operation. */
++	__u32 type;
++
++	/**
++	 * @offset: Offset into the BO at which the sync range starts.
++	 *
++	 * This will be rounded down to the nearest cache line as needed.
++	 */
++	__u64 offset;
++
++	/**
++	 * @size: Size of the range to sync
++	 *
++	 * @size + @offset will be rounded up to the nearest cache line as
++	 * needed.
++	 */
++	__u64 size;
++};
++
++/**
++ * struct drm_panthor_bo_sync - BO map sync request
++ */
++struct drm_panthor_bo_sync {
++	/**
++	 * @ops: Array of struct drm_panthor_bo_sync_op sync operations.
++	 */
++	struct drm_panthor_obj_array ops;
++};
++
++/**
++ * enum drm_panthor_bo_extra_flags - Set of flags returned on a BO_QUERY_INFO request
++ *
++ * Those are flags reflecting BO properties that are not directly coming from the flags
++ * passed are creation time, or information on BOs that were imported from other drivers.
++ */
++enum drm_panthor_bo_extra_flags {
++	/**
++	 * @DRM_PANTHOR_BO_IS_IMPORTED: BO has been imported from an external driver.
++	 *
++	 * Note that imported dma-buf handles are not flagged as imported if they
++	 * where exported by panthor. Only buffers that are coming from other drivers
++	 * (dma heaps, other GPUs, display controllers, V4L, ...).
++	 *
++	 * It's also important to note that all imported BOs are mapped cached and can't
++	 * be considered IO-coherent even if the GPU is. This means they require explicit
++	 * syncs that must go through the DRM_PANTHOR_BO_SYNC ioctl (userland cache
++	 * maintenance is not allowed in that case, because extra operations might be
++	 * needed to make changes visible to the CPU/device, like buffer migration when the
++	 * exporter is a GPU with its own VRAM).
++	 */
++	DRM_PANTHOR_BO_IS_IMPORTED = (1 << 0),
++};
++
++/**
++ * struct drm_panthor_bo_query_info - Query BO info
++ */
++struct drm_panthor_bo_query_info {
++	/** @handle: Handle of the buffer object to query flags on. */
++	__u32 handle;
++
++	/**
++	 * @extra_flags: Combination of enum drm_panthor_bo_extra_flags flags.
++	 */
++	__u32 extra_flags;
++
++	/**
++	 * @create_flags: Flags passed at creation time.
++	 *
++	 * Combination of enum drm_panthor_bo_flags flags.
++	 * Will be zero if the buffer comes from a different driver.
++	 */
++	__u32 create_flags;
++
++	/** @pad: Will be zero on return. */
++	__u32 pad;
+ };
+ 
+ /**
+@@ -1086,6 +1233,10 @@
+ 		DRM_IOCTL_PANTHOR(WR, BO_SET_LABEL, bo_set_label),
+ 	DRM_IOCTL_PANTHOR_SET_USER_MMIO_OFFSET =
+ 		DRM_IOCTL_PANTHOR(WR, SET_USER_MMIO_OFFSET, set_user_mmio_offset),
++	DRM_IOCTL_PANTHOR_BO_SYNC =
++		DRM_IOCTL_PANTHOR(WR, BO_SYNC, bo_sync),
++	DRM_IOCTL_PANTHOR_BO_QUERY_INFO =
++		DRM_IOCTL_PANTHOR(WR, BO_QUERY_INFO, bo_query_info),
+ };
+ 
+ #if defined(__cplusplus)

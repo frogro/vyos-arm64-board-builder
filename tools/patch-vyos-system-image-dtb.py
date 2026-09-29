@@ -184,6 +184,50 @@ def _copy_board_dtb_from_update_iso(
     return True
 '''
 
+
+# Restore metadata only after the upstream copy succeeds. Preserve symlinks without
+# traversing their targets; private application directories must remain private.
+METADATA_HELPER = r'''def _restore_board_config_metadata(source, destination):
+    import os
+    import stat
+    source = Path(source)
+    destination = Path(destination)
+    src = source.lstat()
+    dst = destination.lstat()
+    if stat.S_IFMT(src.st_mode) != stat.S_IFMT(dst.st_mode):
+        raise RuntimeError(f'Configuration copy type mismatch: {destination}')
+    if stat.S_ISDIR(src.st_mode):
+        for child in source.iterdir():
+            _restore_board_config_metadata(child, destination / child.name)
+    os.chown(destination, src.st_uid, src.st_gid, follow_symlinks=False)
+    if not stat.S_ISLNK(src.st_mode):
+        os.chmod(destination, stat.S_IMODE(src.st_mode), follow_symlinks=False)
+'''
+
+CONFIG_COPY_ANCHOR = """                copytree(f'{DIR_CONFIG}/', target_config_dir, symlinks=True,
+                        copy_function=copy_preserve_owner, dirs_exist_ok=True)"""
+METADATA_CALL = "\n                _restore_board_config_metadata(DIR_CONFIG, target_config_dir)"
+
+
+def patch_config_metadata(rootfs: Path) -> bool:
+    target = rootfs / TARGET_REL
+    source = target.read_text()
+    if source.count(CONFIG_COPY_ANCHOR) != 1:
+        raise SystemExit('VyOS configuration copy no longer matches expected implementation')
+    has_helper = 'def _restore_board_config_metadata(' in source
+    has_call = METADATA_CALL in source
+    if has_helper != has_call:
+        raise SystemExit('Refusing partially patched configuration metadata migration')
+    if has_helper:
+        py_compile.compile(str(target), doraise=True)
+        return False
+    source = source.replace(ADD_IMAGE_ANCHOR, METADATA_HELPER + '\n\n' + ADD_IMAGE_ANCHOR, 1)
+    source = source.replace(CONFIG_COPY_ANCHOR, CONFIG_COPY_ANCHOR + METADATA_CALL, 1)
+    compile(source, str(target), 'exec')
+    target.write_text(source)
+    return True
+
+
 NEW_ROOT_DIR_BLOCK = ROOT_DIR_ANCHOR + r'''
 
         _copy_board_dtb_from_update_iso(
@@ -214,6 +258,9 @@ def patch_image_installer(rootfs: Path) -> bool:
     if helper_present and call_present:
         start = source.index('def _load_board_update_json(')
         end = source.index(ADD_IMAGE_ANCHOR, start)
+        metadata_start = source.find('def _restore_board_config_metadata(', start, end)
+        if metadata_start != -1:
+            end = metadata_start
         refreshed = source[:start] + HELPER_BLOCK + '\n\n' + source[end:]
         if refreshed != source:
             target.write_text(refreshed)
@@ -278,6 +325,10 @@ def main() -> None:
     changed = patch_image_installer(
         args.rootfs,
     )
+
+    metadata_changed = patch_config_metadata(args.rootfs)
+    if metadata_changed:
+        print("Patched configuration migration to preserve UID, GID and private directory modes")
 
     if changed:
         print(

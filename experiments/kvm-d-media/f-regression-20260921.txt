@@ -1,0 +1,8 @@
+1920x1080 bt709=0 full=0 max_error=1 mean_ms=4.08063
+1920x1080 bt709=0 full=1 max_error=1 mean_ms=4.30158
+1920x1080 bt709=1 full=0 max_error=1 mean_ms=4.13993
+1920x1080 bt709=1 full=1 max_error=1 mean_ms=4.24265
+1080x1920 bt709=0 full=0 max_error=1 mean_ms=4.28361
+1080x1920 bt709=0 full=1 max_error=1 mean_ms=4.30237
+1080x1920 bt709=1 full=0 max_error=1 mean_ms=4.30261
+1080x1920 bt709=1 full=1 max_error=1 mean_ms=4.23195

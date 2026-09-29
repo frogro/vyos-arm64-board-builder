@@ -1,0 +1,620 @@
+{
+  "device": "/dev/video1",
+  "width": 1920,
+  "height": 1080,
+  "tests": [
+    {
+      "colorspace": "smpte170m",
+      "requested_range": "lim-range",
+      "reference_range": "limited",
+      "output_sha256": "215174f481ccb6b4739873acdc2209cdd5cfd57c12720cc1322ecbb29f217c50",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : SMPTE 170M\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            82,
+            90,
+            240
+          ],
+          "expected": [
+            81,
+            90,
+            240
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            144,
+            54,
+            34
+          ],
+          "expected": [
+            145,
+            54,
+            34
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            41,
+            240,
+            110
+          ],
+          "expected": [
+            41,
+            240,
+            110
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            210,
+            16,
+            146
+          ],
+          "expected": [
+            210,
+            16,
+            146
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            169,
+            166,
+            16
+          ],
+          "expected": [
+            170,
+            166,
+            16
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            107,
+            202,
+            222
+          ],
+          "expected": [
+            106,
+            202,
+            222
+          ],
+          "max_error": 1
+        }
+      ]
+    },
+    {
+      "colorspace": "smpte170m",
+      "requested_range": "full-range",
+      "reference_range": "limited",
+      "output_sha256": "215174f481ccb6b4739873acdc2209cdd5cfd57c12720cc1322ecbb29f217c50",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : SMPTE 170M\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            82,
+            90,
+            240
+          ],
+          "expected": [
+            81,
+            90,
+            240
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            144,
+            54,
+            34
+          ],
+          "expected": [
+            145,
+            54,
+            34
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            41,
+            240,
+            110
+          ],
+          "expected": [
+            41,
+            240,
+            110
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            210,
+            16,
+            146
+          ],
+          "expected": [
+            210,
+            16,
+            146
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            169,
+            166,
+            16
+          ],
+          "expected": [
+            170,
+            166,
+            16
+          ],
+          "max_error": 1
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            107,
+            202,
+            222
+          ],
+          "expected": [
+            106,
+            202,
+            222
+          ],
+          "max_error": 1
+        }
+      ]
+    },
+    {
+      "colorspace": "rec709",
+      "requested_range": "lim-range",
+      "reference_range": "limited",
+      "output_sha256": "3067790017876648d74c1ca35cde1dee37ba2cd30366f6981505aed8ea0e970f",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : Rec. 709\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            54,
+            99,
+            237
+          ],
+          "expected": [
+            63,
+            102,
+            240
+          ],
+          "max_error": 9
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            182,
+            29,
+            19
+          ],
+          "expected": [
+            173,
+            42,
+            26
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            18,
+            237,
+            116
+          ],
+          "expected": [
+            32,
+            240,
+            118
+          ],
+          "max_error": 14
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            235,
+            19,
+            140
+          ],
+          "expected": [
+            219,
+            16,
+            138
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            200,
+            157,
+            19
+          ],
+          "expected": [
+            188,
+            154,
+            16
+          ],
+          "max_error": 12
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            72,
+            227,
+            237
+          ],
+          "expected": [
+            78,
+            214,
+            230
+          ],
+          "max_error": 13
+        }
+      ]
+    },
+    {
+      "colorspace": "rec709",
+      "requested_range": "full-range",
+      "reference_range": "limited",
+      "output_sha256": "3067790017876648d74c1ca35cde1dee37ba2cd30366f6981505aed8ea0e970f",
+      "negotiated_format": "Format Video Capture Multiplanar:\n\tWidth/Height      : 1920/1080\n\tPixel Format      : 'NV12' (Y/UV 4:2:0)\n\tField             : None\n\tNumber of planes  : 1\n\tFlags             : \n\tColorspace        : Rec. 709\n\tTransfer Function : Default\n\tYCbCr/HSV Encoding: Default\n\tQuantization      : Default\n\tPlane 0           :\n\t   Bytes per Line : 1920\n\t   Size Image     : 3110400\n",
+      "samples": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "actual": [
+            16,
+            128,
+            128
+          ],
+          "expected": [
+            16,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            255
+          ],
+          "actual": [
+            235,
+            128,
+            128
+          ],
+          "expected": [
+            235,
+            128,
+            128
+          ],
+          "max_error": 0
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            0
+          ],
+          "actual": [
+            54,
+            99,
+            237
+          ],
+          "expected": [
+            63,
+            102,
+            240
+          ],
+          "max_error": 9
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            0
+          ],
+          "actual": [
+            182,
+            29,
+            19
+          ],
+          "expected": [
+            173,
+            42,
+            26
+          ],
+          "max_error": 13
+        },
+        {
+          "rgb": [
+            0,
+            0,
+            255
+          ],
+          "actual": [
+            18,
+            237,
+            116
+          ],
+          "expected": [
+            32,
+            240,
+            118
+          ],
+          "max_error": 14
+        },
+        {
+          "rgb": [
+            255,
+            255,
+            0
+          ],
+          "actual": [
+            235,
+            19,
+            140
+          ],
+          "expected": [
+            219,
+            16,
+            138
+          ],
+          "max_error": 16
+        },
+        {
+          "rgb": [
+            0,
+            255,
+            255
+          ],
+          "actual": [
+            200,
+            157,
+            19
+          ],
+          "expected": [
+            188,
+            154,
+            16
+          ],
+          "max_error": 12
+        },
+        {
+          "rgb": [
+            255,
+            0,
+            255
+          ],
+          "actual": [
+            72,
+            227,
+            237
+          ],
+          "expected": [
+            78,
+            214,
+            230
+          ],
+          "max_error": 13
+        }
+      ]
+    }
+  ],
+  "passed": false
+}

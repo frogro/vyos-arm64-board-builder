@@ -1,0 +1,12 @@
+--- a/drivers/iommu/vsi-iommu.c
++++ b/drivers/iommu/vsi-iommu.c
+@@ -774,7 +774,8 @@
+ 	if (ret)
+ 		return ret;
+ 
+-	if (iommu->domain) {
++	/* Identity is a standalone iommu_domain, not a vsi_iommu_domain. */
++	if (iommu->domain && iommu->domain != &vsi_identity_domain) {
+ 		struct vsi_iommu_domain *vsi_domain = to_vsi_domain(iommu->domain);
+ 
+ 		spin_lock_irqsave(&vsi_domain->lock, flags);

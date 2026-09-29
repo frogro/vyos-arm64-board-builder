@@ -1,0 +1,24 @@
+mpp[7]: mpp_platform: client 1 driver is not ready!
+mpp[7]: mpp_platform: client 3 driver is not ready!
+mpp[7]: mpp_platform: client 4 driver is not ready!
+mpp[7]: mpp_platform: client 9 driver is not ready!
+mpp[7]: mpp_platform: client 12 driver is not ready!
+mpp[7]: mpp_platform: client 13 driver is not ready!
+mpp[7]: mpp_platform: client 18 driver is not ready!
+mpp[7]: mpp_platform: client 19 driver is not ready!
+mpp[7]: mpp_info: mpp version: c08762e author: Herman Chen    2026-08-11 docs: Update 1.1.0 CHANGELOG.md
+mpp[7]: mpp_enc: set prep cfg w:h [1920:1080] stride [1920:1088] fmt 0 rotate 0 mirror 0
+mpp[7]: mpp_enc: set rc cbr bps [8000000:8500000:7500000] fps [60:1:fix] - [60:1:fix] gop 60
+mpp[7]: mpp_enc: mode cbr bps [7500000:8000000:8500000] fps fix [60/1] -> fix [60/1] gop i [60] v [0]
+mpp[7]: mpp_enc: set prep cfg w:h [1920:1080] stride [1920:1080] fmt 0 rotate 0 mirror 0
+hevc_rkmpp: 120 input frames, 120 packets
+[hevc_rkmpp @ 0xaaaaedc408d0] TRACE before reset
+[hevc_rkmpp @ 0xaaaaedc408d0] TRACE before destroy
+mpp[7]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xaaaaedc63328 node 0xaaaaedc63300 check (nil) caller mpp_frame_deinit
+mpp[7]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xaaaaedc63328 node 0xaaaaedc63300 check (nil) caller mpp_frame_deinit
+[hevc_rkmpp @ 0xaaaaedc408d0] TRACE after destroy
+[hevc_rkmpp @ 0xaaaaedc408d0] TRACE before frame cleanup
+mpp[7]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xaaaaedc63ca8 node 0xaaaaedc63c80 check (nil) caller mpp_frame_deinit
+mpp[7]: mpp_mem_pool: mpp_mem_pool_put invalid mem pool ptr 0xaaaaedc63328 node 0xaaaaedc63300 check (nil) caller mpp_frame_deinit
+[hevc_rkmpp @ 0xaaaaedc408d0] TRACE after frame cleanup
+mpp[7]: mpp_buffer: mpp_buffer_service_deinit cleaning misc group

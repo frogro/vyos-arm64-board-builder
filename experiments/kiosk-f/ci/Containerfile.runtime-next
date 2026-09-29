@@ -1,0 +1,24 @@
+ARG BASE_IMAGE
+FROM localhost/vyarm-sunshine-build:direct-rga-20260927 AS sunshine
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL io.vyarm.kiosk.sunshine-wayland="1"
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+COPY --from=sunshine /build/sunshine-build/sunshine /usr/bin/sunshine
+COPY --from=sunshine /opt/mpp/lib/ /opt/mpp/lib/
+COPY helpers/ /usr/local/bin/
+ENV MPP_DEVICE_TREE_COMPATIBLE=/run/mpp/compatible
+RUN printf '/opt/mpp/lib\n' > /etc/ld.so.conf.d/vyarm-mpp.conf && ldconfig \
+ && setcap cap_sys_admin+p /usr/bin/sunshine \
+ && chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-*.py \
+ && python3 -m py_compile /usr/local/bin/kiosk-*.py \
+ && bash -n /usr/local/bin/start-kiosk \
+ && ldd /usr/bin/sunshine > /tmp/sunshine-libraries && ! grep -q 'not found' /tmp/sunshine-libraries \
+ && echo 'd1f979a39d0402060364e5a9202cb6e8772a7e3ec90c91622151defcb851eeb6  /opt/vyarm/chromium/chrome' | sha256sum -c - \
+ && test -x /opt/vyarm/chromium/chrome_crashpad_handler \
+ && command -v pulseaudio && command -v pactl \
+ && test -x /usr/bin/weston \
+ && test -s /usr/lib/aarch64-linux-gnu/libweston-14/drm-backend.so \
+ && test -s /usr/lib/aarch64-linux-gnu/libweston-14/gl-renderer.so
+# No credentials, machine identities or browser state are copied. Timing and
+# experimental RGA/direct GPU capture remain off unless explicitly enabled.

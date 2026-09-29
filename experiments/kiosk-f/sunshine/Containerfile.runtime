@@ -1,0 +1,13 @@
+FROM localhost/vyarm-sunshine:mpp-candidate AS build
+FROM localhost/vyarm-sunshine-builder:mpp AS mpp
+COPY 0002-mpp-container-compatible-path.patch /build/mpp-path.patch
+RUN cd /build/mpp && patch -p1 < /build/mpp-path.patch \
+ && cmake --build build -j1 && cmake --install build
+FROM localhost/vyarm-kiosk:test-20260919
+COPY --from=build /build/sunshine-build/sunshine /usr/bin/sunshine
+COPY --from=mpp /opt/mpp/lib/librockchip_mpp.so* /opt/mpp/lib/
+ENV LD_LIBRARY_PATH=/opt/mpp/lib
+ENV MPP_DEVICE_TREE_COMPATIBLE=/run/mpp/compatible
+# Host device access still requires scoped native VyOS device mappings and
+# matching group ownership. Do not make the container privileged.
+RUN usermod -aG video kiosk

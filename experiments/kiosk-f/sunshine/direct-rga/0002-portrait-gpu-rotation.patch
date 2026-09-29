@@ -1,0 +1,52 @@
+--- a/src/platform/linux/kmsgrab.cpp
++++ b/src/platform/linux/kmsgrab.cpp
+@@ -1670,6 +1670,23 @@
+         if (opt && std::string(opt) == "1" && !direct_allowed) {
+           BOOST_LOG(warning) << "VYARM_DIRECT_RGA fallback: unsupported client color depth/space";
+         }
++        const char *rotation = std::getenv("SUNSHINE_VYARM_KMS_ROTATION");
++        if (rotation && std::string(rotation) != "0") {
++          std::string r(rotation);
++          if (!direct_allowed || (r != "90" && r != "180" && r != "270") ||
++              img_offset_x || img_offset_y || offset_x || offset_y ||
++              width != img_width || height != img_height || env_width != width || env_height != height) {
++            BOOST_LOG(error) << "VYARM_DIRECT_RGA rotation requires full single-output direct capture";
++            return -1;
++          }
++          direct_rotation = std::stoi(r);
++          if (direct_rotation % 180) std::swap(width, height);
++          // The rotated stream represents the compositor's logical desktop.
++          env_width = logical_width = env_logical_width = width;
++          env_height = logical_height = env_logical_height = height;
++          BOOST_LOG(info) << "VYARM_DIRECT_RGA rotation=" << direct_rotation
++                          << " stream=" << width << "x" << height;
++        }
+         return 0;
+       }
+ 
+@@ -1826,7 +1843,7 @@
+           std::string error;
+           bool single = sd.fds[1] < 0 && sd.fds[2] < 0 && sd.fds[3] < 0;
+           if (single && direct->capture({sd.fds[0],sd.width,sd.height,sd.fourcc,sd.pitches[0],sd.offsets[0],sd.modifier},
+-              img_offset_x,img_offset_y,width,height,direct_bt709,direct_full,overlay,img_out->data,error)) {
++              img_offset_x,img_offset_y,width,height,direct_bt709,direct_full,overlay,img_out->data,error,direct_rotation)) {
+             img_out->pixel_pitch = 1;
+             img_out->row_pitch = width;
+             img_out->vyarm_nv12_matrix = direct_bt709 ? 2 : 1;
+@@ -1843,6 +1860,8 @@
+           BOOST_LOG(warning) << "VYARM_DIRECT_RGA fallback: " << (single ? error : "multi-plane source")
+                             << "; disabled until capture reinitialization";
+           direct.reset();
++          // Never reinterpret rotated dimensions as an unrotated fallback crop.
++          if (direct_rotation) return capture_e::error;
+           direct_allowed = false;
+         }
+ 
+@@ -1930,6 +1949,7 @@
+       }
+ 
+       bool direct_allowed = false, direct_bt709 = true, direct_full = false;
++      unsigned direct_rotation = 0;
+       std::unique_ptr<vyarm::direct_rga> direct;
+       uint64_t direct_frames = 0;
+       double direct_ms = 0;

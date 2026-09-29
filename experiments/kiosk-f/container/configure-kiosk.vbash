@@ -1,0 +1,27 @@
+source /opt/vyatta/etc/functions/script-template
+configure
+delete service kvm-over-ip local-input
+set container network kiosk-test prefix 10.89.50.0/24
+set container name kiosk-test network kiosk-test
+set container name kiosk-test image localhost/vyarm-kiosk:test-20260919
+set container name kiosk-test memory 2048
+set container name kiosk-test cpu-quota 4
+set container name kiosk-test shared-memory 256
+set container name kiosk-test restart no
+set container name kiosk-test capability sys-admin
+set container name kiosk-test environment KIOSK_URL value 'file:///opt/kiosk/input-test.html'
+set container name kiosk-test device display source /dev/dri/card0
+set container name kiosk-test device display destination /dev/dri/card0
+set container name kiosk-test device console-control source /dev/tty0
+set container name kiosk-test device console-control destination /dev/tty0
+set container name kiosk-test device console source /dev/tty8
+set container name kiosk-test device console destination /dev/tty8
+set container name kiosk-test volume udev source /run/udev
+set container name kiosk-test volume udev destination /run/udev
+set container name kiosk-test volume udev mode ro
+set container name kiosk-test volume state source /config/kiosk-test/state
+set container name kiosk-test volume state destination /state
+set container name kiosk-test volume state mode rw
+commit || exit 1
+save
+exit

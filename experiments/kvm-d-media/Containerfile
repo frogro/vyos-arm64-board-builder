@@ -1,0 +1,25 @@
+# Separate profile-D test binary; never replaces installed media stack.
+# Build context is repository root. Cached builder includes the F EOS/ownership fixes.
+ARG CLEANUP_BUILDER
+ARG RUNTIME_BASE
+FROM ${CLEANUP_BUILDER} AS build
+COPY profiles/kvm-hardware/ffmpeg-patches/0001-v4l2-configurable-capture-buffers.patch /tmp/capture.patch
+RUN cd /build/ffmpeg && patch --batch --fuzz=0 -p1 < /tmp/capture.patch \
+ && PKG_CONFIG_PATH=/opt/mpp/lib/pkgconfig ./configure \
+ --prefix=/opt/kvm-candidate --disable-all --disable-autodetect --disable-doc \
+ --enable-gpl --enable-version3 --enable-static --disable-shared \
+ --enable-ffmpeg --enable-avcodec --enable-avformat --enable-avdevice \
+ --enable-avfilter --enable-swscale --enable-swresample --enable-network \
+ --enable-libdrm --enable-rkmpp \
+ --enable-encoder=h264_rkmpp,hevc_rkmpp,rawvideo \
+ --enable-decoder=rawvideo,h264,hevc --enable-parser=h264,hevc \
+ --enable-indev=v4l2 --enable-demuxer=rawvideo,h264,hevc \
+ --enable-muxer=rtsp,rtp,h264,hevc,rawvideo,null \
+ --enable-protocol=file,pipe,tcp,udp,rtp \
+ --enable-filter=buffer,buffersink,format,scale,null \
+ && make -j1 && make install \
+ && /opt/kvm-candidate/bin/ffmpeg -hide_banner -encoders 2>&1 | grep hevc_rkmpp \
+ && /opt/kvm-candidate/bin/ffmpeg -hide_banner -h demuxer=v4l2 2>&1 | grep capture_buffers
+FROM ${RUNTIME_BASE}
+COPY --from=build /opt/kvm-candidate/bin/ffmpeg /usr/local/libexec/vyarm-ffmpeg-candidate
+ENTRYPOINT ["/usr/local/libexec/vyarm-ffmpeg-candidate"]
