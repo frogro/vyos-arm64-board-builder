@@ -26,8 +26,10 @@ def gst_decoder(policy, available=None):
 def receiver_environment(cfg, inherited=None):
     """Keep the tested H.264 library private to Moonlight, including its CPU fallback."""
     env = dict(os.environ if inherited is None else inherited)
-    if (cfg['method'] == 'moonlight' and cfg['mode'] == 'receive'
-            and cfg['codec'] == 'h264' and cfg['decoder'] != 'software'):
+    # Moonlight probes decoder capabilities when opening its GUI before streaming.
+    # Pair mode must see the same Request libraries as the qualified H.264 stream.
+    if (cfg['method'] == 'moonlight' and cfg['decoder'] != 'software'
+            and (cfg['mode'] == 'pair' or cfg['codec'] == 'h264')):
         env['LD_LIBRARY_PATH'] = '/opt/ffmpeg-request/lib'
         env['DRM_FORCE_EGL'] = '1'
     return env

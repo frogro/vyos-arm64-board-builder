@@ -32,8 +32,13 @@ class Policy(unittest.TestCase):
             selected=method=='moonlight' and codec=='h264' and decoder!='software'
             self.assertEqual('LD_LIBRARY_PATH' in env,selected)
             self.assertEqual(env['PULSE_SERVER'],inherited['PULSE_SERVER'])
-        pair=receiver.settings(dict(method='moonlight',mode='pair',codec='h264'))
-        self.assertEqual(backend.receiver_environment(pair,inherited),inherited)
+        for codec,decoder in itertools.product(('auto','h264','hevc','av1'),('auto','hardware','software')):
+            pair=receiver.settings(dict(method='moonlight',mode='pair',codec=codec,decoder=decoder))
+            env=backend.receiver_environment(pair,inherited)
+            self.assertEqual('LD_LIBRARY_PATH' in env,decoder!='software')
+            if decoder!='software':
+                self.assertEqual(env['LD_LIBRARY_PATH'],'/opt/ffmpeg-request/lib')
+                self.assertEqual(env['DRM_FORCE_EGL'],'1')
         self.assertEqual(inherited,{'PULSE_SERVER':'unix:/run/receiver/pulse/native'})
 
     def test_non_receiver_unchanged(self):

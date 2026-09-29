@@ -74,3 +74,23 @@ Evidence remains under `/config/receiver/g-live-20260928/state/` on ROCK:
 this candidate for H.264 auto/hardware selection only. A separate no-device
 container decoded all ten frames of a synthetic H.264 clip through the private
 FFmpeg software decoder, verifying that software decoding remains available.
+
+## Pairing GUI regression (2026-09-29 installed-image check)
+
+The GUI reported no functioning hardware decoder although isolated Request
+conformance tests passed. Its startup environment excluded `mode=pair`, so the
+built-in capability probe loaded distribution FFmpeg and tried VAAPI,
+VDPAU and stateful V4L2 M2M instead of stateless V4L2 Request.
+
+The private Request libraries and `DRM_FORCE_EGL=1` now also apply to Moonlight's
+pairing GUI with auto/hardware decoder selection, regardless of the configured
+stream codec: the GUI probes capabilities independently of the streaming command. Explicit
+software mode and other receiver methods retain their previous environment.
+The qualified receive-mode codec scope remains H.264. Merely starting the GUI
+is not hardware-decoder evidence; require successful V4L2 Request test decoding.
+
+The corrected live GUI selected `hevc_v4l2request`, opened `rkvdec (6.18.50)
+for S265`, and decoded/output its test frame successfully. This validates the
+GUI capability probe, not a new HEVC stream acceptance. HDR/unsupported-format
+probe messages remain; no driver replacement or host permission changes were
+needed. The sender was offline and the Kiosk was restored afterwards.
