@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Poll official releases and persist successful dispatches on the default branch."""
+"""Poll official releases and track build outcomes and bounded retries on the default branch."""
 import base64
 import json
 import os
@@ -10,6 +10,8 @@ from datetime import datetime
 REPO = 'frogro/vyos-arm64-board-builder'
 STATE = '.github/rolling-build-state.json'
 BOARDS = {'radxa-e52c':'uboot-extlinux', 'rock-5b':'efi-firmware-dtb', 'raspberry-pi-5':'firmware-files'}
+MAX_ATTEMPTS = 3  # Initial build plus at most two failed-job reruns.
+
 ARMBIAN = '9de7be05323564424cf64171cb483712ec356bc1'
 
 def gh(*args):
@@ -27,6 +29,19 @@ def pending(releases, state):
 def title(board, tag):
     return f'{board} / {tag} / network=true tailscale=false kvm=false'
 
+def retry_action(entry, run, latest=True):
+    """Decide without changing GitHub; never restart active or successful work."""
+    if run['status'] != 'completed': return 'waiting'
+    if run['conclusion'] == 'success': return 'success'
+    if entry.get('retry_disabled') or not latest: return 'suppressed'
+    if run['conclusion'] not in ('failure', 'timed_out'): return 'attention'
+    attempt = run['run_attempt']
+    if entry.get('retry_request_error_for_attempt') == attempt: return 'attention'
+    if attempt >= MAX_ATTEMPTS: return 'exhausted'
+    if entry.get('retry_requested_for_attempt', 0) >= attempt: return 'waiting'
+    return 'retry'
+
+
 def main():
     item=api(f'repos/{REPO}/contents/{STATE}?ref=main')
     state=json.loads(base64.b64decode(item['content']))
@@ -38,10 +53,41 @@ def main():
         result=json.loads(subprocess.check_output(['gh','api','--method','PUT',f'repos/{REPO}/contents/{STATE}','--input','-'],input=json.dumps(payload),text=True))
         item['sha']=result['content']['sha']
     runs=json.loads(gh('run','list','--repo',REPO,'--workflow','build-board-candidate.yml','--limit','100','--json','displayTitle,databaseId'))
-    known={r['displayTitle']:r['databaseId'] for r in runs}
-    for release in pending(releases,state):
+    known={}
+    for run in runs:  # gh returns newest first; retain the newest matching run.
+        known.setdefault(run['displayTitle'], run['databaseId'])
+    selected=pending(releases,state)
+    problems=[]
+    for release in selected:
         tag=release['tag_name']
         record=state.setdefault('releases',{}).setdefault(tag,{'boards':{}})
+        for board, entry in record['boards'].items():
+            run_id=entry.get('run_id') or entry.get('existing_run') or known.get(title(board,tag))
+            if not run_id:
+                print(f'{tag}: {board}: awaiting run discovery',flush=True)
+                continue  # Never duplicate a dispatch just because indexing is delayed.
+            run=api(f'repos/{REPO}/actions/runs/{run_id}')
+            action=retry_action(entry,run,tag==selected[-1]['tag_name'])
+            print(f'{tag}: {board}: {run["status"]}/{run["conclusion"]}, {action}',flush=True)
+            if dry: continue
+            before=dict(entry)
+            entry.update(run_id=run_id, status=run['status'], conclusion=run['conclusion'],
+                         run_attempt=run['run_attempt'])
+            if entry != before: save()
+            if action == 'retry':
+                # Record intent first so delayed API status cannot trigger duplicate reruns.
+                entry['retry_requested_for_attempt']=run['run_attempt']
+                save()
+                try:
+                    gh('run','rerun',str(run_id),'--failed','--repo',REPO)
+                except subprocess.CalledProcessError:
+                    # Keep the reserved attempt on an uncertain response: fail visibly
+                    # instead of risking an unbounded rerun loop.
+                    entry['retry_request_error_for_attempt']=run['run_attempt']
+                    save()
+                    raise SystemExit(f'Rerun request failed or uncertain: {run_id}; inspect manually')
+            elif action in ('exhausted','attention'):
+                problems.append(f'{tag}/{board}: {action} ({run["html_url"]})')
         missing=[b for b in BOARDS if b not in record['boards']]
         if not missing: continue
         print(f'{tag}: pending boards: {", ".join(missing)}',flush=True)
@@ -67,6 +113,8 @@ def main():
                 record['boards'][board]={'dispatched':True}
             save()
             print(f'{tag}: {board} dispatch recorded',flush=True)
+    if problems:
+        raise SystemExit('Builds require attention: ' + '; '.join(problems))
     print('Dry run complete' if dry else 'Release check complete')
 
 if __name__=='__main__': main()

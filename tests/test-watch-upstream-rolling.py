@@ -37,4 +37,48 @@ class Tests(unittest.TestCase):
         self.assertTrue(all('kvm_over_ip=false' in a for a in dispatched))
         self.assertTrue(all(a[a.index('--ref') + 1] == 'main' for a in dispatched))
 
+    def test_retry_decisions(self):
+        run={'status':'completed','conclusion':'failure','run_attempt':1}
+        self.assertEqual(m.retry_action({},run),'retry')
+        self.assertEqual(m.retry_action({'retry_request_error_for_attempt':1},run),'attention')
+        self.assertEqual(m.retry_action({},dict(run,run_attempt=2)),'retry')
+        self.assertEqual(m.retry_action({},dict(run,run_attempt=3)),'exhausted')
+        self.assertEqual(m.retry_action({'retry_requested_for_attempt':1},run),'waiting')
+        self.assertEqual(m.retry_action({'retry_disabled':True},run),'suppressed')
+        self.assertEqual(m.retry_action({},run,latest=False),'suppressed')
+        self.assertEqual(m.retry_action({},dict(run,status='in_progress')),'waiting')
+        self.assertEqual(m.retry_action({},dict(run,conclusion='success')),'success')
+        self.assertEqual(m.retry_action({},dict(run,conclusion='cancelled')),'attention')
+        self.assertEqual(m.retry_action({},dict(run,conclusion='timed_out')),'retry')
+
+    def test_existing_failure_retry_and_dry_run(self):
+        tag='2026.09.29-0028-rolling'
+        initial={'baseline':'2026.09.17-0028-rolling','releases':{tag:{
+            'vyos_commit':'a'*40,'boards':{b:{'dispatched':True} for b in m.BOARDS}}}}
+        for dry in (True,False):
+            state=json.loads(json.dumps(initial)); calls=[]; writes=[]
+            def api(path):
+                if 'contents/' in path:
+                    return {'sha':'state-sha','content':base64.b64encode(json.dumps(state).encode()).decode()}
+                if '/releases?' in path: return [{'tag_name':tag}]
+                return {'status':'completed','conclusion':'failure','run_attempt':1,'html_url':'https://example.test/run'}
+            def gh(*args):
+                if args[:2]==('run','list'):
+                    return json.dumps([{'displayTitle':m.title(b,tag),'databaseId':i} for i,b in enumerate(m.BOARDS,1)])
+                calls.append(args); return ''
+            def save(*args,**kwargs):
+                payload=json.loads(kwargs['input']); writes.append(payload)
+                state.clear();state.update(json.loads(base64.b64decode(payload['content'])))
+                return json.dumps({'content':{'sha':'new-sha'}})
+            with patch.object(m,'api',side_effect=api), patch.object(m,'gh',side_effect=gh), patch.object(m.subprocess,'check_output',side_effect=save), patch.dict(m.os.environ,{'DRY_RUN':str(dry).lower()}):
+                m.main();m.main()
+            self.assertEqual(len(calls),0 if dry else 3)
+            self.assertTrue(all(a[:2]==('run','rerun') and '--failed' in a for a in calls))
+            if dry: self.assertEqual(writes,[])
+
+    def test_current_e52c_explicitly_excluded(self):
+        state=json.loads((p.parents[1]/'.github/rolling-build-state.json').read_text())
+        entry=state['releases']['2026.09.28-0746-rolling']['boards']['radxa-e52c']
+        self.assertTrue(entry['retry_disabled'])
+
 unittest.main()

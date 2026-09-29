@@ -60,7 +60,9 @@
     "2026.09.28-0746-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "retry_disabled": true,
+          "retry_reason": "User requested waiting for the next Rolling; do not rerun this release."
         },
         "rock-5b": {
           "dispatched": true
