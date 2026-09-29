@@ -11,16 +11,26 @@ class Tests(unittest.TestCase):
         rows += [{'tag_name':'2026.09.20-0028-rolling','draft':True},{'tag_name':'2026.09.21-0028-rolling','prerelease':True}]
         self.assertEqual([r['tag_name'] for r in m.pending(rows,{'baseline':'2026.09.17-0028-rolling'})],['2026.09.18-0028-rolling','2026.09.19-0028-rolling'])
     def test_exact_scope(self):
-        self.assertEqual(set(m.BOARDS),{'radxa-e52c','rock-5b','raspberry-pi-5'})
+        self.assertEqual(set(m.BOARDS),{'radxa-e52c','rock-5b','raspberry-pi-5','orangepi5-plus'})
         self.assertEqual(m.title('rock-5b','tag'),'rock-5b / tag / network=true tailscale=false kvm=false')
+    def test_orangepi_enrollment(self):
+        self.assertEqual(m.BOARDS['orangepi5-plus'], 'efi-firmware-dtb')
+        self.assertEqual(m.BOARD_FIRST_ROLLING['orangepi5-plus'], '2026.09.28-0746-rolling')
+
     def test_dispatch_and_resume(self):
+        self.dispatch_and_resume('2026.09.18-0028-rolling', 3)
+
+    def test_current_release_includes_orangepi(self):
+        self.dispatch_and_resume('2026.09.28-0746-rolling', 4)
+
+    def dispatch_and_resume(self, tag, count):
         state={'baseline':'2026.09.17-0028-rolling','releases':{}}
         dispatched=[]
         def api(path):
             if 'contents/' in path:
                 return {'sha':'state-sha','content':base64.b64encode(json.dumps(state).encode()).decode()}
             if '/releases?' in path:
-                return [{'tag_name':'2026.09.18-0028-rolling'}]
+                return [{'tag_name':tag}]
             return [{'sha':'a'*40}]
         def gh(*args):
             if args[0]=='run': return '[]'
@@ -32,8 +42,8 @@ class Tests(unittest.TestCase):
             return json.dumps({'content':{'sha':'new-sha'}})
         with patch.object(m,'api',side_effect=api), patch.object(m,'gh',side_effect=gh), patch.object(m.subprocess,'check_output',side_effect=save), patch.dict(m.os.environ,{'DRY_RUN':'false'}):
             m.main();m.main()
-        self.assertEqual(len(dispatched),3)
-        self.assertEqual(len(state['releases']['2026.09.18-0028-rolling']['boards']),3)
+        self.assertEqual(len(dispatched),count)
+        self.assertEqual(len(state['releases'][tag]['boards']),count)
         self.assertTrue(all('kvm_over_ip=false' in a for a in dispatched))
         self.assertTrue(all(a[a.index('--ref') + 1] == 'main' for a in dispatched))
 
@@ -72,7 +82,7 @@ class Tests(unittest.TestCase):
                 return json.dumps({'content':{'sha':'new-sha'}})
             with patch.object(m,'api',side_effect=api), patch.object(m,'gh',side_effect=gh), patch.object(m.subprocess,'check_output',side_effect=save), patch.dict(m.os.environ,{'DRY_RUN':str(dry).lower()}):
                 m.main();m.main()
-            self.assertEqual(len(calls),0 if dry else 3)
+            self.assertEqual(len(calls),0 if dry else len(m.BOARDS))
             self.assertTrue(all(a[:2]==('run','rerun') and '--failed' in a for a in calls))
             if dry: self.assertEqual(writes,[])
 

@@ -19,6 +19,10 @@ class ChannelTests(unittest.TestCase):
         for board, profile in [('unknown-board','network'),('radxa-e52c','base'),('radxa-e52c','network-tailscale'),('radxa-e52c','network-tailscale-kvm')]:
             self.assertIsNone(m.channel_for(board,profile))
 
+    def test_orangepi_channel(self):
+        self.assertEqual(m.channel_for('orangepi5-plus','network')['repository'], 'VyARM-Community/orangepi5-plus')
+        self.assertIsNone(m.channel_for('orangepi5-plus','network-tailscale-kvm'))
+
     def test_feed_and_rejection(self):
         with tempfile.TemporaryDirectory() as d:
             iso=Path(d)/'test.iso';iso.write_bytes(b'test payload')
