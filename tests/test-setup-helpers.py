@@ -42,6 +42,20 @@ setup_commit_save
     def test_save_failure_propagates(self):
         self.assertNotEqual(self.transaction(bad_save=True)[0], 0)
 
+    def test_session_cleanup_preserves_result_without_commit(self):
+        for status in (0, 1, 7):
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as tmp:
+                log = pathlib.Path(tmp) / "calls"
+                script = f"""source '{HELPER}'
+api() {{ echo "$*" >> '{log}'; }}
+API=api
+setup_session_guard
+builtin exit {status}
+"""
+                result = subprocess.run(["bash", "-c", script], capture_output=True)
+                self.assertEqual(result.returncode, status)
+                self.assertEqual(log.read_text().splitlines(), ["teardownSession"])
+
     def test_locale_preserves_other_values_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)

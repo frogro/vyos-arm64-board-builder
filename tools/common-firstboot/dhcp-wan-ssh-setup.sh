@@ -92,6 +92,7 @@ sudo /sbin/ip link set "$WIRED_IF" up 2>/dev/null || true
 source /opt/vyatta/etc/functions/script-template
 source "$(dirname "$(readlink -f "$0")")/setup-transaction.sh"
 configure || { echo "ERROR: Cannot enter configuration mode." >&2; builtin exit 1; }
+setup_session_guard
 
 setup_set interfaces ethernet "$WIRED_IF" description 'WAN-LAN-DHCP'
 setup_set interfaces ethernet "$WIRED_IF" address 'dhcp'

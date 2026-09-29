@@ -17,3 +17,19 @@ setup_commit_save() {
     fi
     save
 }
+
+# Register only after configure succeeds: teardown affects this helper's session.
+# Never commit here; failed stages must remain failed and be discarded by teardown.
+setup_session_cleanup() {
+    local result=$?
+    trap - EXIT
+    if ! "$API" teardownSession; then
+        echo "ERROR: Could not close setup configuration session." >&2
+        [ "$result" -ne 0 ] || result=1
+    fi
+    builtin exit "$result"
+}
+
+setup_session_guard() {
+    trap setup_session_cleanup EXIT
+}
