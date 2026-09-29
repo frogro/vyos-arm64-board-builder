@@ -16,11 +16,15 @@ class SyslogStart(unittest.TestCase):
             root = Path(tmp)
             path = root / 'usr/libexec/vyos/conf_mode/system_timezone.py'
             path.parent.mkdir(parents=True)
+            (path.parent/'system_host-name.py').write_text("def apply(changed):\n    if changed:\n        tmp = systemd_services['syslog']\n        call(f'systemctl restart {tmp}')\n    call('systemctl restart snmpd')\n")
             path.write_text("def apply(tz):\n    call('/usr/bin/timedatectl set-timezone {}'.format(tz['name']))\n    call('systemctl restart rsyslog')\n")
             patcher.patch(root)
             first = path.read_text()
             patcher.patch(root)
             self.assertEqual(first, path.read_text())
+            host=(path.parent/'system_host-name.py').read_text()
+            self.assertIn('try-restart {tmp}',host)
+            self.assertIn('restart snmpd',host)
             calls = []
             namespace = {'call': calls.append}
             exec(compile(ast.parse(first), str(path), 'exec'), namespace)
