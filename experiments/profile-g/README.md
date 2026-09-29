@@ -2,7 +2,7 @@
 
 ## Ausgangspunkt
 
-Testzweig: `feature/profile-g`
+Testzweig: `feature/profile-g`; Integration: `test/profile-g-steamlink-integration-20260929`
 Basis: `ci/adf-compare-20260927`, Commit
 `dba06ef52ebcb081e4e2725ab9b17a90c25f0671` (2026-09-28).
 
@@ -22,7 +22,7 @@ wiederverwendet werden. Bestehende A–D/F-Standardpfade bleiben erhalten.
 
 Kandidaten: AirPlay (UxPlay), Miracast, Moonlight mit Sunshine als Sender,
 Steam Link sowie nach Machbarkeitsprüfung Google Cast und weitere Empfänger.
-AirPlay, Moonlight und experimentelles Miracast sind inzwischen als erste
+AirPlay, Moonlight, experimentelles Miracast und Steam Link sind inzwischen als erste
 Implementierung vorhanden; siehe [Implementierung und Tests](IMPLEMENTATION.md).
 Kurze Live-Tests von Miracast und Moonlight wurden mit Bild und synchronem Ton bestätigt; eine vollständige Freigabe steht aus. Miracast benötigt einen eigenen WLAN-/Wi-Fi-Direct-Test und
 kann mit dem Router-AP auf derselben Funkkarte konkurrieren.
@@ -62,8 +62,11 @@ Moonlight verwendet für `codec h264` mit `decoder auto` oder `hardware` die
 privat eingebauten V4L2-Request-Bibliotheken. `auto` erlaubt Moonlights
 Software-Rückfall; `hardware` verlangt Hardware. `decoder software` sowie
 andere Codecs behalten die Distributionsbibliotheken. Miracast/AirPlay laden
-weiter ihre GStreamer-Bibliotheken. AirPlay/UxPlay ist enthalten; der Test mit
-einem Apple-Sender folgt nach Prüfung dieses Containerbuilds.
+weiter ihre GStreamer-Bibliotheken. AirPlay/UxPlay wurde live mit einem iPhone 13 für Spiegelung, Foto, Video und
+Ton bestätigt; die Wiederholung im fertigen Image bleibt offen.
+
+Steam Link ist als separater, versionsgebundener Adapter mit H.264/HEVC und
+Software-Rückfall integriert: siehe [CLI, Grenzen und Tests](STEAMLINK.md).
 
 
 ## Gemeinsames A–D/F/G-Testimage

@@ -1,7 +1,7 @@
 name: Profile G receiver test build
 on:
   push:
-    branches: [feature/profile-g]
+    branches: [feature/profile-g, "test/profile-g-*"]
   workflow_dispatch:
 permissions:
   # Reading the existing draft-release inputs requires write visibility.
@@ -83,6 +83,8 @@ jobs:
           CONTAINER_ENGINE=docker bash experiments/profile-g/build-runtime.sh localhost/vyarm-g-base:verified /tmp/g-runtime
           tag=$(python3 -c 'import json;print(json.load(open("/tmp/g-runtime/runtime.json"))["tag"])')
           docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib QT_QPA_PLATFORM=offscreen moonlight --help >/dev/null; LD_LIBRARY_PATH=/opt/ffmpeg-request/lib /opt/ffmpeg-request/bin/ffmpeg -hide_banner -hwaccels | grep -x v4l2request; gst-inspect-1.0 waylandsink >/dev/null'
+          docker run --rm --network none --entrypoint python3 "$tag" -c 'import sys; sys.path.insert(0,"/opt/profile-g"); import steamlink; steamlink.check_runtime()'
+          docker run --rm --network none --entrypoint /bin/sh "$tag" -ec 'export LD_LIBRARY_PATH=/opt/steamlink/lib:/opt/steamlink/Qt-5.14.1/lib; ldd /opt/steamlink/bin/shell > /tmp/link-check; cat /tmp/link-check; ! grep -q "not found" /tmp/link-check'
           cp experiments/profile-g/live-test/MOONLIGHT-HARDWARE.md /tmp/g-runtime/
           (cd /tmp/g-runtime && sha256sum runtime.tar runtime.json image.json > SHA256SUMS)
       - name: Upload loadable Profile G runtime (not SD/ISO)

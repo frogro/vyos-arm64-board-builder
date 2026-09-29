@@ -19,10 +19,42 @@ GitHub run `36384286092`. G is additive; main is not changed by this workflow.
 
 A build pass is not an installed-system acceptance. After installation, verify
 AP configuration, Tailscale device identity, Sunshine/Moonlight pairings,
-kiosk/receiver transitions, cold boot, physical HDMI and audio. AirPlay has a
-built UxPlay receiver but still needs an Apple sender test. Miracast's known
+kiosk/receiver transitions, cold boot, physical HDMI and audio. AirPlay mirroring/photos/video/audio were accepted live with iPhone 13;
+they still require a repeat in the installed image. Miracast's known
 Intel sender firmware/restart issue is not solved merely by packaging G.
 
 The full build can prepare A–D/F and its CLI while the G runtime compiles.
 Assembly waits for that exact runtime and fails if it fails; it never silently
 substitutes an older G artifact. No router access occurs from GitHub Actions.
+
+
+## 2026-09-29 audit of uncommitted/live-only G changes
+
+| Finding | Integration |
+| --- | --- |
+| Steam Link entirely absent from schema/backend/runtime | Separate pinned adapter and CLI method, device/capability/hash guards, persistent settings and H264 software fallback |
+| HEVC request RPS patch existed only in live build | Exact backport and UAPI compatibility header in private decoder build; original attribution and conformance evidence retained |
+| Uncommitted ordered session shutdown | Client is stopped/waited before audio, XWayland and compositor |
+| Live Miracast `--use-dev` missing from recipe | Added to the existing dedicated-radio-only launch; AP ownership checks retained |
+| HDMI port detection, timer-based audio and Miracast player/relink fixes | Already in committed files; compared to live copies |
+| Fixed AirPlay diagnostic PIN | Deliberately excluded; random PIN and persistent register/key retained |
+| ISO missing `features.receiver_g` | Added to actual manifest generator; execute-generator regression covers old and G profiles |
+| FFmpeg build script excluded from Docker context | Explicit script/patch/adapter context allowlist |
+| Temporary screen-sharing/input automation and snapshots | Test-only; not shipped in container |
+
+The `live-test/steamlink` findings had not been committed on feature/profile-g;
+this integration records the source experiments and measurements. Its earlier
+"not integrated" entries describe their historical state; STEAMLINK.md is the
+current adapter contract. Existing A–D/F code remains byte-for-byte against the
+accepted test baseline in protected directories; main's 31 packages and eight
+A–D combinations are checked independently.
+
+Acceptance still open: SD installation and ISO upgrade of this exact combined
+artifact; AP, Tailscale identity, Sunshine/AirPlay/Steam pairing retention after
+update; extended multi-sender soak; physical HDMI hotplug/fault transitions.
+Google Cast is not implemented. USB redirection and AV1 are not qualified.
+The previous installed image and kiosk configuration remain the recovery path.
+
+Residual live warning: isolated `HDMI: Unknown ELD version 0` on codec.7 around
+transitions; the old repeated ASoC prepare-error flood was not observed. This
+remains an explicit acceptance gap, not a passing HDMI hotplug result.

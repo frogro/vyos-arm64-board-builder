@@ -8,7 +8,7 @@ import subprocess
 DEFAULTS = dict(mode='receive', method='airplay', name='VyOS-Display', output='auto', rotation='0',
                 drm_device='card0', decoder='auto', resolution='1920x1080', fps='60',
                 bitrate='20000', codec='auto', app='Desktop', latency='50')
-CHOICES = dict(mode=('receive','pair'), method=('airplay', 'moonlight', 'miracast'), rotation=('0','90','180','270'),
+CHOICES = dict(mode=('receive','pair'), method=('airplay', 'moonlight', 'miracast', 'steamlink'), rotation=('0','90','180','270'),
                decoder=('auto','software','hardware'), codec=('auto','h264','hevc','av1'))
 
 def settings(raw):
@@ -37,12 +37,22 @@ def settings(raw):
             raise ValueError(f'{key} must be between {low} and {high}')
     if result['app'].startswith('-'):
         raise ValueError('Application name cannot be an option')
-    if result['mode'] == 'pair' and result['method'] != 'moonlight':
-        raise ValueError('Pairing GUI is only available for Moonlight')
+    if result['mode'] == 'pair' and result['method'] not in ('moonlight','steamlink'):
+        raise ValueError('Pairing GUI is only available for Moonlight and Steam Link')
     if result['method'] == 'moonlight' and result['mode'] != 'pair' and 'host' not in result:
         raise ValueError('Moonlight requires a host; pair using its GUI before streaming')
     if result['method'] == 'miracast' and 'wifi_interface' not in result:
         raise ValueError('Experimental Miracast requires a dedicated wifi-interface')
+    if result['method'] == 'steamlink':
+        if result['codec'] == 'av1':
+            raise ValueError('Steam Link ARM64 test runtime supports H264/HEVC, not AV1')
+        if result['decoder'] == 'software' and result['codec'] == 'hevc':
+            raise ValueError('Steam Link software fallback requires codec h264 or auto')
+        if w > 1920 or h > 1080 or int(result['fps']) > 60:
+            raise ValueError('Steam Link qualified range is at most 1920x1080 at 60 fps')
+        if 'host' in raw or 'app' in raw:
+            raise ValueError('Steam Link selects its paired host in its GUI; host/app are Moonlight-only')
+        result.pop('app')  # Do not serialize a Moonlight-only default into the Steam config.
     return result
 
 def environment(config):
@@ -68,6 +78,14 @@ def environment(config):
         raise ValueError('Explicit matching DRM card device grant required')
     if cfg['method'] == 'miracast' and not {'net-admin', 'net-raw'}.issubset(config.get('capability', [])):
         raise ValueError('Experimental Miracast requires explicit capabilities net-admin and net-raw')
+    if cfg['method'] == 'steamlink':
+        if 'mknod' not in config.get('capability', []):
+            raise ValueError('Steam Link private heap alias requires explicit capability mknod')
+        heap = '/dev/dma_heap/system'
+        if not any(d.get('source') == heap and d.get('destination') == heap for d in devices):
+            raise ValueError('Steam Link needs an explicit /dev/dma_heap/system grant')
+        if any(d.get('destination') == '/dev/dma_heap/vidbuf_cached' for d in devices):
+            raise ValueError('Steam Link creates its own private heap alias; remove vidbuf_cached grant')
     encoded = base64.b64encode(json.dumps(cfg).encode()).decode()
     return [f'Environment=G_RECEIVER_CONFIG="{encoded}"']
 
@@ -102,6 +120,7 @@ def verify_image(image):
     data = json.loads(read_command('podman', 'image', 'inspect', image))
     if not data or data[0].get('Config', {}).get('Labels', {}).get('io.vyarm.receiver.version') != '1':
         raise ValueError('Load a compatible profile G runtime image before committing')
+    return data[0]['Config']['Labels'].get('io.vyarm.receiver.methods','').split(',')
 
 def verify_all(containers, interfaces=None, probe=wifi_report, image_probe=verify_image):
     """Prevent configured display conflicts and ownership of a routed/AP radio."""
@@ -111,8 +130,10 @@ def verify_all(containers, interfaces=None, probe=wifi_report, image_probe=verif
             continue
         if 'receiver' in cfg:
             environment(cfg)
-            image_probe(cfg.get('image', ''))
+            methods = image_probe(cfg.get('image', ''))
             receiver = settings(cfg['receiver'])
+            if receiver['method'] == 'steamlink' and (methods is None or 'steamlink-experimental' not in methods):
+                raise ValueError('Load a G runtime with the pinned Steam Link adapter')
             if receiver['method'] == 'miracast':
                 report = probe(receiver['wifi_interface'])
                 wireless = (interfaces or {}).get('wireless',{})

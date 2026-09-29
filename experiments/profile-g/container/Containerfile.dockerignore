@@ -10,3 +10,9 @@
 !experiments/kiosk-f/container/
 !experiments/kiosk-f/container/kiosk-wayland.py
 !experiments/kiosk-f/container/kiosk-audio.py
+
+!experiments/profile-g/container/*.sh
+!experiments/profile-g/container/steamlink/
+!experiments/profile-g/container/steamlink/**
+!experiments/profile-g/container/ffmpeg-rps/
+!experiments/profile-g/container/ffmpeg-rps/**

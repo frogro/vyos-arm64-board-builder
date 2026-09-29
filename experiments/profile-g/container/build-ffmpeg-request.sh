@@ -8,6 +8,9 @@ git remote add origin https://github.com/jernejsk/FFmpeg.git
 git fetch --depth=1 origin "$revision"
 git checkout --detach FETCH_HEAD
 test "$(git rev-parse HEAD)" = "$revision"
+git apply --check /tmp/ffmpeg-rps/0002-exact-7.1-backport.patch
+git apply /tmp/ffmpeg-rps/0002-exact-7.1-backport.patch
+install -m644 /tmp/ffmpeg-rps/v4l2-hevc-rps-compat.h libavcodec/v4l2-hevc-rps-compat.h
 ./configure --prefix=/opt/ffmpeg-request --enable-shared --disable-static \
  --disable-doc --disable-debug --disable-autodetect --enable-libdrm \
  --enable-v4l2-request --disable-everything --enable-avcodec \
@@ -23,3 +26,5 @@ install -m644 /dev/null /request-out/opt/ffmpeg-request/source-commit.txt
 printf '%s\n' "$revision" > /request-out/opt/ffmpeg-request/source-commit.txt
 LD_LIBRARY_PATH=/request-out/opt/ffmpeg-request/lib \
  /request-out/opt/ffmpeg-request/bin/ffmpeg -hide_banner -hwaccels | grep -x v4l2request
+
+cp -r /tmp/ffmpeg-rps /request-out/opt/ffmpeg-request/patches

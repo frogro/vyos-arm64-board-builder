@@ -85,7 +85,7 @@ def main():
         os.chown(runtime/'pulse',user.pw_uid,user.pw_gid)
         audio.start()
         if cfg['method']=='miracast':
-            wifi=launch(['miracle-wifid','--interface',cfg['wifi_interface']])
+            wifi=launch(['miracle-wifid','--use-dev','--interface',cfg['wifi_interface']])
             radio_owned=True
             index=(Path('/sys/class/net')/cfg['wifi_interface']/'ifindex').read_text().strip()
             def link_ready():
@@ -114,7 +114,13 @@ def main():
             else:
                 raise RuntimeError('Miracast P2P discovery did not become ready')
         else:
-            receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' else command(cfg)),
+            if cfg['method']=='steamlink':
+                from steamlink import private_heap
+                private_heap(user.pw_uid,user.pw_gid)
+                xwayland=launch(as_user+['Xwayland',':9','-ac','-nolisten','tcp','-noreset','-fullscreen','-shm'])
+                wait_ready(lambda:Path('/tmp/.X11-unix/X9').is_socket(),xwayland,'XWayland')
+                os.environ['DISPLAY']=':9'
+            receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' and cfg['method']=='moonlight' else command(cfg)),
                             env=receiver_environment(cfg))
         print(json.dumps({'method':cfg['method'],'output':selected,'status':'started-not-stream-verified'}),flush=True)
         essential=[p for p in children if p is not audio.process]
@@ -126,7 +132,7 @@ def main():
         for child in reversed(children):
             try:os.killpg(child.pid,signal.SIGTERM)
             except ProcessLookupError:pass
-        for child in reversed(children):
+            # Keep audio, XWayland and the compositor alive until their client exits.
             try:child.wait(timeout=3)
             except subprocess.TimeoutExpired:
                 try:os.killpg(child.pid,signal.SIGKILL)

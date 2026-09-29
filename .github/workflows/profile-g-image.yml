@@ -2,11 +2,13 @@ name: ROCK 5B A-D-F-G full test image
 run-name: "ROCK 5B A-D/F/G SD and ISO integration test"
 on:
   push:
-    branches: [feature/profile-g]
+    branches: [feature/profile-g, "test/profile-g-*"]
     paths:
       - '.github/workflows/profile-g-image.yml'
       - 'experiments/profile-g/image/**'
-      - 'experiments/profile-g/ci/**'
+      - 'experiments/profile-g/**'
+      - 'tools/create-system-image-iso.sh'
+  workflow_dispatch:
 permissions:
   contents: write
   actions: read
@@ -14,7 +16,7 @@ defaults:
   run:
     shell: bash
 concurrency:
-  group: profile-g-full-image
+  group: profile-g-full-image-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   image:

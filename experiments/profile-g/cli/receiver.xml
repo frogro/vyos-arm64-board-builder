@@ -3,15 +3,15 @@
     <help>Profile G local display receiver; dedicated runtime required</help>
   </properties>
   <children>
-    <leafNode name="mode"><properties><help>Receive a stream or open Moonlight pairing GUI</help><completionHelp><list>receive pair</list></completionHelp><constraint><regex>(receive|pair)</regex></constraint></properties></leafNode>
+    <leafNode name="mode"><properties><help>Receive a stream or open Moonlight/Steam Link pairing GUI</help><completionHelp><list>receive pair</list></completionHelp><constraint><regex>(receive|pair)</regex></constraint></properties></leafNode>
     <leafNode name="method">
       <properties>
-        <help>Receiver protocol; Miracast is experimental</help>
+        <help>Receiver protocol; Miracast and Steam Link are experimental</help>
         <completionHelp>
-          <list>airplay moonlight miracast</list>
+          <list>airplay moonlight miracast steamlink</list>
         </completionHelp>
         <constraint>
-          <regex>(airplay|moonlight|miracast)</regex>
+          <regex>(airplay|moonlight|miracast|steamlink)</regex>
         </constraint>
       </properties>
     </leafNode>
@@ -84,16 +84,16 @@
     </leafNode>
     <leafNode name="bitrate">
       <properties>
-        <help>Moonlight Kbit/s (default 20000)</help>
+        <help>Moonlight/Steam Link Kbit/s (default 20000)</help>
         <valueHelp>
           <format>txt</format>
-          <description>Moonlight Kbit/s (default 20000)</description>
+          <description>Moonlight/Steam Link Kbit/s (default 20000)</description>
         </valueHelp>
       </properties>
     </leafNode>
     <leafNode name="codec">
       <properties>
-        <help>Moonlight codec preference</help>
+        <help>Moonlight/Steam Link codec preference (Steam Link: auto H264, h264 or hevc)</help>
         <completionHelp>
           <list>auto h264 hevc av1</list>
         </completionHelp>

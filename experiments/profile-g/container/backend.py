@@ -44,6 +44,8 @@ def command(cfg):
                 '--video-decoder',cfg['decoder'],'--video-codec',
                 {'auto':'auto','h264':'H.264','hevc':'HEVC','av1':'AV1'}[cfg['codec']],
                 '--capture-system-keys','never']
+    if cfg['method'] == 'steamlink':
+        return ['python3','/opt/profile-g/steamlink.py']
     raise ValueError('Miracast uses its separate privileged network controller')
 
 if __name__ == '__main__':
