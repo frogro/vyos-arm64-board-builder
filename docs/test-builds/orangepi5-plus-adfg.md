@@ -1,7 +1,8 @@
 # Orange Pi 5 Plus A–D/F/G integration candidate
 
-- Base: `main` at `ed9e182` (includes `70e1ac3` B multimedia modules,
-  `d5a8136` EDK2, logging/firstboot fixes).
+- Base: `main` at `f3e3ed0` (includes board-scoped DP video/audio,
+  RK3588 decoder and experimental CSI/ISP backports, firmware aliases,
+  thermal and ConfigFS corrections, EDK2 and logging/firstboot fixes).
 - Imported integration: `test/profile-g-steamlink-integration-20260929`
   at `e6e3add`; no merge into main.
 - Branch: `test/orangepi5-plus-adfg`.
