@@ -584,3 +584,35 @@ stopped and analog default audio restored. 23 existing Profile G tests pass.
 The private diagnostic libraries remain optional on the live system. They
 are not integrated into the image/main. For reproducible settings and
 production caveats see live-test/MOONLIGHT-HARDWARE.md.
+
+
+### AirPlay live user acceptance, 2026-09-29
+
+User accepted the AirPlay part of Profile G after testing an iPhone on
+VyOS-AP: Photos video with very good picture quality and audio, full iPhone
+screen mirroring, and YouTube in the browser. Small subjective latency was
+acceptable; no end-to-end latency or objective A/V offset measurement was
+made. UxPlay 1.74 used v4l2slh264dec, Wayland and the private HDMI Pulse sink.
+PIN pairing and subsequent receiver recreation retained the client register.
+The reported video-test exit at 10:29:31 was the five-minute recovery timer,
+not an observed crash. Later trials used a fifteen-minute recovery timer.
+
+A live comparison replaced `-vs "waylandsink fullscreen=true"` with
+`-vs waylandsink -fs`. User reported no visible change in borders; both
+forms still emitted gst_wl_window_ensure_fullscreen assertion warnings.
+Fullscreen with preserved aspect ratio remains the intended TV default.
+No automatic cropping/stretching is accepted or implemented. The precise
+source of the four-sided browser-video borders was not measured; nested
+letterboxing remains a hypothesis. Do not claim -fs fixes this issue.
+
+Apple TV protected content produced audio only, consistent with UxPlay's
+documented lack of support for Apple video DRM. This limitation is part of
+the accepted scope, not a passed protected-video test. Direct YouTube app
+HLS (-hls) was not enabled or tested; user deferred it. Long-duration tests,
+startup-warning cleanup, and repeating acceptance on the final SD/ISO remain
+outstanding. Acceptance applies to live tested AirPlay functionality, not
+all G methods or full-image release qualification.
+
+Temporary live session changes (line-buffered logging, a fixed test PIN,
+and -fs comparison) are not production defaults and are not included in
+the current build. Do not carry the fixed diagnostic PIN into production.

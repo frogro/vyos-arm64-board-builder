@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 import base64
 import copy
 import importlib.util
@@ -124,12 +125,31 @@ class Source(unittest.TestCase):
             root=Path(d)
             for name in ('src/conf_mode','interface-definitions','python/vyos'):(root/name).mkdir(parents=True)
             owner=root/'src/conf_mode/container.py'
-            owner.write_text("from vyos import ConfigError\ndef verify(container):\n    # Add new container\n    pass\ndef generate(container_config):\n    out = []\n    if 'health_check' in container_config:\n        pass\n    return out\n")
+            owner.write_text("from vyos import ConfigError\ndef get_config(config=None):\n    conf = config\n    container = conf.get_config_dict(['container'])\n    return container\ndef verify(container):\n    # Add new container\n    pass\ndef generate(container_config):\n    out = []\n    if 'health_check' in container_config:\n        pass\n    return out\n")
             schema=root/'interface-definitions/container.xml.in'
             schema.write_text('<interfaceDefinition><node name="container"><children>\n          <leafNode name="allow-host-pid"><properties><help>existing</help></properties></leafNode>\n</children></node></interfaceDefinition>')
             prep.prepare(root)
             self.assertIn('allow-host-pid',schema.read_text());self.assertIn('receiver',schema.read_text())
             compile(owner.read_text(),str(owner),'exec')
+            # Config collection must use the supplied transaction, never reread
+            # global Config in verify (required by VyOS configd).
+            import ast
+            tree=ast.parse(owner.read_text())
+            nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)]
+            namespace={'receiver':SimpleNamespace(verify_all=lambda c,i: seen.append(i)),
+                       'ConfigError':ValueError,'subprocess':__import__('subprocess')}
+            exec(compile(ast.Module(body=nodes,type_ignores=[]),'<prepared>','exec'),namespace)
+            interfaces={'wireless':{'wlan0':{'type':'access-point'}}}
+            for enabled in (False,True):
+                calls=[];seen=[]
+                cfg={'name':{'test':{'receiver':{}}}} if enabled else {}
+                def get_config_dict(path,**kwargs):
+                    calls.append(path)
+                    return cfg if path==['container'] else interfaces
+                result=namespace['get_config'](SimpleNamespace(get_config_dict=get_config_dict))
+                namespace['verify'](result)
+                self.assertEqual(calls,[['container'],['interfaces']] if enabled else [['container']])
+                self.assertEqual(seen,[interfaces if enabled else {}])
             with self.assertRaises(ValueError):prep.prepare(root)
     def test_existing_profile_combinations_unchanged(self):
         feature=load('feature','tools/feature-profile.py')

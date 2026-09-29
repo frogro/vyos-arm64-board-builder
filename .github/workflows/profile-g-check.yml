@@ -20,6 +20,7 @@ jobs:
           git fetch origin main
           python3 experiments/kiosk-f/ci/check-main-preservation.py origin/main
           python3 -m unittest discover -s experiments/profile-g/tests -v
+          python3 experiments/profile-g/ci/check-native-cli.py
           python3 -m unittest discover -s experiments/kiosk-f/tests
           python3 tests/test-vyos-1x-profile.py
           python3 tests/test-kvm-cli.py

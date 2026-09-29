@@ -32,6 +32,7 @@ jobs:
           git diff --exit-code dba06ef52ebcb081e4e2725ab9b17a90c25f0671 HEAD -- experiments/kiosk-f/container experiments/kiosk-f/sunshine experiments/kiosk-f/image experiments/kiosk-f/host experiments/kiosk-f/systemd tools/kvm tools/tailscale
           git diff --exit-code 47951b8a4ba7d32867ad7f1a4035a3e404c45bb5 HEAD -- experiments/kiosk-f/panthor-test/build.sh experiments/kiosk-f/panthor-test/inputs.sha256 experiments/kiosk-f/sunshine/cached-maps tools/build-vyos-oot-modules.sh
           python3 -m unittest discover -s experiments/profile-g/tests -v
+          python3 experiments/profile-g/ci/check-native-cli.py
           git fetch origin main
           python3 experiments/kiosk-f/ci/check-main-preservation.py origin/main
           python3 experiments/kiosk-f/ci/check-cli-recipe.py
