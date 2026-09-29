@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-[[ $BOARD == orangepi5-plus ]]
+case "$BOARD" in rock-5b|orangepi5-plus) ;; *) exit 1 ;; esac
 image=${1:?Image required}
 loop=$(losetup --find --show --read-only --partscan "$image")
 verify=$(mktemp -d)
@@ -14,8 +14,12 @@ unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/receiver-runtime/ru
 unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json > "$verify/f.json"
 unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env > "$verify/gadget.env"
 source "$verify/gadget.env"
-[[ "$KVM_GADGET_DEFAULT_PORT" == usbc && "$KVM_GADGET_UDC_USBC" == fc000000.usb ]]
-! grep -q fc400000 "$verify/gadget.env"
+if [[ $BOARD == orangepi5-plus ]]; then
+ [[ "$KVM_GADGET_DEFAULT_PORT" == usbc && "$KVM_GADGET_UDC_USBC" == fc000000.usb ]]
+ ! grep -q fc400000 "$verify/gadget.env"
+else
+ [[ "$KVM_GADGET_DEFAULT_PORT" == dedicated && "$KVM_GADGET_UDC_DEDICATED" == fc400000.usb ]]
+fi
 python3 - "$verify" <<'PY'
 import json,os,pathlib,sys
 p=pathlib.Path(sys.argv[1]);g=json.loads((p/'g.json').read_text());f=json.loads((p/'f.json').read_text())

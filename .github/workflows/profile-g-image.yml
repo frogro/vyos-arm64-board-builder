@@ -2,7 +2,7 @@ name: ROCK 5B A-D-F-G full test image
 run-name: "ROCK 5B A-D/F/G SD and ISO integration test"
 on:
   push:
-    branches: [feature/profile-g, "test/profile-g-*"]
+    branches: [feature/profile-g]
     paths:
       - '.github/workflows/profile-g-image.yml'
       - 'experiments/profile-g/image/**'

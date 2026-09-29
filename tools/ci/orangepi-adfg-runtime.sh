@@ -1,7 +1,8 @@
 #!/bin/bash
 # Native ARM64, isolated CI runner. Reuse only checksummed userspace inputs.
 set -euo pipefail
-[[ $(uname -m) == aarch64 && "$BOARD" == orangepi5-plus ]]
+[[ $(uname -m) == aarch64 ]]
+case "$BOARD" in rock-5b|orangepi5-plus) ;; *) exit 1 ;; esac
 cd /work
 mkdir inputs
 for asset in runtime-kernel-inputs.tar.gz sunshine-source.tar.gz cli-builder.tar.gz; do

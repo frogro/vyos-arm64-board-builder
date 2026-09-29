@@ -38,7 +38,7 @@ class BaseHardware(unittest.TestCase):
         rock=self.selection('rock-5b','no','no')
         orange=self.selection('orangepi5-plus','no','no')
         self.assertEqual(rock[3],orange[3])
-        self.assertEqual('',rock[4])
+        self.assertTrue(rock[4].endswith('/rock-5b'))
         self.assertTrue(orange[4].endswith('/orangepi5-plus'))
         self.assertIn('panthor',(ROOT/orange[2]).read_text())
         registry=(ROOT/'profiles/kvm-hardware-providers.conf').read_text()

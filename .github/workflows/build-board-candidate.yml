@@ -422,7 +422,7 @@ jobs:
 
           df -h
 
-      - name: Build complete F and G runtimes for Orange Pi
+      - name: Build complete F and G runtimes for the selected RK3588 board
         if: inputs.kiosk_f || inputs.receiver_g
         env:
           GH_TOKEN: ${{ github.token }}
@@ -469,7 +469,7 @@ jobs:
 
           df -h
 
-      - name: Verify complete Orange Pi SD/eMMC rootfs before ISO packaging
+      - name: Verify complete board SD/eMMC rootfs before ISO packaging
         if: inputs.kiosk_f || inputs.receiver_g
         run: sudo --preserve-env=BOARD,GITHUB_SHA bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 

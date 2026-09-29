@@ -14,6 +14,10 @@ board_hardware_select() {
             BOARD_BASE_PATCHES="profiles/base-hardware/kernel-patches/rk3588-synopsys-hdmirx"
             ;;
     esac
+    if [[ "$board" == rock-5b ]]; then
+        BOARD_BASE_MODULES="profiles/base-hardware/rock-5b-modules.txt"
+        BOARD_PERIPHERAL_PATCHES="profiles/base-hardware/kernel-patches/rock-5b"
+    fi
     if [[ "$board" == orangepi5-plus ]]; then
         BOARD_BASE_MODULES="profiles/base-hardware/orangepi5-plus-modules.txt"
         BOARD_PERIPHERAL_PATCHES="profiles/base-hardware/kernel-patches/orangepi5-plus"
