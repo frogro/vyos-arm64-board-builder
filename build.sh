@@ -230,7 +230,11 @@ main() {
             die "Conflicting B/D kernel patch providers"
         hardware_patch_dir="${b_patch_dir}"
     fi
-    vyos_kernel_prepare "${kernel_version}" "${hardware_patch_dir}"
+    local peripheral_patch_dir=""
+    if [[ "${extended_network}" == yes && "${board}" == orangepi5-plus ]]; then
+        peripheral_patch_dir="profiles/b-hardware/kernel-patches/orangepi5-plus"
+    fi
+    vyos_kernel_prepare "${kernel_version}" "${hardware_patch_dir}" "${peripheral_patch_dir}"
 
     if ! kernel_source="$(find_vyos_kernel_source "$kernel_version")"; then
         die "Prepared VyOS kernel source not found: cache/linux-vyos/linux-${kernel_version}"

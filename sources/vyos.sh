@@ -142,6 +142,9 @@ vyos_kernel_prepare() {
     local version="$1"
     local provider_patch_dir="${2:-}"
     local provider_patch_id="${2:-none}"
+    local peripheral_patch_dir="${3:-}"
+    local peripheral_patch_id="${3:-none}"
+    local peripheral_patch_hash
 
     local cache="${ROOT_DIR}/cache/linux-vyos"
     local source="${cache}/linux-${version}"
@@ -166,6 +169,13 @@ vyos_kernel_prepare() {
         die "Hardware-provider kernel patch directory not found: ${provider_patch_dir}"
     fi
 
+    if [[ -n "${peripheral_patch_dir}" && "${peripheral_patch_dir}" != /* ]]; then
+        peripheral_patch_dir="${ROOT_DIR}/${peripheral_patch_dir}"
+    fi
+    [[ -z "${peripheral_patch_dir}" || -d "${peripheral_patch_dir}" ]] ||
+        die "Board peripheral patch directory missing: ${peripheral_patch_dir}"
+    peripheral_patch_hash="$(vyos_patch_dir_hash "${peripheral_patch_dir}")"
+
     stamp="${source}/.vyos-kernel-prepared"
     vyos_commit="$(git -C "$(vyos_source_dir)" rev-parse HEAD)"
     builder_commit="$(git -C "${ROOT_DIR}" rev-parse HEAD 2>/dev/null || printf 'unknown')"
@@ -178,7 +188,9 @@ vyos_kernel_prepare() {
        grep -qx "builder_commit=${builder_commit}" "${stamp}" &&
        grep -qx "local_patch_hash=${local_patch_hash}" "${stamp}" &&
        grep -Fqx "provider_patch_id=${provider_patch_id}" "${stamp}" &&
-       grep -Fqx "provider_patch_hash=${provider_patch_hash}" "${stamp}"; then
+       grep -Fqx "provider_patch_hash=${provider_patch_hash}" "${stamp}" &&
+       grep -Fqx "peripheral_patch_id=${peripheral_patch_id}" "${stamp}" &&
+       grep -Fqx "peripheral_patch_hash=${peripheral_patch_hash}" "${stamp}"; then
         info "VyOS kernel source already prepared: ${source}"
         return 0
     fi
@@ -336,6 +348,13 @@ vyos_kernel_prepare() {
         )
     fi
 
+    if [[ -n "${peripheral_patch_dir}" ]]; then
+        while IFS= read -r patch_file; do
+            info "Applying board peripheral patch $(basename "${patch_file}")"
+            patch --batch --forward --fuzz=0 -d "${source}" -p1 < "${patch_file}"
+        done < <(find "${peripheral_patch_dir}" -maxdepth 1 -type f -name '*.patch' -print | sort)
+    fi
+
     #
     # Match the VyOS kernel builder's certificate identity adjustment.
     #
@@ -353,6 +372,8 @@ vyos_kernel_prepare() {
         echo "local_patch_hash=${local_patch_hash}"
         echo "provider_patch_id=${provider_patch_id}"
         echo "provider_patch_hash=${provider_patch_hash}"
+        echo "peripheral_patch_id=${peripheral_patch_id}"
+        echo "peripheral_patch_hash=${peripheral_patch_hash}"
     } > "${stamp}"
 
     info "VyOS kernel source prepared successfully."

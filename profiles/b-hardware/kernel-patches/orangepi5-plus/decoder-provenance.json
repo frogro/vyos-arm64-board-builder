@@ -1,0 +1,155 @@
+{
+  "stable_base": "gregkh/linux v6.18.50",
+  "rock_archive": "adf-compare-inputs-20260927/panthor-kernel-source.tar.gz",
+  "rock_archive_sha256": "8036434daba6a8f5dec0455ec859f2e2d193e654cae46c35637aa713aa3f9c85",
+  "files": {
+    "drivers/media/platform/rockchip/rkvdec/Kconfig": {
+      "before_sha256": "bc11ecb0ff0b28b75a2ba4dc753800f71ef9df348455c51dd70deed4b016c84f",
+      "after_sha256": "bc11ecb0ff0b28b75a2ba4dc753800f71ef9df348455c51dd70deed4b016c84f",
+      "diff_lines": 0
+    },
+    "drivers/media/platform/rockchip/rkvdec/Makefile": {
+      "before_sha256": "9157230bfe2c19266cf6a11f9f4f8f2686dbb61d070c5a6cb74bf8e8f79b23a8",
+      "after_sha256": "93732c503c4bd519f3e8ad1c61d9d17bcef5ef4f521b1c3efbe9cef2192d5087",
+      "diff_lines": 21
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-cabac.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "5e3fbcd5e454f9215e357beaa3280a8da568f664c7af8a319fff1185a54c3e3a",
+      "diff_lines": 2347
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-cabac.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "8bd70311b6e846d509ee68cece164a49c334c7b9f125d4ea5ad25ee201f337a0",
+      "diff_lines": 24
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264-common.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "bb83f83fd72e1bfbc217aef0baa1cf9ff9693fe788341ed912504da212290007",
+      "diff_lines": 261
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264-common.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "39bc5be6248099695a5f039a28ada97ec3ae4d2af6f9dbc7b2ef13910a3faa87",
+      "diff_lines": 88
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-h264.c": {
+      "before_sha256": "5238514e669d089c3e37c66dc0510b093e099d445414ef1ec45c859019bcae0b",
+      "after_sha256": "e4971ff1410bc452dc0c40494b97e2ce4ff5d924e0b8663d1f41600f579f82b1",
+      "diff_lines": 1037
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc-common.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "a4c57ec75003456a28d0f98afd88898888dc8e72aba654b171d7e3dfd15acc0a",
+      "diff_lines": 527
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc-common.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "ab57504583bc58e4b07247bdf07706d873de29bfdfcb372b056c8c1b2ab99b60",
+      "diff_lines": 110
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-hevc.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "7ece5d43d48980054f499d722e9a4fb8bbb830df0105a1f42f27f36676fbd45e",
+      "diff_lines": 618
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-rcb.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "223b6d2256fed6b57f34b7fa7e58e5f2643545401d2072f9ba18a250a99c8296",
+      "diff_lines": 200
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-rcb.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "3566c39ab00d00f16f6ebef50b57e083f52aa14c7af5df9b21bd38b6d6d09be8",
+      "diff_lines": 33
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-regs.h": {
+      "before_sha256": "49615ca14f56b1d5f66992f8caa256a052d0baa0014e2c2dc07de3c721134af0",
+      "after_sha256": "5e0efa94888196060dc0e7baa286ec0b30bda466fb6dd4be11ba9b6fa46a988b",
+      "diff_lines": 607
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-h264.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "40a44d7292a216d59ebded41679e8e5093ea1a61d578b34d8f91c9974f0e03ce",
+      "diff_lines": 472
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-hevc.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "3addcedf0f8abe542853b8ba684ed13799a4640c9362df198d2f5404438e0ec2",
+      "diff_lines": 644
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-regs.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e0796abf0d00770dc766998af4b67d01416d2bc12c5dafe3effac995b43cddc4",
+      "diff_lines": 667
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu381-vp9.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "b7aeab25deda8ef23b496f23672e3211d24d8c79ba87fa089cdcf4794128a902",
+      "diff_lines": 1070
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-h264.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "07318b6ee6064e8568eb566511693cf3a111e425bee59b9c9db8befe3c8a2131",
+      "diff_lines": 545
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-hevc.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "ddcdcad9eb717d0a31b1346ac30874bd968a2faa528cce0dcd8e3f5cb09df604",
+      "diff_lines": 655
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vdpu383-regs.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "4bfec8d37d0737150576816a390b41631c7971ba9f71d3b843c4203886cfa919",
+      "diff_lines": 284
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vp9-common.c": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "f138feccf0e666b970ff58a0545ff991596a397978cf09ca8f7b8c6fcfcc1ce8",
+      "diff_lines": 68
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vp9-common.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "659f6cb17163017664fa817c656de638aa21e6078bb63111572186d7ea44d506",
+      "diff_lines": 95
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec-vp9.c": {
+      "before_sha256": "1736516b121d865c2150fbac11dd83759b01e9b53aef5be5998241c6d4628f6f",
+      "after_sha256": "d5b183227b74168f89c7fe6dba417b457e1b302ca2cf8f7ab548e8707ab8aa26",
+      "diff_lines": 543
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec.c": {
+      "before_sha256": "8f43eb4baa208edc0e4bf9c7b5b2333989b696d853c5e28afbf3e46f66c1a4ed",
+      "after_sha256": "56d104ffa28777327306de214c56de372c4a1caca06237bf9cbab97ea05253dc",
+      "diff_lines": 1134
+    },
+    "drivers/media/platform/rockchip/rkvdec/rkvdec.h": {
+      "before_sha256": "085a1e5ccc89ea652bc56618b839457f67a0d984d91edc8d9637e6a94e0c6cc5",
+      "after_sha256": "28a6528c2f980799186c2a82f9e6567bd96273c7190b0a7ee1795526fedf864e",
+      "diff_lines": 113
+    },
+    "drivers/media/v4l2-core/v4l2-ctrls-core.c": {
+      "before_sha256": "d1657074f878c786f1337567caf3373ee9eb8ace203283f5f55224d97bf36283",
+      "after_sha256": "3362d851131d606c489d82510ff4d84f6135951636b5520fdd194df943cbe4ae",
+      "diff_lines": 94
+    },
+    "drivers/media/v4l2-core/v4l2-ctrls-defs.c": {
+      "before_sha256": "9341bf36249ea744eda60c2f89045589b49fc6fe6fb4364287b1914d2c228007",
+      "after_sha256": "4321dd805d7b436823c71812871f7dccb3522dcc02e02e1e2e70bf041808e47e",
+      "diff_lines": 26
+    },
+    "include/media/v4l2-hevc.h": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "8b9f926f4ffe90de849155dd44aa68132ffe58785f6b9e941de78a6385858c8e",
+      "diff_lines": 44
+    },
+    "include/uapi/linux/v4l2-controls.h": {
+      "before_sha256": "dd81a8654b85f1b3ca95451c689b59a015a465d0c02fa96589af0322d5bb7db0",
+      "after_sha256": "36d6efd6e831bf0a3cc59a869817bbe9d73a857cec6079ae0c097a340e221423",
+      "diff_lines": 77
+    },
+    "include/uapi/linux/videodev2.h": {
+      "after_sha256": "6d678b09cd6ccac43cb5c8567563bd431785274db0e8cbf7cbe9d859225cbe12"
+    }
+  }
+}
