@@ -542,6 +542,7 @@ fi
 source /opt/vyatta/etc/functions/script-template
 source "$(dirname "$(readlink -f "$0")")/setup-transaction.sh"
 configure || { echo "ERROR: Cannot enter configuration mode." >&2; builtin exit 1; }
+setup_session_guard
 
 echo "[1/2] Replacing the selected AP configuration ..."
 # Preserve other independently configured wireless interfaces.
