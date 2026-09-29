@@ -7,6 +7,9 @@ trap 'rm -rf "$WORK"' EXIT
 
 # The finalizer patches the native timezone handler shipped by vyos-1x.
 seed_timezone() {
+    mkdir -p "$1/etc" "$1/usr/lib/aarch64-linux-gnu"
+    printf 'hosts: files dns #myhostname\n' > "$1/etc/nsswitch.conf"
+    touch "$1/usr/lib/aarch64-linux-gnu/libnss_myhostname.so.2"
     mkdir -p "$1/usr/libexec/vyos/conf_mode"
     printf "def apply():\n        tmp = systemd_services['syslog']\n        call(f'systemctl restart {tmp}')\n" > "$1/usr/libexec/vyos/conf_mode/system_host-name.py"
     mkdir -p "$1/usr/libexec/vyos/conf_mode"

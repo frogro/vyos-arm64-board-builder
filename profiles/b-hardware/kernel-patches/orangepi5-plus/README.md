@@ -66,3 +66,18 @@ extended-network and ten hardware-provider tests pass. Full kernel link/modpost,
 SD/ISO build and USB-C display/audio acceptance remain pending. Test stereo PCM
 first, then repeated playback stop/start, modesets, hotplug and shutdown while
 checking ALSA/DP errors. This change does not establish multichannel acceptance.
+
+## Deferred power-supply diagnostics (0005)
+
+The live f3e3ed0 boot reported -517 during early regulator acquisition. The
+kernel defines this as EPROBE_DEFER. GPU domain 12 depends on the RK806 PMIC
+(spi2.0); NPU domain 8 depends on the FAN53555-family regulator at 1-0042.
+Both suppliers and the GPU/NPU domains were present after boot, with no
+remaining deferred devices. The local 0005 patch uses dev_err_probe at the
+existing failure return: retry/error semantics are preserved, deferred probes
+use debug logging, and other regulator failures remain errors. It does not
+suppress the separate firmware device-link warnings or alter power sequencing.
+
+Validation: fuzz=0 dry-run on the available 6.18 source passed. New-kernel
+compilation and boot validation remain pending. This is a diagnostic adjustment,
+not additional hardware support or proof of GPU/NPU workload stability.

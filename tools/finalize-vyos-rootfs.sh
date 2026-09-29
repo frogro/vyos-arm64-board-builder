@@ -227,6 +227,9 @@ fi
 # Preserve native syslog startup order during initial timezone application.
 python3 "$ROOT/tools/patch-vyos-syslog-start.py" --rootfs "$ROOTFS"
 
+# Native early hostname setup precedes vyos-hostsd and its /etc/hosts update.
+python3 "$ROOT/tools/patch-vyos-hostname-resolution.py" --rootfs "$ROOTFS"
+
 # A virtual-media backing ISO is held by the kernel until gadget teardown.
 # Release it before /config and the live persistence filesystem are unmounted.
 if [[ "$KVM_OVER_IP" == yes ]]; then

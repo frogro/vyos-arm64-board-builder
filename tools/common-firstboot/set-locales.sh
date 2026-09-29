@@ -7,7 +7,7 @@
 #   chmod +x /home/vyos/set-locales.sh
 #   /home/vyos/set-locales.sh
 #
-# Do not run with sudo, sudo bash, or bash.
+# Do not run with sudo. An explicit bash invocation is redirected to vbash.
 
 set -o pipefail
 # Non-login SSH invocations may omit administrative program directories.
@@ -20,6 +20,15 @@ export LC_ALL=C.UTF-8
 if [ "$(id -u)" -eq 0 ]; then
     echo 'Please run this script as the "vyos" user, not as root.'
     builtin exit 1
+fi
+
+# Configuration commands require the VyOS shell and configuration group.
+if [ "$(id -g -n)" != vyattacfg ]; then
+    printf -v _locale_cmd '%q ' /bin/vbash "$(readlink -f "$0")" "$@"
+    exec sg vyattacfg -c "$_locale_cmd"
+fi
+if [ "$(readlink -f /proc/$$/exe)" != "$(readlink -f /bin/vbash)" ]; then
+    exec /bin/vbash "$(readlink -f "$0")" "$@"
 fi
 
 [ -r /opt/vyatta/etc/functions/script-template ] || {
@@ -85,6 +94,7 @@ if ! ask_yes_no 'Apply these settings?' 'y'; then
 fi
 
 configure || fail 'Could not enter configuration mode.'
+[ -n "${VYATTA_CONFIG_TMP:-}" ] && [ -d "$VYATTA_CONFIG_TMP" ] || fail 'No valid VyOS configuration session was created.'
 
 CONFIG_FAILED=0
 set system time-zone "$TZ_VALUE" || CONFIG_FAILED=1
@@ -105,7 +115,7 @@ fi
 
 echo
 echo '=== Proposed changes ==='
-CHANGES="$(compare 2>/dev/null || true)"
+CHANGES="$(compare)" || fail 'Could not compare the configuration.'
 printf '%s\n' "$CHANGES"
 
 NO_CONFIG_CHANGES=0
@@ -131,7 +141,7 @@ if [ "$NO_CONFIG_CHANGES" -eq 0 ]; then
         builtin exit 1
     fi
 
-    if ! save; then
+    if ! save /config/config.boot; then
         echo 'ERROR: Save failed.' >&2
         discard 2>/dev/null || true
         builtin exit 1
