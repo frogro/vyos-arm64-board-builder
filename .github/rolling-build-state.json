@@ -133,7 +133,7 @@
         "orangepi5-plus": {
           "dispatched": true,
           "run_id": 36639973146,
-          "status": "queued",
+          "status": "in_progress",
           "conclusion": null,
           "run_attempt": 1,
           "note": "First public A/B build with registered community update channel; verified matching raw base reused."
