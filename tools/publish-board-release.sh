@@ -18,18 +18,20 @@ PYMANIFEST
         --manifest "$BUILD_ROOT/board-manifest.json" --iso "$BUILD_ROOT/$RELEASE_BASENAME.iso" \
         --tag "$RELEASE_TAG" --version "$VYOS_VERSION" --output "$BUILD_ROOT/image-version.json"
     cat > "$BUILD_ROOT/BOARD_RELEASE_NOTES.md" <<EOFPI
-VyOS ${VYOS_VERSION} for Raspberry Pi 5, with additional network, Wi-Fi and cellular modem support.
+VyOS ${VYOS_VERSION} for Raspberry Pi 5, with additional network, Wi-Fi and cellular modem drivers and firmware for supported hardware.
 
-Initial installation/recovery: \`${RELEASE_BASENAME}.img.xz\`.
-Manual system-image update: \`${RELEASE_BASENAME}.iso\`. Verify the adjacent SHA-256 checksums before use.
+- Initial installation/recovery: \`${RELEASE_BASENAME}.img.xz\`
+- Compatible system-image update: \`${RELEASE_BASENAME}.iso\`
+- Verify downloads with the adjacent SHA-256 checksum files.
+- Native update feed: https://github.com/${REPO}/releases/latest/download/image-version.json
 
-Use the ISO only on Pi installations with the native FAT image-switch hooks. Older installations must first boot a current SD image. Retain the previous image and a recovery SD card; boot fallback requires manual selection or offline recovery.
+Boot path: native Raspberry Pi EEPROM/firmware and FAT boot partition. Image selection stages the matching kernel, initramfs and Device Tree; no GRUB menu is used.
 
-Boot path: native Raspberry Pi EEPROM/firmware, FAT boot partition, matching kernel/initramfs and BCM2712 Device Tree. This exact image requires hardware testing. Experimental FAT image-switch hooks are included for validation, but in-place ISO updates are not yet hardware-validated; the physical update and rollback test remains pending.
+Published Rolling reference: ${ROLLING_REFERENCE:-not specified}. Package versions may differ because this image is built later against the rolling package repository. Board-specific additions are intentional differences.
 
-Native update feed: https://github.com/${REPO}/releases/latest/download/image-version.json
+These files are identical to the [source build release](https://github.com/${GITHUB_REPOSITORY}/releases/tag/${RELEASE_TAG}). Builder commit: ${GITHUB_SHA}.
 
-Published Rolling reference: ${ROLLING_REFERENCE:-not specified}. Package versions may differ due to the later build against the rolling repository.
+Automated build checks passed. This exact image still requires hardware testing. See the repository README for installation and update instructions.
 EOFPI
     gh release create "$RELEASE_TAG" --repo "$REPO" --draft \
         --title "VyOS ${VYOS_VERSION} for Raspberry Pi 5" \

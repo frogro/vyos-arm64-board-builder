@@ -12,7 +12,7 @@ with tempfile.TemporaryDirectory() as d:
  for suffix in ('iso','img.xz'):
   f=p/('pi-test.'+suffix);f.write_bytes(b'fixture');Path(str(f)+'.sha256').write_text(hashlib.sha256(f.read_bytes()).hexdigest()+'  '+f.name+'\n')
  (p/'bin/gh').write_text('#!/bin/sh\nprintf "%s\\n" "$@" >> "$GH_CALLS"\n');(p/'bin/gh').chmod(0o755)
- env={**os.environ,'PATH':str(p/'bin')+':'+os.environ['PATH'],'GH_CALLS':str(p/'calls')}
+ env={**os.environ,'GITHUB_REPOSITORY':'frogro/vyos-arm64-board-builder','GITHUB_SHA':'fixture','PATH':str(p/'bin')+':'+os.environ['PATH'],'GH_CALLS':str(p/'calls')}
  subprocess.run(['bash','tools/publish-board-release.sh','raspberry-pi-5',str(p)],env=env,check=True)
  feed=json.loads((p/'image-version.json').read_text());assert feed[0]['url'].endswith('/pi-test/pi-test.iso')
  calls=(p/'calls').read_text();assert str(p/'image-version.json') in calls and str(p/'pi-test.iso') in calls and '--draft=false' in calls
