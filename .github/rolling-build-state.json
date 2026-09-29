@@ -129,6 +129,14 @@
           "status": "completed",
           "conclusion": "success",
           "run_attempt": 1
+        },
+        "orangepi5-plus": {
+          "dispatched": true,
+          "run_id": 36639973146,
+          "status": "queued",
+          "conclusion": null,
+          "run_attempt": 1,
+          "note": "First public A/B build with registered community update channel; verified matching raw base reused."
         }
       },
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
