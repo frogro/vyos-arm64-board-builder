@@ -110,7 +110,11 @@
         "radxa-e52c": {
           "dispatched": true,
           "retry_disabled": true,
-          "retry_reason": "User requested waiting for the next Rolling; do not rerun this release."
+          "retry_reason": "User requested waiting for the next Rolling; do not rerun this release.",
+          "run_id": 36474321391,
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
         },
         "rock-5b": {
           "dispatched": true
