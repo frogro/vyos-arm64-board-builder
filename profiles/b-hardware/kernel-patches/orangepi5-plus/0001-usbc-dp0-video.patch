@@ -1,0 +1,39 @@
+--- a/arch/arm64/boot/dts/rockchip/rk3588-orangepi-5-plus.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3588-orangepi-5-plus.dts
+@@ -413,3 +413,36 @@
+ 		remote-endpoint = <&hdmi1_in_vp1>;
+ 	};
+ };
++
++/* USB-C DisplayPort uses PHY0 and VP2. HPD is routed by the PHY Type-C mux.
++ * This dw-dp generation has no audio codec support; do not add a dangling card.
++ */
++&dp0 {
++	status = "okay";
++};
++
++&dp0_in {
++	dp0_in_vp2: endpoint {
++		remote-endpoint = <&vp2_out_dp0>;
++	};
++};
++
++&vp2 {
++	vp2_out_dp0: endpoint@a {
++		reg = <ROCKCHIP_VOP2_EP_DP0>;
++		remote-endpoint = <&dp0_in_vp2>;
++	};
++};
++
++&usb_con {
++	altmodes {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		altmode@0 {
++			reg = <0>;
++			svid = <0xff01>;
++			/* DP source, receptacle, pin assignments C/D/E. */
++			vdo = <0x1c46>;
++		};
++	};
++};

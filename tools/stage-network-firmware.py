@@ -4,6 +4,9 @@
 
 import argparse
 import glob
+import fnmatch
+import posixpath
+import shlex
 import json
 import os
 import shutil
@@ -243,28 +246,52 @@ def valid_firmware_pattern(pattern):
     return bool(pattern) and not path.is_absolute() and ".." not in path.parts
 
 
+def firmware_links(source):
+    """linux-firmware generates WHENCE aliases at install time, not checkout."""
+    whence = source / "WHENCE"
+    links = {}
+    if whence.is_file():
+        for line in whence.read_text(encoding="utf-8").splitlines():
+            if not line.startswith("Link:"):
+                continue
+            fields = shlex.split(line[5:])
+            if len(fields) != 3 or fields[1] != "->":
+                raise RuntimeError(f"Invalid firmware link: {line}")
+            name, _, target = fields
+            target = posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+            if not valid_firmware_pattern(name) or not valid_firmware_pattern(target):
+                raise RuntimeError(f"Firmware link escapes source: {line}")
+            links[name] = target
+    return links
+
+
 def copy_pattern(source, destination, pattern):
     if not valid_firmware_pattern(pattern):
         return []
 
-    matches = sorted(glob.glob(str(source / pattern)))
+    links = firmware_links(source)
+    names = {Path(p).relative_to(source).as_posix()
+             for p in glob.glob(str(source / pattern))}
+    names.update(name for name in links if fnmatch.fnmatchcase(name, pattern))
     copied = []
-
-    for name in matches:
-        path = Path(name)
-
+    for name in sorted(names):
+        resolved = name
+        seen = set()
+        while resolved in links:
+            if resolved in seen:
+                raise RuntimeError(f"Cyclic firmware alias: {name}")
+            seen.add(resolved)
+            resolved = links[resolved]
+        path = (source / resolved).resolve()
+        if not path.is_relative_to(source.resolve()):
+            raise RuntimeError(f"Firmware link escapes source: {name}")
         if not path.is_file():
             continue
-
-        relative = path.relative_to(source)
-        target = destination / relative
+        target = destination / name
         target.parent.mkdir(parents=True, exist_ok=True)
-
-        # Install real bytes rather than a symlink whose target may not be
-        # part of the selected closure.
-        shutil.copy2(path.resolve(), target)
-        copied.append(relative.as_posix())
-
+        # Materialize bytes: alias targets need not be in the selected closure.
+        shutil.copy2(path, target)
+        copied.append(name)
     return copied
 
 
