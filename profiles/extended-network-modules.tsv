@@ -55,3 +55,9 @@ wwan-usb	CONFIG_USB_ACM	cdc_acm	USB ACM control ports
 wwan-usb	CONFIG_USB_WDM	cdc_wdm	USB QMI/MBIM control ports
 wwan-pcie	CONFIG_IOSM	iosm	Intel XMM PCIe WWAN
 wwan-pcie	CONFIG_MTK_T7XX	mtk_t7xx	MediaTek T7xx/Fibocom FM350 PCIe
+bluetooth	CONFIG_BT_HCIBTUSB	btusb	USB Intel Realtek MediaTek Qualcomm Broadcom combo radios
+bluetooth	CONFIG_BT_HCIUART	hci_uart	UART combo radios including Broadcom on Raspberry Pi
+bluetooth	CONFIG_BT_HCIBTSDIO	btsdio	Generic SDIO Bluetooth
+bluetooth	CONFIG_BT_MRVL	btmrvl	Marvell Bluetooth
+bluetooth	CONFIG_BT_MRVL_SDIO	btmrvl_sdio	Marvell SDIO Bluetooth
+bluetooth	CONFIG_BT_ATH3K	ath3k	Atheros USB Bluetooth

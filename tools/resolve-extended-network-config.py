@@ -279,6 +279,17 @@ def main():
                 continue
 
             result_values = read_config(resolved)
+            # Optional drivers may add capabilities, never remove existing ones.
+            rank = {"n": 0, "m": 1, "y": 2}
+            weakened = [name for name, value in current.items()
+                        if value in ("y", "m")
+                        and rank.get(result_values.get(name, "n"), 0) < rank[value]]
+            if weakened:
+                entry["status"] = "skipped"
+                entry["reason"] = "would weaken existing config: " + ", ".join(sorted(weakened))
+                entries.append(entry)
+                continue
+
             result_value = result_values.get(symbol, "n")
             entry["final_value"] = result_value
 

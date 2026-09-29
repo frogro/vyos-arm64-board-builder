@@ -5,3 +5,19 @@
 # Add entries here only for a proven driver requirement which modinfo cannot
 # express (for example board/calibration files). A bare firmware-family glob
 # must never be added merely to make the image comprehensive.
+
+# Linux 6.18 drivers/bluetooth construct these names at runtime; modinfo
+# is incomplete. Scope to the selected BT module and Bluetooth-only filenames.
+btintel	intel/ibt-*.sfi
+btintel	intel/ibt-*.ddc
+btintel	intel/ibt-*.bseq
+btmtk	mediatek/BT_RAM_CODE_*.bin
+btmtk	mediatek/mt*/BT_RAM_CODE_*.bin
+btbcm	brcm/BCM*.hcd
+btusb	qca/rampatch_usb_*.bin
+btusb	qca/nvm_usb_*.bin
+btusb	qca/*/rampatch_usb_*.bin
+btusb	qca/*/nvm_usb_*.bin
+btqca	qca/*btfw*.tlv
+btqca	qca/*nv*.bin
+btqca	qca/*btfw*.bin

@@ -1,0 +1,32 @@
+# WLAN symbol	BT transport(s)	note
+CONFIG_RTW88_8822BE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8822CE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8821CE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8814AE	none	No Bluetooth assumed; inspect the actual adapter USB/PCI IDs
+CONFIG_RTW89_8851BE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8852AE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8852BE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8852BTE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8852CE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8922AE	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8822BU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8822CU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8723DU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8821CU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW88_8821AU	none	No Bluetooth assumed; inspect the actual adapter USB/PCI IDs
+CONFIG_RTW88_8812AU	none	No Bluetooth assumed; inspect the actual adapter USB/PCI IDs
+CONFIG_RTW88_8814AU	none	No Bluetooth assumed; inspect the actual adapter USB/PCI IDs
+CONFIG_RTW89_8851BU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_RTW89_8852BU	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_MT7921E	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_MT7921U	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_MT7925E	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_MT7925U	btusb	Combo hardware only; a Wi-Fi USB adapter may omit Bluetooth
+CONFIG_MT7996E	none	No Bluetooth assumed; inspect the actual adapter USB/PCI IDs
+CONFIG_ATH11K_PCI	btusb,hci_uart	Qualcomm combo models only; Wi-Fi chipset alone does not imply Bluetooth
+CONFIG_ATH12K_PCI	btusb,hci_uart	Qualcomm combo models only; Wi-Fi chipset alone does not imply Bluetooth
+CONFIG_IWLWIFI	btusb	Intel USB Bluetooth function; CNVi compatibility is platform-dependent
+CONFIG_IWLMVM	btusb	Intel USB Bluetooth function; CNVi compatibility is platform-dependent
+CONFIG_MWIFIEX_SDIO	btmrvl_sdio,btusb	SDIO or USB Bluetooth depends on the module wiring
+CONFIG_MWIFIEX_PCIE	btmrvl_sdio,btusb	SDIO or USB Bluetooth depends on the module wiring
+CONFIG_MWIFIEX_USB	btmrvl_sdio,btusb	SDIO or USB Bluetooth depends on the module wiring

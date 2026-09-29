@@ -73,6 +73,12 @@ class ExtendedNetworkProfileTests(unittest.TestCase):
             self.assertFalse(pattern.startswith("/"))
             self.assertNotIn("..", Path(pattern).parts)
 
+    def test_every_wifi_entry_has_explicit_bt_disposition(self) -> None:
+        wifi = {line.split("\t")[1] for line in data_lines(MODULES)
+                if line.startswith("wifi-")}
+        mapped = {line.split("\t")[0] for line in data_lines(ROOT / "profiles/wifi-bluetooth-map.tsv")}
+        self.assertEqual(wifi, mapped)
+
     def test_documentation_covers_policy_and_categories(self) -> None:
         text = DOC.read_text(encoding="utf-8")
 

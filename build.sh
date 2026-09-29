@@ -531,6 +531,13 @@ main() {
         )
     fi
 
+    if [[ "${extended_network}" == "yes" ]]; then
+        config_args+=(--feature-required-config "${ROOT_DIR}/profiles/b-hardware/bluetooth.config")
+        if [[ -f "${ROOT_DIR}/profiles/b-hardware/${board}.config" ]]; then
+            config_args+=(--feature-required-config "${ROOT_DIR}/profiles/b-hardware/${board}.config")
+        fi
+    fi
+
     if [[ "${kvm_over_ip}" == "yes" ]]; then
         config_args+=(
             --feature-required-config "${ROOT_DIR}/profiles/kvm-over-ip.config"
@@ -704,6 +711,18 @@ main() {
         ARCH=arm64 \
         CROSS_COMPILE="${cross}" \
         olddefconfig
+
+    if [[ "${EXTENDED_NETWORK:-no}" == "yes" ]]; then
+        for requirement in bluetooth "${board}"; do
+            local readiness="${ROOT_DIR}/profiles/b-hardware/${requirement}-ready.config"
+            [[ -f "${readiness}" ]] || continue
+            python3 "${ROOT_DIR}/tools/validate-tailscale-ready.py" \
+                --kernel-config "${kbuild_out}/.config" \
+                --requirements "${readiness}" \
+                --output-dir "${artifacts}/b-hardware/${requirement}" \
+                --report-name b-hardware-ready
+        done
+    fi
 
     local jobs="${JOBS:-$(nproc)}"
 
