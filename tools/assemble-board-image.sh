@@ -629,6 +629,11 @@ if [[ "$KIOSK_F" == yes ]]; then
     fi
 fi
 
+if [[ "$RECEIVER_G" == yes ]]; then
+    [[ -n "${RECEIVER_G_RUNTIME:-}" ]] || die "Profile G requires a verified offline receiver runtime"
+    python3 "$ROOT/experiments/profile-g/image/stage-runtime.py" "$SQUASH_ROOT" "$RECEIVER_G_RUNTIME"
+fi
+
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
 
 [[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||

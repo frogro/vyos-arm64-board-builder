@@ -4,7 +4,8 @@ on:
     branches: [feature/profile-g]
   workflow_dispatch:
 permissions:
-  contents: read
+  # Reading the existing draft-release inputs requires write visibility.
+  contents: write
 concurrency:
   group: profile-g-check-${{ github.ref }}
   cancel-in-progress: false

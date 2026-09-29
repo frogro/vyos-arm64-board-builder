@@ -64,3 +64,22 @@ Software-Rückfall; `hardware` verlangt Hardware. `decoder software` sowie
 andere Codecs behalten die Distributionsbibliotheken. Miracast/AirPlay laden
 weiter ihre GStreamer-Bibliotheken. AirPlay/UxPlay ist enthalten; der Test mit
 einem Apple-Sender folgt nach Prüfung dieses Containerbuilds.
+
+
+## Gemeinsames A–D/F/G-Testimage
+
+`profile-g-image.yml` baut zusätzlich ein vollständiges SD-Image (`.img.xz`)
+und eine Update-ISO. Die bestehende A–D/F-Zusammenstellung wird einschließlich
+Chromium, Sunshine, nativer CLI und optionalem Panthor-Testkernel übernommen.
+G verwendet den erfolgreichen parallelen Containerbuild **desselben Commits**;
+ein fehlgeschlagener oder älterer Lauf darf nicht eingesetzt werden.
+
+Der G-Container wird getrennt vom Kiosk offline bereitgestellt und beim Boot
+importiert, jedoch nicht automatisch gestartet. Persistente Konfigurationen
+und Pairings werden nicht in das Image kopiert oder beim Import geändert.
+Die ISO-Installation und Zustandserhaltung müssen danach am ROCK separat
+geprüft werden. Der Build greift nicht auf das Livesystem zu.
+
+Die Inhaltsprüfung muss beide Runtimearchive, CLI-Eigentümer, Profile im
+Manifest, Kernel/DTB/Initramfs, Firmware, CPU-Kopierhilfe und alle bisherigen
+A–D/F-Prüfungen bestätigen, bevor SD/ISO als Artefakte hochgeladen werden.
