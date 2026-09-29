@@ -5,17 +5,26 @@ from pathlib import Path
 
 
 def patch(rootfs):
-    target = rootfs / 'usr/libexec/vyos/conf_mode/system_timezone.py'
-    source = target.read_text()
-    old = "    call('systemctl restart rsyslog')"
-    new = "    call('systemctl try-restart rsyslog')"
-    if new in source and old not in source:
-        return
-    if source.count(old) != 1:
-        raise RuntimeError('Unexpected timezone implementation; review upstream before patching')
-    source = source.replace(old, '    # Syslog config is generated later during boot; only restart a running daemon.\n' + new)
-    compile(source, str(target), 'exec')
-    target.write_text(source)
+    changes = []
+    rules = [
+        ('system_timezone.py', "    call('systemctl restart rsyslog')",
+         "    call('systemctl try-restart rsyslog')"),
+        ('system_host-name.py', "        tmp = systemd_services['syslog']\n        call(f'systemctl restart {tmp}')",
+         "        tmp = systemd_services['syslog']\n        call(f'systemctl try-restart {tmp}')"),
+    ]
+    for filename, old, new in rules:
+        target = rootfs / 'usr/libexec/vyos/conf_mode' / filename
+        source = target.read_text()
+        if new in source and old not in source:
+            continue
+        if source.count(old) != 1:
+            raise RuntimeError(f'Unexpected {filename} implementation; review upstream before patching')
+        source = source.replace(old, new)
+        compile(source, str(target), 'exec')
+        changes.append((target, source))
+    # Validate both upstream handlers before changing either file.
+    for target, source in changes:
+        target.write_text(source)
 
 
 if __name__ == '__main__':
