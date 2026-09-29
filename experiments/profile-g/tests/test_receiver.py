@@ -23,6 +23,18 @@ class Policy(unittest.TestCase):
         return {'receiver':settings, 'image':'localhost/vyarm-receiver:test',
                 'allow_host_networks':{}, 'volume':{'state':{'source':'/config/receiver/state','destination':'/state','mode':'rw'}},
                 'device':{'display':{'source':'/dev/dri/card0','destination':'/dev/dri/card0'}}}
+    def test_decoder_environment_is_scoped(self):
+        inherited={'PULSE_SERVER':'unix:/run/receiver/pulse/native'}
+        for method,codec,decoder in itertools.product(('airplay','moonlight'),('auto','h264','hevc','av1'),('auto','hardware','software')):
+            cfg=receiver.settings(dict(method=method,codec=codec,decoder=decoder,host='host'))
+            env=backend.receiver_environment(cfg,inherited)
+            selected=method=='moonlight' and codec=='h264' and decoder!='software'
+            self.assertEqual('LD_LIBRARY_PATH' in env,selected)
+            self.assertEqual(env['PULSE_SERVER'],inherited['PULSE_SERVER'])
+        pair=receiver.settings(dict(method='moonlight',mode='pair',codec='h264'))
+        self.assertEqual(backend.receiver_environment(pair,inherited),inherited)
+        self.assertEqual(inherited,{'PULSE_SERVER':'unix:/run/receiver/pulse/native'})
+
     def test_non_receiver_unchanged(self):
         self.assertEqual(receiver.environment({'kiosk':{'url':'https://example.org'}}),[])
     def test_roundtrip_and_defaults(self):

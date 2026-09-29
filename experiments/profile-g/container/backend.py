@@ -23,6 +23,15 @@ def gst_decoder(policy, available=None):
             return name
     raise ValueError('No H264 hardware GStreamer decoder found; use auto/software or install a compatible media runtime')
 
+def receiver_environment(cfg, inherited=None):
+    """Keep the tested H.264 library private to Moonlight, including its CPU fallback."""
+    env = dict(os.environ if inherited is None else inherited)
+    if (cfg['method'] == 'moonlight' and cfg['mode'] == 'receive'
+            and cfg['codec'] == 'h264' and cfg['decoder'] != 'software'):
+        env['LD_LIBRARY_PATH'] = '/opt/ffmpeg-request/lib'
+        env['DRM_FORCE_EGL'] = '1'
+    return env
+
 def command(cfg):
     if cfg['method'] == 'airplay':
         return ['uxplay','-n',cfg['name'],'-s',cfg['resolution'],'-fps',cfg['fps'],
@@ -42,4 +51,4 @@ if __name__ == '__main__':
     args=['moonlight'] if len(sys.argv)>1 and sys.argv[1]=='pair' else command(cfg)
     if not shutil.which(args[0]):
         raise SystemExit('Receiver binary missing: '+args[0])
-    os.execvp(args[0],args)
+    os.execvpe(args[0],args,receiver_environment(cfg))

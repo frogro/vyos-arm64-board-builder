@@ -1,32 +1,136 @@
-#!/usr/bin/env python3
-"""MiracleCast external player: bounded queues, unprivileged Wayland output."""
+#!/usr/bin/python3
+"""MiracleCast player with reconnectable MPEG-TS tracks and shared A/V clock."""
 import argparse
 import os
+import signal
 import sys
-sys.path.insert(0,'/opt/profile-g')
+sys.path.insert(0, '/opt/profile-g')
 from backend import config, gst_decoder
 
+
 def pipeline(port, audio, cfg):
-    # RTP jitter is already bounded by cfg['latency']; avoid tsdemux's extra 700 ms.
-    # An advertised but absent audio track must not hold video in preroll.
-    args=['gst-launch-1.0','-e','udpsrc',f'port={port}',
-          'caps=application/x-rtp,media=video,clock-rate=90000,encoding-name=MP2T,payload=33',
-          '!','rtpjitterbuffer','latency='+cfg['latency'],'drop-on-latency=true',
-          '!','rtpmp2tdepay','!','tsdemux','latency=0','name=demux','demux.',
-          '!','video/x-h264','!','queue','max-size-buffers=4','max-size-bytes=0','max-size-time=100000000',
-          '!','h264parse','!',gst_decoder(cfg['decoder']),'!','videoconvert',
-          '!','waylandsink','fullscreen=true']
+    # Encoded queues provide headroom, without retaining decoder DMA buffers.
+    queue = ['max-size-buffers=0', 'max-size-bytes=0', 'max-size-time=2000000000']
+    args = ['udpsrc', f'port={port}', 'buffer-size=2097152',
+            'caps=application/x-rtp,media=video,clock-rate=90000,encoding-name=MP2T,payload=33',
+            '!', 'rtpjitterbuffer', 'latency='+cfg['latency'], 'drop-on-latency=false',
+            '!', 'rtpmp2tdepay', '!', 'tsdemux', 'latency=200', 'name=demux',
+            'queue', 'name=video_queue', *queue, '!', 'h264parse',
+            '!', gst_decoder(cfg['decoder']), '!', 'waylandsink', 'name=video',
+            'sync=true', 'enable-last-sample=false']
     if audio:
-        args += ['demux.','!','audio/mpeg','!','queue','max-size-buffers=0','max-size-bytes=0','max-size-time=100000000',
-                 '!','aacparse','!','avdec_aac','!','audioconvert','!','audioresample','!','pulsesink','async=false','buffer-time=40000','latency-time=10000']
+        args += ['queue', 'name=audio_queue', *queue, '!', 'aacparse', '!', 'avdec_aac',
+                 '!', 'audioconvert', '!', 'audioresample', '!', 'pulsesink', 'name=audio',
+                 'async=false', 'sync=true', 'buffer-time=200000', 'latency-time=20000']
     return args
 
-if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('-p',type=int,required=True)
-    p.add_argument('-a',action='store_true');p.add_argument('-r');p.add_argument('-s');p.add_argument('-d')
-    a=p.parse_args()
-    if not 1024 <= a.p <= 65535: p.error('Invalid RTP port')
-    args=pipeline(a.p,a.a,config())
-    if os.getuid()==0:
-        args=['setpriv','--reuid=kiosk','--regid=kiosk','--groups='+os.environ['G_DEVICE_GROUPS'],'--']+args
-    os.execvp(args[0],args)
+
+class TrackLinks:
+    """PMT updates can add a replacement pad before removing its predecessor."""
+    def __init__(self, pipe):
+        self.pipe = pipe
+        self.demux = pipe.get_by_name('demux')
+        self.handlers = [self.demux.connect('pad-added', self.added)]
+        self.pids = {}
+        self.error = None
+
+    def added(self, demux, pad):
+        # GI callbacks do not propagate exceptions to the application loop.
+        try:
+            self.link_pad(pad)
+        except Exception as error:
+            self.error = error
+
+    def link_pad(self, pad):
+        caps = pad.get_current_caps() or pad.query_caps(None)
+        if caps.is_empty() or caps.is_any():
+            return
+        kind = caps.get_structure(0).get_name()
+        branch = {'video/x-h264': 'video_queue', 'audio/mpeg': 'audio_queue'}.get(kind)
+        queue = self.pipe.get_by_name(branch) if branch else None
+        if queue is None:
+            return
+        # Keep the selected track; reconnect its new generation, not another PID.
+        pid = pad.get_name().rsplit('_', 1)[-1]
+        if branch in self.pids and self.pids[branch] != pid:
+            return
+        sink = queue.get_static_pad('sink')
+        old = sink.get_peer()
+        if old == pad:
+            return
+        if old:
+            old.unlink(sink)
+        result = pad.link(sink)
+        if int(result) != 0:
+            if old:
+                old.link(sink)
+            self.error = RuntimeError(f'Cannot link {pad.get_name()}: {result}')
+            return
+        self.pids[branch] = pid
+        print(f'TRACK {pad.get_name()} -> {branch}', flush=True)
+
+    def close(self):
+        for handler in self.handlers:
+            self.demux.disconnect(handler)
+
+
+def play(args):
+    import gi
+    gi.require_version('Gst', '1.0')
+    from gi.repository import Gst
+    Gst.init(None)
+    pipe = Gst.parse_launch(' '.join(args))
+    tracks = TrackLinks(pipe)
+    stopping = False
+    def stop(*unused):
+        nonlocal stopping
+        stopping = True
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, stop)
+    bus = pipe.get_bus()
+    fullscreen = False
+    try:
+        if pipe.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
+            raise RuntimeError('Receiver failed to enter PLAYING')
+        while not stopping:
+            message = bus.timed_pop_filtered(Gst.SECOND,
+                Gst.MessageType.ERROR | Gst.MessageType.EOS |
+                Gst.MessageType.LATENCY | Gst.MessageType.CLOCK_LOST)
+            if tracks.error is not None:
+                raise tracks.error
+            video = pipe.get_by_name('video')
+            # Applying fullscreen before the Wayland window exists warns in 1.26.
+            if not fullscreen and video.get_property('stats').get_value('rendered'):
+                video.set_property('fullscreen', True)
+                fullscreen = True
+            if message is None:
+                continue
+            if message.type == Gst.MessageType.ERROR:
+                error, detail = message.parse_error()
+                raise RuntimeError(f'{error}: {detail}')
+            if message.type == Gst.MessageType.EOS:
+                break
+            if message.type == Gst.MessageType.LATENCY:
+                pipe.recalculate_latency()
+            if message.type == Gst.MessageType.CLOCK_LOST:
+                pipe.set_state(Gst.State.PAUSED)
+                pipe.set_state(Gst.State.PLAYING)
+    finally:
+        pipe.set_state(Gst.State.NULL)
+        tracks.close()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', type=int, required=True)
+    parser.add_argument('-a', action='store_true')
+    for flag in ('-r', '-s', '-d'):
+        parser.add_argument(flag)
+    opts = parser.parse_args()
+    if not 1024 <= opts.p <= 65535:
+        parser.error('Invalid RTP port')
+    if os.getuid() == 0:
+        os.execvp('setpriv', ['setpriv', '--reuid=kiosk', '--regid=kiosk',
+                   '--groups='+os.environ['G_DEVICE_GROUPS'], '--',
+                   '/usr/bin/python3', os.path.realpath(__file__), *sys.argv[1:]])
+    play(pipeline(opts.p, opts.a, config()))

@@ -11,7 +11,7 @@ import subprocess
 import sys
 import time
 sys.path.insert(0,'/opt/profile-g')
-from backend import config, command
+from backend import config, command, receiver_environment
 from receiver import wifi_report
 
 def module(name,path):
@@ -114,7 +114,8 @@ def main():
             else:
                 raise RuntimeError('Miracast P2P discovery did not become ready')
         else:
-            receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' else command(cfg)))
+            receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' else command(cfg)),
+                            env=receiver_environment(cfg))
         print(json.dumps({'method':cfg['method'],'output':selected,'status':'started-not-stream-verified'}),flush=True)
         essential=[p for p in children if p is not audio.process]
         while not stopping:

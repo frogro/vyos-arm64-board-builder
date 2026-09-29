@@ -24,7 +24,7 @@ Kandidaten: AirPlay (UxPlay), Miracast, Moonlight mit Sunshine als Sender,
 Steam Link sowie nach Machbarkeitsprüfung Google Cast und weitere Empfänger.
 AirPlay, Moonlight und experimentelles Miracast sind inzwischen als erste
 Implementierung vorhanden; siehe [Implementierung und Tests](IMPLEMENTATION.md).
-Noch keine Empfangsmethode ist auf dem ROCK für Profil G freigegeben. Miracast benötigt einen eigenen WLAN-/Wi-Fi-Direct-Test und
+Kurze Live-Tests von Miracast und Moonlight wurden mit Bild und synchronem Ton bestätigt; eine vollständige Freigabe steht aus. Miracast benötigt einen eigenen WLAN-/Wi-Fi-Direct-Test und
 kann mit dem Router-AP auf derselben Funkkarte konkurrieren.
 
 ## Testplan
@@ -53,5 +53,14 @@ kann mit dem Router-AP auf derselben Funkkarte konkurrieren.
 - Ungeprüfte G-Funktionen nicht als Standard aktivieren. Release-Watcher und
   öffentliche Standard-Builds erst nach gesonderter Freigabe erweitern.
 
-Der G-Prüfworkflow testet die Richtlinien und baut die drei Empfänger auf ARM64.
-Er startet keinen SD-/ISO-Build und verändert kein Livesystem.
+Der G-Testworkflow prüft die Richtlinien und baut die drei Empfänger sowie ein
+ladbares ARM64-Containerimage auf einer per Prüfsumme verifizierten F-Basis.
+Das Artefakt `profile-g-runtime-arm64-<Run-ID>` enthält `runtime.tar`, Metadaten
+und Prüfsummen. Es ist kein SD-/ISO-Image und verändert kein Livesystem.
+
+Moonlight verwendet für `codec h264` mit `decoder auto` oder `hardware` die
+privat eingebauten V4L2-Request-Bibliotheken. `auto` erlaubt Moonlights
+Software-Rückfall; `hardware` verlangt Hardware. `decoder software` sowie
+andere Codecs behalten die Distributionsbibliotheken. Miracast/AirPlay laden
+weiter ihre GStreamer-Bibliotheken. AirPlay/UxPlay ist enthalten; der Test mit
+einem Apple-Sender folgt nach Prüfung dieses Containerbuilds.

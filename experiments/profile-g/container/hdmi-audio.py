@@ -91,8 +91,10 @@ class AudioSession:
                 return
         self.module = self.device = None
         if device:
+            # Timer scheduling avoided false ALSA POLLOUT wakeups in the ROCK
+            # start/stop comparison and passed the HDMI A/V synchronization test.
             result = self.pactl('load-module', 'module-alsa-sink', 'device='+device,
-                                'sink_name=g_hdmi', 'rate=48000', 'channels=2', 'tsched=0')
+                                'sink_name=g_hdmi', 'rate=48000', 'channels=2', 'tsched=1')
             if result is not None and result.returncode == 0:
                 self.module, self.device = result.stdout.strip(), device
                 self.pactl('set-default-sink', 'g_hdmi')
