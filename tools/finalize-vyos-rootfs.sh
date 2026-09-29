@@ -189,6 +189,14 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
         "$SBIN_DIR/vyos-kvm-gadget"
 
     KVM_GADGET_PROVIDER_SOURCE="$ROOT/profiles/kvm-hardware/runtime/${KVM_HARDWARE_PROVIDER}.env"
+    # Same media provider does not imply the same physical gadget port.
+    if [[ "$KVM_HARDWARE_PROVIDER" == rk3588-synopsys-hdmirx && "$BOARD" != rock-5b ]]; then
+        KVM_GADGET_PROVIDER_SOURCE="$ROOT/profiles/kvm-hardware/runtime/${BOARD}/${KVM_HARDWARE_PROVIDER}.env"
+        [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]] || {
+            echo "ERROR: missing board-specific USB gadget routing for $BOARD" >&2
+            exit 1
+        }
+    fi
     if [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]]; then
         install -m 0644 \
             "$KVM_GADGET_PROVIDER_SOURCE" \

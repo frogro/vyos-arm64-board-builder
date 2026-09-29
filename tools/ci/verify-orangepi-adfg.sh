@@ -12,6 +12,10 @@ squash=$(find "$verify/mnt/boot" -name '*.squashfs' -print -quit)
 [[ -s $squash ]]
 unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/receiver-runtime/runtime.json > "$verify/g.json"
 unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json > "$verify/f.json"
+unsquashfs -cat "$squash" usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env > "$verify/gadget.env"
+source "$verify/gadget.env"
+[[ "$KVM_GADGET_DEFAULT_PORT" == usbc && "$KVM_GADGET_UDC_USBC" == fc000000.usb ]]
+! grep -q fc400000 "$verify/gadget.env"
 python3 - "$verify" <<'PY'
 import json,os,pathlib,sys
 p=pathlib.Path(sys.argv[1]);g=json.loads((p/'g.json').read_text());f=json.loads((p/'f.json').read_text())
