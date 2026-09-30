@@ -176,7 +176,11 @@
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
     },
     "2026.09.30-1921-rolling": {
-      "boards": {},
+      "boards": {
+        "radxa-e52c": {
+          "dispatched": true
+        }
+      },
       "vyos_commit": "d1394291337eb0274e026145a4c6245207c1c71d"
     }
   }
