@@ -23,7 +23,12 @@ firstboot_link="$HOME_DIR/dhcp-wan-ssh-setup.sh"
 if [[ -L "$firstboot_link" && "$(readlink "$firstboot_link")" == "$STAGE/dhcp-wan-ssh-setup.sh" ]]; then
     rm -- "$firstboot_link"
 fi
-for script in ap-dhcp-wan-setup.sh modem-connect.sh set-locales.sh; do
+scripts=(ap-dhcp-wan-setup.sh modem-connect.sh set-locales.sh)
+# This payload is installed only for Orange Pi 5 Plus images.
+if [[ -x "$STAGE/setup-lan-ap-bridge.sh" ]]; then
+    scripts+=(setup-lan-ap-bridge.sh)
+fi
+for script in "${scripts[@]}"; do
     test -x "$STAGE/$script"
     target="$HOME_DIR/$script"
     # Keep custom files and links, including intentionally dangling symlinks.

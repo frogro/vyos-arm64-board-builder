@@ -211,3 +211,19 @@ test ! -L "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
 printf 'user script\n' > "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
 PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
 grep -qx 'user script' "$LINK_TEST/home/dhcp-wan-ssh-setup.sh"
+
+# Board-scoped helper: finalizer is shared by install images and update ISOs.
+test ! -e "$STAGE/setup-lan-ap-bridge.sh"
+OP_ROOTFS="$WORK/orangepi-rootfs"
+seed_timezone "$OP_ROOTFS"
+bash "$ROOT/tools/finalize-vyos-rootfs.sh" orangepi5-plus "$OP_ROOTFS" no no base
+test -x "$OP_ROOTFS/usr/local/share/vyos-arm64-firstboot/setup-lan-ap-bridge.sh"
+test ! -e "$LINK_TEST/home/setup-lan-ap-bridge.sh"
+cp "$OP_ROOTFS/usr/local/share/vyos-arm64-firstboot/setup-lan-ap-bridge.sh" "$LINK_TEST/stage/"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+test "$(readlink "$LINK_TEST/home/setup-lan-ap-bridge.sh")" = "$LINK_TEST/stage/setup-lan-ap-bridge.sh"
+rm "$LINK_TEST/home/setup-lan-ap-bridge.sh"
+printf 'custom bridge\n' > "$LINK_TEST/home/setup-lan-ap-bridge.sh"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+grep -qx 'custom bridge' "$LINK_TEST/home/setup-lan-ap-bridge.sh"
+echo 'PASS: Orange Pi bridge helper scope and user-file preservation'

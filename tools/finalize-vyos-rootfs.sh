@@ -132,6 +132,11 @@ do
         "$STAGE_DIR/$script"
 done
 
+# The LAN/AP bridge helper has Orange-Pi-specific port assumptions.
+if [[ "$BOARD" == orangepi5-plus ]]; then
+    install -m 0755 "$PAYLOAD/setup-lan-ap-bridge.sh" "$STAGE_DIR/setup-lan-ap-bridge.sh"
+fi
+
 install -m 0644 "$PAYLOAD/set-utf8-locale.py" "$STAGE_DIR/set-utf8-locale.py"
 python3 "$PAYLOAD/set-utf8-locale.py" "$ROOTFS"
 install -m 0644 "$PAYLOAD/setup-transaction.sh" "$STAGE_DIR/setup-transaction.sh"
