@@ -27,7 +27,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       BOARD: ${{ matrix.board }}
-      SOURCE_RUN: ${{ matrix.board == 'rock-5b' && inputs.rock_run || inputs.orangepi_run }}
+      SOURCE_RUN: ${{ matrix.board == 'rock-5b' && inputs.rock_run || matrix.board == 'orangepi5-plus' && inputs.orangepi_run || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download and publish verified completed artifacts
