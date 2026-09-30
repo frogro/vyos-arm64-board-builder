@@ -161,8 +161,8 @@
         "raspberry-pi-5": {
           "dispatched": true,
           "run_id": 36715267460,
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "run_attempt": 1
         },
         "orangepi5-plus": {
