@@ -61,3 +61,13 @@ live manufacturer-page scraping. Tests cover exact board selection independent
 of B/D, retention of the optional Wi-Fi/BT scope, requirements and firmware
 selection. Module availability does not prove physical display/camera/NPU use.
 The hardware-specific acceptance notes in docs/hardware remain applicable.
+
+## RK3588 DMA heaps belong to base A
+
+ROCK 5B and Orange Pi 5 Plus provide system and CMA DMA heaps in base A.
+These are shared kernel allocation interfaces used by GPU/video/RGA consumers
+in D/F/G, rather than network or application features. Linux 6.18 offers the
+heap switches as bool, so they are built in; the application profiles still
+control device access and service activation. The board readiness check rejects
+a generated kernel configuration missing either heap or its CMA dependencies.
+This also applies to A/B images without any running multimedia services.

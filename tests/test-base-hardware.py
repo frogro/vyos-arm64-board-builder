@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Guard A hardware ownership and the optional network/BT boundary."""
 import itertools
+import importlib.util
 import subprocess
 from pathlib import Path
 import unittest
@@ -44,6 +45,22 @@ class BaseHardware(unittest.TestCase):
         registry=(ROOT/'profiles/kvm-hardware-providers.conf').read_text()
         self.assertIn('rock5b-fc400000-peripheral.dts',registry)
         self.assertNotIn('orangepi5-plus|rk3588-synopsys-hdmirx|',registry)
+
+    def test_missing_dma_heaps_rejected_after_kconfig(self):
+        spec = importlib.util.spec_from_file_location('ready', ROOT/'tools/validate-tailscale-ready.py')
+        ready = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ready)
+        symbols = ['CONFIG_DMABUF_HEAPS', 'CONFIG_DMABUF_HEAPS_SYSTEM',
+                   'CONFIG_CMA', 'CONFIG_DMA_CMA', 'CONFIG_DMABUF_HEAPS_CMA']
+        for board in ['orangepi5-plus', 'rock-5b']:
+            cfg = ready.read_kernel_config(ROOT/f'profiles/base-hardware/{board}.config')
+            requirements = ready.read_requirements(ROOT/f'profiles/base-hardware/{board}-ready.config')
+            for symbol in symbols:
+                self.assertEqual('y', cfg[symbol])
+                self.assertEqual('builtin', requirements[symbol])
+                report = ready.validate({symbol: 'n'}, {symbol: requirements[symbol]})
+                self.assertEqual('FAIL', report[0]['status'])
+                self.assertEqual('PASS', ready.validate({symbol: 'y'}, {symbol: requirements[symbol]})[0]['status'])
 
     def test_legacy_d_config_uses_same_hardware_requirements(self):
         self.assertEqual((ROOT/'profiles/kvm-over-ip.config').resolve(),
