@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "baseline_commit": "316e10d8198681f8301a8b8c4c22e5a5177aa7ce",
+  "baseline_commit": "cbc4d7ba296ed25d2390ac18ef17e7b651cfe734",
   "reason": "Preserve full ROCK decoder/Panthor requirements and Orange Pi native USB-C routing while integrating current main A hardware. Exact file digests constrain the reviewed differences.",
   "files": {
     "profiles/base-hardware/kernel-patches/rock-5b/0001-rk3588-v4l2-decoder.patch": {
@@ -16,12 +16,12 @@
       "candidate_sha256": "9045a8efadfeab2ad42717688a007bb9681b7bd655e2dfb73778f1e44b7fd9ab"
     },
     "profiles/base-hardware/rock-5b-ready.config": {
-      "base_sha256": "afb00ede68cba1933904ab9ff004789d55603304c596d52ef19fd3b95ccf8a35",
-      "candidate_sha256": "f0cf30a632f173cf5823426ff2595b8888a7a6faa146f9d4a86dd2ef83b1feed"
+      "base_sha256": "0028ba26b70bef167d15dde79b808a8510f9622bf26130c9aa51467942e1cf44",
+      "candidate_sha256": "fb5263ec9f18e2612c6d27f9969ec45ceb79381a98b9a8c07b7c872428ddc317"
     },
     "profiles/base-hardware/rock-5b.config": {
-      "base_sha256": "cdabea0d45058e5121f892ffc3c13f03d4eeef5abd1b751c01f3b0055780f6ef",
-      "candidate_sha256": "e40fbbc03d2e2987cb4b68c755228912afd4b62919fe2b2ed8e0a9bb7ff2af23"
+      "base_sha256": "089c66c422c458e75def2a8c29f3f06ffcc9e185fa707a11d970145c69a01033",
+      "candidate_sha256": "4f1e71d9061056217c986820749fddd7323a2c37ac6c0960e281964d4a645ef0"
     },
     "profiles/kvm-hardware-providers.conf": {
       "base_sha256": "98f30fde8dafb7a9bf242a6e0d3f58b56777031c23105af8ff279e69b29cf6d3",

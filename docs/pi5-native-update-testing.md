@@ -1,8 +1,13 @@
 # Pi 5 native image update experiment
 
-Status: implemented for testing; physical Pi 5 validation pending. No public
-update feed is enabled. The board repository still publishes installation
-images only. Central builder artifacts include the experimental ISO.
+Status: implemented for testing; physical Pi 5 validation pending. The public A/B
+update feed is enabled for new releases. The board repository publishes installation images and manual update ISOs
+with SHA-256 checksums. Central builder artifacts contain the same ISO.
+Publication checks both image and ISO checksums and the Pi firmware-files
+manifest before creating a draft release. New A/B installations seed the native update-check URL without overwriting
+user configuration or enabling unattended installation. Older installations
+without the lifecycle hooks must first migrate using a current SD image.
+Feed: https://github.com/VyARM-Community/raspberry-pi-5/releases/latest/download/image-version.json
 
 ## Contract
 

@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "board": "raspberry-pi-5",
+  "profile": "network",
+  "repository": "VyARM-Community/raspberry-pi-5",
+  "url": "https://github.com/VyARM-Community/raspberry-pi-5/releases/latest/download/image-version.json"
+}
