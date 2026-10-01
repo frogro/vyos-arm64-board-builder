@@ -189,8 +189,8 @@
           "dispatched": true,
           "run_id": 36790234625,
           "status": "completed",
-          "conclusion": "failure",
-          "run_attempt": 1,
+          "conclusion": "success",
+          "run_attempt": 2,
           "retry_requested_for_attempt": 1
         },
         "raspberry-pi-5": {
