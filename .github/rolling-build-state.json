@@ -223,8 +223,8 @@
         "rock-5b": {
           "dispatched": true,
           "run_id": 37069432932,
-          "status": "queued",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "run_attempt": 1
         },
         "raspberry-pi-5": {
