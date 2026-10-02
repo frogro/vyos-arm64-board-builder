@@ -29,7 +29,11 @@ def output(*args):
 def resolve(version):
     m=re.fullmatch(r'999\.0-\d+-g([0-9a-f]{7,40})',version)
     if not m: raise ValueError('Cannot match installed vyos-1x version to an exact public source commit: '+version)
-    request=urllib.request.Request('https://api.github.com/repos/vyos/vyos-1x/commits/'+m[1],headers={'User-Agent':'vyos-arm64-board-builder'})
+    headers = {'User-Agent': 'vyos-arm64-board-builder'}
+    token = os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN')
+    if token:
+        headers['Authorization'] = 'Bearer ' + token
+    request=urllib.request.Request('https://api.github.com/repos/vyos/vyos-1x/commits/'+m[1],headers=headers)
     with urllib.request.urlopen(request,timeout=60) as r: sha=json.load(r)['sha']
     if not re.fullmatch('[0-9a-f]{40}',sha) or not sha.startswith(m[1]): raise ValueError('Source commit mismatch')
     return sha

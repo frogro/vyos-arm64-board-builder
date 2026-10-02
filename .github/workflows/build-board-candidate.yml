@@ -432,6 +432,8 @@ jobs:
           echo VYOS_1X_BUILD_LOCAL_IMAGE=vyos-profile-build:arm64-22dfa15927f2 >> "$GITHUB_ENV"
 
       - name: Assemble VyOS board image
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
@@ -450,7 +452,7 @@ jobs:
           if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes ]]; then
             sudo bash tools/ci/expand-multimedia-base.sh "$RAW"
           fi
-          sudo --preserve-env=KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
+          sudo --preserve-env=GH_TOKEN,KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
             env OUTPUT_EXTRA_SECTORS=32768 \
             ./tools/assemble-board-image.sh \
               "${BOARD}" \

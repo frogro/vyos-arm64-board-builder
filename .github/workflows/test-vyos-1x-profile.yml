@@ -64,10 +64,11 @@ jobs:
           PY
       - name: Build exact-source ARM64 package with upstream targets
         env:
+          GH_TOKEN: ${{ github.token }}
           BASE_PACKAGE_VERSION: ${{ inputs.base_package_version || '999.0-14891-gd185906f3' }}
           CLI_PROFILE: ${{ matrix.profile }}
         run: |
-          sudo --preserve-env=BASE_PACKAGE_VERSION,CLI_PROFILE python3 - <<'PY'
+          sudo --preserve-env=BASE_PACKAGE_VERSION,CLI_PROFILE,GH_TOKEN python3 - <<'PY'
           import importlib.util, os
           from pathlib import Path
           spec = importlib.util.spec_from_file_location('builder', 'tools/build-vyos-1x-profile.py')
