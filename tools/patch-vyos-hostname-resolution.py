@@ -29,10 +29,12 @@ def patch(rootfs):
                for p in (rootfs / base).glob('**/libnss_myhostname.so.2')):
         raise RuntimeError('libnss_myhostname.so.2 is required for early hostname resolution')
     paths = [rootfs / 'etc/nsswitch.conf',
-             rootfs / 'usr/share/vyos/templates/login/nsswitch.conf.j2']
+             rootfs / 'usr/share/vyos/templates/login/nsswitch.conf.j2',
+             rootfs / 'usr/libexec/vyos/init/vyos-router']
     # Login configuration regenerates nsswitch.conf on boot/commit. Patch its
     # source too, even if the installed file was already patched previously.
-    # Validate both before writing either file.
+    # security_reset() also regenerates NSS before loading the configuration.
+    # Validate all three writers before modifying any file.
     changes = [(path, patched_source(path.read_text())) for path in paths]
     for path, content in changes:
         path.write_text(content)

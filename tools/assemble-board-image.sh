@@ -749,6 +749,20 @@ PYMETA
     rm -f "$SQUASH_ROOT/tmp/board-console.py" "$SQUASH_ROOT/tmp/board-initial.boot"
 fi
 
+# EDK2 RK3588 boards retain HDMI boot output and expose UART2 login.
+# Correct factory defaults only; never rewrite an imported user configuration.
+if [[ "$FIRMWARE_PROVIDER" == edk2-rk3588 && ( "$BOARD" == rock-5b || "$BOARD" == orangepi5-plus ) ]]; then
+    python3 "$ROOT/tools/patch-board-console.py" "$SQUASH_ROOT"
+    install -m 0755 "$ROOT/tools/configure-board-console.py" "$SQUASH_ROOT/tmp/board-console.py"
+    while IFS= read -r -d '' CONFIG_FILE; do
+        cp "$CONFIG_FILE" "$SQUASH_ROOT/tmp/board-initial.boot"
+        chroot "$SQUASH_ROOT" python3 /tmp/board-console.py --no-kernel ttyS2 1500000 /tmp/board-initial.boot
+        cp "$SQUASH_ROOT/tmp/board-initial.boot" "$CONFIG_FILE"
+    done < <(find "$VERSION_DIR/rw" -type f -name config.boot -print0)
+    chroot "$SQUASH_ROOT" python3 /tmp/board-console.py --no-kernel ttyS2 1500000 /usr/share/vyos/config.boot.default
+    rm -f "$SQUASH_ROOT/tmp/board-console.py" "$SQUASH_ROOT/tmp/board-initial.boot"
+fi
+
 if [[ "$FIRMWARE_PROVIDER" == raspberrypi-native ]]; then
     python3 - "$VERSION_DIR/board-boot.json" "$BOARD" "$BOOT_FDT_FILE" "$BUILD_PROFILE" <<'PYPI'
 import json, sys

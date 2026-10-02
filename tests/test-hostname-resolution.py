@@ -17,6 +17,9 @@ class HostnameResolution(unittest.TestCase):
         template = root / "usr/share/vyos/templates/login/nsswitch.conf.j2"
         template.parent.mkdir(parents=True)
         template.write_text("passwd: files {{ extra }}\nhosts: files dns #myhostname\n")
+        boot = root / 'usr/libexec/vyos/init/vyos-router'
+        boot.parent.mkdir(parents=True)
+        boot.write_text('security_reset() {\ncat <<EOF >/etc/nsswitch.conf\nhosts: files dns #myhostname\nEOF\n}\n')
         if library:
             lib = root / 'usr/lib/aarch64-linux-gnu/libnss_myhostname.so.2'
             lib.parent.mkdir(parents=True)
@@ -42,6 +45,10 @@ class HostnameResolution(unittest.TestCase):
             patcher.patch(root)
             self.assertIn('hosts:          files myhostname dns', template.read_text())
             self.assertIn('{{ extra }}', template.read_text())
+            boot = root / 'usr/libexec/vyos/init/vyos-router'
+            boot_hosts = next(line for line in boot.read_text().splitlines() if line.startswith('hosts:'))
+            p.write_text(boot_hosts + '\n')
+            self.assertIn('files myhostname dns', p.read_text())
             # Simulate VyOS rendering the template during login configuration.
             p.write_text(template.read_text().replace('{{ extra }}', 'systemd'))
             self.assertIn('files myhostname dns', p.read_text())
@@ -57,6 +64,18 @@ class HostnameResolution(unittest.TestCase):
             template.write_text('hosts: files [NOTFOUND=return] dns\n')
             with self.assertRaises(RuntimeError): patcher.patch(root)
             self.assertEqual(p.read_text(), 'hosts: files dns\n')
+
+    def test_invalid_boot_writer_does_not_partially_patch_other_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            runtime = self.setup_root(root, 'hosts: files dns\n')
+            template = root / 'usr/share/vyos/templates/login/nsswitch.conf.j2'
+            original_template = template.read_text()
+            boot = root / 'usr/libexec/vyos/init/vyos-router'
+            boot.write_text('hosts: files [NOTFOUND=return] dns\n')
+            with self.assertRaises(RuntimeError): patcher.patch(root)
+            self.assertEqual(runtime.read_text(), 'hosts: files dns\n')
+            self.assertEqual(template.read_text(), original_template)
 
     def test_missing_library_fails_without_write(self):
         with tempfile.TemporaryDirectory() as tmp:

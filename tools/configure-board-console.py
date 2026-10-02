@@ -6,6 +6,7 @@ import re
 from vyos.configtree import ConfigTree
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--no-kernel', action='store_true', help='Keep HDMI as kernel console, enable UART login only')
 parser.add_argument('device')
 parser.add_argument('baud')
 parser.add_argument('paths', nargs='+')
@@ -19,6 +20,7 @@ for filename in a.paths:
     if config.exists(['system', 'console']):
         config.delete(['system', 'console'])
     config.set(['system', 'console', 'device', a.device, 'speed'], value=a.baud)
-    config.set(['system', 'console', 'device', a.device, 'kernel'])
+    if not a.no_kernel:
+        config.set(['system', 'console', 'device', a.device, 'kernel'])
     config.set_tag(['system', 'console', 'device'])
     path.write_text(config.to_string())
