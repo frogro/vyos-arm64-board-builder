@@ -66,8 +66,8 @@ not dispatch that board/release again. A shared concurrency group serializes
 watcher runs. Existing matching run titles help recover interrupted dispatches.
 An accepted build that subsequently fails is not retried indefinitely: inspect
 its failure before rerunning. This workflow does not promise exact upstream
-package equivalence. Source selection uses the build commit at the release tag's
-timestamp; rolling package timing differences remain documented.
+package equivalence. Source selection resolves the current rolling commit at dispatch time and pins
+it for the build; rolling package timing differences remain documented.
 
 A manual dry run checks selection without dispatching or modifying state.
 The watcher uses the repository-scoped GitHub token with contents/actions write;
@@ -87,3 +87,24 @@ resolver and board-kernel validation but do not change the registered A–B feed
 All kernel patch groups use batch/forward application with fuzz=0. Failed
 patches or compilation stop publication; this does not replace hardware tests.
 GitHub scheduled checks remain best effort, not a guaranteed polling interval.
+
+## Required automatic release lifecycle (confirmed 2026-10-02)
+
+Every newly published official VyOS Rolling release must automatically trigger
+A–B builds for Orange Pi 5 Plus, ROCK 5B, E52C and Raspberry Pi 5, without a
+manual dispatch. Resolve and pin the current VyOS source and kernel version,
+verify the base kernel and ABI-dependent packages (rebuild when missing or
+incompatible), then apply and compile each board's patches/configuration.
+Only successful validation may publish IMG, update ISO, checksums and the
+matching community update feed. Optional C/D/F/G builds must share the kernel
+validation path without enabling those profiles in standard community images.
+
+Acceptance requires checking the scheduled watcher/dispatch path as well as
+builds and update feeds. A successful manual build alone does not demonstrate
+the automatic lifecycle. Failures must remain visible; existing fallback
+releases must be preserved. Hardware tests remain a separate requirement.
+
+Deployment order: leave run 37024264328 and its four first-pass board builds
+intact; deploy the prepared watcher changes only after its four board dispatches.
+After first-pass publications, run the second four-board cycle using the then
+current rolling source/kernel and verify the automation end to end.
