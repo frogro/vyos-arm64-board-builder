@@ -59,7 +59,7 @@ jobs:
           docker run --rm --privileged --user root --entrypoint /bin/bash \
             -v "$PWD/cache/vyos-build:/vyos" \
             -w /vyos/scripts/package-build/linux-kernel vyarm-raw-kernel-builder:local \
-            -ec 'git config --global --add safe.directory /vyos; python3 build.py --packages linux-kernel --keep-kernel'
+            -ec 'git config --global --add safe.directory /vyos; python3 build.py --packages linux-kernel nat-rtsp jool realtek-r8126 realtek-r8152 ipt-netflow --keep-kernel'
           sudo python3 tools/ensure-raw-kernel.py cache/vyos-build --import-built \
             --packages work/raw-kernel --metadata work/raw-kernel/kernel-package.json
           docker image inspect vyarm-raw-kernel-builder:local --format '{{.Id}}' > work/raw-kernel/build-container-id.txt

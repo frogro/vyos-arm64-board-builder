@@ -82,3 +82,14 @@ are still assembled separately; sharing a base does not share a board kernel.
 dispatches the four board publications with its attested artifact. Existing
 releases remain available. Fresh base creation produces a new image version,
 so old releases do not need to be overwritten merely to pick up builder fixes.
+
+### Exact kernel ABI bundle
+
+The raw-base fallback builds the selected VyOS kernel together with Jool,
+NAT-RTSP, IP-NetFlow and the external Realtek r8126/r8152 packages using the
+same upstream source recipe. The rolling repository may already have moved
+these packages to a newer kernel ABI; rebuilding only the missing kernel is
+not sufficient. Repository candidates and downloaded/built module packages
+are checked against the selected kernel release. The artifact records and
+verifies all six package checksums, and APT excludes other kernel images.
+This prevents a mixed-kernel root filesystem from reaching initramfs creation.

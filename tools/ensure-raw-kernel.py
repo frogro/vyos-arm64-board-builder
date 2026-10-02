@@ -16,6 +16,33 @@ import tempfile
 import tomllib
 
 
+# These upstream packages carry out-of-tree modules and depend on an exact ABI.
+COMPANIONS = ('jool', 'nat-rtsp', 'vyos-drivers-realtek-r8126',
+              'vyos-drivers-realtek-r8152', 'vyos-ipt-netflow')
+
+
+def validate_companion(deb, release, name):
+    fields = subprocess.check_output(['dpkg-deb', '-f', str(deb), 'Package', 'Architecture', 'Depends'], text=True)
+    info = dict(line.split(': ', 1) for line in fields.splitlines())
+    kernels = set(re.findall(r'linux-image-[a-zA-Z0-9.+-]+', info.get('Depends', '')))
+    if info.get('Package') != name or info.get('Architecture') != 'arm64' or kernels != {'linux-image-'+release}:
+        raise ValueError('Kernel companion ABI mismatch: '+str(info))
+
+
+def bundle_record(packages, metadata, release):
+    data = json.loads(metadata.read_text())
+    data['companions'] = []
+    for name in COMPANIONS:
+        matches = list(packages.glob(name+'_*.deb'))
+        if len(matches) != 1:
+            raise ValueError('Expected one kernel companion: '+name)
+        deb = matches[0]
+        validate_companion(deb, release, name)
+        data['companions'].append(dict(name=name, package=deb.name,
+            sha256=hashlib.sha256(deb.read_bytes()).hexdigest()))
+    metadata.write_text(json.dumps(data, indent=2)+'\n')
+
+
 def run(*args, **kwargs):
     return subprocess.run(list(map(str, args)), check=True, **kwargs)
 
@@ -83,14 +110,33 @@ def probe(source, packages, metadata):
             print(f'{package}: absent from successfully verified index; exact-source build required')
             metadata.write_text(json.dumps(dict(schema=1, mode='source-required', kernel_release=release))+'\n')
             return True
+        # Freeze the companion packages too: rolling may have advanced since
+        # the selected source commit even when that kernel is still available.
+        for name in COMPANIONS:
+            policy = subprocess.check_output(['apt-cache', *options, 'policy', name+':arm64'], text=True)
+            selected = candidate(policy)
+            if selected is None:
+                return True
+            info = subprocess.check_output(['apt-cache', *options, 'show', name+':arm64='+selected], text=True)
+            first = info.split('\n\n')[0]
+            deps = set(re.findall(r'linux-image-[a-zA-Z0-9.+-]+', first))
+            if deps != {package}:
+                print(name+': repository ABI differs; rebuild kernel and companions together')
+                metadata.write_text(json.dumps(dict(schema=1, mode='source-required', kernel_release=release))+'\n')
+                return True
+            run('apt-get', *options, 'download', name+':arm64='+selected, cwd=root)
         run('apt-get', *options, 'download', package+':arm64='+version, cwd=root)
-        files = list(root.glob('*.deb'))
+        files = list(root.glob(package+'_*.deb'))
         if len(files) != 1:
             raise ValueError('Expected exactly one downloaded kernel package')
         validate(files[0], release)
         target = packages/files[0].name
         shutil.copyfile(files[0], target)
         record(target, release, 'signed-repository', source, metadata)
+        for name in COMPANIONS:
+            for deb in root.glob(name+'_*.deb'):
+                shutil.copyfile(deb, packages/deb.name)
+        bundle_record(packages, metadata, release)
         return False
 
 
@@ -104,6 +150,12 @@ def import_built(source, packages, metadata):
     target = packages/files[0].name
     shutil.copyfile(files[0], target)
     record(target, release, 'exact-source-build', source, metadata)
+    for name in COMPANIONS:
+        matches = list((source/'scripts/package-build/linux-kernel').glob(name+'_*.deb'))
+        if len(matches) != 1:
+            raise ValueError('Expected one built companion: '+name)
+        shutil.copyfile(matches[0], packages/matches[0].name)
+    bundle_record(packages, metadata, release)
 
 
 def verify_artifact(source, packages, metadata):
@@ -118,9 +170,26 @@ def verify_artifact(source, packages, metadata):
     with deb.open('rb') as stream:
         if hashlib.file_digest(stream, 'sha256').hexdigest() != data['sha256']:
             raise ValueError('Kernel artifact checksum mismatch')
-    if sorted(p.name for p in packages.glob('*.deb')) != [filename]:
+    companions = data.get('companions', [])
+    if {item['name'] for item in companions} != set(COMPANIONS) or len(companions) != len(COMPANIONS):
+        raise ValueError('Incomplete kernel companion bundle')
+    for item in companions:
+        name = item['package']
+        if Path(name).name != name or not name.endswith('.deb'):
+            raise ValueError('Invalid companion filename')
+        deb_path = packages/name
+        if hashlib.sha256(deb_path.read_bytes()).hexdigest() != item['sha256']:
+            raise ValueError('Companion checksum mismatch')
+        validate_companion(deb_path, release, item['name'])
+    allowed = [filename]+[item['package'] for item in companions]
+    if sorted(p.name for p in packages.glob('*.deb')) != sorted(allowed):
         raise ValueError('Unexpected additional local packages')
     validate(deb, release)
+    # Fail during dependency resolution if another package tries to pull a
+    # different kernel. Never hide extra kernels in the initramfs hook.
+    preferences = source/'data/live-build-config/archives/exact-kernel.pref.chroot'
+    preferences.write_text(f'Package: linux-image-{release}\nPin: version *\nPin-Priority: 1001\n\n'
+                           'Package: linux-image-*\nPin: version *\nPin-Priority: -1\n')
     print('Verified exact kernel artifact:', filename)
 
 
