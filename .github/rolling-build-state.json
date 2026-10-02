@@ -235,7 +235,11 @@
           "run_attempt": 1
         },
         "orangepi5-plus": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 37048564982,
+          "status": "in_progress",
+          "conclusion": null,
+          "run_attempt": 1
         }
       },
       "vyos_commit": "f53ea3c722373c9469bb4c7ef542437af190956c",
