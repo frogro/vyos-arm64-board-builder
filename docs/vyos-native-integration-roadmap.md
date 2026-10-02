@@ -154,3 +154,13 @@ can consume newer state. Likewise, an image lacking a newly introduced CLI
 schema cannot be assumed to load that configuration. Document compatible
 rollback targets and a tested recovery path. This requirement is not yet a
 universal compatibility guarantee for the planned implementation.
+
+## Deferred: community image signatures
+
+Recorded 2026-10-02 at the user's request; low priority, not part of the current
+build fixes. Add Minisign signing of update ISOs, publish the matching
+`.iso.minisig` assets, and ship the community public key in
+`/usr/share/vyos/keys/*.minisign.pub`. Keep the private signing key protected in
+the release infrastructure. Plan initial trust distribution, key rotation and
+compatibility with existing unsigned installations. Do not generate or deploy
+keys as part of merely recording this future stage.
