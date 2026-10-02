@@ -216,8 +216,8 @@
         "radxa-e52c": {
           "dispatched": true,
           "run_id": 37048548495,
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "run_attempt": 1
         },
         "rock-5b": {
