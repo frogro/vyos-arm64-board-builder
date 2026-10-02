@@ -237,8 +237,8 @@
         "orangepi5-plus": {
           "dispatched": true,
           "run_id": 37069923724,
-          "status": "queued",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "run_attempt": 1
         }
       },
