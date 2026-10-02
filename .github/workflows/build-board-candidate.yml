@@ -192,6 +192,7 @@ jobs:
           python3 tests/test-syslog-start.py
           python3 tests/test-hostname-resolution.py
           python3 tests/test-mpp-patch-compat.py
+          python3 tests/test-decoder-patch-compat.py
           python3 tests/test-native-boot.py
           python3 tests/test-pi-native-boot.py
           bash tests/test-common-firstboot.sh

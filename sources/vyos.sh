@@ -358,6 +358,11 @@ vyos_kernel_prepare() {
     if [[ -n "${peripheral_patch_dir}" ]]; then
         while IFS= read -r patch_file; do
             info "Applying board peripheral patch $(basename "${patch_file}")"
+            if [[ "${patch_file}" == *-rk3588-v4l2-decoder.patch ]]; then
+                python3 "${ROOT_DIR}/tools/prepare-rk3588-decoder-patch.py" \
+                    "${patch_file}" "${source}" "${source}/.board-decoder-compatible.patch"
+                patch_file="${source}/.board-decoder-compatible.patch"
+            fi
             patch --batch --forward --fuzz=0 -d "${source}" -p1 < "${patch_file}"
         done < <(find "${peripheral_patch_dir}" -maxdepth 1 -type f -name '*.patch' -print | sort)
     fi
