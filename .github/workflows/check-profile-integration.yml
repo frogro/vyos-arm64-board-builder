@@ -16,7 +16,7 @@ jobs:
       - name: Install test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-tabulate python3-gi gir1.2-gstreamer-1.0 libxml2-utils
+          sudo apt-get install -y python3-tabulate python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-bad gstreamer1.0-tools libxml2-utils
       - name: Check isolation, update channels and common fixes
         run: |
           set -euo pipefail
