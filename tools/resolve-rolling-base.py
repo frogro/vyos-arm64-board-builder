@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Resolve one immutable VyOS source and an attested reusable raw artifact."""
 import argparse
+import base64
+import tomllib
 import hashlib
 import json
 import os
@@ -94,7 +96,17 @@ def main():
         print(recipe_hash())
         return
     commit, run, recipe = resolve(args.repo, args.ref, args.run_id)
-    output = f'vyos_commit={commit}\nraw_run_id={run}\nrecipe_sha256={recipe}\n'
+    item = json.loads(gh('api', f'repos/vyos/vyos-build/contents/data/defaults.toml?ref={commit}'))
+    defaults = tomllib.loads(base64.b64decode(item['content']).decode())
+    version = defaults['kernel_version']
+    flavor = defaults['kernel_flavor']
+    if not re.fullmatch(r'\d+\.\d+\.\d+', version) or not re.fullmatch('[a-z0-9-]+', flavor):
+        raise ValueError('Invalid upstream kernel identity')
+    output = f'vyos_commit={commit}\nkernel_release={version}-{flavor}\nraw_run_id={run}\nrecipe_sha256={recipe}\n'
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+            stream.write(f'VyOS source: `{commit}`; kernel: `{version}-{flavor}`. '
+                         f'Base: {run or "fresh build required"}. Board/profile patches are applied and compiled in the board job.\n')
     print(output, end='')
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:

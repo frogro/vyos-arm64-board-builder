@@ -73,3 +73,17 @@ A manual dry run checks selection without dispatching or modifying state.
 The watcher uses the repository-scoped GitHub token with contents/actions write;
 board publication continues to use the existing release credential. No personal
 credential is copied into the watcher.
+
+## Rolling source and kernel transitions
+
+The watcher resolves the current VyOS rolling commit and its kernel defaults
+once per poll. A new release build uses that immutable snapshot, rather than
+a historical commit inferred from the release tag timestamp. The latest release
+is also rebuilt after a kernel-version change even if no new release tag has
+appeared. Such refreshes wait until existing board/coordinator builds complete;
+previous generation records are retained and discovery excludes older runs.
+Community publications remain A–B. Optional C/D/F/G builds use the same source
+resolver and board-kernel validation but do not change the registered A–B feed.
+All kernel patch groups use batch/forward application with fuzz=0. Failed
+patches or compilation stop publication; this does not replace hardware tests.
+GitHub scheduled checks remain best effort, not a guaranteed polling interval.

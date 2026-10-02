@@ -5,7 +5,8 @@ import json
 import os
 import re
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
+import tomllib
 
 REPO = 'frogro/vyos-arm64-board-builder'
 STATE = '.github/rolling-build-state.json'
@@ -29,7 +30,30 @@ def pending(releases, state):
         and r['tag_name'] > state['baseline']),key=lambda r:r['tag_name'])
 
 def title(board, tag):
-    return f'{board} / {tag} / network=true tailscale=false kvm=false'
+    return f'{board} / {tag} / network=true tailscale=false kvm=false kiosk-f=false receiver-g=false'
+
+def kernel_at(commit):
+    data = api(f'repos/vyos/vyos-build/contents/data/defaults.toml?ref={commit}')
+    defaults = tomllib.loads(base64.b64decode(data['content']).decode())
+    version = defaults['kernel_version']
+    if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+        raise ValueError('Unsupported upstream kernel version')
+    return version
+
+
+def current_source():
+    commit = api('repos/vyos/vyos-build/commits/rolling')['sha']
+    if not re.fullmatch('[0-9a-f]{40}', commit):
+        raise ValueError('Invalid source SHA')
+    return commit, kernel_at(commit)
+
+
+def normalized_title(value):
+    # Older runs predate the two explicit multimedia flags.
+    if value.endswith('network=true tailscale=false kvm=false'):
+        return value+' kiosk-f=false receiver-g=false'
+    return value
+
 
 def retry_action(entry, run, latest=True):
     """Decide without changing GitHub; never restart active or successful work."""
@@ -54,15 +78,42 @@ def main():
                  'content':base64.b64encode((json.dumps(state,indent=2)+'\n').encode()).decode()}
         result=json.loads(subprocess.check_output(['gh','api','--method','PUT',f'repos/{REPO}/contents/{STATE}','--input','-'],input=json.dumps(payload),text=True))
         item['sha']=result['content']['sha']
-    runs=json.loads(gh('run','list','--repo',REPO,'--workflow','build-board-candidate.yml','--limit','100','--json','displayTitle,databaseId'))
+    runs=json.loads(gh('run','list','--repo',REPO,'--workflow','build-board-candidate.yml','--limit','100','--json','displayTitle,databaseId,status,createdAt'))
     known={}
     for run in runs:  # gh returns newest first; retain the newest matching run.
-        known.setdefault(run['displayTitle'], run['databaseId'])
+        known.setdefault(normalized_title(run['displayTitle']), run['databaseId'])
     selected=pending(releases,state)
     problems=[]
+    # One immutable snapshot for this poll; never choose a historical commit
+    # merely by the timestamp embedded in a release tag.
+    source_commit, kernel_version = current_source()
+    coordinators=json.loads(gh('run','list','--repo',REPO,'--workflow','rebuild-community-ab.yml',
+                              '--limit','10','--json','status'))
+    active = any(r.get('status') in ('queued','in_progress','waiting','pending') for r in runs+coordinators)
+    print(f'Current VyOS source: {source_commit}; kernel: {kernel_version}',flush=True)
     for release in selected:
         tag=release['tag_name']
         record=state.setdefault('releases',{}).setdefault(tag,{'boards':{}})
+        if record.get('kernel_refresh_at'):
+            known = {}
+            cutoff = datetime.fromisoformat(record['kernel_refresh_at'])
+            for run in runs:
+                created = run.get('createdAt')
+                if created and datetime.fromisoformat(created.replace('Z','+00:00')) >= cutoff:
+                    known.setdefault(normalized_title(run['displayTitle']),run['databaseId'])
+        refreshed = False
+        if tag == selected[-1]['tag_name'] and record.get('vyos_commit') and not active:
+            previous_kernel = record.get('kernel_version') or kernel_at(record['vyos_commit'])
+            complete = all(b in record['boards'] and record['boards'][b].get('conclusion') == 'success'
+                           for b in BOARDS if tag >= BOARD_FIRST_ROLLING.get(b,''))
+            if complete and previous_kernel != kernel_version:
+                print(f'{tag}: upstream kernel changed {previous_kernel} -> {kernel_version}; new build cycle',flush=True)
+                if not dry:
+                    record.setdefault('history',[]).append({k:v for k,v in record.items() if k != 'history'})
+                    record.update(boards={},vyos_commit=source_commit,kernel_version=kernel_version,
+                                  kernel_refresh_at=datetime.now(timezone.utc).isoformat())
+                    save()
+                    refreshed = True
         for board, entry in record['boards'].items():
             run_id=entry.get('run_id') or entry.get('existing_run') or known.get(title(board,tag))
             if not run_id:
@@ -96,19 +147,16 @@ def main():
         print(f'{tag}: pending boards: {", ".join(missing)}',flush=True)
         if dry: continue
         if 'vyos_commit' not in record:
-            # Reference snapshot near the release timestamp, not a package lock.
-            cutoff=datetime.strptime(tag,'%Y.%m.%d-%H%M-rolling').strftime('%Y-%m-%dT%H:%M:%SZ')
-            commits=api(f'repos/vyos/vyos-build/commits?sha=rolling&until={cutoff}&per_page=1')
-            record['vyos_commit']=commits[0]['sha']
-            if not re.fullmatch('[0-9a-f]{40}',record['vyos_commit']): raise ValueError('Invalid source SHA')
+            record['vyos_commit']=source_commit
+            record['kernel_version']=kernel_version
             save()
         for board in missing:
             run_title=title(board,tag)
-            if run_title in known:
+            if run_title in known and not refreshed and not record.get('kernel_refresh_at'):
                 record['boards'][board]={'existing_run':known[run_title]}
             else:
                 args=['workflow','run','build-board-candidate.yml','--repo',REPO,'--ref','main']
-                inputs={'board':board,'extended_network':'true','tailscale_subnet_router':'false','kvm_over_ip':'false',
+                inputs={'board':board,'extended_network':'true','tailscale_subnet_router':'false','kvm_over_ip':'false','kiosk_f':'false','receiver_g':'false',
                     'expected_update_provider':BOARDS[board],'vyos_ref':record['vyos_commit'],'armbian_ref':ARMBIAN,
                     'rolling_reference':tag,'force_fresh_base':'true','publish_release':'true'}
                 for key,val in inputs.items(): args.extend(['-f',f'{key}={val}'])

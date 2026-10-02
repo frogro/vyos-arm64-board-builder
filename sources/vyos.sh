@@ -292,7 +292,7 @@ vyos_kernel_prepare() {
 
         info "Applying $(basename "${patch_file}")"
 
-        patch \
+        patch --batch --forward --fuzz=0 \
             -d "${source}" \
             -p1 \
             < "${patch_file}"
@@ -312,7 +312,7 @@ vyos_kernel_prepare() {
 
             info "Applying $(basename "${patch_file}")"
 
-            patch \
+            patch --batch --forward --fuzz=0 \
                 -d "${source}" \
                 -p1 \
                 < "${patch_file}"
@@ -334,7 +334,7 @@ vyos_kernel_prepare() {
 
             info "Applying $(basename "${patch_file}")"
 
-            patch \
+            patch --batch --forward --fuzz=0 \
                 -d "${source}" \
                 -p1 \
                 < "${patch_file}"
