@@ -22,6 +22,24 @@ with patch.dict(sys.modules, {'vyos': vyos, 'vyos.config': config, 'vyos.configd
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 
 class Tests(unittest.TestCase):
+    def test_conversion_policy_rejects_unknown_and_non_gstreamer(self):
+        for option, value in [('cpu_conversion','bad'),('conversion_fallback','bad')]:
+            with self.assertRaises(ConfigError):
+                m.verify({'video': {'backend':'gstreamer', option:value}})
+        with self.assertRaises(ConfigError):
+            m.verify({'video': {'backend':'ffmpeg', 'cpu_conversion':'auto'}})
+        with patch.object(m.os.path, 'isfile', return_value=False), self.assertRaises(ConfigError):
+            m.verify({'video': {'backend':'gstreamer', 'cpu_conversion':'cached'}})
+
+    def test_conversion_defaults_preserve_direct_disabled(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            with patch.multiple(m, RUN_DIR=root, INPUT_CONFIG=root/'input.json',
+                                VIDEO_ENV=root/'video.env', MEDIAMTX_CONFIG=root/'media.yml'):
+                m.generate({'video': {'backend':'gstreamer'}})
+                self.assertIn('KVM_VIDEO_CPU_CONVERSION=direct', m.VIDEO_ENV.read_text())
+                self.assertIn('KVM_VIDEO_CONVERSION_FALLBACK=disabled', m.VIDEO_ENV.read_text())
+
     def test_colorimetry_rejects_wrong_backend_and_unknown_value(self):
         for backend, mode in [('ffmpeg', 'negotiated'), ('ustreamer', 'legacy'),
                               ('gstreamer', 'guess')]:

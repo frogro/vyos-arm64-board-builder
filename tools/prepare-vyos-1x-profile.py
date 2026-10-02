@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Add profile sources before the unmodified upstream generation/build targets."""
 import argparse
+import importlib.util
 import hashlib
 import json
 from pathlib import Path
@@ -89,8 +90,8 @@ def remove_duplicate_console_log(source):
         raise ValueError('Console log source layout changed; review required')
     return path, re.sub(pattern, '', text, count=1)
 
-def prepare(source, version, kvm, tailscale=False):
-    if not kvm and not tailscale:
+def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False):
+    if not kvm and not tailscale and not kiosk and not receiver:
         return None
     payload = {}
     profiles = []
@@ -110,8 +111,24 @@ def prepare(source, version, kvm, tailscale=False):
         raise ValueError('Upstream package version rule changed; review required')
     runner_postinst, runner_postinst_text = restore_operator_runner_install(source)
     console_fix = remove_duplicate_console_log(source)
-    digest = recipe(payload)
+    if kiosk:
+        profiles.append('kiosk-f')
+    recipe_files = dict(payload)
+    if kiosk:
+        recipe_files.update({str(p.relative_to(ROOT)): '' for p in
+                             (ROOT/'experiments/kiosk-f/cli').iterdir()
+                             if p.suffix in ('.py', '.xml')})
+    if receiver:
+        profiles.append('receiver-g')
+        recipe_files.update({str(p.relative_to(ROOT)): '' for p in
+                             (ROOT/'experiments/profile-g/cli').iterdir()
+                             if p.suffix in ('.py', '.xml')})
+    digest = recipe(recipe_files)
     suffix = 'kvm-tailscale' if kvm and tailscale else 'kvm' if kvm else 'tailscale'
+    if kiosk:
+        suffix = (suffix + '-kiosk') if kvm or tailscale else 'kiosk'
+    if receiver:
+        suffix = suffix+'-receiver' if kvm or tailscale or kiosk else 'receiver'
     output_version = version+'+'+suffix+'.'+digest[:12]
     destinations = [source/dst for dst in payload.values()]
     if any(p.exists() for p in destinations):
@@ -122,6 +139,16 @@ def prepare(source, version, kvm, tailscale=False):
         text = text.replace('/usr/local/libexec/vyos-kvm-', '/usr/libexec/vyos/vyos-kvm-')
         p = source/dst; p.parent.mkdir(parents=True,exist_ok=True); p.write_text(text)
         p.chmod(0o755 if dst.startswith(('src/helpers/', 'src/conf_mode/', 'src/op_mode/')) else 0o644)
+    if kiosk:
+        spec = importlib.util.spec_from_file_location('kiosk_source', ROOT/'experiments/kiosk-f/cli/prepare-source.py')
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        helper.prepare(source)
+    if receiver:
+        spec = importlib.util.spec_from_file_location('receiver_source', ROOT/'experiments/profile-g/cli/prepare-source.py')
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        helper.prepare(source)
     if console_fix:
         console_fix[0].write_text(console_fix[1])
     runner_postinst.write_text(runner_postinst_text)
@@ -134,4 +161,6 @@ def prepare(source, version, kvm, tailscale=False):
 if __name__ == '__main__':
     p=argparse.ArgumentParser(); p.add_argument('source',type=Path); p.add_argument('--version',required=True); p.add_argument('--kvm',action='store_true')
     p.add_argument('--tailscale',action='store_true')
-    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale)))
+    p.add_argument('--kiosk',action='store_true')
+    p.add_argument('--receiver',action='store_true')
+    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale,a.kiosk,a.receiver)))

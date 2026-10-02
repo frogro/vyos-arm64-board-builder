@@ -1,0 +1,56 @@
+--- a/src/video.cpp
++++ b/src/video.cpp
+@@ -35,6 +35,10 @@
+ #include "platform/common.h"
+ #include "sync.h"
+ #include "video.h"
++#ifdef __linux__
++#include <cstdlib>
++#include "platform/linux/rga-converter.hpp"
++#endif
+ 
+ #ifdef _WIN32
+ extern "C" {
+@@ -260,7 +264,41 @@
+     sws_input_frame->linesize[3] = 0;
+ 
+     // Perform color conversion and scaling to the final size
+-    auto status = sws_scale_frame(sws.get(), requires_padding ? sws_output_frame.get() : sw_frame.get(), sws_input_frame.get());
++    bool rga_converted = false;
++#ifdef __linux__
++    // Explicit experimental opt-in. Unsupported formats/scaling retain swscale.
++    static const bool rga_enabled = [] { const char *v = std::getenv("SUNSHINE_VYARM_RGA_TEST"); return v && std::string(v) == "1"; }();
++    auto target = requires_padding ? sws_output_frame.get() : sw_frame.get();
++    auto cs = avcodec_colorspace_from_sunshine_colorspace(colorspace);
++    if (rga_enabled && input_fmt == AV_PIX_FMT_BGR0 && target->format == AV_PIX_FMT_NV12 &&
++        img.width == target->width && img.height == target->height &&
++        (cs.software_format == SWS_CS_ITU709 || cs.software_format == SWS_CS_ITU601) &&
++        (cs.range == AVCOL_RANGE_MPEG || cs.range == AVCOL_RANGE_JPEG)) {
++      static thread_local vyarm::rga_converter converter;
++      static thread_local bool reported = false;
++      try {
++        rga_converted = converter.convert(img.data, img.row_pitch, target->data[0], target->linesize[0],
++                                         target->data[1], target->linesize[1], img.width, img.height,
++                                         cs.software_format == SWS_CS_ITU709, cs.range == AVCOL_RANGE_JPEG);
++      } catch (const std::exception &e) {
++        BOOST_LOG(warning) << "Experimental RGA unavailable: " << e.what();
++      }
++      if (rga_converted && !reported) {
++        BOOST_LOG(info) << "Experimental V4L2 RGA conversion active (same-size BGR0 to NV12)";
++        reported = true;
++      }
++    }
++    if (rga_enabled) {
++      static thread_local uint64_t total = 0, accelerated = 0;
++      ++total;
++      accelerated += rga_converted ? 1 : 0;
++      if (total % 120 == 0) {
++        BOOST_LOG(info) << "Experimental RGA frames total=" << total
++                        << " accelerated=" << accelerated << " cpu_fallback=" << (total - accelerated);
++      }
++    }
++#endif
++    auto status = rga_converted ? 0 : sws_scale_frame(sws.get(), requires_padding ? sws_output_frame.get() : sw_frame.get(), sws_input_frame.get());
+     if (status < 0) {
+       char string[AV_ERROR_MAX_STRING_SIZE];
+       BOOST_LOG(error) << "Couldn't scale frame: "sv << av_make_error_string(string, AV_ERROR_MAX_STRING_SIZE, status);

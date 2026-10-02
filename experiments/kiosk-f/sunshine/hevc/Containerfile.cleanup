@@ -1,0 +1,32 @@
+# Isolated cleanup candidate; requires explicitly selected local image IDs/digests.
+ARG HEVC_BUILDER
+ARG RUNTIME_BASE
+FROM ${HEVC_BUILDER} AS build
+COPY 0003-experimental-single-eos.patch 0004-experimental-frame-ownership.patch /tmp/
+COPY encode-smoke.c /tmp/encode-smoke.c
+RUN cd /build/ffmpeg \
+ && patch --batch --fuzz=0 -p1 < /tmp/0003-experimental-single-eos.patch \
+ && patch --batch --fuzz=0 -p1 < /tmp/0004-experimental-frame-ownership.patch \
+ && make -j1 && make install
+RUN cmake -S /build/source -B /buildcache -G Ninja \
+ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+ -DSUNSHINE_ASSETS_DIR=share/sunshine \
+ -DSUNSHINE_PUBLISHER_NAME=VyARM-Experimental \
+ -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DSUNSHINE_ENABLE_TRAY=OFF \
+ -DSUNSHINE_ENABLE_CUDA=OFF -DSUNSHINE_ENABLE_VULKAN=OFF \
+ -DSUNSHINE_ENABLE_WAYLAND=OFF -DSUNSHINE_ENABLE_KWIN=OFF \
+ -DSUNSHINE_ENABLE_PORTAL=OFF -DSUNSHINE_ENABLE_X11=ON \
+ -DSUNSHINE_ENABLE_DRM=ON -DFFMPEG_PREPARED_BINARIES=/opt/ffmpeg \
+ '-DFFMPEG_PLATFORM_LIBRARIES=x264;x265;/opt/mpp/lib/librockchip_mpp.so;drm;numa;va;va-drm;va-x11;X11;m;pthread;dl;rt' \
+ && cmake --build /buildcache --target sunshine -j1 \
+ && cp /buildcache/sunshine /build/sunshine-build/sunshine
+
+RUN export PKG_CONFIG_PATH=/opt/ffmpeg/lib/pkgconfig:/opt/mpp/lib/pkgconfig; \
+ cc -Wall -Wextra -Werror -O2 /tmp/encode-smoke.c -o /tmp/encode-smoke \
+ $(pkg-config --cflags --libs --static libavcodec libavutil)
+FROM ${RUNTIME_BASE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+COPY --from=build /build/sunshine-build/sunshine /usr/bin/sunshine
+# Diagnostic binary only in this experimental candidate; no credentials/state.
+COPY --from=build /tmp/encode-smoke /usr/local/libexec/vyarm-encode-smoke

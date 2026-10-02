@@ -92,6 +92,8 @@ def supervise(device, backend, runner, stopped, *, detect=detected_timings,
     last_state = None
     check_at = 0
     failures = 0
+    recovery = 0
+    recovery_enabled = backend == 'gstreamer' and os.environ.get('KVM_VIDEO_CONVERSION_FALLBACK') == 'enabled'
     uses_rtsp = backend in ('ffmpeg', 'gstreamer')
 
     def log(state):
@@ -100,31 +102,48 @@ def supervise(device, backend, runner, stopped, *, detect=detected_timings,
             print('KVM video: ' + state, flush=True)
             last_state = state
 
+    def degrade():
+        nonlocal recovery
+        if recovery_enabled:
+            recovery = min(recovery + 1, 3)
+            log(('using selected CPU conversion after pipeline failure',
+                 'using direct CPU conversion after repeated failure',
+                 'recovery budget exhausted; waiting for source change or service restart')[recovery - 1])
+
     try:
         while not stopped.is_set():
             timing = detect(device)
             if stopped.is_set():
                 break
-            if child is not None and (child.poll() is not None or not same_timings(timing, active_timing)):
+            changed = not same_timings(timing, active_timing)
+            if changed:
+                recovery = 0
+            if child is not None and (child.poll() is not None or changed):
+                if not changed and (not uses_rtsp or ready()):
+                    degrade()
                 log('capture exited or HDMI signal changed; releasing capture')
                 stop(child)
                 child = None
                 failures = 0
             if timing is None:
                 log('waiting for HDMI signal')
-            elif child is None:
+            elif child is None and recovery < 3:
                 if uses_rtsp and not ready():
                     log('waiting for local RTSP transport')
                 else:
                     env = dict(os.environ, KVM_VIDEO_SUPERVISED='1')
+                    if recovery:
+                        env['KVM_VIDEO_CONVERSION_RECOVERY'] = 'cpu' if recovery == 1 else 'direct'
                     child = launch([runner], env=env, start_new_session=True)
                     active_timing = timing
                     check_at = clock() + 15  # Allow capture/encoder startup.
                     log('HDMI signal ready; starting capture')
-            elif uses_rtsp and clock() >= check_at:
+            elif child is not None and uses_rtsp and clock() >= check_at:
                 failures = 0 if healthy() else failures + 1
                 check_at = clock() + 10
                 if failures >= 2:
+                    if ready():
+                        degrade()
                     log('no video packets on two checks; restarting capture')
                     stop(child)
                     child = None
@@ -139,11 +158,15 @@ def main():
     parser.add_argument('device')
     parser.add_argument('backend', choices=['ffmpeg', 'gstreamer', 'ustreamer'])
     parser.add_argument('runner')
+    parser.add_argument('--generic', action='store_true')
     args = parser.parse_args()
     stopped = threading.Event()
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: stopped.set())
-    supervise(args.device, args.backend, args.runner, stopped)
+    kwargs = {}
+    if args.generic:
+        kwargs['detect'] = lambda device: (('device', device),) if os.path.exists(device) else None
+    supervise(args.device, args.backend, args.runner, stopped, **kwargs)
 
 
 if __name__ == '__main__':

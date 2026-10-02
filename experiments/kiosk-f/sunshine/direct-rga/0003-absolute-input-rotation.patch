@@ -1,0 +1,41 @@
+--- a/src/platform/virtualhid_input.cpp
++++ b/src/platform/virtualhid_input.cpp
+@@ -9,6 +9,7 @@
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
++#include <cstdlib>
+ #include <format>
+ #include <limits>
+ #include <mutex>
+@@ -800,14 +801,28 @@
+   }
+ 
+   void abs_mouse(input_context_t &context, const touch_port_t &touch_port, float x, float y) {
++    int port_width = touch_port.width, port_height = touch_port.height;
++#ifdef __linux__
++    // Explicit compositor/device coordinate correction; physical touch is untouched.
++    const char *rotation = std::getenv("SUNSHINE_VYARM_ABS_ROTATION");
++    if (rotation && port_width > 0 && port_height > 0) {
++      const float old_x = x, old_y = y;
++      std::string_view r(rotation);
++      if (r == "90") { x = port_height - 1 - old_y; y = old_x; std::swap(port_width, port_height); }
++      else if (r == "180") { x = port_width - 1 - old_x; y = port_height - 1 - old_y; }
++      else if (r == "270") { x = old_y; y = port_width - 1 - old_x; std::swap(port_width, port_height); }
++      x = std::clamp(x, 0.0f, float(port_width - 1));
++      y = std::clamp(y, 0.0f, float(port_height - 1));
++    }
++#endif
+     if (context.mouse) {
+       log_failure(
+         "submit libvirtualhid absolute mouse movement"sv,
+         context.mouse->move_absolute(
+           static_cast<std::int32_t>(std::lround(x)),
+           static_cast<std::int32_t>(std::lround(y)),
+-          touch_port.width,
+-          touch_port.height
++          port_width,
++          port_height
+         )
+       );
+     }

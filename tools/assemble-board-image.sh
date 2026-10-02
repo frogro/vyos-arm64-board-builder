@@ -24,6 +24,9 @@ EXTENDED_NETWORK="${EXTENDED_NETWORK:-no}"
 TAILSCALE_SUBNET_ROUTER="${TAILSCALE_SUBNET_ROUTER:-no}"
 BUILD_PROFILE="${BUILD_PROFILE:-base}"
 KVM_OVER_IP="${KVM_OVER_IP:-no}"
+KIOSK_F="${KIOSK_F:-no}"
+RECEIVER_G="${RECEIVER_G:-no}"
+KIOSK_F_GPU_FIRMWARE="${KIOSK_F_GPU_FIRMWARE:-none}"
 KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
 KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
 KVM_HID_GADGET="${KVM_HID_GADGET:-no}"
@@ -39,6 +42,11 @@ if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$KVM_HARDWARE_SELECTION"
 fi
+
+# Multimedia profiles are opt-in; automatic rolling builds remain A–B.
+[[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
+[[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || { echo 'Invalid KIOSK_F' >&2; exit 1; }
+[[ "$KIOSK_F_GPU_FIRMWARE" == none || "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]] || exit 1
 
 SECTOR_SIZE=512
 
@@ -164,7 +172,7 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
 fi
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
     [[ -x "$KVM_CLI_INSTALLER" ]] ||
         die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
@@ -493,10 +501,15 @@ mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
-    python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER"
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER"
+    if [[ -n "${VYOS_1X_PREBUILT:-}" ]]; then
+        KVM_CLI_ARTIFACTS="$(realpath "$VYOS_1X_PREBUILT")"
+        [[ -s "$KVM_CLI_ARTIFACTS/build.json" ]] || die "Prebuilt CLI provenance missing"
+    else
+        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G"
+    fi
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G"
 fi
 
 if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
@@ -565,7 +578,9 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$KVM_OVER_IP" \
     "$KVM_HARDWARE_PROVIDER" \
     "$KVM_CAPTURE_BACKEND" \
-    "$KVM_HID_GADGET"
+    "$KVM_HID_GADGET" \
+    "$KIOSK_F" \
+    "$RECEIVER_G"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
@@ -598,6 +613,28 @@ python3 "$SYSTEM_IMAGE_DTB_PATCHER" \
     "$SQUASH_ROOT"
 
 echo
+if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes ]]; then
+    echo "===== STAGING SELECTED GRAPHICS HOST DEPENDENCIES ====="
+    firmware_args=()
+    if [[ "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]]; then
+        firmware_args+=(--panthor-arch10-8)
+    elif grep -Eq '^CONFIG_DRM_PANTHOR=[ym]$' "$KERNEL_ARTIFACTS/kernel.config"; then
+        die "F Panthor build requires an explicit supported GPU firmware selection"
+    fi
+    python3 "$ROOT/experiments/kiosk-f/host/install.py" --rootfs "$SQUASH_ROOT" \
+        --cache "$ROOT/cache/kiosk-f-firmware" "${firmware_args[@]}"
+    bash "$ROOT/experiments/kiosk-f/host/protect-grub-dtb.sh" "$SQUASH_ROOT" "$BOOT_FDT_FILE"
+    if [[ "$KIOSK_F" == yes ]]; then
+        [[ -n "${KIOSK_F_RUNTIME:-}" ]] || die "Profile F requires a verified offline kiosk runtime"
+        python3 "$ROOT/experiments/kiosk-f/image/stage-runtime.py" "$SQUASH_ROOT" "$KIOSK_F_RUNTIME"
+    fi
+fi
+
+if [[ "$RECEIVER_G" == yes ]]; then
+    [[ -n "${RECEIVER_G_RUNTIME:-}" ]] || die "Profile G requires a verified offline receiver runtime"
+    python3 "$ROOT/experiments/profile-g/image/stage-runtime.py" "$SQUASH_ROOT" "$RECEIVER_G_RUNTIME"
+fi
+
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="
 
 [[ -x "$SQUASH_ROOT/usr/sbin/update-initramfs" ]] ||
@@ -630,6 +667,14 @@ if [[ "$KVM_OVER_IP" == "yes" && "$KVM_HARDWARE_PROVIDER" == "rk3588-synopsys-hd
     echo
     echo "===== INSTALLING RK3588 KVM MEDIA STACK ====="
     "$KVM_MEDIA_INSTALLER" "$SQUASH_ROOT" "$KVM_MEDIA_ARTIFACTS"
+fi
+
+# Explicit test-build input; never changes standard A-D assembly by default.
+if [[ "$KVM_OVER_IP" == yes && -n "${KVM_CACHED_COPY_BINARY:-}" ]]; then
+    install -D -m 0755 "$KVM_CACHED_COPY_BINARY" "$SQUASH_ROOT/usr/libexec/vyos/vyos-kvm-cached-launch"
+    chroot "$SQUASH_ROOT" /usr/libexec/vyos/vyos-kvm-cached-launch \
+        videotestsrc num-buffers=2 ! video/x-raw,format=BGR,width=64,height=64 \
+        ! identity name=vyarm_cached_copy ! videoconvert ! video/x-raw,format=NV12 ! fakesink
 fi
 
 chroot "$SQUASH_ROOT" /bin/bash -c "

@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+/plugin/;
+
+/* Orange Pi 5 Plus: enable the shared RK3588 VEPU580 encoder cluster.
+ * Preserve board HDMI, USB-C role switching and all USB host ports.
+ * USB gadget readiness remains a runtime check, not a hardware-test claim. */
+/ {
+    fragment@0 {
+        target-path = "/mpp-srv";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@1 {
+        target-path = "/rkvenc-ccu";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@2 {
+        target-path = "/rkvenc-core@fdbd0000";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@3 {
+        target-path = "/iommu@fdbdf000";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@4 {
+        target-path = "/rkvenc-core@fdbe0000";
+        __overlay__ { status = "okay"; };
+    };
+    fragment@5 {
+        target-path = "/iommu@fdbef000";
+        __overlay__ { status = "okay"; };
+    };
+};

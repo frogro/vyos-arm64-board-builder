@@ -39,12 +39,15 @@ class BaseHardware(unittest.TestCase):
         rock=self.selection('rock-5b','no','no')
         orange=self.selection('orangepi5-plus','no','no')
         self.assertEqual(rock[3],orange[3])
-        self.assertEqual('',rock[4])
+        self.assertTrue(rock[4].endswith('/rock-5b'))
         self.assertTrue(orange[4].endswith('/orangepi5-plus'))
         self.assertIn('panthor',(ROOT/orange[2]).read_text())
         registry=(ROOT/'profiles/kvm-hardware-providers.conf').read_text()
         self.assertIn('rock5b-fc400000-peripheral.dts',registry)
-        self.assertNotIn('orangepi5-plus|rk3588-synopsys-hdmirx|',registry)
+        for line in registry.splitlines():
+            if line.startswith('orangepi5-plus|'):
+                self.assertNotIn('rock5b-fc400000', line)
+                self.assertEqual('runtime', line.split('|')[5])
 
     def test_missing_dma_heaps_rejected_after_kconfig(self):
         spec = importlib.util.spec_from_file_location('ready', ROOT/'tools/validate-tailscale-ready.py')

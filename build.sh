@@ -128,10 +128,18 @@ main() {
             'profiles/extended-network-drivers.txt'
     } > "${selection_dir}/extended-network.env"
 
+    python3 "${ROOT_DIR}/tools/ci/multimedia-plan.py" \
+        --board "${board}" --network "${extended_network}" \
+        --tailscale "${tailscale_subnet_router}" --kvm "${kvm_over_ip}" \
+        --kiosk "${KIOSK_F:-no}" --receiver "${RECEIVER_G:-no}" \
+        > "${selection_dir}/multimedia-plan.json"
+
     python3 "${ROOT_DIR}/tools/feature-profile.py" \
         --extended-network "${extended_network}" \
         --tailscale-subnet-router "${tailscale_subnet_router}" \
         --kvm-over-ip "${kvm_over_ip}" \
+        --kiosk-f "${KIOSK_F:-no}" \
+        --receiver-g "${RECEIVER_G:-no}" \
         --output-env "${selection_dir}/feature-profiles.env" \
         --output-json "${selection_dir}/feature-profile.json"
 

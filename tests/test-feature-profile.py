@@ -29,6 +29,11 @@ class FeatureProfileTests(unittest.TestCase):
             with self.subTest(flags=flags):
                 self.assertEqual(MODULE.derive(*flags)["profile"], expected)
 
+    def test_optional_f_is_distinct_and_preserves_legacy(self):
+        self.assertEqual(MODULE.derive(True, True, True, True)["profile"], "network-tailscale-kvm-kiosk")
+        self.assertTrue(MODULE.derive(True, True, True, True)["features"]["kiosk_f"])
+        self.assertNotIn("kiosk_f", MODULE.derive(True, True, True)["features"])
+
     def test_boolean_parser(self):
         for value in ("yes", "true", "1", "on", "Y"):
             self.assertTrue(MODULE.parse_bool(value))

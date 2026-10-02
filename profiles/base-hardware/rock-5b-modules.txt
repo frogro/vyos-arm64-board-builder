@@ -1,0 +1,2 @@
+# Firmware roots for the tested Panthor path.
+panthor

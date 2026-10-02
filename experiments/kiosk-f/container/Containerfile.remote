@@ -1,0 +1,7 @@
+# Companion layer for the already-tested kiosk CLI image. Does not rebuild codecs.
+FROM localhost/vyarm-kiosk:cli-test
+COPY kiosk-audio.py kiosk-session.py kiosk-media.py kiosk-sunshine.py /usr/local/bin/
+RUN chmod 755 /usr/local/bin/kiosk-session.py /usr/local/bin/kiosk-sunshine.py
+LABEL io.vyarm.kiosk.sunshine-policy="1"
+
+LABEL io.vyarm.kiosk.media-policy="2"

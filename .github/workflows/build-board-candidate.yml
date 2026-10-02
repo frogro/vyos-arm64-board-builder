@@ -1,5 +1,5 @@
 name: Build VyOS ARM64 board candidate
-run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }}"
+run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }} kiosk-f=${{ inputs.kiosk_f }} receiver-g=${{ inputs.receiver_g }}"
 
 on:
   # Creating a deliberately named test branch is the non-interactive CI entry
@@ -51,6 +51,15 @@ on:
         required: true
         default: false
         type: boolean
+
+      kiosk_f:
+        description: "Include optional RK3588 kiosk/Sunshine runtime"
+        type: boolean
+        default: false
+      receiver_g:
+        description: "Include Miracast, AirPlay, Moonlight and Steam Link runtime"
+        type: boolean
+        default: false
 
       vyos_ref:
         description: "VyOS build commit matching the selected raw-image kernel ABI"
@@ -126,7 +135,7 @@ jobs:
       ${{ always() && !cancelled() && needs.rolling-base.result == 'success' &&
           (needs.fresh-base.result == 'success' || needs.fresh-base.result == 'skipped') }}
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 240
+    timeout-minutes: 360
 
     permissions:
       actions: read
@@ -138,6 +147,8 @@ jobs:
       EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
       TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
+      KIOSK_F: ${{ inputs.kiosk_f && 'yes' || 'no' }}
+      RECEIVER_G: ${{ inputs.receiver_g && 'yes' || 'no' }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
       ROLLING_REFERENCE: ${{ inputs.rolling_reference || '' }}
@@ -151,6 +162,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check RK3588 multimedia integration contract
+        run: |
+          python3 tools/ci/multimedia-plan.py --board "$BOARD" \
+            --network "$EXTENDED_NETWORK" --tailscale "$TAILSCALE_SUBNET_ROUTER" \
+            --kvm "$KVM_OVER_IP" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G"
+          python3 tests/test-multimedia-selection.py
 
       - name: Test image version table formatting
         run: |
@@ -222,38 +240,8 @@ jobs:
         run: |
           sudo apt-get update
 
-          sudo apt-get install -y \
-            bc \
-            bison \
-            flex \
-            build-essential \
-            binutils \
-            libssl-dev \
-            libelf-dev \
-            libncurses-dev \
-            libxtables-dev \
-            iptables \
-            pkg-config \
-            device-tree-compiler \
-            python3 \
-            rsync \
-            kmod \
-            curl \
-            gnupg2 \
-            patch \
-            xz-utils \
-            zstd \
-            squashfs-tools \
-            xorriso \
-            dosfstools \
-            e2fsprogs \
-            gdisk \
-            parted \
-            dpkg-dev \
-            debootstrap \
-            initramfs-tools-core \
-            coreutils \
-            findutils
+          mapfile -t packages < <(sed '/^#/d; /^$/d' tools/ci/board-build-packages.txt)
+          sudo apt-get install -y "${packages[@]}"
 
           uname -a
           dpkg --print-architecture
@@ -428,6 +416,21 @@ jobs:
 
           df -h
 
+      - name: Build selected F/G runtimes for the selected RK3588 board
+        if: inputs.kiosk_f || inputs.receiver_g
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sudo mkdir -p /work
+          sudo chown "$USER:$USER" /work
+          ln -s "$GITHUB_WORKSPACE" /work/repo
+          bash tools/ci/orangepi-adfg-runtime.sh
+          echo KIOSK_F_GPU_FIRMWARE=mali-arch10.8 >> "$GITHUB_ENV"
+          if [[ "$KIOSK_F" == yes ]]; then echo KIOSK_F_RUNTIME=/work/runtime-artifacts >> "$GITHUB_ENV"; fi
+          if [[ "$RECEIVER_G" == yes ]]; then echo RECEIVER_G_RUNTIME=/work/receiver-artifacts >> "$GITHUB_ENV"; fi
+          if [[ -f /work/cached-launch ]]; then echo KVM_CACHED_COPY_BINARY=/work/cached-launch >> "$GITHUB_ENV"; fi
+          echo VYOS_1X_BUILD_LOCAL_IMAGE=vyos-profile-build:arm64-22dfa15927f2 >> "$GITHUB_ENV"
+
       - name: Assemble VyOS board image
         shell: bash
         run: |
@@ -444,7 +447,11 @@ jobs:
           [[ -n "${RAW}" ]]
           test -s "${RAW}"
 
-          sudo \
+          if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes ]]; then
+            sudo bash tools/ci/expand-multimedia-base.sh "$RAW"
+          fi
+          sudo --preserve-env=KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
+            env OUTPUT_EXTRA_SECTORS=32768 \
             ./tools/assemble-board-image.sh \
               "${BOARD}" \
               "${HW_BRANCH}" \
@@ -455,6 +462,10 @@ jobs:
             "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
           df -h
+
+      - name: Verify complete board SD/eMMC rootfs before ISO packaging
+        if: inputs.kiosk_f || inputs.receiver_g
+        run: sudo --preserve-env=BOARD,GITHUB_SHA,EXTENDED_NETWORK,TAILSCALE_SUBNET_ROUTER,KVM_OVER_IP,KIOSK_F,RECEIVER_G bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
       - name: Create VyOS system-image update ISO
         shell: bash
@@ -559,6 +570,19 @@ jobs:
             work/build/${{ env.BOARD }}/selection/kvm-hardware.json
           if-no-files-found: error
           compression-level: 0
+
+      - name: Preserve multimedia build logs and provenance
+        if: always() && (inputs.kiosk_f || inputs.receiver_g)
+        uses: actions/upload-artifact@v4
+        with:
+          name: orangepi-adfg-build-report-${{ github.run_id }}
+          path: |
+            /work/sunshine-build.log
+            /work/receiver-artifacts/build.log
+            /work/receiver-artifacts/runtime.json
+            /work/runtime-artifacts/runtime.json
+            work/build/${{ env.BOARD }}/selection/
+          if-no-files-found: ignore
 
       - name: Publish GitHub release
         if: ${{ github.event_name == 'push' || inputs.publish_release }}

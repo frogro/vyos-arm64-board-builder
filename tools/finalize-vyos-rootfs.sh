@@ -12,6 +12,10 @@ KVM_OVER_IP="${6:-no}"
 KVM_HARDWARE_PROVIDER="${7:-disabled}"
 KVM_CAPTURE_BACKEND="${8:-disabled}"
 KVM_HID_GADGET="${9:-no}"
+KIOSK_F="${10:-no}"
+RECEIVER_G="${11:-no}"
+[[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
+[[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || exit 1
 
 case "${TAILSCALE_SUBNET_ROUTER,,}" in
     1|true|yes|y|on|enabled) TAILSCALE_SUBNET_ROUTER=yes ;;
@@ -64,6 +68,16 @@ case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}:${KVM_OVER_IP}" in
     yes:yes:yes) EXPECTED_PROFILE=network-tailscale-kvm ;;
 esac
 
+if [[ "$KIOSK_F" == yes ]]; then
+    [[ "$EXPECTED_PROFILE" != base ]] || EXPECTED_PROFILE=""
+    EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}kiosk"
+fi
+
+if [[ "$RECEIVER_G" == yes ]]; then
+    [[ "$EXPECTED_PROFILE" != base ]] || EXPECTED_PROFILE=""
+    EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}receiver"
+fi
+
 [[ "$BUILD_PROFILE" == "$EXPECTED_PROFILE" ]] || {
     echo "ERROR: build profile '$BUILD_PROFILE' does not match selected features; expected '$EXPECTED_PROFILE'" >&2
     exit 1
@@ -88,12 +102,12 @@ PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
     "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" \
-    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" <<'PY'
+    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" "$RECEIVER_G" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale, kvm, provider, capture, hid = sys.argv[1:]
+output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk, receiver = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 2,
     "architecture": "arm64",
@@ -103,6 +117,8 @@ Path(output).write_text(json.dumps({
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+        **({"kiosk_f": True} if kiosk == "yes" else {}),
+        **({"receiver_g": True} if receiver == "yes" else {}),
     },
     "kvm": {
         "hardware_provider": provider,
@@ -132,7 +148,7 @@ do
         "$STAGE_DIR/$script"
 done
 
-# The LAN/AP bridge helper has Orange-Pi-specific port assumptions.
+# Orange Pi helper shares the image/update finalizer.
 if [[ "$BOARD" == orangepi5-plus ]]; then
     install -m 0755 "$PAYLOAD/setup-lan-ap-bridge.sh" "$STAGE_DIR/setup-lan-ap-bridge.sh"
 fi
@@ -178,6 +194,14 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
         "$SBIN_DIR/vyos-kvm-gadget"
 
     KVM_GADGET_PROVIDER_SOURCE="$ROOT/profiles/kvm-hardware/runtime/${KVM_HARDWARE_PROVIDER}.env"
+    # Same media provider does not imply the same physical gadget port.
+    if [[ "$KVM_HARDWARE_PROVIDER" == rk3588-synopsys-hdmirx && "$BOARD" != rock-5b ]]; then
+        KVM_GADGET_PROVIDER_SOURCE="$ROOT/profiles/kvm-hardware/runtime/${BOARD}/${KVM_HARDWARE_PROVIDER}.env"
+        [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]] || {
+            echo "ERROR: missing board-specific USB gadget routing for $BOARD" >&2
+            exit 1
+        }
+    fi
     if [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]]; then
         install -m 0644 \
             "$KVM_GADGET_PROVIDER_SOURCE" \

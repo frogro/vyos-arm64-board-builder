@@ -1,0 +1,27 @@
+--- a/sys/v4l2codecs/gstv4l2codech265dec.c
++++ b/sys/v4l2codecs/gstv4l2codech265dec.c
+@@ -1138,6 +1138,24 @@
+ {
+   GstVideoInfo dst_info = dest_frame->info;
+ 
++  /* A bottom/right conformance crop of linear NV12 needs no pixel
++   * conversion. Copy the visible rows using VideoFrame strides/offsets,
++   * rather than unpacking and repacking uncached decoder memory. Keep the
++   * converter for other formats and non-zero crop origins. */
++  if (g_strcmp0 (g_getenv ("VYARM_GST_HEVC_CROP_COPY"), "0") != 0 &&
++      GST_VIDEO_FRAME_FORMAT (src_frame) == GST_VIDEO_FORMAT_NV12 &&
++      GST_VIDEO_FRAME_FORMAT (dest_frame) == GST_VIDEO_FORMAT_NV12 &&
++      self->crop_rect_x == 0 && self->crop_rect_y == 0 &&
++      self->crop_rect_width == self->display_width &&
++      self->crop_rect_height == self->display_height &&
++      self->display_width <= GST_VIDEO_FRAME_WIDTH (src_frame) &&
++      self->display_height <= GST_VIDEO_FRAME_HEIGHT (src_frame)) {
++    GstVideoFrame visible = *src_frame;
++    GST_VIDEO_INFO_WIDTH (&visible.info) = self->display_width;
++    GST_VIDEO_INFO_HEIGHT (&visible.info) = self->display_height;
++    return gst_video_frame_copy (dest_frame, &visible);
++  }
++
+   dst_info.fps_n = src_frame->info.fps_n;
+   dst_info.fps_d = src_frame->info.fps_d;
+ 

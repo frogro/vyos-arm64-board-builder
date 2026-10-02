@@ -1,0 +1,10 @@
+# Preserve the tested Mesa/Weston stack, remove the F applications.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+USER root
+RUN set -eu; packages="$(dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -E '^(chromium([-:]|$)|sunshine([:]|$))' || true)"; \
+    if [ -n "$packages" ]; then apt-get purge -y $packages; fi; \
+    rm -rf /opt/vyarm/chromium /opt/kiosk /etc/chromium /home/kiosk/.config/chromium; \
+    rm -f /usr/bin/sunshine /usr/local/bin/start-kiosk /usr/local/bin/kiosk-*; \
+    test -x /usr/bin/weston; test ! -e /opt/vyarm/chromium/chrome; \
+    ! command -v sunshine; ! command -v chromium
