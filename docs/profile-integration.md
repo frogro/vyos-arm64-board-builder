@@ -62,3 +62,23 @@ profiles. The established test-branch commits remain available as reference;
 `cf481dc2421b77e4ef4df2266c0f11a9394664ee` is the main revision before this
 integration. Reverting source commits is distinct from selecting an older
 installed image at boot.
+
+## Missing Rolling kernel packages
+
+A reusable raw artifact must match the selected immutable VyOS source and the
+raw-build recipe. When a fresh base is needed, the builder first checks the
+signed ARM64 package index for the exact `kernel_version`/`kernel_flavor` from
+that source. It downloads and verifies an available package before live-build.
+If the verified index no longer contains it, the official kernel package recipe
+from the same source runs on an ARM64 runner. Repository/signature failures do
+not trigger a silent fallback or a kernel version change.
+
+The resulting package is checked for package name, ARM64 architecture, kernel
+payload, source commit and SHA-256 before it enters `vyos-build/packages`.
+Board-specific kernels, drivers, modules, DTs and selected application profiles
+are still assembled separately; sharing a base does not share a board kernel.
+
+`Rebuild Community A-B images from one fresh base` creates the base once, then
+dispatches the four board publications with its attested artifact. Existing
+releases remain available. Fresh base creation produces a new image version,
+so old releases do not need to be overwritten merely to pick up builder fixes.

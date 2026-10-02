@@ -20,7 +20,57 @@ on:
         value: ${{ jobs.vyos-arm64-raw.outputs.raw_run_id }}
 
 jobs:
+  kernel-package:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 240
+    outputs:
+      source_commit: ${{ steps.source.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact VyOS source
+        id: source
+        env:
+          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
+        run: |
+          set -euo pipefail
+          ROOT_DIR="$PWD"
+          info() { echo "$*"; }
+          die() { echo "$*" >&2; exit 1; }
+          source sources/vyos.sh
+          vyos_fetch
+          echo "commit=$(git -C cache/vyos-build rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Test kernel package selection
+        run: python3 tests/test-raw-kernel.py
+      - name: Check signed repository for exact ARM64 kernel
+        id: kernel
+        run: |
+          sudo --preserve-env=GITHUB_OUTPUT python3 tools/ensure-raw-kernel.py cache/vyos-build \
+            --packages work/raw-kernel --metadata work/raw-kernel/kernel-package.json
+          sudo chown -R "$(id -u):$(id -g)" work/raw-kernel
+      - name: Build native ARM64 toolchain from the selected official source
+        if: steps.kernel.outputs.build_required == 'true'
+        run: |
+          docker build --network host --platform linux/arm64 --build-arg ARCH=arm64v8/ \
+            -t vyarm-raw-kernel-builder:local cache/vyos-build/docker
+          test "$(docker image inspect --format '{{.Architecture}}' vyarm-raw-kernel-builder:local)" = arm64
+      - name: Build missing exact-version kernel with upstream recipe
+        if: steps.kernel.outputs.build_required == 'true'
+        run: |
+          docker run --rm --privileged --user root --entrypoint /bin/bash \
+            -v "$PWD/cache/vyos-build:/vyos" \
+            -w /vyos/scripts/package-build/linux-kernel vyarm-raw-kernel-builder:local \
+            -ec 'git config --global --add safe.directory /vyos; python3 build.py --packages linux-kernel --keep-kernel'
+          sudo python3 tools/ensure-raw-kernel.py cache/vyos-build --import-built \
+            --packages work/raw-kernel --metadata work/raw-kernel/kernel-package.json
+          docker image inspect vyarm-raw-kernel-builder:local --format '{{.Id}}' > work/raw-kernel/build-container-id.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vyos-arm64-raw-kernel
+          path: work/raw-kernel/
+          if-no-files-found: error
+
   vyos-arm64-raw:
+    needs: kernel-package
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     outputs:
@@ -37,7 +87,7 @@ jobs:
 
       - name: Checkout official VyOS build
         env:
-          VYOS_REF: ${{ inputs.vyos_ref || 'rolling' }}
+          VYOS_REF: ${{ needs.kernel-package.outputs.source_commit }}
         run: |
           set -euo pipefail
           ROOT_DIR="$PWD"
@@ -49,6 +99,17 @@ jobs:
           python3 tools/resolve-rolling-base.py --recipe-only > work/raw-provenance/raw-recipe-sha256.txt
           git -C cache/vyos-build rev-parse HEAD > work/raw-provenance/vyos-source-commit.txt
           cp cache/vyos-build/data/defaults.toml work/raw-provenance/vyos-defaults.toml
+
+      - name: Download verified exact-version kernel package
+        uses: actions/download-artifact@v4
+        with:
+          name: vyos-arm64-raw-kernel
+          path: cache/vyos-build/packages
+      - name: Verify kernel artifact checksum and record provenance
+        run: |
+          python3 tools/ensure-raw-kernel.py cache/vyos-build --verify-artifact \
+            --packages cache/vyos-build/packages --metadata cache/vyos-build/packages/kernel-package.json
+          cp cache/vyos-build/packages/kernel-package.json work/raw-provenance/
 
       - name: Apply ARM64 VyOS raw image patch
         shell: bash

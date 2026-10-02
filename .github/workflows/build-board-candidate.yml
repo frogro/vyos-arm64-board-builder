@@ -86,7 +86,7 @@ on:
         type: string
 
       force_fresh_base:
-        description: "Rebuild matching Rolling base for a new image version"
+        description: "Force fresh base; missing exact kernel packages are built from matching source"
         required: false
         default: false
         type: boolean

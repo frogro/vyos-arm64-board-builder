@@ -76,6 +76,17 @@ class Selection(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.resolve('42')
 
+    def test_coordinator_base_must_be_complete(self):
+        run = dict(id=42, conclusion=None, path='.github/workflows/rebuild-community-ab.yml')
+        original = self.gh
+        for result, accepted in [('success', True), ('failure', False), (None, False)]:
+            def gh(*args):
+                if any(str(arg).endswith('/jobs') for arg in args):
+                    return json.dumps({'jobs':[{'name':'base / vyos-arm64-raw', 'conclusion':result}]})
+                return original(*args)
+            with patch.object(m, 'gh', gh):
+                self.assertEqual(m.reusable('owner/repo', run, SHA, self.recipe), accepted)
+
     def test_api_failure_is_not_cache_miss(self):
         with patch.object(m, 'gh', side_effect=RuntimeError('API unavailable')):
             with self.assertRaises(RuntimeError):

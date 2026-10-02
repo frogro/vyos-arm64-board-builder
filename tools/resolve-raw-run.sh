@@ -70,7 +70,14 @@ validate_run() {
             --jq '.conclusion'
     )" || return 1
 
-    [[ "$conclusion" == "success" ]] || return 1
+    if [[ "$conclusion" != success ]]; then
+        [[ "$conclusion" == null ]] || return 1
+        local workflow completed_base
+        workflow="$("$GH_BIN" api "repos/${REPOSITORY}/actions/runs/${run_id}" --jq .path)" || return 1
+        [[ "$workflow" == .github/workflows/rebuild-community-ab.yml ]] || return 1
+        completed_base="$("$GH_BIN" api "repos/${REPOSITORY}/actions/runs/${run_id}/jobs" --jq '.jobs[] | select(.name == "base / vyos-arm64-raw" and .conclusion == "success") | .id')" || return 1
+        [[ -n "$completed_base" ]] || return 1
+    fi
 
     artifact_id="$(artifact_id_for_run "$run_id")" || return 1
     [[ -n "$artifact_id" ]]

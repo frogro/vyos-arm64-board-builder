@@ -13,7 +13,7 @@ from urllib.parse import quote
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE_FILES = ('.github/workflows/test-vyos-arm64-raw.yml',
                 'sources/vyos.sh', 'tools/patch-vyos-arm64-raw.py',
-                'profiles/vyos-flavors/arm64-raw.toml')
+                'profiles/vyos-flavors/arm64-raw.toml', 'tools/ensure-raw-kernel.py')
 
 
 def recipe_hash():
@@ -29,11 +29,17 @@ def gh(*args):
 
 def reusable(repo, run, commit, recipe, explicit=False):
     if run['conclusion'] != 'success':
-        return False
+        # A coordinator may still be dispatching boards after its base completed.
+        if run.get('conclusion') is not None or run.get('path', '').split('@')[0] != '.github/workflows/rebuild-community-ab.yml':
+            return False
+        jobs = json.loads(gh('api', f'repos/{repo}/actions/runs/{run["id"]}/jobs'))['jobs']
+        if not any(j['name'] == 'base / vyos-arm64-raw' and j['conclusion'] == 'success' for j in jobs):
+            return False
     # Only workflows which produce the supported base format are accepted.
     if run.get('path', '').split('@')[0] not in (
         '.github/workflows/test-vyos-arm64-raw.yml',
         '.github/workflows/build-board-candidate.yml',
+        '.github/workflows/rebuild-community-ab.yml',
     ):
         return False
     names = set(gh('api', '--paginate',

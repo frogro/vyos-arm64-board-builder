@@ -1,0 +1,41 @@
+name: Rebuild Community A-B images from one fresh base
+on:
+  workflow_dispatch:
+    inputs:
+      vyos_ref:
+        description: Exact VyOS source commit
+        required: true
+        type: string
+      rolling_reference:
+        description: Published Rolling reference
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: write
+jobs:
+  base:
+    uses: ./.github/workflows/test-vyos-arm64-raw.yml
+    with:
+      vyos_ref: ${{ inputs.vyos_ref }}
+  boards:
+    needs: base
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Dispatch four A-B publications using the verified shared base
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VYOS_REF: ${{ inputs.vyos_ref }}
+          ROLLING_REFERENCE: ${{ inputs.rolling_reference }}
+          RAW_RUN: ${{ needs.base.outputs.raw_run_id }}
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)" = "$GITHUB_SHA"
+          for board in orangepi5-plus rock-5b radxa-e52c raspberry-pi-5; do
+            gh workflow run build-board-candidate.yml --repo "$GITHUB_REPOSITORY" --ref main \
+              -f board="$board" -f hardware_reference=auto -f boot_branch=auto \
+              -f extended_network=true -f tailscale_subnet_router=false -f kvm_over_ip=false \
+              -f kiosk_f=false -f receiver_g=false -f vyos_ref="$VYOS_REF" \
+              -f rolling_reference="$ROLLING_REFERENCE" -f raw_run_id="$RAW_RUN" \
+              -f force_fresh_base=false -f publish_release=true
+          done
