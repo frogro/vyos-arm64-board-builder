@@ -223,9 +223,11 @@
         "rock-5b": {
           "run_id": 37059045904,
           "dispatched": true,
-          "status": "queued",
+          "status": "in_progress",
           "replacement_for": 37048553856,
-          "fix_commit": "ba3fdc2"
+          "fix_commit": "ba3fdc2",
+          "conclusion": null,
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
           "dispatched": true,
