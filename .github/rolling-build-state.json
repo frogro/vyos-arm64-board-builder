@@ -214,7 +214,11 @@
     "2026.10.01-0035-rolling": {
       "boards": {
         "radxa-e52c": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 37048548495,
+          "status": "in_progress",
+          "conclusion": null,
+          "run_attempt": 1
         },
         "rock-5b": {
           "dispatched": true
