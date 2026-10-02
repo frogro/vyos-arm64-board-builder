@@ -243,7 +243,8 @@
           "replacement_for": 37048564982,
           "fix_commit": "ba3fdc2",
           "conclusion": "failure",
-          "run_attempt": 1
+          "run_attempt": 1,
+          "retry_requested_for_attempt": 1
         }
       },
       "vyos_commit": "f53ea3c722373c9469bb4c7ef542437af190956c",
