@@ -159,6 +159,7 @@ echo "PASS: common ARM64 first-boot rootfs contract"
 LINK_TEST="$WORK/setup-links-test"
 mkdir -p "$LINK_TEST/bin" "$LINK_TEST/home" "$LINK_TEST/stage" "$LINK_TEST/config"
 touch "$LINK_TEST/config/.dhcp-wan-ssh-firstboot-done"
+touch "$LINK_TEST/home/.profile" "$LINK_TEST/home/.bashrc"
 cat > "$LINK_TEST/bin/getent" <<EOF_GETENT
 #!/bin/sh
 printf '%s\n' 'vyos:x:$(id -u):$(id -g):test:$LINK_TEST/home:/bin/bash'
@@ -227,3 +228,20 @@ printf 'custom bridge\n' > "$LINK_TEST/home/setup-lan-ap-bridge.sh"
 PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
 grep -qx 'custom bridge' "$LINK_TEST/home/setup-lan-ap-bridge.sh"
 echo 'PASS: Orange Pi bridge helper scope and user-file preservation'
+# passwd can be visible before useradd initializes the home. Do not win that race.
+RACE_HOME="$LINK_TEST/race-home"
+cat > "$LINK_TEST/bin/getent" <<EOF_RACE
+#!/bin/sh
+printf '%s\n' 'vyos:x:$(id -u):$(id -g):test:$RACE_HOME:/bin/bash'
+EOF_RACE
+cat > "$LINK_TEST/bin/sleep" <<EOF_SEED
+#!/bin/sh
+test ! -e "$RACE_HOME" || exit 42
+mkdir "$RACE_HOME"
+touch "$RACE_HOME/.profile" "$RACE_HOME/.bashrc"
+EOF_SEED
+chmod +x "$LINK_TEST/bin/getent" "$LINK_TEST/bin/sleep"
+PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
+test -f "$RACE_HOME/.bashrc"
+test -L "$RACE_HOME/set-locales.sh"
+echo "PASS: helper publication waits for useradd skeleton initialization"
