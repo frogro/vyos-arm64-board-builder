@@ -221,12 +221,11 @@
           "run_attempt": 1
         },
         "rock-5b": {
+          "run_id": 37059045904,
           "dispatched": true,
-          "run_id": 37048553856,
-          "status": "completed",
-          "conclusion": "failure",
-          "run_attempt": 1,
-          "retry_requested_for_attempt": 1
+          "status": "queued",
+          "replacement_for": 37048553856,
+          "fix_commit": "ba3fdc2"
         },
         "raspberry-pi-5": {
           "dispatched": true,
@@ -236,11 +235,11 @@
           "run_attempt": 1
         },
         "orangepi5-plus": {
+          "run_id": 37059051356,
           "dispatched": true,
-          "run_id": 37048564982,
-          "status": "in_progress",
-          "conclusion": null,
-          "run_attempt": 1
+          "status": "queued",
+          "replacement_for": 37048564982,
+          "fix_commit": "ba3fdc2"
         }
       },
       "vyos_commit": "f53ea3c722373c9469bb4c7ef542437af190956c",
@@ -280,7 +279,32 @@
         }
       ],
       "kernel_version": "6.18.54",
-      "kernel_refresh_at": "2026-10-02T18:36:11.407774+00:00"
+      "kernel_refresh_at": "2026-10-02T18:36:11.407774+00:00",
+      "replacement_history": [
+        {
+          "board": "rock-5b",
+          "previous": {
+            "dispatched": true,
+            "run_id": 37048553856,
+            "status": "completed",
+            "conclusion": "failure",
+            "run_attempt": 1,
+            "retry_requested_for_attempt": 1
+          },
+          "reason": "IOMMU patch fix ba3fdc2 requires new workflow commit; rerun preserves old commit"
+        },
+        {
+          "board": "orangepi5-plus",
+          "previous": {
+            "dispatched": true,
+            "run_id": 37048564982,
+            "status": "in_progress",
+            "conclusion": null,
+            "run_attempt": 1
+          },
+          "reason": "IOMMU patch fix ba3fdc2 requires new workflow commit; rerun preserves old commit"
+        }
+      ]
     }
   }
 }
