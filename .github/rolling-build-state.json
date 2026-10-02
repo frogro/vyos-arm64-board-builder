@@ -239,9 +239,11 @@
         "orangepi5-plus": {
           "run_id": 37059051356,
           "dispatched": true,
-          "status": "queued",
+          "status": "completed",
           "replacement_for": 37048564982,
-          "fix_commit": "ba3fdc2"
+          "fix_commit": "ba3fdc2",
+          "conclusion": "failure",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "f53ea3c722373c9469bb4c7ef542437af190956c",
