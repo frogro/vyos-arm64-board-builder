@@ -5,28 +5,37 @@ from pathlib import Path
 import re
 
 
-def patch(rootfs):
-    path = rootfs / 'etc/nsswitch.conf'
-    source = path.read_text()
+def patched_source(source):
     matches = list(re.finditer(r'^hosts:[^\n]*$', source, re.M))
     if len(matches) != 1:
-        raise RuntimeError('Expected exactly one hosts entry in nsswitch.conf')
-    if not any(p.is_file() for base in ('usr/lib', 'lib')
-               for p in (rootfs / base).glob('**/libnss_myhostname.so.2')):
-        raise RuntimeError('libnss_myhostname.so.2 is required for early hostname resolution')
+        raise RuntimeError('Expected exactly one hosts entry in NSS file/template')
     entry = matches[0]
     body, separator, comment = entry.group().partition('#')
     tokens = body.split()[1:]
     if 'myhostname' in tokens:
-        return
-    # Do not silently change the meaning of unfamiliar NSS action clauses.
+        return source
+    # Fail closed rather than change unfamiliar NSS action clauses.
     if '[' in body or not tokens or tokens[0] != 'files':
         raise RuntimeError('Unexpected hosts lookup policy; review before modifying')
     tokens.insert(1, 'myhostname')
     replacement = 'hosts:          ' + ' '.join(tokens)
-    if separator:
+    if separator and comment.strip() != 'myhostname':
         replacement += ' #' + comment
-    path.write_text(source[:entry.start()] + replacement + source[entry.end():])
+    return source[:entry.start()] + replacement + source[entry.end():]
+
+
+def patch(rootfs):
+    if not any(p.is_file() for base in ('usr/lib', 'lib')
+               for p in (rootfs / base).glob('**/libnss_myhostname.so.2')):
+        raise RuntimeError('libnss_myhostname.so.2 is required for early hostname resolution')
+    paths = [rootfs / 'etc/nsswitch.conf',
+             rootfs / 'usr/share/vyos/templates/login/nsswitch.conf.j2']
+    # Login configuration regenerates nsswitch.conf on boot/commit. Patch its
+    # source too, even if the installed file was already patched previously.
+    # Validate both before writing either file.
+    changes = [(path, patched_source(path.read_text())) for path in paths]
+    for path, content in changes:
+        path.write_text(content)
 
 
 if __name__ == '__main__':

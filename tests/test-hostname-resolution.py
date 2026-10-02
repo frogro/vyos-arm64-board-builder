@@ -14,6 +14,9 @@ class HostnameResolution(unittest.TestCase):
         (root / 'etc').mkdir()
         p = root / 'etc/nsswitch.conf'
         p.write_text(content)
+        template = root / "usr/share/vyos/templates/login/nsswitch.conf.j2"
+        template.parent.mkdir(parents=True)
+        template.write_text("passwd: files {{ extra }}\nhosts: files dns #myhostname\n")
         if library:
             lib = root / 'usr/lib/aarch64-linux-gnu/libnss_myhostname.so.2'
             lib.parent.mkdir(parents=True)
@@ -30,6 +33,30 @@ class HostnameResolution(unittest.TestCase):
             self.assertIn('passwd: files systemd\n', first)
             patcher.patch(root)
             self.assertEqual(first, p.read_text())
+
+    def test_regeneration_preserves_fix_with_already_patched_runtime(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            p = self.setup_root(root, 'hosts: files myhostname dns\n')
+            template = root / 'usr/share/vyos/templates/login/nsswitch.conf.j2'
+            patcher.patch(root)
+            self.assertIn('hosts:          files myhostname dns', template.read_text())
+            self.assertIn('{{ extra }}', template.read_text())
+            # Simulate VyOS rendering the template during login configuration.
+            p.write_text(template.read_text().replace('{{ extra }}', 'systemd'))
+            self.assertIn('files myhostname dns', p.read_text())
+            first = template.read_text()
+            patcher.patch(root)
+            self.assertEqual(first, template.read_text())
+
+    def test_invalid_template_does_not_partially_patch_runtime(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            p = self.setup_root(root, 'hosts: files dns\n')
+            template = root / 'usr/share/vyos/templates/login/nsswitch.conf.j2'
+            template.write_text('hosts: files [NOTFOUND=return] dns\n')
+            with self.assertRaises(RuntimeError): patcher.patch(root)
+            self.assertEqual(p.read_text(), 'hosts: files dns\n')
 
     def test_missing_library_fails_without_write(self):
         with tempfile.TemporaryDirectory() as tmp:
