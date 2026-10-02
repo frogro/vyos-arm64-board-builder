@@ -334,6 +334,13 @@ vyos_kernel_prepare() {
 
             info "Applying $(basename "${patch_file}")"
 
+            if [[ "$(basename "${patch_file}")" == "0001-rk3588-mpp-rkvenc2-6.18.patch" ]]; then
+                python3 "${ROOT_DIR}/tools/prepare-rk3588-mpp-patch.py" \
+                    "${patch_file}" "${source}/drivers/iommu/rockchip-iommu.c" \
+                    "${source}/.board-mpp-compatible.patch"
+                patch_file="${source}/.board-mpp-compatible.patch"
+            fi
+
             patch --batch --forward --fuzz=0 \
                 -d "${source}" \
                 -p1 \
