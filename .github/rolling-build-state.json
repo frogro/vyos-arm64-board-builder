@@ -221,11 +221,9 @@
           "run_attempt": 1
         },
         "rock-5b": {
-          "run_id": 37059045904,
           "dispatched": true,
-          "status": "in_progress",
-          "replacement_for": 37048553856,
-          "fix_commit": "ba3fdc2",
+          "run_id": 37069432932,
+          "status": "queued",
           "conclusion": null,
           "run_attempt": 1
         },
@@ -308,6 +306,19 @@
             "run_attempt": 1
           },
           "reason": "IOMMU patch fix ba3fdc2 requires new workflow commit; rerun preserves old commit"
+        },
+        {
+          "board": "rock-5b",
+          "previous": {
+            "run_id": 37059045904,
+            "dispatched": true,
+            "status": "in_progress",
+            "replacement_for": 37048553856,
+            "fix_commit": "ba3fdc2",
+            "conclusion": null,
+            "run_attempt": 1
+          },
+          "reason": "HEVC header already upstream; corrected in b476351, reuse attested source-matching raw base"
         }
       ]
     }
