@@ -10,6 +10,14 @@ on:
         description: Successful Orange Pi 5 Plus ADFG source run (blank to skip)
         required: false
         type: string
+      pi_run:
+        description: Successful Pi 5 ADFG source run (blank to skip)
+        required: false
+        type: string
+      e52c_run:
+        description: Successful E52C AC source run (blank to skip)
+        required: false
+        type: string
 permissions:
   actions: read
   contents: write
@@ -23,11 +31,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [rock-5b, orangepi5-plus]
+        board: [rock-5b, orangepi5-plus, raspberry-pi-5, radxa-e52c]
     env:
       GH_TOKEN: ${{ github.token }}
       BOARD: ${{ matrix.board }}
-      SOURCE_RUN: ${{ matrix.board == 'rock-5b' && inputs.rock_run || matrix.board == 'orangepi5-plus' && inputs.orangepi_run || '' }}
+      SOURCE_RUN: ${{ matrix.board == 'rock-5b' && inputs.rock_run || matrix.board == 'orangepi5-plus' && inputs.orangepi_run || matrix.board == 'raspberry-pi-5' && inputs.pi_run || matrix.board == 'radxa-e52c' && inputs.e52c_run || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download and publish verified completed artifacts
