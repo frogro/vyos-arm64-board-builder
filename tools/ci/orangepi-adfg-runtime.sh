@@ -2,7 +2,9 @@
 # Native ARM64, isolated CI runner. Reuse only checksummed userspace inputs.
 set -euo pipefail
 [[ $(uname -m) == aarch64 ]]
-case "$BOARD" in rock-5b|orangepi5-plus) ;; *) exit 1 ;; esac
+case "$BOARD" in
+ raspberry-pi-5) exec bash "$(dirname "$0")/pi5-adfg-runtime.sh" ;;
+ rock-5b|orangepi5-plus) ;; *) exit 1 ;; esac
 KIOSK_F=${KIOSK_F:-no}
 RECEIVER_G=${RECEIVER_G:-no}
 KVM_OVER_IP=${KVM_OVER_IP:-false}

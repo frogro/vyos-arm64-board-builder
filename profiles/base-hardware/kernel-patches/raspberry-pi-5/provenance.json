@@ -1,0 +1,87 @@
+{
+  "source_commit": "8946ad8626ecacee8a8a9cffa433a23f0b118dcd",
+  "source_repository": "https://github.com/raspberrypi/linux",
+  "target_kernel": "6.18.54",
+  "files": {
+    "drivers/iommu/bcm2712-iommu.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/iommu/bcm2712-iommu.c",
+      "sha256": "6283d8d97caa05e02574e297e7997460bdcddc15ce928d6d9415423033489db7"
+    },
+    "drivers/iommu/bcm2712-iommu-cache.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/iommu/bcm2712-iommu-cache.c",
+      "sha256": "c00575db74134235160c9acb1d7c71ef84aca6937db47720fe17f83791881543"
+    },
+    "drivers/iommu/bcm2712-iommu.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/iommu/bcm2712-iommu.h",
+      "sha256": "01acf167527727c06c8c322f543439c0ca802002242707d90ba978d6ae20ca10"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_video.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_video.h",
+      "sha256": "9b6b9c6ee316e0f94384f433f46670ea5b60d9c96ac715eb5266b5327d88af38"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_video.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_video.c",
+      "sha256": "94a9b84d20cf70ef2f98f49c6fce379cf5ff1e8d2a15e820c4867412c88e11f9"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_hw.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_hw.h",
+      "sha256": "d5f7533ffbb1e80cce85405c7faf57d2b11b703cac08083ce0751346f4dd5ce2"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_hw.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_hw.c",
+      "sha256": "1b8a23308c8a31c961e382d01d366d22ef5342ba1d7ccc12e8090a1da0217958"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_h265.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_h265.h",
+      "sha256": "7283661565eb28ce56e4d819e4e271f1bdb7db75197e12890828e28473601a29"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d_h265.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d_h265.c",
+      "sha256": "370386b5830fb3ebb16458b25db9021bb721a1bf387b1edc6057e62c0a0f7c69"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d.h",
+      "sha256": "d57f8f2d4c3f12f9dd1ac9917780819c7ba9fa82203d6d212c1092c26901cf97"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/hevc_d.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/hevc_d.c",
+      "sha256": "1a67bff4cd20e8cb73bd72343f518c9b5364cbc0db15b5824bf2aa13067f379a"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/Makefile": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/Makefile",
+      "sha256": "a4a9209b4e8a275765f2e8266bf1140f57dba52ae2788ecce1944050aa8faed7"
+    },
+    "drivers/media/platform/raspberrypi/hevc_dec/Kconfig": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/platform/raspberrypi/hevc_dec/Kconfig",
+      "sha256": "582e2120f86f3c55662d576dbdc0942d20dbfcab42baa88b47cfd4143a6f853a"
+    },
+    "drivers/media/mc/mc-request.c": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/drivers/media/mc/mc-request.c",
+      "sha256": "525a0b323dea53dc2a5bc353474a197172973790e40a846597ca3c39c844b0ca"
+    },
+    "include/media/media-request.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/include/media/media-request.h",
+      "sha256": "65770b7b807adb5090fff4a38ebd72eaed41d31aefce35fcff7e1c77053ea3e5"
+    },
+    "include/uapi/linux/videodev2.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/include/uapi/linux/videodev2.h",
+      "sha256": "c35c0f80b9861abf06cb4f3b7b1ca0c5341f7165caa95b8227fa80b3b6fec622"
+    },
+    "arch/arm64/boot/dts/broadcom/rp1.dtsi": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/arch/arm64/boot/dts/broadcom/rp1.dtsi",
+      "sha256": "e8c537ab4f2a9b1a62ec8284c45085a3767d2316b0ad921a1d9f5fcfdfbda45a"
+    },
+    "include/dt-bindings/mfd/rp1.h": {
+      "url": "https://raw.githubusercontent.com/raspberrypi/linux/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/include/dt-bindings/mfd/rp1.h",
+      "sha256": "8e454c1af9fd4e87e05d03ca2de029c217917a6e1ae997e9d61c1bd63ba4e214"
+    }
+  },
+  "dt_source": "https://github.com/raspberrypi/linux/blob/8946ad8626ecacee8a8a9cffa433a23f0b118dcd/arch/arm64/boot/dts/broadcom/bcm2712-ds.dtsi",
+  "dt_changes": "Only USB2 controller, clock/PHY, HEVC decoder and IOMMU2/cache nodes adapted to mainline Pi5 DT; no RP1 IOMMU reassignment.",
+  "adaptations": [
+    "HEVC and BCM2712 IOMMU files copied from pinned downstream source.",
+    "Manual request completion backported narrowly; unrelated request counters excluded.",
+    "Four downstream column-format identifiers added for the HEVC driver.",
+    "Device-tree register addresses translated to upstream axi/RP1 nexus; CSI disabled pending sensor overlay."
+  ]
+}

@@ -1,0 +1,16 @@
+# Pi userspace: distro Mesa VC4/V3D, never the RK3588 runtime or Mali firmware.
+FROM docker.io/library/debian:trixie-slim AS graphics
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates weston libgl1-mesa-dri libegl-mesa0 mesa-utils xwayland dbus dbus-bin pulseaudio seatd util-linux python3 fonts-dejavu-core procps && rm -rf /var/lib/apt/lists/*
+RUN useradd -m -u 1000 -s /bin/bash kiosk && mkdir -p /state /run/kiosk && chown kiosk:kiosk /state /run/kiosk
+ENV HOME=/home/kiosk VYARM_BOARD=raspberry-pi-5
+FROM graphics AS kiosk
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl chromium xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-fbdev x11-xserver-utils x11-utils xinput xauth openbox dbus-x11 libinput-tools && rm -rf /var/lib/apt/lists/*
+RUN curl -fL --retry 3 -o /tmp/sunshine.deb 'https://github.com/LizardByte/Sunshine/releases/download/v2026.914.233613/sunshine_2026.914.233613-1%2Bdebiantrixie_arm64.deb' && echo '45f250a6bae3629bd67d6856356e5d838569fbe4f6128440124c727a3d5fef5e  /tmp/sunshine.deb' | sha256sum -c - && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y /tmp/sunshine.deb && rm /tmp/sunshine.deb && rm -rf /var/lib/apt/lists/*
+COPY experiments/kiosk-f/container/kiosk-*.py experiments/kiosk-f/container/start-kiosk experiments/kiosk-f/container/kiosk-session /usr/local/bin/
+COPY experiments/kiosk-f/container/xorg.conf /etc/X11/xorg.conf
+COPY experiments/kiosk-f/container/kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
+COPY experiments/kiosk-f/container/input-test.html /opt/kiosk/input-test.html
+RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local/bin/kiosk-*.py && python3 -m py_compile /usr/local/bin/kiosk-*.py && command -v sunshine && command -v chromium && command -v weston
+ENV KIOSK_URL=file:///opt/kiosk/input-test.html KIOSK_DISPLAY_BACKEND=wayland KIOSK_GRAPHICS=auto DISPLAY=:0
+LABEL io.vyarm.kiosk.sunshine-policy="1" io.vyarm.kiosk.media-policy="2" io.vyarm.kiosk.sunshine-wayland="1"
+ENTRYPOINT ["/usr/local/bin/start-kiosk"]

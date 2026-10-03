@@ -213,6 +213,9 @@ class Supervisor:
             if self.proc is None and time.monotonic() >= self.retry:
                 self.log = open(STATE / 'runtime.log', 'w')
                 command = ['sunshine', str(CONF)]
+                if os.environ.get('VYARM_BOARD') == 'raspberry-pi-5':
+                    # Pi 5 has HEVC decoding, but no hardware video encoder.
+                    command += ['encoder=software', 'hevc_mode=1', 'av1_mode=1']
                 if os.environ.get('SUNSHINE_VYARM_DIRECT_RGA') == '1':
                     csc = Path('/sys/module/rockchip_rga/parameters/experimental_full_csc')
                     if not csc.exists() or csc.read_text().strip() not in ('Y', '1'):

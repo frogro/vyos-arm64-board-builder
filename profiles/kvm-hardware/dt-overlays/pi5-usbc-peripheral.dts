@@ -1,0 +1,9 @@
+/dts-v1/;
+/plugin/;
+/ {
+ compatible = "raspberrypi,5-model-b", "brcm,bcm2712";
+ fragment@0 {
+  target-path = "/axi/usb@1000480000";
+  __overlay__ { status = "okay"; dr_mode = "peripheral"; };
+ };
+};

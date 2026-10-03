@@ -1,7 +1,7 @@
 #!/bin/bash
 # Validate exactly the selected profiles in the SD/eMMC rootfs before ISO creation.
 set -euo pipefail
-case "$BOARD" in rock-5b|orangepi5-plus) ;; *) exit 1 ;; esac
+case "$BOARD" in rock-5b|orangepi5-plus|raspberry-pi-5) ;; *) exit 1 ;; esac
 image=${1:?Image required}
 loop=$(losetup --find --show --read-only --partscan "$image")
 verify=$(mktemp -d)

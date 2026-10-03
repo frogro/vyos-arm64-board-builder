@@ -3,8 +3,8 @@
 import argparse,json
 
 def plan(board, network=False, tailscale=False, kvm=False, kiosk=False, receiver=False):
-    if (kiosk or receiver) and board not in ('rock-5b','orangepi5-plus'):
-        raise ValueError('F/G currently support rock-5b and orangepi5-plus only')
+    if (kiosk or receiver) and board not in ('rock-5b','orangepi5-plus','raspberry-pi-5'):
+        raise ValueError('F/G require rock-5b, orangepi5-plus or raspberry-pi-5')
     return dict(board=board,network=network,tailscale=tailscale,kvm=kvm,
                 kiosk=kiosk,receiver=receiver,graphics=kiosk or receiver,
                 cached_copy=kvm and (kiosk or receiver))

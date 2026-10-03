@@ -53,7 +53,7 @@ on:
         type: boolean
 
       kiosk_f:
-        description: "Include optional RK3588 kiosk/Sunshine runtime"
+        description: "Include optional board-specific kiosk/Sunshine runtime"
         type: boolean
         default: false
       receiver_g:
@@ -419,7 +419,7 @@ jobs:
 
           df -h
 
-      - name: Build selected F/G runtimes for the selected RK3588 board
+      - name: Build selected F/G runtimes for the selected board
         if: inputs.kiosk_f || inputs.receiver_g
         env:
           GH_TOKEN: ${{ github.token }}
@@ -428,7 +428,7 @@ jobs:
           sudo chown "$USER:$USER" /work
           ln -s "$GITHUB_WORKSPACE" /work/repo
           bash tools/ci/orangepi-adfg-runtime.sh
-          echo KIOSK_F_GPU_FIRMWARE=mali-arch10.8 >> "$GITHUB_ENV"
+          if [[ "$BOARD" != raspberry-pi-5 ]]; then echo KIOSK_F_GPU_FIRMWARE=mali-arch10.8 >> "$GITHUB_ENV"; fi
           if [[ "$KIOSK_F" == yes ]]; then echo KIOSK_F_RUNTIME=/work/runtime-artifacts >> "$GITHUB_ENV"; fi
           if [[ "$RECEIVER_G" == yes ]]; then echo RECEIVER_G_RUNTIME=/work/receiver-artifacts >> "$GITHUB_ENV"; fi
           if [[ -f /work/cached-launch ]]; then echo KVM_CACHED_COPY_BINARY=/work/cached-launch >> "$GITHUB_ENV"; fi

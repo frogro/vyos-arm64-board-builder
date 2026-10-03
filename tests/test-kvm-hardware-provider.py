@@ -133,11 +133,17 @@ class KvmHardwareProviderTests(unittest.TestCase):
         ):
             self.assertIn(expected, ready)
 
-    def test_pi5_uses_generic_capture_without_rockchip_settings(self) -> None:
+    def test_pi5_uses_generic_capture_with_exact_usb_c_routing(self) -> None:
         result = MODULE.select(self.entries, "raspberry-pi-5", True)
-        self.assertEqual("generic-v4l2", result["provider"])
-        self.assertEqual("generic", result["selection"])
-        self.assertEqual("", result["kernel_config"])
+        self.assertEqual("pi5-usbc", result["provider"])
+        self.assertEqual("generic-v4l2", result["capture_backend"])
+        self.assertEqual("exact", result["selection"])
+        self.assertTrue(result["dt_overlay"].endswith("pi5-usbc-peripheral.dts"))
+        self.assertEqual("runtime", result["hid_gadget"])
+
+    def test_e52c_capture_does_not_claim_simultaneous_hid(self):
+        result = MODULE.select(self.entries, "radxa-e52c", True)
+        self.assertEqual("no", result["hid_gadget"])
         self.assertEqual("", result["dt_overlay"])
 
     def test_other_rk3588_board_is_not_inferred_from_soc_name(self) -> None:

@@ -1,0 +1,49 @@
+--- a/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dts
++++ b/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dts
+@@ -110,3 +110,46 @@
+   iommus = <&vyarm_iommu2>;
+  };
+ };
++
++/* Board peripherals from the pinned Raspberry Pi 6.18 tree, adapted to
++ * upstream axi and RP1 nexus address spaces. Sensors remain opt-in. */
++#include <dt-bindings/soc/bcm2835-pm.h>
++&axi {
++ vyarm_v3d: gpu@1002000000 {
++  compatible = "brcm,2712-v3d";
++  reg = <0x10 0x02000000 0x0 0x4000>, <0x10 0x02008000 0x0 0x6000>, <0x10 0x02030800 0x0 0x700>;
++  reg-names = "hub", "core0", "sms";
++  power-domains = <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
++  resets = <&pm BCM2835_RESET_V3D>;
++  clocks = <&firmware_clocks 5>;
++  clock-names = "v3d";
++  interrupts = <GIC_SPI 250 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 249 IRQ_TYPE_LEVEL_HIGH>;
++ };
++ vyarm_pisp_be: isp@1000880000 {
++  compatible = "raspberrypi,pispbe";
++  reg = <0x10 0x00880000 0x0 0x4000>;
++  interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
++  clocks = <&firmware_clocks 7>;
++  iommus = <&vyarm_iommu2>;
++ };
++};
++&pci_ep_bus {
++ rp1_csi0: csi@40110000 {
++  compatible = "raspberrypi,rp1-cfe";
++  reg = <0x0 0x40110000 0x0 0x100>, <0x0 0x40114000 0x0 0x100>, <0x0 0x40120000 0x0 0x100>, <0x0 0x40124000 0x0 0x1000>;
++  interrupts = <47 IRQ_TYPE_LEVEL_HIGH>;
++  clocks = <&rp1_clocks RP1_CLK_MIPI0_CFG>;
++  assigned-clocks = <&rp1_clocks RP1_CLK_MIPI0_CFG>;
++  assigned-clock-rates = <25000000>;
++  status = "disabled";
++ };
++ rp1_csi1: csi@40128000 {
++  compatible = "raspberrypi,rp1-cfe";
++  reg = <0x0 0x40128000 0x0 0x100>, <0x0 0x4012c000 0x0 0x100>, <0x0 0x40138000 0x0 0x100>, <0x0 0x4013c000 0x0 0x1000>;
++  interrupts = <48 IRQ_TYPE_LEVEL_HIGH>;
++  clocks = <&rp1_clocks RP1_CLK_MIPI1_CFG>;
++  assigned-clocks = <&rp1_clocks RP1_CLK_MIPI1_CFG>;
++  assigned-clock-rates = <25000000>;
++  status = "disabled";
++ };
++};

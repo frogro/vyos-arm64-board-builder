@@ -98,3 +98,7 @@ do
 done
 
 echo "Installed BCM43455 WLAN firmware into VyOS rootfs for $BOARD"
+
+# Onboard Bluetooth belongs to A. DT serdev/hci_bcm performs initialization;
+# do not launch a competing hciattach instance on the same UART.
+python3 "$(dirname "$0")/../../install-pi5-bluetooth.py" "$ROOTFS"

@@ -21,7 +21,7 @@ class BaseHardware(unittest.TestCase):
                 self.assertEqual(expected,self.selection(board,network,kvm))
             for path in expected:
                 if path:self.assertTrue((ROOT/path).exists(),path)
-            if board in ['raspberry-pi-5','radxa-e52c','unknown']:
+            if board == 'unknown':
                 self.assertTrue(all(not v for v in expected))
 
     def test_optional_card_stays_network(self):
@@ -30,7 +30,8 @@ class BaseHardware(unittest.TestCase):
         self.assertIn('CONFIG_BT_HCIBTUSB=m',network)
         for p in (ROOT/'profiles/base-hardware').glob('*.config'):
             self.assertNotIn('CONFIG_RTW89_',p.read_text(),str(p))
-            self.assertNotIn('CONFIG_BT_',p.read_text(),str(p))
+            if not p.name.startswith('raspberry-pi-5'):
+                self.assertNotIn('CONFIG_BT_',p.read_text(),str(p))
         for symbol in ['CONFIG_SPI_SPIDEV','CONFIG_USB_F_HID','CONFIG_IR_GPIO_CIR']:
             self.assertNotIn(symbol+'=',network)
             self.assertIn(symbol+'=',(ROOT/'profiles/base-hardware/optional-peripherals.config').read_text())

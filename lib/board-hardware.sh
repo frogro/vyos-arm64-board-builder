@@ -13,7 +13,15 @@ board_hardware_select() {
             BOARD_BASE_READY="profiles/base-hardware/${board}-ready.config"
             BOARD_BASE_PATCHES="profiles/base-hardware/kernel-patches/rk3588-synopsys-hdmirx"
             ;;
+        raspberry-pi-5|radxa-e52c)
+            BOARD_BASE_CONFIG="profiles/base-hardware/${board}.config"
+            BOARD_BASE_READY="profiles/base-hardware/${board}-ready.config"
+            BOARD_BASE_MODULES="profiles/base-hardware/${board}-modules.txt"
+            ;;
     esac
+    if [[ "$board" == raspberry-pi-5 ]]; then
+        BOARD_PERIPHERAL_PATCHES="profiles/base-hardware/kernel-patches/raspberry-pi-5"
+    fi
     if [[ "$board" == rock-5b ]]; then
         BOARD_BASE_MODULES="profiles/base-hardware/rock-5b-modules.txt"
         BOARD_PERIPHERAL_PATCHES="profiles/base-hardware/kernel-patches/rock-5b"

@@ -9,13 +9,13 @@ validate=load('verify','tools/ci/verify-selected-rootfs.py').validate
 class Selection(unittest.TestCase):
  def test_all_32_combinations_preserve_selection(self):
   for values in itertools.product((False,True),repeat=5):
-   for board in ['rock-5b','orangepi5-plus']:
+   for board in ['rock-5b','orangepi5-plus','raspberry-pi-5']:
     p=plan(board,*values)
     self.assertEqual(tuple(p[k] for k in ['network','tailscale','kvm','kiosk','receiver']),values)
     self.assertEqual(p['graphics'],values[3] or values[4])
     self.assertEqual(p['cached_copy'],values[2] and (values[3] or values[4]))
  def test_no_implicit_support_for_other_boards(self):
-  for board in ['raspberry-pi-5','radxa-e52c']:
+  for board in ['radxa-e52c','unknown']:
    plan(board,True,True,True)
    with self.assertRaises(ValueError):plan(board,kiosk=True)
    with self.assertRaises(ValueError):plan(board,receiver=True)
