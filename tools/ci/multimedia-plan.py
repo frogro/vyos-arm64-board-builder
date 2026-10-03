@@ -3,6 +3,8 @@
 import argparse,json
 
 def plan(board, network=False, tailscale=False, kvm=False, kiosk=False, receiver=False):
+    if board == 'radxa-e52c' and kvm:
+        raise ValueError('E52C supports A-C only; KVM profile D is not supported')
     if (kiosk or receiver) and board not in ('rock-5b','orangepi5-plus','raspberry-pi-5'):
         raise ValueError('F/G require rock-5b, orangepi5-plus or raspberry-pi-5')
     return dict(board=board,network=network,tailscale=tailscale,kvm=kvm,

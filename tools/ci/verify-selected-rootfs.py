@@ -23,8 +23,7 @@ def validate(read, present, env):
             assert data[key]==env['GITHUB_SHA'],folder
     if features['kvm_over_ip']:
         if env['BOARD']=='radxa-e52c':
-            assert not present('usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env')
-            return
+            raise AssertionError('E52C supports A-C only; unexpected D payload')
         routing=read('usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env')
         if env['BOARD']=='orangepi5-plus':assert 'fc000000.usb' in routing and 'fc400000' not in routing
         elif env['BOARD']=='raspberry-pi-5':assert '1000480000.usb' in routing and 'fc400000' not in routing

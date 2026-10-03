@@ -71,6 +71,8 @@ def select(entries: list[dict[str, str]], board: str, enabled: bool) -> dict[str
             "kernel_patch_dir": "",
             "selection": "disabled",
         }
+    if board == "radxa-e52c":
+        raise ValueError("E52C supports A-C only; KVM profile D is not supported")
     exact = next((entry for entry in entries if entry["board"] == board), None)
     fallback = next((entry for entry in entries if entry["board"] == "*"), None)
     chosen = exact or fallback

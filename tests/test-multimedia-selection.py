@@ -16,9 +16,13 @@ class Selection(unittest.TestCase):
     self.assertEqual(p['cached_copy'],values[2] and (values[3] or values[4]))
  def test_no_implicit_support_for_other_boards(self):
   for board in ['radxa-e52c','unknown']:
-   plan(board,True,True,True)
+   plan(board,True,True,False)
    with self.assertRaises(ValueError):plan(board,kiosk=True)
    with self.assertRaises(ValueError):plan(board,receiver=True)
+ def test_e52c_accepts_a_to_c_and_rejects_d(self):
+  for network,tailscale in itertools.product((False,True),repeat=2):
+   plan("radxa-e52c",network,tailscale)
+  with self.assertRaises(ValueError):plan("radxa-e52c",kvm=True)
  def test_rootfs_selection_and_unselected_payloads(self):
   keys=['extended_network','tailscale_subnet_router','kvm_over_ip','kiosk_f','receiver_g']
   vars=['EXTENDED_NETWORK','TAILSCALE_SUBNET_ROUTER','KVM_OVER_IP','KIOSK_F','RECEIVER_G']

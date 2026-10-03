@@ -9,7 +9,7 @@ Main and existing releases are unchanged. These are build candidates, not physic
 * B adds optional network hardware (including external Wi-Fi/Bluetooth adapters).
 * C adds Tailscale; D adds capture and supported gadget control.
 * Pi 5 F and G have a separate Debian/Mesa VC4/V3D runtime, without Rockchip binaries or Mali firmware. Each application remains independently selectable.
-* E52C supports A–D. D accepts USB video capture. The sole USB-A OTG port cannot simultaneously be a USB host for the grabber and a USB peripheral for native HID. No gadget provider is installed for E52C.
+* E52C supports A–C only. Profile D is rejected by the build selectors. USB video capture alone would be technically possible. The sole USB-A OTG port cannot simultaneously be a USB host for the grabber and a USB peripheral for native HID. No gadget provider is installed for E52C.
 
 ## Pi 5 hardware
 
@@ -25,7 +25,7 @@ Pi 5 has no hardware H.264 encoder. Sunshine uses software encoding. The HEVC ke
 
 ## E52C hardware
 
-A explicitly requires onboard Realtek Ethernet, Rockchip PCIe/PHY, MMC/eMMC, thermal/ADC/OTP, RTC, LED and button support. Router-critical components are built in; optional controls are modules. USB dual-role capability is available in the kernel, but the host DT is preserved for USB capture. F/G are not selected on this headless board.
+A explicitly requires onboard Realtek Ethernet, Rockchip PCIe/PHY, MMC/eMMC, thermal/ADC/OTP, RTC, LED and button support. Router-critical components are built in; optional controls are modules. USB dual-role capability is available in the kernel, but the host DT is preserved for USB capture. D/F/G are not selected on this headless board.
 
 ## Updates and fallback
 

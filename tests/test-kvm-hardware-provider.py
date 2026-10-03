@@ -141,10 +141,10 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertTrue(result["dt_overlay"].endswith("pi5-usbc-peripheral.dts"))
         self.assertEqual("runtime", result["hid_gadget"])
 
-    def test_e52c_capture_does_not_claim_simultaneous_hid(self):
-        result = MODULE.select(self.entries, "radxa-e52c", True)
-        self.assertEqual("no", result["hid_gadget"])
-        self.assertEqual("", result["dt_overlay"])
+    def test_e52c_rejects_d_but_allows_disabled_provider(self):
+        with self.assertRaises(ValueError):
+            MODULE.select(self.entries, "radxa-e52c", True)
+        self.assertEqual("disabled", MODULE.select(self.entries, "radxa-e52c", False)["provider"])
 
     def test_other_rk3588_board_is_not_inferred_from_soc_name(self) -> None:
         result = MODULE.select(self.entries, "orangepi-5-plus", True)
