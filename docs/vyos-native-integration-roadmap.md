@@ -164,3 +164,19 @@ build fixes. Add Minisign signing of update ISOs, publish the matching
 the release infrastructure. Plan initial trust distribution, key rotation and
 compatibility with existing unsigned installations. Do not generate or deploy
 keys as part of merely recording this future stage.
+
+## Idea: independent board-image release versions
+
+Recorded 2026-10-03 at the user's request; idea only, not implemented.
+Allow a new board-image version/revision independently of the reusable ARM64
+base-image version. Rootfs finalizer fixes should not require rebuilding an
+otherwise compatible, verified base solely to obtain a new timestamp.
+
+Keep the original VyOS source commit, kernel ABI, base artifact provenance and
+builder commit explicit. Assign the final board build a unique installable
+version and use it consistently in IMG/ISO metadata, boot paths, release tags,
+checksums and update feeds. Rebuilding the same Rolling snapshot must produce
+an unambiguous update without deleting the previous release or colliding with
+an installed image name. Validate install, default selection and rollback,
+including each board's native boot provider. This does not relax the existing
+source/kernel compatibility checks or change the running four-board build.
