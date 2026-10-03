@@ -5,7 +5,8 @@ from pathlib import Path
 board,run,sha,root=sys.argv[1:];root=Path(root);candidate=root/f'vyos-{board}-current-candidate';repo='frogro/vyos-arm64-board-builder'
 assert board in ('rock-5b','orangepi5-plus','raspberry-pi-5','radxa-e52c') and run.isdigit() and re.fullmatch(r'[0-9a-f]{40}',sha)
 source=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/{run}'],text=True))
-assert source['conclusion']=='success' and source['head_sha']==sha
+verified_sha=subprocess.check_output([sys.executable,str(Path(__file__).with_name('verify-publish-source.py')),repo,run],text=True).strip()
+assert verified_sha==sha and source['head_sha']==sha
 release_env=dict(line.split('=',1) for line in (candidate/'release.env').read_text().splitlines() if '=' in line and not line.startswith('#'))
 import shlex
 version=shlex.split(release_env['VYOS_VERSION'])[0]
