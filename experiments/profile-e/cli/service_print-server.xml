@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="service">
+    <properties>
+      <help>System services</help>
+    </properties>
+    <children>
+      <node name="print-server" owner="/usr/libexec/vyos/conf_mode/service_print_server.py">
+        <properties>
+          <help>CUPS print server</help>
+          <priority>1100</priority>
+        </properties>
+        <children>
+          <leafNode name="listen-address">
+            <properties>
+              <help>IPv4 address for the CUPS web and IPP service</help>
+            </properties>
+          </leafNode>
+          <leafNode name="allow-client">
+            <properties>
+              <help>Allowed client IPv4 network, including VPN networks</help>
+              <multi />
+            </properties>
+          </leafNode>
+          <leafNode name="image">
+            <properties>
+              <help>Installed local CUPS and Gutenprint image</help>
+            </properties>
+          </leafNode>
+          <leafNode name="usb-port">
+            <properties>
+              <help>Physical USB printer port assigned exclusively to CUPS</help>
+              <multi />
+            </properties>
+          </leafNode>
+          <leafNode name="disable">
+            <properties>
+              <help>Stop printing while retaining queues and configuration</help>
+              <valueless />
+            </properties>
+          </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

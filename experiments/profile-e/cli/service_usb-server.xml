@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="service">
+    <properties>
+      <help>System services</help>
+    </properties>
+    <children>
+      <node name="usb-server" owner="/usr/libexec/vyos/conf_mode/service_usb_server.py">
+        <properties>
+          <help>Shared VirtualHere USB forwarding service</help>
+          <priority>1100</priority>
+        </properties>
+        <children>
+          <leafNode name="allow-client">
+            <properties>
+              <help>Allowed client IPv4 network, including VPN networks</help>
+              <multi />
+            </properties>
+          </leafNode>
+          <leafNode name="allow-usb-id">
+            <properties>
+              <help>Explicit USB vendor:product identifier allowed for forwarding</help>
+              <multi />
+            </properties>
+          </leafNode>
+          <leafNode name="disable">
+            <properties>
+              <help>Stop USB forwarding and retain configuration and license</help>
+              <valueless />
+            </properties>
+          </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

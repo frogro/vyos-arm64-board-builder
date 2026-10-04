@@ -9,6 +9,9 @@ import json
 cache=Path('/usr/lib/python3/dist-packages/vyos/xml_ref/cache.py')
 backup=Path('/config/profile-e/xml-cache.before-test.py')
 if not backup.exists(): shutil.copyfile(cache,backup)
+supervisor=Path('/usr/local/libexec/vyarm-print-supervisor.py')
+supervisor.parent.mkdir(parents=True,exist_ok=True)
+shutil.copyfile(here/'cups-supervisor.py',supervisor);supervisor.chmod(0o755)
 updates={}
 for role,fields in {
  'print-server':{'listen-address':False,'allow-client':True,'image':False,'usb-port':True,'disable':None},

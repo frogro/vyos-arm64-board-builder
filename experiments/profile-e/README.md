@@ -19,7 +19,10 @@ for the test (4.8.8, SHA256
 The Linux console client runs as a normal application, not as a licensed client
 daemon. Only one USB device is shared. Proprietary software distribution remains
 to be settled before including it in public images; prefer explicit on-demand
-installation from the vendor.
+installation from the vendor. The checksum-pinned installer is now
+`cli/install-virtualhere.py`; it writes the validated executable and provenance
+to `/config/profile-e/virtualhere-bin`. A changed vendor binary fails validation
+and does not replace an existing installation. It never enables the service.
 
 Prototype configuration:
 
@@ -68,6 +71,12 @@ restart recreates the container and retains its queues. Maximum request size is
 files are not retained. VH config and any optional license stay outside the
 receiver container. Changing/restarting a receiver must not restart VH.
 
+`cli/prepare-source.py` now stages native XML definitions and owners for the
+upstream build: E provides print-server plus shared usb-server, G alone provides
+only usb-server, and E+G adds it once. These definitions passed the upstream
+RelaxNG schema and command-template generator. They are not yet connected to
+release workflow selection or validated as a complete native package.
+
 The live installer adds temporary templates plus the matching VyOS XML
 reference; it backs up that reference under `/config/profile-e`. Release builds
 must instead compile proper native XML definitions. The prototype uses volatile
@@ -80,8 +89,11 @@ reboot expecting these experimental services to be persistent.
   image manifests and all-board build checks, including E52C A-C+E.
 - Generate native XML/operational commands, transaction-safe reconciliation,
   update/remove/rollback handling and installation/migration tests.
-- Stable serial/port ownership, reconnect handling for passed USB device nodes,
-  CUPS queue pause/resume, aggregate storage limit and log rotation.
+- Complete CUPS/VH queue pause/resume, aggregate storage limit and log rotation.
+  CUPS now supervises the selected physical ports and recreates device grants
+  after disappearance/reappearance. A changed VID/PID or available USB serial
+  is rejected. The RX1 exposes no standard USB serial descriptor; it is matched
+  by physical port and VID/PID. Physical replug and reboot remain separate tests.
 - Preserve only explicitly selected device access; verify container isolation.
 - Exercise VPN access, other boards, Windows-client behavior, gamepad controls,
   and printing through VH separately from USB enumeration.
