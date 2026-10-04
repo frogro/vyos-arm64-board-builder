@@ -12,10 +12,13 @@ checks archive and image identities before native VyOS configuration is loaded.
 Installation alone starts neither the management server nor a kiosk.
 
 Configure an F Wayland kiosk named `signage-i` with the usual board display,
-input, audio and persistent browser-state grants, then set:
+input, audio and persistent browser-state grants, then set (omit the network
+deletion if no container network is assigned):
 
 ```text
 configure
+delete container name signage-i network
+set container name signage-i allow-host-networks
 set container name signage-i kiosk url 'http://127.0.0.1:8089/player'
 set container name signage-i kiosk display-backend wayland
 set service signage kiosk signage-i
