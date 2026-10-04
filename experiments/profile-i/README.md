@@ -49,9 +49,17 @@ ISO updates must copy the configuration directory; declining this deliberately
 starts a separate configuration. An actual I ISO-update/reboot test is still
 required before claiming verified update persistence.
 
-Web Backup & Restore includes Anthias settings, users, database and media. It
-is not a backup of the whole router or of the F CLI configuration. Save that
-configuration using native VyOS facilities. Restore preflights expanded size.
+Web Backup & Restore includes Anthias settings, users, database and media,
+plus a versioned `vyarm-display.json` manifest containing the effective VyOS
+output, rotation, mute and playback schedule (including its timezone).
+The host collector reads effective configuration on demand, rather than cached
+container status. Restore validates the bounded manifest before extracting
+media, then applies only these fields through native commit/save to the selected
+local kiosk. Container names, images, networking, credentials and unrelated
+router settings are never imported. Old archives leave host settings unchanged.
+A failed host transaction reports explicitly that media restored but display
+settings did not; this is not an atomic transaction across media and VyOS.
+Restore preflights expanded size.
 
 HTTP uploads are limited to 2 GiB per file, with an 8 GiB data budget and a
 1 GiB free-space reserve; temporary processing space is also considered. These

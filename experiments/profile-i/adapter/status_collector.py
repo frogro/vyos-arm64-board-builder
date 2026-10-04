@@ -30,6 +30,17 @@ def apply_request():
   request=read_request(p)
   kiosk=os.environ.get('VYARM_I_KIOSK','signage-i')
   if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,62}',kiosk):raise ValueError('Invalid kiosk name')
+  if request.get('operation') == 'export':
+   from vyos.config import Config
+   conf=Config()
+   cfg=conf.get_config_dict(['container','name',kiosk,'kiosk'],effective=True,key_mangling=('-', '_'),get_first_key=True)
+   if not cfg:raise ValueError('Configured kiosk not found')
+   from backup_settings import validate
+   settings=validate({'rotation':cfg.get('rotation','0'),'output':cfg.get('output','auto'),'muted':cfg.get('audio_muted','disabled')=='enabled','schedule':cfg.get('display_schedule') or None})
+   write_json(ROOT/'data/i-display-result.json',{'id':request.get('id'),'ok':True,'settings':settings})
+   p.unlink(missing_ok=True)
+   return
+  if request.get('operation','apply') != 'apply':raise ValueError('Unknown display operation')
   rotation=request['rotation'];output=request['output']
   assert rotation in ('0','90','180','270')
   assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}',output)
