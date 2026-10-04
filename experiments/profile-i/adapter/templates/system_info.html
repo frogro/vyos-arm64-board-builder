@@ -1,0 +1,17 @@
+{% extends "_layout.html" %}
+{% block title %}System und Wiedergabe{% endblock %}
+{% block main %}
+<style>.i-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}.i-cards .settings-section{margin:0}.i-cards dl{display:grid;grid-template-columns:1fr 1fr;gap:16px}.i-cards dd{margin:0;font-weight:600;overflow-wrap:break-word}.i-cards dt{color:#6b6070}.i-cards progress{width:100%;accent-color:#7134a7}.i-muted{color:#6b6070}</style>
+<div class="app-container"><div class="page-header-bar"><div class="page-header-bar__title"><h1 class="page-header">System und Wiedergabe</h1><p class="page-header-bar__lede" id="updated">Status wird geladen …</p></div></div>
+<div class="i-cards">
+<section class="settings-section"><header><h2>Wiedergabe</h2></header><dl><dt>Player</dt><dd id="player">—</dd><dt>Bildschirm</dt><dd id="output">—</dd><dt>Ausrichtung</dt><dd id="rotation">—</dd><dt>Zeitplan</dt><dd id="schedule">—</dd><dt>Videodekodierung</dt><dd id="decoder">—</dd></dl><a href="/settings/#display-form">Bildschirm und Ton einstellen →</a></section>
+<section class="settings-section"><header><h2>Gerät</h2></header><dl><dt>Modell</dt><dd id="model">—</dd><dt>Systemzeit</dt><dd id="time">—</dd><dt>Systemlast (1 / 5 / 15 Min.)</dt><dd id="load">—</dd></dl></section>
+<section class="settings-section"><header><h2>Medienspeicher</h2></header><p id="storage">—</p><progress id="usage" max="100" value="0" aria-label="Belegter Speicher"></progress><p class="i-muted">Speicherplatz auf dem Datenträger für Medien und Einstellungen.</p></section>
+<section class="settings-section"><header><h2>Einstellungen</h2></header><p id="change">Noch keine Änderung gemeldet.</p><p id="problem" role="status"></p></section>
+</div></div>
+<script>
+(()=>{
+const set=(id,value)=>document.getElementById(id).textContent=value;
+async function refresh(){try{const r=await fetch('/i/status/',{cache:'no-store'});if(!r.ok)throw Error();const x=await r.json(),k=x.kiosk||{},h=x.host||{},c=k.configuration||{},s=h.data_filesystem||{};set('updated','Zuletzt aktualisiert: '+new Date(x.measured_at*1000).toLocaleString('de-DE'));set('model',h.model||'Nicht verfügbar');set('time',new Date(x.measured_at*1000).toLocaleString('de-DE'));set('load',(h.load_average||[]).map(n=>n.toFixed(2)).join(' / ')||'Nicht verfügbar');set('player',k.state?.Running?'Aktiv':'Nicht aktiv');set('output',k.display?.output||'Nicht verfügbar');set('rotation',(k.display?.rotation||'0')+'°');set('schedule',c.KIOSK_DISPLAY_START?c.KIOSK_DISPLAY_START+'–'+c.KIOSK_DISPLAY_STOP+' ('+c.KIOSK_DISPLAY_TIMEZONE+')':'Durchgehend');set('decoder',c.KIOSK_VIDEO_DECODE==='auto'?'Automatische Auswahl':c.KIOSK_VIDEO_DECODE||'Nicht verfügbar');if(s.total_bytes){const gb=n=>(n/1073741824).toLocaleString('de-DE',{maximumFractionDigits:1})+' GB';set('storage',gb(s.free_bytes)+' frei von '+gb(s.total_bytes));document.getElementById('usage').value=100*(1-s.free_bytes/s.total_bytes)}const result=k.last_configuration_change;set('change',!result?'Noch keine Änderung gemeldet.':result.ok?'Letzte Änderung erfolgreich gespeichert.':'Letzte Änderung konnte nicht gespeichert werden.');set('problem',Date.now()/1000-x.measured_at>40?'Statusdaten sind veraltet.':'')}catch{set('updated','Status nicht erreichbar. Bitte Anmeldung und Verbindung prüfen.')}}refresh();setInterval(refresh,10000);
+})();
+</script>{% endblock %}

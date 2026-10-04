@@ -7,15 +7,17 @@ ARTIFACTS="$(readlink -f "${2:?Profile package artifact directory required}")"
 for item in dev proc sys run; do
     mountpoint -q "$ROOTFS/$item" || { echo "Missing chroot mount: $item" >&2; exit 1; }
 done
-python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" "${5:-no}" "${6:-no}" "${7:-no}" <<'PY'
+python3 - "$ROOTFS" "$ARTIFACTS" "${3:-yes}" "${4:-no}" "${5:-no}" "${6:-no}" "${7:-no}" "${8:-no}" <<'PY'
 import hashlib, json, os, shutil, subprocess, sys
 from pathlib import Path
 root, artifacts = map(Path,sys.argv[1:3])
-kvm, tailscale, kiosk, receiver, print_server = sys.argv[3:8]
+kvm, tailscale, kiosk, receiver, print_server, signage = sys.argv[3:9]
+assert signage in ("yes","no")
 assert print_server in ("yes","no")
 assert receiver in ('yes','no')
 assert kvm in ('yes','no') and tailscale in ('yes','no') and kiosk in ('yes','no')
 expected = (['kvm-over-ip'] if kvm=='yes' else []) + (['tailscale-subnet-router'] if tailscale=='yes' else []) + (['kiosk-f'] if kiosk=='yes' else []) + (['receiver-g'] if receiver=='yes' else []) + (['print-server-e'] if print_server=='yes' else [])
+expected += ['signage-i'] if signage=='yes' else []
 meta=json.loads((artifacts/'build.json').read_text())
 assert expected and meta['profiles']==expected, 'Package profiles do not match image selection'
 name=meta['package']; assert Path(name).name==name and name.endswith('.deb')

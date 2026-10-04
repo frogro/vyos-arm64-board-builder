@@ -91,6 +91,7 @@ def prepare(root):
     compile(code, str(owner), 'exec')
     parse_template(xml)
     helper.write_text((HERE / 'kiosk.py').read_text())
+    (root / 'python/vyos/kiosk_schedule.py').write_text((HERE / 'kiosk_schedule.py').read_text())
     completion.parent.mkdir(parents=True, exist_ok=True)
     completion.write_text((HERE / 'list-kiosk-outputs.py').read_text())
     completion.chmod(0o755)

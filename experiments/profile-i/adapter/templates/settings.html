@@ -1,0 +1,195 @@
+{% extends "_layout.html" %}
+{% load static %}
+
+{% block title %}{% if player_name %}{{ player_name }} · {% endif %}Settings{% endblock %}
+
+{% block main %}
+<div class="app-container">
+  <div class="page-header-bar">
+    <div class="page-header-bar__title">
+      <h1 class="page-header">Settings</h1>
+      <p class="page-header-bar__lede">Configure how this player behaves and what it should display.</p>
+    </div>
+  </div>
+
+  {% comment %}Flash messages are emitted as toasts by _toasts.html (vendor.ts drainDjangoMessages()).{% endcomment %}
+
+  <form
+    method="post"
+    action="{% url 'anthias_app:settings_save' %}"
+    x-data="{ authBackend: '{{ auth_backend }}' }"
+    class="settings-stack"
+  >
+    {% csrf_token %}
+
+    {# ===== Bildschirmname ===== #}
+    <section class="settings-section">
+      <header>
+        <div>
+          <h2>Bildschirmname</h2>
+          <p class="settings-section__lede">Ein Name zur Orientierung, zum Beispiel „Empfang“ oder „Schaufenster“. Er erscheint in der Verwaltung und im Browser-Tab.</p>
+        </div>
+      </header>
+      <div class="app-floating">
+        <input type="text" class="app-input" id="player_name" name="player_name" value="{{ player_name }}" placeholder=" ">
+        <label for="player_name">Bildschirmname</label>
+      </div>
+    </section>
+
+    {# ===== Display & playback ===== #}
+    <section class="settings-section">
+      <header>
+        <div>
+          <h2>Display & playback</h2>
+          <p class="settings-section__lede">Anzeigedauer, Zeitplanung und Datumsanzeige.</p>
+        </div>
+      </header>
+
+      <div class="app-form-grid mb-4">
+        <div class="app-floating">
+          <input type="number" class="app-input" id="default_duration" name="default_duration" value="{{ default_duration }}" placeholder=" " required>
+          <label for="default_duration">Default duration (seconds)</label>
+        </div>
+        <div class="app-floating">
+          <input type="number" class="app-input" id="default_streaming_duration" name="default_streaming_duration" value="{{ default_streaming_duration }}" placeholder=" " required>
+          <label for="default_streaming_duration">Default streaming duration (seconds)</label>
+        </div>
+      </div>
+
+      <div class="app-form-grid mb-4">
+
+
+        <div class="app-floating">
+          <select class="app-select" id="date_format" name="date_format">
+            {% for value, label in date_format_options %}
+            <option value="{{ value }}" {% if date_format == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="date_format">Date format</label>
+        </div>
+
+        <div class="app-floating">
+          <select class="app-select" id="timezone" name="timezone">
+            {% for value, label in timezone_options %}
+            <option value="{{ value }}" {% if timezone == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="timezone">Timezone</label>
+        </div>
+
+
+      </div>
+
+      <div>
+
+
+        {% include "_settings_toggle.html" with name="shuffle_playlist" label="Shuffle playlist" hint="Randomise the play order on every loop." checked=shuffle_playlist %}
+
+        {% include "_settings_toggle.html" with name="use_24_hour_clock" label="Use 24-hour clock" hint="Display times in 24-hour format across the UI." checked=use_24_hour_clock %}
+
+
+      </div>
+    </section>
+
+    {# ===== Authentication ===== #}
+    <section class="settings-section">
+      <header>
+        <div>
+          <h2>Authentication</h2>
+          <p class="settings-section__lede">Restrict access to this management UI. Leave disabled on a trusted LAN.</p>
+        </div>
+      </header>
+
+      <div class="app-floating mb-3">
+        <select class="app-select" id="auth_backend" name="auth_backend" x-model="authBackend">
+          <option value="">Disabled</option>
+          <option value="auth_basic" {% if auth_backend == 'auth_basic' %}selected{% endif %}>Basic auth</option>
+        </select>
+        <label for="auth_backend">Method</label>
+      </div>
+
+      {% if has_saved_basic_auth %}
+      <div class="app-floating mb-3" x-show="authBackend === 'auth_basic' || '{{ auth_backend }}' === 'auth_basic'">
+        <input type="password" class="app-input" id="current_password" name="current_password" placeholder=" " autocomplete="current-password">
+        <label for="current_password">Current password</label>
+      </div>
+      {% endif %}
+
+      <template x-if="authBackend === 'auth_basic'">
+        <div>
+          <div class="app-floating mb-3">
+            <input type="text" class="app-input" id="user" name="user" value="{{ username }}" placeholder=" " autocomplete="username">
+            <label for="user">Username</label>
+          </div>
+          <div class="app-form-grid">
+            <div class="app-floating">
+              <input type="password" class="app-input" id="password" name="password" placeholder=" " autocomplete="new-password">
+              <label for="password">New password</label>
+            </div>
+            <div class="app-floating">
+              <input type="password" class="app-input" id="password_2" name="password_2" placeholder=" " autocomplete="new-password">
+              <label for="password_2">Confirm new password</label>
+            </div>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    {% comment %}
+      Scheduled display power. Deliberately NOT gated on cec_available:
+      when no CEC display answers, the schedule falls back to the
+      viewer's local blanking, so it is useful on a plain monitor too.
+    {% endcomment %}
+
+
+    <div class="flex justify-end">
+      <button type="submit" class="app-btn app-btn-primary">
+        <i class="ti ti-check"></i><span>Save settings</span>
+      </button>
+    </div>
+  </form>
+
+  {% include "_display_settings.html" %}
+
+  {# ===== Migrate to Screenly ===== #}
+
+
+  {# ===== Backup & restore ===== #}
+  <section class="settings-section mt-4">
+    <header>
+      <div>
+        <h2>Backup & restore</h2>
+        <p class="settings-section__lede">Sichert Medien, Zeitpläne und Einstellungen von I. Die VyOS-Konfiguration für F wird getrennt mit configure / save gesichert; dieses Archiv verändert keine Routereinstellungen.</p>
+      </div>
+      <div class="settings-section__actions" x-data>
+        <form method="post" action="{% url 'anthias_app:settings_backup' %}" class="inline m-0">
+          {% csrf_token %}
+          <button type="submit" id="btn-backup" class="app-btn app-btn-outline-dark">
+            <i class="ti ti-download"></i><span>Get backup</span>
+          </button>
+        </form>
+        <form method="post" action="{% url 'anthias_app:settings_recover' %}" enctype="multipart/form-data" class="inline m-0">
+          {% csrf_token %}
+          <input
+            type="file"
+            name="backup_upload"
+            id="backup_upload"
+            accept=".tar.gz,.tgz,application/x-tar,application/gzip"
+            hidden
+            @change="if ($event.target.files.length) $event.target.form.requestSubmit()"
+          >
+          <button type="button" id="btn-upload" class="app-btn app-btn-primary"
+            @click="document.getElementById('backup_upload').click()">
+            <i class="ti ti-upload"></i><span>Upload &amp; recover</span>
+          </button>
+        </form>
+      </div>
+    </header>
+  </section>
+
+  {# ===== System controls ===== #}
+
+
+
+</div>
+{% endblock %}

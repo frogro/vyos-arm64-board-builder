@@ -1,0 +1,11 @@
+ARG BASE_IMAGE=ghcr.io/screenly/anthias-server@sha256:cb5ad083a80c4691812af47a609852c5eba47d862c0660edf05160478e60b32f
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL io.vyarm.signage.version="1" org.opencontainers.image.revision=${SOURCE_REVISION}
+ENV HOME=/data DJANGO_SETTINGS_MODULE=i_settings PYTHONPATH=/opt/i:/usr/src/app/src
+COPY adapter/ /opt/i/
+COPY ANTHIAS-LICENSE /usr/share/licenses/vyarm-signage/ANTHIAS-LICENSE
+COPY container/start.py /opt/i/start.py
+RUN python -m compileall -q /opt/i
+ENTRYPOINT ["python", "/opt/i/start.py"]
+CMD ["server"]

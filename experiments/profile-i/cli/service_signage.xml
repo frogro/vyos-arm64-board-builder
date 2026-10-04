@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<interfaceDefinition><node name="service"><properties><help>System services</help></properties><children>
+<node name="signage" owner="/usr/libexec/vyos/conf_mode/service_signage.py"><properties><help>Media administration and scheduled browser playback</help><priority>1200</priority></properties><children>
+<leafNode name="kiosk"><properties><help>Existing Wayland kiosk container using the local player URL</help></properties></leafNode>
+<leafNode name="allow-client"><properties><help>IPv4 client network allowed to access management on TCP 8088</help><multi/></properties></leafNode>
+<leafNode name="disable"><properties><help>Stop media administration while retaining media and settings</help><valueless/></properties></leafNode>
+</children></node></children></node></interfaceDefinition>

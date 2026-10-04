@@ -24,7 +24,9 @@ with tempfile.TemporaryDirectory(prefix='adfg-native-cli-') as tmp:
                   (False, False, True, True), (True, True, True, False),
                   (True, True, True, True),
                   (False, False, False, False, True),
-                  (False, False, False, True, True)]
+                  (False, False, False, True, True),
+                  (False, False, False, False, False, True),
+                  (True, True, True, True, True, True)]
     for selected in selections:
         git('reset', '--hard', '--quiet', UPSTREAM)
         git('clean', '-fdx', '--quiet')
@@ -33,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix='adfg-native-cli-') as tmp:
             expected = Path(__file__).with_name('cli-recipe.sha256').read_text().strip()
             if metadata['recipe_sha256'] != expected:
                 raise SystemExit(f'G CLI recipe mismatch: {metadata}')
-        for enabled, module in [(selected[2], 'kiosk'), (selected[3], 'receiver')]:
+        for enabled, module in [(selected[2] or (len(selected)>5 and selected[5]), 'kiosk'), (selected[3], 'receiver')]:
             assert (source / f'python/vyos/{module}.py').exists() == enabled
         subprocess.run([sys.executable, 'scripts/generate-configd-include-json.py'], cwd=source, check=True)
         subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'src/tests',

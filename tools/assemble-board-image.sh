@@ -27,6 +27,7 @@ KVM_OVER_IP="${KVM_OVER_IP:-no}"
 KIOSK_F="${KIOSK_F:-no}"
 RECEIVER_G="${RECEIVER_G:-no}"
 PRINT_SERVER_E="${PRINT_SERVER_E:-no}"
+SIGNAGE_I="${SIGNAGE_I:-no}"
 KIOSK_F_GPU_FIRMWARE="${KIOSK_F_GPU_FIRMWARE:-none}"
 KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
 KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
@@ -43,6 +44,9 @@ if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
     # shellcheck disable=SC1090
     source "$KVM_HARDWARE_SELECTION"
 fi
+
+[[ "$SIGNAGE_I" == yes || "$SIGNAGE_I" == no ]] || exit 1
+if [[ "$SIGNAGE_I" == yes ]]; then KIOSK_F=yes; fi
 
 # Multimedia profiles are opt-in; automatic rolling builds remain A–B.
 [[ "$PRINT_SERVER_E" == yes || "$PRINT_SERVER_E" == no ]] || exit 1
@@ -509,9 +513,9 @@ if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_
         KVM_CLI_ARTIFACTS="$(realpath "$VYOS_1X_PREBUILT")"
         [[ -s "$KVM_CLI_ARTIFACTS/build.json" ]] || die "Prebuilt CLI provenance missing"
     else
-        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E"
+        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E" --signage "$SIGNAGE_I"
     fi
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E" "$SIGNAGE_I"
 fi
 
 if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
@@ -583,7 +587,7 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$KVM_HID_GADGET" \
     "$KIOSK_F" \
     "$RECEIVER_G" \
-    "$PRINT_SERVER_E"
+    "$PRINT_SERVER_E" "$SIGNAGE_I"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
@@ -638,6 +642,10 @@ if [[ "$RECEIVER_G" == yes ]]; then
     python3 "$ROOT/experiments/profile-g/image/stage-runtime.py" "$SQUASH_ROOT" "$RECEIVER_G_RUNTIME"
 fi
 
+if [[ "$SIGNAGE_I" == yes ]]; then
+    [[ -n "${SIGNAGE_I_RUNTIME:-}" ]] || die "Profile I requires an offline media runtime"
+    python3 "$ROOT/experiments/profile-i/image/stage-runtime.py" "$SQUASH_ROOT" "$SIGNAGE_I_RUNTIME"
+fi
 if [[ "$PRINT_SERVER_E" == yes ]]; then
     [[ -n "${PRINT_SERVER_E_RUNTIME:-}" ]] || die "Profile E requires a verified offline CUPS runtime"
     python3 "$ROOT/experiments/profile-e/image/stage-runtime.py" "$SQUASH_ROOT" "$PRINT_SERVER_E_RUNTIME"

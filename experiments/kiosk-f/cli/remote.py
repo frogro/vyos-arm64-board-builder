@@ -97,6 +97,8 @@ def verify_image(config):
                          '/sys/module/rockchip_rga/parameters/experimental_full_csc'):
                 if not Path(path).exists():
                     raise ValueError(f'Wayland remote prerequisite missing: {path}')
+        if any(k in settings for k in ('audio_muted','display_schedule')) and labels.get('io.vyarm.kiosk.display-controls') != '1':
+            raise ValueError('Kiosk image lacks audio mute and display schedule support')
         if wayland and labels.get('io.vyarm.kiosk.wayland-drm') != '1':
             raise ValueError('Kiosk image lacks DRM Wayland session support')
         if media and labels.get('io.vyarm.kiosk.media-policy') != '2':

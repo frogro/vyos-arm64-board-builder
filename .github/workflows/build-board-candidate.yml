@@ -1,5 +1,5 @@
 name: Build VyOS ARM64 board candidate
-run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }} kiosk-f=${{ inputs.kiosk_f }} receiver-g=${{ inputs.receiver_g }} print-e=${{ inputs.print_server_e }}"
+run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }} kiosk-f=${{ inputs.kiosk_f }} receiver-g=${{ inputs.receiver_g }} print-e=${{ inputs.print_server_e }} signage-i=${{ inputs.signage_i }}"
 
 on:
   # Creating a deliberately named test branch is the non-interactive CI entry
@@ -61,6 +61,10 @@ on:
         type: boolean
         default: false
 
+      signage_i:
+        description: Media administration I (automatically includes F)
+        type: boolean
+        default: false
       print_server_e:
         description: "Include independent CUPS/Gutenprint print server and shared USB service"
         type: boolean
@@ -152,8 +156,9 @@ jobs:
       EXTENDED_NETWORK: ${{ inputs.extended_network || false }}
       TAILSCALE_SUBNET_ROUTER: ${{ inputs.tailscale_subnet_router || false }}
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
-      KIOSK_F: ${{ inputs.kiosk_f && 'yes' || 'no' }}
+      KIOSK_F: ${{ (inputs.kiosk_f || inputs.signage_i) && 'yes' || 'no' }}
       RECEIVER_G: ${{ inputs.receiver_g && 'yes' || 'no' }}
+      SIGNAGE_I: ${{ inputs.signage_i && 'yes' || 'no' }}
       PRINT_SERVER_E: ${{ inputs.print_server_e && 'yes' || 'no' }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
@@ -173,7 +178,7 @@ jobs:
         run: |
           python3 tools/ci/multimedia-plan.py --board "$BOARD" \
             --network "$EXTENDED_NETWORK" --tailscale "$TAILSCALE_SUBNET_ROUTER" \
-            --kvm "$KVM_OVER_IP" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E"
+            --kvm "$KVM_OVER_IP" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E" --signage "$SIGNAGE_I"
           python3 tests/test-multimedia-selection.py
 
       - name: Test image version table formatting
@@ -426,7 +431,7 @@ jobs:
           df -h
 
       - name: Build selected F/G runtimes for the selected RK3588 board
-        if: inputs.kiosk_f || inputs.receiver_g
+        if: inputs.kiosk_f || inputs.signage_i || inputs.receiver_g
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -439,6 +444,12 @@ jobs:
           if [[ "$RECEIVER_G" == yes ]]; then echo RECEIVER_G_RUNTIME=/work/receiver-artifacts >> "$GITHUB_ENV"; fi
           if [[ -f /work/cached-launch ]]; then echo KVM_CACHED_COPY_BINARY=/work/cached-launch >> "$GITHUB_ENV"; fi
           echo VYOS_1X_BUILD_LOCAL_IMAGE=vyos-profile-build:arm64-22dfa15927f2 >> "$GITHUB_ENV"
+
+      - name: Build independent I media runtime
+        if: inputs.signage_i
+        run: |
+          bash experiments/profile-i/build-runtime.sh "$GITHUB_WORKSPACE/work/signage-runtime"
+          echo "SIGNAGE_I_RUNTIME=$GITHUB_WORKSPACE/work/signage-runtime" >> "$GITHUB_ENV"
 
       - name: Build independent E CUPS runtime
         if: inputs.print_server_e
@@ -467,7 +478,7 @@ jobs:
           if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes || "$PRINT_SERVER_E" == yes ]]; then
             sudo bash tools/ci/expand-multimedia-base.sh "$RAW"
           fi
-          sudo --preserve-env=GH_TOKEN,PRINT_SERVER_E,PRINT_SERVER_E_RUNTIME,KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
+          sudo --preserve-env=GH_TOKEN,SIGNAGE_I,SIGNAGE_I_RUNTIME,PRINT_SERVER_E,PRINT_SERVER_E_RUNTIME,KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
             env OUTPUT_EXTRA_SECTORS=32768 \
             ./tools/assemble-board-image.sh \
               "${BOARD}" \
@@ -481,8 +492,8 @@ jobs:
           df -h
 
       - name: Verify complete board SD/eMMC rootfs before ISO packaging
-        if: inputs.kiosk_f || inputs.receiver_g || inputs.print_server_e
-        run: sudo --preserve-env=PRINT_SERVER_E,BOARD,GITHUB_SHA,EXTENDED_NETWORK,TAILSCALE_SUBNET_ROUTER,KVM_OVER_IP,KIOSK_F,RECEIVER_G bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+        if: inputs.kiosk_f || inputs.signage_i || inputs.receiver_g || inputs.print_server_e
+        run: sudo --preserve-env=SIGNAGE_I,PRINT_SERVER_E,BOARD,GITHUB_SHA,EXTENDED_NETWORK,TAILSCALE_SUBNET_ROUTER,KVM_OVER_IP,KIOSK_F,RECEIVER_G bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
       - name: Create VyOS system-image update ISO
         shell: bash
@@ -589,7 +600,7 @@ jobs:
           compression-level: 0
 
       - name: Preserve multimedia build logs and provenance
-        if: always() && (inputs.kiosk_f || inputs.receiver_g)
+        if: always() && (inputs.kiosk_f || inputs.signage_i || inputs.receiver_g)
         uses: actions/upload-artifact@v4
         with:
           name: orangepi-adfg-build-report-${{ github.run_id }}

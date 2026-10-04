@@ -10,14 +10,14 @@ import struct
 from pathlib import Path
 from urllib.parse import urlsplit
 
-KEYS = {'display_backend': 'KIOSK_DISPLAY_BACKEND', 'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
+KEYS = {'audio_muted': 'KIOSK_AUDIO_MUTED', 'display_backend': 'KIOSK_DISPLAY_BACKEND', 'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
 
 
 def environment(config):
     if 'kiosk' not in config:
         return []
     settings = config['kiosk']
-    if not isinstance(settings, dict) or set(settings) - (set(KEYS) | {'remote'}):
+    if not isinstance(settings, dict) or set(settings) - (set(KEYS) | {'remote', 'display_schedule'}):
         raise ValueError('Unknown kiosk setting')
     if any(key in config.get('environment', {}) for key in KEYS.values()):
         raise ValueError('Remove conflicting KIOSK_* environment overrides before using kiosk settings')
@@ -42,6 +42,8 @@ def environment(config):
     output = settings.get('output', 'auto')
     if not isinstance(output, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.:-]*', output):
         raise ValueError('Invalid kiosk output name')
+    if 'audio_muted' in settings and settings.get('display_backend') != 'wayland':
+        raise ValueError('Audio mute currently requires the Wayland supervisor')
     values = {'url': url, 'output': output, 'rotation': rotation}
     if 'display_backend' in settings:
         if settings['display_backend'] not in ('x11', 'wayland'):
@@ -51,7 +53,7 @@ def environment(config):
         if settings['graphics'] not in ('software', 'auto'):
             raise ValueError('Kiosk graphics must be software or auto')
         values['graphics'] = settings['graphics']
-    for key, choices in {'video_decode': ('software', 'auto'),
+    for key, choices in {'audio_muted': ('enabled', 'disabled'), 'video_decode': ('software', 'auto'),
                          'video_h264_buffers': ('disabled', 'enabled'),
                          'video_av1_buffers': ('disabled', 'enabled')}.items():
         if key in settings:
@@ -64,6 +66,16 @@ def environment(config):
     # and variable substitution ($) must remain literal URL characters.
     result = [f'Environment={KEYS[key]}="{value.replace(chr(37), chr(37)*2).replace(chr(36), chr(36)*2)}"'
               for key, value in values.items()]
+    if 'display_schedule' in settings:
+        if settings.get('display_backend') != 'wayland':
+            raise ValueError('Display schedule currently requires the Wayland supervisor')
+        from vyos.kiosk_schedule import validate
+        schedule = validate(settings['display_schedule'])
+        for key, value in schedule.items():
+            env_key = 'KIOSK_DISPLAY_' + key.upper()
+            if env_key in config.get('environment', {}):
+                raise ValueError('Remove conflicting display schedule environment override')
+            result.append(f'Environment={env_key}="{value}"')
     remote = settings.get('remote', {})
     if settings.get('display_backend') == 'wayland' and remote.get('access') == 'enabled':
         result.append('Environment=SUNSHINE_VYARM_DIRECT_RGA="1"')

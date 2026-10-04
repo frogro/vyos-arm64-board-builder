@@ -28,6 +28,7 @@ assert features['extended_network'] and features['tailscale_subnet_router']
 full=board!='radxa-e52c'
 assert all(bool(features.get(key,False))==full for key in ('kvm_over_ip','kiosk_f','receiver_g'))
 profiles=('A–G' if full else 'A–C/E') if features.get('print_server_e') else ('A–D/F/G' if full else 'A–C')
+if features.get('signage_i'):profiles += '/I'
 chunk=1500*1024*1024
 parts=[f'{img.name}.part{n:02d}' for n in range(1,(img.stat().st_size+chunk-1)//chunk+1)] if img.stat().st_size>=2147483648 else []
 assert iso.stat().st_size<2147483648, 'ISO exceeds GitHub limit; cannot publish a directly downloadable update ISO'
