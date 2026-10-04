@@ -10,6 +10,7 @@ COPY experiments/kiosk-f/container/kiosk-*.py experiments/kiosk-f/container/star
 COPY experiments/kiosk-f/container/xorg.conf /etc/X11/xorg.conf
 COPY experiments/kiosk-f/container/kiosk-policy.json /etc/chromium/policies/managed/kiosk.json
 RUN printf '%s\n' '{"AutoplayAllowlist":["http://127.0.0.1:8089/*"]}' > /etc/chromium/policies/managed/vyarm-signage.json
+LABEL io.vyarm.kiosk.sunshine-origins="1"
 LABEL io.vyarm.kiosk.display-controls="1" io.vyarm.kiosk.wayland-drm="1"
 COPY experiments/kiosk-f/container/input-test.html /opt/kiosk/input-test.html
 RUN chmod 755 /usr/local/bin/start-kiosk /usr/local/bin/kiosk-session /usr/local/bin/kiosk-*.py && python3 -m py_compile /usr/local/bin/kiosk-*.py && command -v sunshine && command -v chromium && command -v weston
