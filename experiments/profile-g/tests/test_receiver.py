@@ -29,7 +29,7 @@ class Policy(unittest.TestCase):
         for method,codec,decoder in itertools.product(('airplay','moonlight'),('auto','h264','hevc','av1'),('auto','hardware','software')):
             cfg=receiver.settings(dict(method=method,codec=codec,decoder=decoder,host='host'))
             env=backend.receiver_environment(cfg,inherited)
-            selected=method=='moonlight' and codec=='h264' and decoder!='software'
+            selected=method=='moonlight' and codec in ('auto','h264','hevc') and decoder!='software'
             self.assertEqual('LD_LIBRARY_PATH' in env,selected)
             self.assertEqual(env['PULSE_SERVER'],inherited['PULSE_SERVER'])
         for codec,decoder in itertools.product(('auto','h264','hevc','av1'),('auto','hardware','software')):

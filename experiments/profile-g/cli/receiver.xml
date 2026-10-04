@@ -66,10 +66,10 @@
     </leafNode>
     <leafNode name="resolution">
       <properties>
-        <help>Requested resolution (default 1920x1080)</help>
+        <help>Requested resolution for AirPlay/Moonlight/Steam Link; Miracast negotiates with sender</help>
         <valueHelp>
           <format>txt</format>
-          <description>Requested resolution (default 1920x1080)</description>
+          <description>Requested resolution for AirPlay/Moonlight/Steam Link; Miracast negotiates with sender</description>
         </valueHelp>
       </properties>
     </leafNode>
@@ -93,7 +93,7 @@
     </leafNode>
     <leafNode name="codec">
       <properties>
-        <help>Moonlight/Steam Link codec preference (Steam Link: auto H264, h264 or hevc)</help>
+        <help>Moonlight/Steam Link codec preference; hardware-capable auto selects H264; AV1 uses Moonlight system decoder</help>
         <completionHelp>
           <list>auto h264 hevc av1</list>
         </completionHelp>

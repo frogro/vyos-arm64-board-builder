@@ -162,7 +162,9 @@ def browser_policy(env):
 if __name__ == '__main__':
     if sys.argv[1:] == ['status']:
         try:
-            print(STATUS.read_text())
+            status = json.loads(STATUS.read_text())
+            status['cma_kib'] = {line.split(':')[0]: int(line.split()[1]) for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith(('CmaTotal:', 'CmaFree:'))}
+            print(json.dumps(status, indent=2))
         except FileNotFoundError:
             print(json.dumps({'actual_decoder': 'unknown', 'reason': 'No media policy startup report'}))
     else:

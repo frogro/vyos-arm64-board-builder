@@ -1,0 +1,10 @@
+--- a/libavcodec/v4l2_request_probe.c
++++ b/libavcodec/v4l2_request_probe.c
+@@ -29,6 +29,7 @@
+ #include "libavutil/hwcontext_v4l2request.h"
+ #include "libavutil/mem.h"
+ #include "v4l2_request_internal.h"
++#include "v4l2-nv15-compat.h"
+ 
+ static const struct {
+     uint32_t pixelformat;

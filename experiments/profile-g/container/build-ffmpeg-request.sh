@@ -11,6 +11,11 @@ test "$(git rev-parse HEAD)" = "$revision"
 git apply --check /tmp/ffmpeg-rps/0002-exact-7.1-backport.patch
 git apply /tmp/ffmpeg-rps/0002-exact-7.1-backport.patch
 install -m644 /tmp/ffmpeg-rps/v4l2-hevc-rps-compat.h libavcodec/v4l2-hevc-rps-compat.h
+# Include the stable UAPI definition so Debian 6.12 headers do not
+# silently compile out NV15 capture support required by RK3588 Main10.
+install -m644 /tmp/ffmpeg-rps/v4l2-nv15-compat.h libavcodec/v4l2-nv15-compat.h
+git apply --check /tmp/ffmpeg-rps/0003-nv15-uapi.patch
+git apply /tmp/ffmpeg-rps/0003-nv15-uapi.patch
 ./configure --prefix=/opt/ffmpeg-request --enable-shared --disable-static \
  --disable-doc --disable-debug --disable-autodetect --enable-libdrm \
  --enable-v4l2-request --disable-everything --enable-avcodec \

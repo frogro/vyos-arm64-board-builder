@@ -58,3 +58,37 @@ The previous installed image and kiosk configuration remain the recovery path.
 Residual live warning: isolated `HDMI: Unknown ELD version 0` on codec.7 around
 transitions; the old repeated ASoC prepare-error flood was not observed. This
 remains an explicit acceptance gap, not a passing HDMI hotplug result.
+
+### Receiver decoder selection and memory diagnostics (2026-10-04)
+
+`show display-receiver media <container>` reports visible decoder/heap grants,
+CMA in KiB, requested policy, startup selection and available Miracast stream
+observations. Capability discovery and startup selection are not stream proof.
+Miracast records the decoder only after a decoded buffer reaches its sink;
+presentation and remote input still require a complete sender test.
+`show kiosk media <container>` additionally reports current CMA totals/free space.
+Neither command changes decoder or boot settings.
+
+G discovers H.264 V4L2 factories and enumerates frame sizes on the granted device.
+It prefers the broadest eligible decoder, independent of `/dev/videoN` numbering.
+Auto ranks unsuitable factories below software; hardware mode refuses an
+ineligible stateless decoder. Miracast uses the negotiated `-r` dimensions.
+Its protocol negotiation does not use the generic receiver resolution/fps fields
+and the pinned MiracleCast mode table does not advertise 4K.
+
+Moonlight explicitly selected H.264 and HEVC use the private Request libraries.
+Auto with hardware permitted conservatively selects H.264; explicit AV1 and
+software mode retain system libraries. The private FFmpeg build only includes
+H.264, HEVC and AAC, so it must not be applied unconditionally to AV1.
+Steam Link retains its 1080p60 H.264/HEVC limits.
+
+The private FFmpeg includes the stable Linux UAPI NV15 FOURCC when older build
+headers omit it. The definition matches Linux 6.18 `videodev2.h`; runtime format
+negotiation remains mandatory. This enables packed 10-bit capture without
+replacing system FFmpeg, GStreamer or kernel headers. Source:
+https://github.com/torvalds/linux/blob/v6.18/include/uapi/linux/videodev2.h
+
+Local ROCK 5B validation used kernel 6.18.54 and 512 MiB CMA. The new FFmpeg
+actually decoded the 3840x2160 Main10 sample through rkvdec to `drm_prime`, with
+300 decoded frames and zero decode errors; the previous binary fell back to CPU.
+This is a decoder test, not HDR output or a complete Moonlight/Steam Link test.
