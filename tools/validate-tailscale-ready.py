@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -29,9 +30,9 @@ def read_requirements(path: Path) -> dict[str, str]:
         if "=" not in line:
             raise ValueError(f"{path}:{number}: malformed requirement")
         symbol, mode = line.split("=", 1)
-        if not symbol.startswith("CONFIG_") or mode not in {
+        if not symbol.startswith("CONFIG_") or not (mode in {
             "builtin", "available", "disabled"
-        }:
+        } or re.fullmatch(r"min:[0-9]+", mode)):
             raise ValueError(f"{path}:{number}: invalid requirement: {line}")
         if symbol in requirements:
             raise ValueError(f"{path}:{number}: duplicate symbol: {symbol}")
@@ -47,6 +48,8 @@ def validate(config: dict[str, str], requirements: dict[str, str]) -> list[dict[
             ok = actual == "y"
         elif mode == "available":
             ok = actual in {"y", "m"}
+        elif mode.startswith("min:"):
+            ok = actual.isdecimal() and int(actual) >= int(mode[4:])
         else:
             ok = actual == "n"
         report.append({
