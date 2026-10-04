@@ -1,0 +1,4 @@
+# Same filename overrides the package rule: no second direct alsactl invocation.
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", TEST!="/etc/alsa/state-daemon.conf", TAG+="systemd", ENV{SYSTEMD_WANTS}+="vyarm-alsa-card@%k.service"
+# Preserve the optional upstream state-daemon mode.
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", TEST=="/etc/alsa/state-daemon.conf", RUN+="/usr/sbin/alsactl -E HOME=/run/alsa -E XDG_RUNTIME_DIR=/run/alsa/runtime nrestore $attr{device/number}"

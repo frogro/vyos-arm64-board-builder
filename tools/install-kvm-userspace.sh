@@ -126,6 +126,8 @@ chroot "$ROOTFS" /usr/bin/env \
 if [[ "$PROFILE_NAME" == kvm ]]; then
     audio_source="$(dirname "$(readlink -f "$0")")/audio"
     install -D -m 0755 "$audio_source/restore.py" "$ROOTFS/usr/local/libexec/vyarm-alsa-restore"
+    install -D -m 0644 "$audio_source/90-alsa-restore.rules" "$ROOTFS/etc/udev/rules.d/90-alsa-restore.rules"
+    install -D -m 0644 "$audio_source/vyarm-alsa-card@.service" "$ROOTFS/etc/systemd/system/vyarm-alsa-card@.service"
     install -D -m 0644 "$audio_source/restore.conf" "$ROOTFS/etc/systemd/system/alsa-restore.service.d/50-vyarm.conf"
 fi
 
