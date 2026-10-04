@@ -14,6 +14,8 @@ KVM_CAPTURE_BACKEND="${8:-disabled}"
 KVM_HID_GADGET="${9:-no}"
 KIOSK_F="${10:-no}"
 RECEIVER_G="${11:-no}"
+PRINT_SERVER_E="${12:-no}"
+[[ "$PRINT_SERVER_E" == yes || "$PRINT_SERVER_E" == no ]] || exit 1
 [[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
 [[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || exit 1
 
@@ -68,6 +70,11 @@ case "${EXTENDED_NETWORK}:${TAILSCALE_SUBNET_ROUTER}:${KVM_OVER_IP}" in
     yes:yes:yes) EXPECTED_PROFILE=network-tailscale-kvm ;;
 esac
 
+if [[ "$PRINT_SERVER_E" == yes ]]; then
+    [[ "$EXPECTED_PROFILE" != base ]] || EXPECTED_PROFILE=""
+    EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}print"
+fi
+
 if [[ "$KIOSK_F" == yes ]]; then
     [[ "$EXPECTED_PROFILE" != base ]] || EXPECTED_PROFILE=""
     EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}kiosk"
@@ -102,12 +109,12 @@ PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
     "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" \
-    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" "$RECEIVER_G" <<'PY'
+    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk, receiver = sys.argv[1:]
+output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk, receiver, print_server = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 2,
     "architecture": "arm64",
@@ -117,6 +124,7 @@ Path(output).write_text(json.dumps({
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+        **({"print_server_e": True} if print_server == "yes" else {}),
         **({"kiosk_f": True} if kiosk == "yes" else {}),
         **({"receiver_g": True} if receiver == "yes" else {}),
     },

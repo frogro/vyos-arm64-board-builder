@@ -582,7 +582,8 @@ echo "===== INSTALLING COMMON VYOS FIRST-BOOT SUPPORT ====="
     "$KVM_CAPTURE_BACKEND" \
     "$KVM_HID_GADGET" \
     "$KIOSK_F" \
-    "$RECEIVER_G"
+    "$RECEIVER_G" \
+    "$PRINT_SERVER_E"
 
 if [[ "$KVM_OVER_IP" == "yes" ]]; then
     echo
