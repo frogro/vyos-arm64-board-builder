@@ -26,3 +26,21 @@ cover selection, missing audio, ambiguous matches, X11 output names and hotplug.
 
 The change requires rebuilding F/G container images; a kernel rebuild is not
 needed for this fix. Profiles without F/G are unaffected.
+
+## Host mixer state and kiosk lifecycle
+
+The KVM/media host package set now includes `alsa-ucm-conf`. The ALSA restore
+service uses a per-card helper: existing UCM profiles are retained; only
+libasound ENOENT selects generic initialization for that card. Missing UCM
+package data, malformed profiles and device errors remain failures. On a fresh
+installation it initializes mixers then saves their actual state, instead of
+restoring a nonexistent file. Debian init's documented-in-00main status 99
+means generic defaults were applied and is accepted only during initialization.
+No board-independent mixer state is shipped. Network-only images are unchanged.
+
+The two generated kiosk input helpers use After, BindsTo and PartOf referencing
+the native container service. Orange Pi live tests covered start, restart, stop,
+start again and native CLI removal without a restart of a deleted unit.
+The new ALSA helper was also tested on all four Orange Pi audio cards with a
+fresh temporary state file and a subsequent restore. This does not constitute
+a hardware audio test on other boards or a reboot test of a newly built image.

@@ -89,6 +89,11 @@ class OfflineImage(unittest.TestCase):
             load('kiosk-generator').generate(src, out)
             self.assertTrue((out / 'vyos-kiosk-inputs-signage.service').exists())
             self.assertFalse((out / 'vyos-kiosk-inputs-other.service').exists())
+            for prefix in ('vyos-kiosk-inputs-', 'vyos-kiosk-sunshine-inputs-'):
+                text = (out / (prefix+'signage.service')).read_text()
+                self.assertIn('BindsTo=vyos-container-signage.service', text)
+                self.assertIn('PartOf=vyos-container-signage.service', text)
+                self.assertIn('After=vyos-container-signage.service', text)
 
 
 if __name__ == '__main__':

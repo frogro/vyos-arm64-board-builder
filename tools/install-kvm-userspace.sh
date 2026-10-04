@@ -122,6 +122,13 @@ chroot "$ROOTFS" /usr/bin/env \
     PATH=/usr/sbin:/usr/bin:/sbin:/bin \
     apt-get install -y --no-install-recommends "${PACKAGES[@]}"
 
+# Host ALSA is installed with the media/KVM userspace, never by network-only builds.
+if [[ "$PROFILE_NAME" == kvm ]]; then
+    audio_source="$(dirname "$(readlink -f "$0")")/audio"
+    install -D -m 0755 "$audio_source/restore.py" "$ROOTFS/usr/local/libexec/vyarm-alsa-restore"
+    install -D -m 0644 "$audio_source/restore.conf" "$ROOTFS/etc/systemd/system/alsa-restore.service.d/50-vyarm.conf"
+fi
+
 PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 {
