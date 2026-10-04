@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+if [ ! -f /etc/cups/cups-files.conf ]; then
+    cp -an /opt/cups-defaults/. /etc/cups/
+fi
+if [ ! -s /run/secrets/printadmin ]; then
+    echo 'Missing printadmin password file' >&2
+    exit 1
+fi
+printf 'printadmin:%s\n' "$(cat /run/secrets/printadmin)" | chpasswd
+mkdir -p /run/cups /var/spool/cups /var/log/cups /run/dbus
+# Private container bus; never expose the router's system D-Bus.
+dbus-uuidgen --ensure
+dbus-daemon --system --fork
+avahi-daemon --daemonize --no-chroot --no-drop-root --no-rlimits
+/usr/sbin/cupsd -t
+exec /usr/sbin/cupsd -f
