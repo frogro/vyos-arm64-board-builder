@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+ <node name="request">
+  <properties><help>Make system operational requests</help></properties>
+  <children><node name="print-server">
+   <properties><help>CUPS print server management</help></properties>
+   <children><leafNode name="password">
+    <properties><help>Change the CUPS vyos account password interactively</help></properties>
+    <command>sudo /usr/libexec/vyos/vyarm-print-password.py</command>
+   </leafNode></children>
+  </node></children>
+ </node>
+</interfaceDefinition>
