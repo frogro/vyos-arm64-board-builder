@@ -31,6 +31,8 @@ def prepare(root, print_server=False, receiver=False):
     files['op-mode-definitions/request_usb-server.xml.in'] = (HERE/'request_usb-server.xml').read_text()
     files['src/helpers/vyarm-install-virtualhere.py'] = (HERE/'install-virtualhere.py').read_text()
     if print_server:
+        files['op-mode-definitions/request_print-server.xml.in'] = (HERE/'request_print-server.xml').read_text()
+        files['src/helpers/vyarm-print-password.py'] = (HERE/'print-password.py').read_text()
         files['src/helpers/vyarm-print-supervisor.py'] = (HERE/'cups-supervisor.py').read_text()
     for name in files:
         if (root/name).exists():

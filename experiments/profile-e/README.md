@@ -39,8 +39,13 @@ set service print-server usb-port 4-1.2
 commit
 ```
 
-CUPS web UI: `https://192.168.178.173:631`, user `printadmin`. The random test
-password is in `/config/profile-e/admin-password`, readable only by root.
+CUPS web UI: `https://192.168.178.173:631`, default user/password `vyos` / `vyos`. Change it with
+`request print-server password` (operational mode, hidden interactive input).
+The password is stored in `/config/profile-e/admin-password`, readable only by
+root, and existing passwords are never replaced by the first-start default.
+This changes only CUPS, not the VyOS login. Configuration must be copied during
+ISO updates to retain this state. Password changes restart the print service;
+wait until current printing is complete.
 The certificate is locally generated. Printer/driver/paper/queue administration
 is performed through CUPS, not duplicated in VyOS CLI.
 

@@ -7,7 +7,7 @@ if [ ! -s /run/secrets/printadmin ]; then
     echo 'Missing printadmin password file' >&2
     exit 1
 fi
-printf 'printadmin:%s\n' "$(cat /run/secrets/printadmin)" | chpasswd
+printf 'vyos:%s\n' "$(cat /run/secrets/printadmin)" | chpasswd
 mkdir -p /run/cups /var/spool/cups /var/log/cups /run/dbus
 # Private container bus; never expose the router's system D-Bus.
 dbus-uuidgen --ensure

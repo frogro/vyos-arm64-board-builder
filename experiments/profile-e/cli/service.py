@@ -6,7 +6,6 @@ import json
 import os
 from pathlib import Path
 import re
-import secrets
 import subprocess
 import sys
 from vyos.config import Config
@@ -135,7 +134,7 @@ def apply(c):
         if not password.exists():
             with password.open('x') as stream:
                 password.chmod(0o600)
-                stream.write(secrets.token_urlsafe(24)+'\n')
+                stream.write('vyos\n')
         for d in ('cups','spool','logs'):
             (ROOT/d).mkdir(exist_ok=True)
         # Start from packaged policy, retaining printer definitions separately.
