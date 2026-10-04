@@ -44,3 +44,20 @@ start again and native CLI removal without a restart of a deleted unit.
 The new ALSA helper was also tested on all four Orange Pi audio cards with a
 fresh temporary state file and a subsequent restore. This does not constitute
 a hardware audio test on other boards or a reboot test of a newly built image.
+
+### Early sound-device discovery and partial mixer state
+
+The media image overrides `90-alsa-restore.rules` by the same filename in
+`/etc/udev/rules.d`. Sound-card add events request a per-card systemd oneshot
+instead of running the package's direct restore. State-daemon mode retains its
+upstream nrestore path. The boot service, per-card services and shutdown store
+share a flock under /run/alsa. The ALSA parser checks state by stable card ID;
+a missing entry is initialized and merged without discarding other entries.
+Corrupt state remains an error rather than being overwritten with defaults.
+
+ROCK live verification used an initial file containing only the analog card,
+then started three card services concurrently: all succeeded, both missing HDMI
+entries were added, and a second invocation restored the new state. udevadm test
+confirmed selection of the new service and absence of the direct restore rule.
+Test units/rules were removed and mixer values restored afterwards. Cold boot
+and physical hotplug on all target boards still require image-level testing.

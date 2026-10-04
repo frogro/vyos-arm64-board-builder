@@ -1,0 +1,8 @@
+[Unit]
+Description=Initialize ALSA mixer for %I
+ConditionPathExists=!/etc/alsa/state-daemon.conf
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/vyarm-alsa-restore --card %I
