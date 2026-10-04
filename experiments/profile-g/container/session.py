@@ -122,6 +122,8 @@ def main():
                 os.environ['DISPLAY']=':9'
             receiver=launch(as_user+(['moonlight'] if cfg['mode']=='pair' and cfg['method']=='moonlight' else command(cfg)),
                             env=receiver_environment(cfg))
+        from media import memory
+        (state/'receiver-selection.json').write_text(json.dumps({'method':cfg['method'], 'codec_requested':cfg['codec'], 'decoder_requested':cfg['decoder'], 'moonlight_auto_codec':'h264' if cfg['method']=='moonlight' and cfg['codec']=='auto' and cfg['decoder']!='software' else None, 'cma_kib':memory(), 'stream_verified':False})+'\n')
         print(json.dumps({'method':cfg['method'],'output':selected,'status':'started-not-stream-verified'}),flush=True)
         essential=[p for p in children if p is not audio.process]
         while not stopping:

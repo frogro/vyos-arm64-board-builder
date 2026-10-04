@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <interfaceDefinition>
   <node name="show"><children><node name="display-receiver"><properties><help>Profile G diagnostics</help></properties><children>
+    <tagNode name="media"><properties><help>Decoder capabilities, memory and startup policy; not active-stream proof</help><completionHelp><path>container name</path></completionHelp></properties>
+      <command>${vyos_op_scripts_dir}/receiver.py media "$4"</command>
+    </tagNode>
     <node name="wireless"><properties><help>Read-only P2P and radio ownership check</help></properties>
       <command>${vyos_op_scripts_dir}/receiver.py</command>
       <children><tagNode name="interface"><properties><help>Wireless interface</help><completionHelp><script>ls /sys/class/net</script></completionHelp></properties>

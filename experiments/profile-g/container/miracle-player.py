@@ -2,10 +2,12 @@
 """MiracleCast player with reconnectable MPEG-TS tracks and shared A/V clock."""
 import argparse
 import os
+import json
+from pathlib import Path
 import signal
 import sys
 sys.path.insert(0, '/opt/profile-g')
-from backend import config, gst_decoder
+from backend import config, gst_decoder, receiver_environment
 
 
 def pipeline(port, audio, cfg):
@@ -16,7 +18,7 @@ def pipeline(port, audio, cfg):
             '!', 'rtpjitterbuffer', 'latency='+cfg['latency'], 'drop-on-latency=false',
             '!', 'rtpmp2tdepay', '!', 'tsdemux', 'latency=200', 'name=demux',
             'queue', 'name=video_queue', *queue, '!', 'h264parse',
-            '!', gst_decoder(cfg['decoder']), '!', 'waylandsink', 'name=video',
+            '!', gst_decoder(cfg['decoder'], resolution=cfg.get('resolution', '1920x1080')), '!', 'waylandsink', 'name=video',
             'sync=true', 'enable-last-sample=false']
     if audio:
         args += ['queue', 'name=audio_queue', *queue, '!', 'aacparse', '!', 'avdec_aac',
@@ -89,6 +91,39 @@ def play(args):
         signal.signal(sig, stop)
     bus = pipe.get_bus()
     fullscreen = False
+    reported = False
+    stream = {'method': 'miracast', 'pid': os.getpid(), 'active': True,
+              'actual_decoder': 'unknown', 'hardware_confirmed': False,
+              'presentation_verified': False}
+    def report():
+        try:
+            target = Path('/state/receiver-stream.json')
+            temp = target.with_suffix('.tmp')
+            temp.write_text(json.dumps(stream)+'\n')
+            temp.replace(target)
+        except OSError:
+            pass  # Diagnostics must not interrupt playback.
+    def decoded(pad, info):
+        nonlocal reported
+        if reported:
+            return Gst.PadProbeReturn.OK
+        iterator = pipe.iterate_recurse()
+        decoders = []
+        while True:
+            result, element = iterator.next()
+            if result != Gst.IteratorResult.OK:
+                break
+            factory = element.get_factory()
+            if factory and 'Decoder/Video' in (factory.get_metadata('klass') or ''):
+                decoders.append((factory.get_name(), 'Hardware' in (factory.get_metadata('klass') or '')))
+        caps = pad.get_current_caps()
+        stream.update(actual_decoder=[name for name, hw in decoders],
+                      hardware_confirmed=any(hw for name, hw in decoders),
+                      decoded_caps=caps.to_string() if caps else None)
+        report(); reported = True
+        return Gst.PadProbeReturn.OK
+    pipe.get_by_name('video').get_static_pad('sink').add_probe(Gst.PadProbeType.BUFFER, decoded)
+    report()
     try:
         if pipe.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
             raise RuntimeError('Receiver failed to enter PLAYING')
@@ -100,7 +135,7 @@ def play(args):
                 raise tracks.error
             video = pipe.get_by_name('video')
             # Applying fullscreen before the Wayland window exists warns in 1.26.
-            if not fullscreen and video.get_property('stats').get_value('rendered'):
+            if not fullscreen and video.find_property('fullscreen') and video.get_property('stats').get_value('rendered'):
                 video.set_property('fullscreen', True)
                 fullscreen = True
             if message is None:
@@ -118,6 +153,8 @@ def play(args):
     finally:
         pipe.set_state(Gst.State.NULL)
         tracks.close()
+        stream['active'] = False
+        report()
 
 
 if __name__ == '__main__':
@@ -133,4 +170,11 @@ if __name__ == '__main__':
         os.execvp('setpriv', ['setpriv', '--reuid=kiosk', '--regid=kiosk',
                    '--groups='+os.environ['G_DEVICE_GROUPS'], '--',
                    '/usr/bin/python3', os.path.realpath(__file__), *sys.argv[1:]])
-    play(pipeline(opts.p, opts.a, config()))
+    cfg = config()
+    if opts.r:
+        import re
+        if not re.fullmatch(r'[1-9][0-9]{0,4}x[1-9][0-9]{0,4}', opts.r):
+            parser.error('Invalid negotiated resolution')
+        cfg['resolution'] = opts.r
+    os.environ.update(receiver_environment(cfg))
+    play(pipeline(opts.p, opts.a, cfg))
