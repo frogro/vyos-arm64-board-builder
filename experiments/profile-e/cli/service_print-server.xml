@@ -24,7 +24,7 @@
           </leafNode>
           <leafNode name="image">
             <properties>
-              <help>Installed local CUPS and Gutenprint image</help>
+              <help>Local CUPS image or auto for the image-provided runtime</help>
             </properties>
           </leafNode>
           <leafNode name="usb-port">

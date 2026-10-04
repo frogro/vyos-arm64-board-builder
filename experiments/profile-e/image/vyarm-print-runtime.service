@@ -1,0 +1,15 @@
+[Unit]
+Description=Import the versioned offline VyARM print runtime
+Wants=vyos-arm64-grow-persistence.service
+After=local-fs.target vyos-arm64-grow-persistence.service
+Before=vyos-router.service
+ConditionPathExists=/usr/share/vyos-arm64-board-builder/print-runtime/runtime.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vyos/vyarm-print-runtime-import
+TimeoutStartSec=300
+RemainAfterExit=yes
+
+[Install]
+WantedBy=vyos.target

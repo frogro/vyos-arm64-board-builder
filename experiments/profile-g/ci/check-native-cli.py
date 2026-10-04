@@ -22,12 +22,14 @@ with tempfile.TemporaryDirectory(prefix='adfg-native-cli-') as tmp:
     selections = [(False, True, False, False), (True, True, False, False),
                   (False, False, True, False), (False, False, False, True),
                   (False, False, True, True), (True, True, True, False),
-                  (True, True, True, True)]
+                  (True, True, True, True),
+                  (False, False, False, False, True),
+                  (False, False, False, True, True)]
     for selected in selections:
         git('reset', '--hard', '--quiet', UPSTREAM)
         git('clean', '-fdx', '--quiet')
         metadata = profile.prepare(source, '999.0-14942-g4e3e38a2e', *selected)
-        if all(selected):
+        if selected == (True, True, True, True):
             expected = Path(__file__).with_name('cli-recipe.sha256').read_text().strip()
             if metadata['recipe_sha256'] != expected:
                 raise SystemExit(f'G CLI recipe mismatch: {metadata}')

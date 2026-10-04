@@ -26,6 +26,7 @@ BUILD_PROFILE="${BUILD_PROFILE:-base}"
 KVM_OVER_IP="${KVM_OVER_IP:-no}"
 KIOSK_F="${KIOSK_F:-no}"
 RECEIVER_G="${RECEIVER_G:-no}"
+PRINT_SERVER_E="${PRINT_SERVER_E:-no}"
 KIOSK_F_GPU_FIRMWARE="${KIOSK_F_GPU_FIRMWARE:-none}"
 KVM_HARDWARE_PROVIDER="${KVM_HARDWARE_PROVIDER:-disabled}"
 KVM_CAPTURE_BACKEND="${KVM_CAPTURE_BACKEND:-disabled}"
@@ -44,6 +45,7 @@ if [[ -f "$KVM_HARDWARE_SELECTION" ]]; then
 fi
 
 # Multimedia profiles are opt-in; automatic rolling builds remain A–B.
+[[ "$PRINT_SERVER_E" == yes || "$PRINT_SERVER_E" == no ]] || exit 1
 [[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
 [[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || { echo 'Invalid KIOSK_F' >&2; exit 1; }
 [[ "$KIOSK_F_GPU_FIRMWARE" == none || "$KIOSK_F_GPU_FIRMWARE" == mali-arch10.8 ]] || exit 1
@@ -172,7 +174,7 @@ if [[ "$KVM_OVER_IP" == "yes" ]]; then
     [[ -x "$KVM_USERSPACE_INSTALLER" ]] ||
         die "KVM userspace installer missing: $KVM_USERSPACE_INSTALLER"
 fi
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" || "$PRINT_SERVER_E" == "yes" ]]; then
     [[ -x "$KVM_CLI_INSTALLER" ]] ||
         die "KVM CLI installer missing: $KVM_CLI_INSTALLER"
 fi
@@ -501,15 +503,15 @@ mount -t proc proc "$SQUASH_ROOT/proc"
 mount -t sysfs sysfs "$SQUASH_ROOT/sys"
 mount -t tmpfs tmpfs "$SQUASH_ROOT/run"
 
-if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" ]]; then
+if [[ "$KVM_OVER_IP" == "yes" || "$TAILSCALE_SUBNET_ROUTER" == "yes" || "$KIOSK_F" == "yes" || "$RECEIVER_G" == "yes" || "$PRINT_SERVER_E" == "yes" ]]; then
     echo "===== BUILDING PROFILE-SCOPED VYOS-1X FROM MATCHING SOURCE ====="
     if [[ -n "${VYOS_1X_PREBUILT:-}" ]]; then
         KVM_CLI_ARTIFACTS="$(realpath "$VYOS_1X_PREBUILT")"
         [[ -s "$KVM_CLI_ARTIFACTS/build.json" ]] || die "Prebuilt CLI provenance missing"
     else
-        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G"
+        python3 "$ROOT/tools/build-vyos-1x-profile.py" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" --kvm "$KVM_OVER_IP" --tailscale "$TAILSCALE_SUBNET_ROUTER" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E"
     fi
-    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G"
+    "$KVM_CLI_INSTALLER" "$SQUASH_ROOT" "$KVM_CLI_ARTIFACTS" "$KVM_OVER_IP" "$TAILSCALE_SUBNET_ROUTER" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E"
 fi
 
 if [[ "$TAILSCALE_SUBNET_ROUTER" == "yes" ]]; then
@@ -633,6 +635,11 @@ fi
 if [[ "$RECEIVER_G" == yes ]]; then
     [[ -n "${RECEIVER_G_RUNTIME:-}" ]] || die "Profile G requires a verified offline receiver runtime"
     python3 "$ROOT/experiments/profile-g/image/stage-runtime.py" "$SQUASH_ROOT" "$RECEIVER_G_RUNTIME"
+fi
+
+if [[ "$PRINT_SERVER_E" == yes ]]; then
+    [[ -n "${PRINT_SERVER_E_RUNTIME:-}" ]] || die "Profile E requires a verified offline CUPS runtime"
+    python3 "$ROOT/experiments/profile-e/image/stage-runtime.py" "$SQUASH_ROOT" "$PRINT_SERVER_E_RUNTIME"
 fi
 
 echo "===== BUILDING MATCHING VYOS INITRAMFS ====="

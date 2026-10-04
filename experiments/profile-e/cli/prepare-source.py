@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage native E/shared USB sources for upstream VyOS generation.
 
-Not yet invoked by release workflows. Call once with the combined E/G selection
+Call once with the combined E/G selection
 so there is exactly one USB owner/service. Never modify generated CLI caches.
 """
 from pathlib import Path
@@ -28,6 +28,7 @@ def prepare(root, print_server=False, receiver=False):
         # The native owner replaces this inactive template with the selected
         # configuration under /run. Nothing is enabled before a VyOS commit.
         files['src/systemd/'+unit+'.service'] = '[Unit]\nDescription=VyARM '+role+' (not configured)\n[Service]\nType=oneshot\nExecStart=/bin/true\n'
+    files['op-mode-definitions/request_usb-server.xml.in'] = (HERE/'request_usb-server.xml').read_text()
     files['src/helpers/vyarm-install-virtualhere.py'] = (HERE/'install-virtualhere.py').read_text()
     if print_server:
         files['src/helpers/vyarm-print-supervisor.py'] = (HERE/'cups-supervisor.py').read_text()

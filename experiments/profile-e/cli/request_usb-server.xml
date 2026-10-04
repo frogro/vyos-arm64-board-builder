@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<interfaceDefinition>
+  <node name="request">
+    <properties><help>Make system operational requests</help></properties>
+    <children>
+      <node name="usb-server">
+        <properties><help>Shared VirtualHere server management</help></properties>
+        <children>
+          <leafNode name="install">
+            <properties><help>Download and verify the generic VirtualHere server; does not enable it</help></properties>
+            <command>sudo /usr/libexec/vyos/vyarm-install-virtualhere.py</command>
+          </leafNode>
+        </children>
+      </node>
+    </children>
+  </node>
+</interfaceDefinition>

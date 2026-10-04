@@ -131,7 +131,7 @@ main() {
     python3 "${ROOT_DIR}/tools/ci/multimedia-plan.py" \
         --board "${board}" --network "${extended_network}" \
         --tailscale "${tailscale_subnet_router}" --kvm "${kvm_over_ip}" \
-        --kiosk "${KIOSK_F:-no}" --receiver "${RECEIVER_G:-no}" \
+        --kiosk "${KIOSK_F:-no}" --receiver "${RECEIVER_G:-no}" --print-server "${PRINT_SERVER_E:-no}" \
         > "${selection_dir}/multimedia-plan.json"
 
     python3 "${ROOT_DIR}/tools/feature-profile.py" \
@@ -140,6 +140,7 @@ main() {
         --kvm-over-ip "${kvm_over_ip}" \
         --kiosk-f "${KIOSK_F:-no}" \
         --receiver-g "${RECEIVER_G:-no}" \
+        --print-server-e "${PRINT_SERVER_E:-no}" \
         --output-env "${selection_dir}/feature-profiles.env" \
         --output-json "${selection_dir}/feature-profile.json"
 
