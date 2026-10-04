@@ -71,3 +71,17 @@ heap switches as bool, so they are built in; the application profiles still
 control device access and service activation. The board readiness check rejects
 a generated kernel configuration missing either heap or its CMA dependencies.
 This also applies to A/B images without any running multimedia services.
+
+ROCK 5B and Orange Pi 5 Plus request a 512 MiB global CMA pool in base A.
+The pool is shared by hardware consumers; it is not a separate allocation for
+each enabled profile. Numeric feature requirements are preserved during board
+fragment generation, and the generated kernel must select the MiB policy and
+provide at least 512 MiB. Explicit boot/DT overrides still require checking the
+actual `CmaTotal` on the running board.
+
+On the ROCK 5B live 6.18.54 image, 16 MiB CMA caused AV1 4K capture allocation
+failure and H.264 hardware fallback with a Chromium GPU-process crash. With a
+512 MiB boot override, both used V4L2 hardware decoding. This is evidence for
+the memory correction, not a guarantee of smooth playback for every 4K stream
+or a proof that every display/driver error is fixed. Orange Pi inherits the
+RK3588 hardware policy; it was not the board used for this live comparison.

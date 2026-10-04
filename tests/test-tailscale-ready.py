@@ -36,6 +36,17 @@ class TailscaleReadyTests(unittest.TestCase):
             ],
         )
 
+    def test_numeric_minimum_rejects_missing_small_and_nonnumeric(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "requirements"
+            path.write_text("CONFIG_CMA_SIZE_MBYTES=min:512\n")
+            requirements = MODULE.read_requirements(path)
+            for value in ['n', 'y', '16', '256', '-1']:
+                self.assertEqual('FAIL', MODULE.validate({'CONFIG_CMA_SIZE_MBYTES': value}, requirements)[0]['status'])
+            for value in ['512', '768']:
+                self.assertEqual('PASS', MODULE.validate({'CONFIG_CMA_SIZE_MBYTES': value}, requirements)[0]['status'])
+            self.assertEqual('FAIL', MODULE.validate({}, requirements)[0]['status'])
+
     def test_profile_has_no_board_or_tailnet_policy(self):
         text = (ROOT / "profiles/tailscale-ready.config").read_text().lower()
         for forbidden in ["rock-5b", "192.168.", "10.3.", "authkey", "tailnet"]:

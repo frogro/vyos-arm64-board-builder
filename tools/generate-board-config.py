@@ -507,6 +507,10 @@ def add_feature_requirements(
             selected[resolved] = "y"
         elif value == "m" and current == "n":
             selected[resolved] = "m"
+        elif value not in ("y", "m", "n") and current != value:
+            # Exact board numeric/string settings (e.g. CMA pool size) must
+            # survive fragment generation just like tristate requirements.
+            selected[resolved] = value
 
 def merge_feature_value(symbol, previous, value):
     if previous is None or previous == value:

@@ -195,6 +195,13 @@ config RUNTIME_DRIVER
 
         self.assertEqual({"CONFIG_DRM_V3D": "m"}, selected)
 
+    def test_feature_requirement_preserves_numeric_pool_size(self):
+        selected = {}
+        GENERATE_BOARD_CONFIG.add_feature_requirements(selected,
+            {"CONFIG_CMA_SIZE_MBYTES": "512"},
+            {"CONFIG_CMA_SIZE_MBYTES": "16"}, {}, {})
+        self.assertEqual(selected["CONFIG_CMA_SIZE_MBYTES"], "512")
+
     def test_feature_requirement_adds_missing_module(self) -> None:
         selected = {}
         GENERATE_BOARD_CONFIG.add_feature_requirements(
