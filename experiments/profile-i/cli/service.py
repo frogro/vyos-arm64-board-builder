@@ -16,12 +16,16 @@ def get_config(config=None):
     if not conf.exists(['service','signage']):return None
     c=conf.get_config_dict(['service','signage'],key_mangling=('-', '_'),get_first_key=True,no_tag_node_value_mangle=True)
     name=c.get('kiosk','')
-    c['_kiosk']=conf.get_config_dict(['container','name',name,'kiosk'],key_mangling=('-', '_'),get_first_key=True) if name and conf.exists(['container','name',name,'kiosk']) else {}
+    item=conf.get_config_dict(['container','name',name],key_mangling=('-', '_'),get_first_key=True) if name and conf.exists(['container','name',name]) else {}
+    c['_kiosk']=item.get('kiosk',{})
+    c['_host_network']='allow_host_networks' in item
+    c['_image']=item.get('image','')
     return c
 
 def verify(c):
     if c is None or 'disable' in c:return
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,62}',c.get('kiosk','')):raise ConfigError('Select an existing kiosk container')
+    if not c.get('_host_network'):raise ConfigError('Selected kiosk requires allow-host-networks to reach the local player')
     kiosk=c['_kiosk']
     if kiosk.get('url')!='http://127.0.0.1:8089/player' or kiosk.get('display_backend')!='wayland':
         raise ConfigError('Selected kiosk requires Wayland and URL http://127.0.0.1:8089/player')
@@ -35,6 +39,10 @@ def verify(c):
     if not (BASE/'runtime.json').is_file():raise ConfigError('Profile I offline runtime is missing')
     env=dict(os.environ,CONTAINERS_STORAGE_CONF=str(BASE/'storage.conf'))
     meta=json.loads((BASE/'runtime.json').read_text())
+    result=subprocess.run(['podman','image','inspect',c['_image']],env=env,capture_output=True,text=True,check=True,timeout=10)
+    image=json.loads(result.stdout)[0]
+    labels=image.get('Labels') or image.get('Config',{}).get('Labels',{}) or {}
+    if labels.get('io.vyarm.kiosk.display-controls')!='1':raise ConfigError('Select the current kiosk image with media player support')
     for key in ('tag','redis_tag'):
         if subprocess.run(['podman','image','exists',meta[key]],env=env).returncode:raise ConfigError('Profile I image import has not completed')
 
