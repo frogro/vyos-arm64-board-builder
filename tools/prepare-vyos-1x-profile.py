@@ -90,8 +90,8 @@ def remove_duplicate_console_log(source):
         raise ValueError('Console log source layout changed; review required')
     return path, re.sub(pattern, '', text, count=1)
 
-def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False):
-    if not kvm and not tailscale and not kiosk and not receiver:
+def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False, print_server=False):
+    if not kvm and not tailscale and not kiosk and not receiver and not print_server:
         return None
     payload = {}
     profiles = []
@@ -123,12 +123,20 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False):
         recipe_files.update({str(p.relative_to(ROOT)): '' for p in
                              (ROOT/'experiments/profile-g/cli').iterdir()
                              if p.suffix in ('.py', '.xml')})
+    if print_server:
+        profiles.append('print-server-e')
+    if print_server or receiver:
+        recipe_files.update({str(p.relative_to(ROOT)): '' for p in
+                             (ROOT/'experiments/profile-e/cli').iterdir()
+                             if p.suffix in ('.py', '.xml')})
     digest = recipe(recipe_files)
     suffix = 'kvm-tailscale' if kvm and tailscale else 'kvm' if kvm else 'tailscale'
     if kiosk:
         suffix = (suffix + '-kiosk') if kvm or tailscale else 'kiosk'
     if receiver:
         suffix = suffix+'-receiver' if kvm or tailscale or kiosk else 'receiver'
+    if print_server:
+        suffix = suffix+'-print' if kvm or tailscale or kiosk or receiver else 'print'
     output_version = version+'+'+suffix+'.'+digest[:12]
     destinations = [source/dst for dst in payload.values()]
     if any(p.exists() for p in destinations):
@@ -149,6 +157,11 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False):
         helper = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helper)
         helper.prepare(source)
+    if print_server or receiver:
+        spec = importlib.util.spec_from_file_location('print_source', ROOT/'experiments/profile-e/cli/prepare-source.py')
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        helper.prepare(source, print_server=print_server, receiver=receiver)
     if console_fix:
         console_fix[0].write_text(console_fix[1])
     runner_postinst.write_text(runner_postinst_text)
@@ -163,4 +176,5 @@ if __name__ == '__main__':
     p.add_argument('--tailscale',action='store_true')
     p.add_argument('--kiosk',action='store_true')
     p.add_argument('--receiver',action='store_true')
-    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale,a.kiosk,a.receiver)))
+    p.add_argument('--print-server',action='store_true')
+    a=p.parse_args(); print(json.dumps(prepare(a.source,a.version,a.kvm,a.tailscale,a.kiosk,a.receiver,a.print_server)))

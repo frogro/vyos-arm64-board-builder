@@ -6,9 +6,13 @@ profile moves to **H**. E does not require D/F/G. G may select the same shared
 VirtualHere component; there must only be one server and one `service usb-server`
 configuration, even with E+G.
 
-This directory is the first ROCK live prototype, **not yet a release build
-selector or an update-safe installation package**. Do not assume published
-images contain it. No third-party VirtualHere binaries are distributed here.
+Profile E is selected with `PRINT_SERVER_E=yes` or the `print_server_e` workflow
+input. The builder stages a checksummed offline CUPS/Gutenprint image in the SD
+image and update ISO, imports it before VyOS configuration loading, and compiles
+its native CLI with the selected upstream VyOS package. Defaults remain off.
+The first integrated build and reboot/update qualification are pending; existing
+published images do not gain E retroactively. No proprietary VirtualHere binary
+is distributed in images.
 
 ## Architecture and current live CLI
 
@@ -24,11 +28,11 @@ installation from the vendor. The checksum-pinned installer is now
 to `/config/profile-e/virtualhere-bin`. A changed vendor binary fails validation
 and does not replace an existing installation. It never enables the service.
 
-Prototype configuration:
+Configuration for a newly built E image (`auto` uses its bundled runtime):
 
 ```text
 configure
-set service print-server image localhost/vyarm-print:live-e-20261004
+set service print-server image auto
 set service print-server listen-address 192.168.178.173
 set service print-server allow-client 192.168.178.84/32
 set service print-server usb-port 4-1.2
@@ -51,11 +55,15 @@ set service usb-server allow-usb-id 1343:0005
 commit
 ```
 
-A shared explicit device assignment is rejected at commit. No device is exported
+An overlapping explicit device assignment is rejected at commit. No device is exported
 unless its ID is listed; the prototype ID allowlist applies to all devices with
-that VID/PID. It is not yet a per-serial-number allowlist. Before forwarding a
-printer, pause its CUPS queue to prevent new jobs waiting on an unavailable USB
-backend. Automated queue coordination is still required.
+that VID/PID. It is not yet a per-serial-number allowlist. CUPS owns job scheduling: new queues default to `retry-job`, so jobs remain
+queued while the selected USB device is unavailable and can resume when it is
+available. Existing queues retain their chosen policy; change it in the CUPS
+web UI or with `lpadmin -p QUEUE -o printer-error-policy=retry-job` inside the
+container. Do not switch USB ownership during an active physical print; a retry
+cannot guarantee that a partly printed job will not be printed twice. Switching
+USB ownership is explicit; there is no second custom job scheduler.
 
 Both services default to inactive until configured. The prototype's dedicated
 nftables input tables restrict TCP 631/7575 to configured IPv4 client networks;
@@ -74,22 +82,26 @@ receiver container. Changing/restarting a receiver must not restart VH.
 `cli/prepare-source.py` now stages native XML definitions and owners for the
 upstream build: E provides print-server plus shared usb-server, G alone provides
 only usb-server, and E+G adds it once. These definitions passed the upstream
-RelaxNG schema and command-template generator. They are not yet connected to
-release workflow selection or validated as a complete native package.
+RelaxNG schema and command-template generator. Release workflow selection now invokes this source preparation; the complete
+ARM64 package and image build still need to pass.
 
-The live installer adds temporary templates plus the matching VyOS XML
+The developer-only live installer adds temporary templates plus the matching VyOS XML
 reference; it backs up that reference under `/config/profile-e`. Release builds
-must instead compile proper native XML definitions. The prototype uses volatile
-systemd units and is intentionally not saved into config.boot yet. Do not
-reboot expecting these experimental services to be persistent.
+must instead compile proper native XML definitions. The live prototype configuration is not saved into config.boot yet. For the
+integrated image, the native owner recreates runtime units at boot from saved
+VyOS configuration. Printer state, password, USB bindings and user-installed VH
+remain under `/config/profile-e`. Use `save` after a successful commit. A reboot
+and ISO update test is still required before claiming update qualification.
 
 ## Remaining integration work
 
-- Add independent E build/runtime installation, common E/G component resolution,
-  image manifests and all-board build checks, including E52C A-C+E.
+- Qualify the integrated E build/runtime and common E/G component on the ROCK,
+  including full package generation, image manifests and ISO update. E is allowed
+  independently on E52C and Pi; hardware tests for those boards remain open.
 - Generate native XML/operational commands, transaction-safe reconciliation,
   update/remove/rollback handling and installation/migration tests.
-- Complete CUPS/VH queue pause/resume, aggregate storage limit and log rotation.
+- Qualify return-to-CUPS job resumption and complete aggregate storage limits.
+  CUPS rotates its logs at 1 MiB; this is not an aggregate spool quota.
   CUPS now supervises the selected physical ports and recreates device grants
   after disappearance/reappearance. A changed VID/PID or available USB serial
   is rejected. The RX1 exposes no standard USB serial descriptor; it is matched
@@ -102,3 +114,15 @@ Sources: [CUPS](https://openprinting.github.io/cups/),
 [VirtualHere server](https://www.virtualhere.com/usb_server_software),
 [server settings](https://www.virtualhere.com/configuration_faq),
 [client service limitation](https://www.virtualhere.com/client_service).
+
+## VirtualHere installation
+
+On E or G images, run `request usb-server install` explicitly. This downloads
+only the reviewed vendor ARM64 binary; a changed upstream download is rejected
+until its version/checksum is reviewed. It leaves the server disabled. Enable
+`service usb-server` only after setting allowed clients and device IDs. The
+free-server restrictions still apply. E+G provides the same command and service
+once. `service usb-server disable` stops it without deleting state or a license.
+
+Profile H remains reserved for the previously discussed remote-maintenance
+profile; it is not implemented or silently enabled by selecting E.

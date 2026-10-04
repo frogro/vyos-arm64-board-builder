@@ -31,6 +31,7 @@ class Selection(unittest.TestCase):
     data['usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env']='KVM_GADGET_UDC_USBC=fc000000.usb'
    for selected,folder,key in [(values[3],'kiosk-runtime','builder_commit'),(values[4],'receiver-runtime','source_commit')]:
     if selected:data['usr/share/vyos-arm64-board-builder/'+folder+'/runtime.json']=json.dumps({key:'abc'})
+   if values[4]:data['usr/libexec/vyos/conf_mode/service_usb_server.py']=''
    validate(data.__getitem__,data.__contains__,env)
    if not values[4]:
     data['usr/share/vyos-arm64-board-builder/receiver-runtime/runtime.json']='{}'

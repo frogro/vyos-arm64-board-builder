@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-"""Live prototype: service print-server and shared service usb-server.
-Not yet wired into release builds. CUPS administration remains in its web UI.
-"""
+"""Native CUPS and shared VirtualHere owners; printer administration uses CUPS."""
 import importlib.util
 import ipaddress
 import json
 from pathlib import Path
 import re
+import secrets
 import subprocess
 import sys
 from vyos.config import Config
@@ -17,6 +16,8 @@ ROOT = Path('/config/profile-e')
 SUPERVISOR = Path('/usr/local/libexec/vyarm-print-supervisor.py')
 RUNTIME = Path('/run/vyarm-print/config.json')
 VH_BINARY = ROOT/'virtualhere-bin/vhusbdarm64'
+BINDINGS = ROOT/'usb-bindings.json'
+META = Path('/usr/share/vyos-arm64-board-builder/print-runtime/runtime.json')
 
 def run(*args, **kw):
     return subprocess.run(args, check=True, text=True, timeout=90, **kw)
@@ -33,6 +34,8 @@ def get_config(config=None):
                                     no_tag_node_value_mangle=True) if conf.exists(base) else None
     c = get(ROLE)
     if c is not None:
+        if ROLE == 'print-server' and c.get('image', 'auto') == 'auto':
+            c['image'] = json.loads(META.read_text())['tag']
         c['_other'] = get('usb-server' if ROLE == 'print-server' else 'print-server')
     return c
 
@@ -51,7 +54,7 @@ def verify(c):
         raise ConfigError('Set at least one allow-client network')
     for net in clients:
         if ipaddress.ip_network(net).version != 4:
-            raise ConfigError('Live prototype supports IPv4 allow-client networks')
+            raise ConfigError('Set IPv4 allow-client networks')
     if ROLE == 'print-server':
         if ipaddress.ip_address(c.get('listen_address', '')).version != 4:
             raise ConfigError('Set an IPv4 listen-address')
@@ -61,8 +64,6 @@ def verify(c):
         run('podman', 'image', 'exists', image)
         if not SUPERVISOR.is_file():
             raise ConfigError('CUPS USB supervisor is missing')
-        if not (ROOT/'admin-password').is_file():
-            raise ConfigError('Create /config/profile-e/admin-password (mode 600) first')
     else:
         ids = values(c, 'allow_usb_id')
         if not ids or any(not re.fullmatch(r'[0-9a-f]{4}:[0-9a-f]{4}', x) for x in ids):
@@ -76,9 +77,13 @@ def verify(c):
         if not re.fullmatch(r'[0-9]+-[0-9]+(?:\.[0-9]+)*', port):
             raise ConfigError('Invalid physical USB port')
         dev = Path('/sys/bus/usb/devices')/port
-        if not dev.exists():
-            raise ConfigError('USB port is not connected: ' + port)
-        ident = dev.joinpath('idVendor').read_text().strip()+':'+dev.joinpath('idProduct').read_text().strip()
+        if dev.exists():
+            ident = dev.joinpath('idVendor').read_text().strip()+':'+dev.joinpath('idProduct').read_text().strip()
+        else:
+            cached = json.loads(BINDINGS.read_text()).get(port) if BINDINGS.exists() else None
+            if not cached:
+                raise ConfigError('Connect the USB printer for initial assignment: ' + port)
+            ident = cached['vendor']+':'+cached['product']
         if 'disable' not in vh and ident in values(vh, 'allow_usb_id'):
             raise ConfigError('USB device selected by both CUPS and VirtualHere: '+port)
 
@@ -122,6 +127,11 @@ def apply(c):
         cfg.chmod(0o600)
         execstart = f'{VH_BINARY} -c {ROOT}/virtualhere.ini'
     else:
+        password = ROOT/'admin-password'
+        if not password.exists():
+            with password.open('x') as stream:
+                password.chmod(0o600)
+                stream.write(secrets.token_urlsafe(24)+'\n')
         for d in ('cups','spool','logs'):
             (ROOT/d).mkdir(exist_ok=True)
         # Start from packaged policy, retaining printer definitions separately.
@@ -131,14 +141,18 @@ def apply(c):
         text = re.sub(r'^WebInterface .*$', 'WebInterface Yes', text, flags=re.M)
         acl='\n  Order allow,deny\n'+''.join('  Allow from '+str(ipaddress.ip_network(n))+'\n' for n in values(c,'allow_client'))
         text=re.sub(r'(<Location [^>]+>)',lambda m:m[1]+acl,text)
-        text += '\nDefaultEncryption Required\nPreserveJobFiles No\nMaxJobs 100\nMaxRequestSize 104857600\n'
+        text += '\nDefaultEncryption Required\nPreserveJobFiles No\nMaxJobs 100\nMaxRequestSize 104857600\nMaxLogSize 1048576\nErrorPolicy retry-job\nJobRetryInterval 30\n'
         (ROOT/'cups/cupsd.conf').write_text(text)
         spec = importlib.util.spec_from_file_location('cups_supervisor', SUPERVISOR)
         supervisor = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(supervisor)
-        bindings = [supervisor.identity(port) for port in values(c, 'usb_port')]
+        cached = json.loads(BINDINGS.read_text()) if BINDINGS.exists() else {}
+        bindings = [supervisor.identity(port) or cached.get(port) for port in values(c, 'usb_port')]
         if any(binding is None for binding in bindings):
             raise ConfigError('Selected USB printer disappeared; retry commit')
+        cached.update({binding['port']: binding for binding in bindings})
+        pending = BINDINGS.with_suffix('.tmp')
+        pending.write_text(json.dumps(cached)+'\n'); pending.chmod(0o600); pending.replace(BINDINGS)
         RUNTIME.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         temporary = RUNTIME.with_suffix('.tmp')
         temporary.write_text(json.dumps(dict(image=c['image'], bindings=bindings))+'\n')
@@ -146,7 +160,7 @@ def apply(c):
         temporary.replace(RUNTIME)
         execstart = f'{SUPERVISOR} {RUNTIME}'
     Path('/run/systemd/system/'+unit).write_text(f'''[Unit]
-Description=VyARM {ROLE} live prototype
+Description=VyARM {ROLE}
 After=network-online.target
 [Service]
 Type=simple

@@ -24,6 +24,7 @@ def derive(
     kvm_over_ip: bool,
     kiosk_f: bool = False,
     receiver_g: bool = False,
+    print_server_e: bool = False,
 ) -> dict:
     enabled = []
     profile_parts = []
@@ -36,6 +37,10 @@ def derive(
     if kvm_over_ip:
         enabled.append("kvm-over-ip")
         profile_parts.append("kvm")
+
+    if print_server_e:
+        enabled.append("print-server-e")
+        profile_parts.append("print")
 
     if kiosk_f:
         enabled.append("kiosk-f")
@@ -54,6 +59,7 @@ def derive(
             "kvm_over_ip": kvm_over_ip,
             **({"kiosk_f": True} if kiosk_f else {}),
             **({"receiver_g": True} if receiver_g else {}),
+            **({"print_server_e": True} if print_server_e else {}),
         },
         "enabled_features": enabled,
     }
@@ -66,6 +72,7 @@ def main() -> None:
     parser.add_argument("--kvm-over-ip", default="no")
     parser.add_argument("--kiosk-f", default="no")
     parser.add_argument("--receiver-g", default="no")
+    parser.add_argument("--print-server-e", default="no")
     parser.add_argument("--output-env", type=Path, required=True)
     parser.add_argument("--output-json", type=Path, required=True)
     args = parser.parse_args()
@@ -77,6 +84,7 @@ def main() -> None:
             parse_bool(args.kvm_over_ip),
             parse_bool(args.kiosk_f),
             parse_bool(args.receiver_g),
+            parse_bool(args.print_server_e),
         )
     except ValueError as error:
         parser.error(str(error))
@@ -96,6 +104,7 @@ def main() -> None:
                 "KVM_OVER_IP=" + ("yes" if data["features"]["kvm_over_ip"] else "no"),
                 *(["KIOSK_F=yes"] if data["features"].get("kiosk_f") else []),
                 *(["RECEIVER_G=yes"] if data["features"].get("receiver_g") else []),
+                *(["PRINT_SERVER_E=yes"] if data["features"].get("print_server_e") else []),
                 "",
             ]
         ),

@@ -74,8 +74,8 @@ def build_container(out):
     if arch!='arm64': raise ValueError('Refusing non-ARM64 build container: '+arch)
     return output('docker','image','inspect','--format={{.Id}}',image),provenance
 
-def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False):
-    if not kvm and not tailscale and not kiosk and not receiver:
+def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_server=False):
+    if not kvm and not tailscale and not kiosk and not receiver and not print_server:
         raise ValueError('Select at least one native CLI profile')
     host_arch=output('uname','-m')
     if host_arch!='aarch64' and os.environ.get('VYOS_1X_ALLOW_EMULATION')!='yes':
@@ -92,7 +92,7 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False):
         run('git','-C',source,'checkout','--detach','FETCH_HEAD')
         if output('git','-C',source,'rev-parse','HEAD')!=sha: raise ValueError('Checkout mismatch')
         run('git','-C',source,'submodule','update','--init','--recursive','--depth=1')
-        metadata=profile.prepare(source,version,kvm,tailscale,kiosk,receiver)
+        metadata=profile.prepare(source,version,kvm,tailscale,kiosk,receiver,print_server)
         # Upstream lint uses git ls-files: include the added files in its scope.
         run('git','-C',source,'add','.')
         run('docker','run','--rm','--privileged','--network','host','--platform','linux/arm64',
@@ -132,6 +132,16 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False):
         if receiver:
             required += ['usr/lib/python3/dist-packages/vyos/receiver.py',
                          'opt/vyatta/share/vyatta-cfg/templates/container/name/node.tag/receiver/method/node.def']
+        if print_server:
+            required += ['usr/libexec/vyos/conf_mode/service_print_server.py',
+                         'usr/libexec/vyos/vyarm-print-supervisor.py',
+                         'opt/vyatta/share/vyatta-cfg/templates/service/print-server/usb-port/node.def']
+            owners.append('service_print_server.py')
+        if print_server or receiver:
+            required += ['usr/libexec/vyos/conf_mode/service_usb_server.py',
+                         'usr/libexec/vyos/vyarm-install-virtualhere.py',
+                         'opt/vyatta/share/vyatta-cfg/templates/service/usb-server/allow-usb-id/node.def']
+            owners.append('service_usb_server.py')
         for rel in required:
             if not (unpack/rel).is_file(): raise ValueError('Generated package file missing: '+rel)
         includes=json.loads((unpack/'usr/share/vyos/configd-include.json').read_text())
@@ -151,4 +161,5 @@ if __name__=='__main__':
     p.add_argument('--tailscale',choices=['yes','no'],default='no')
     p.add_argument('--kiosk',choices=['yes','no'],default='no')
     p.add_argument('--receiver',choices=['yes','no'],default='no')
-    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes',a.receiver=='yes')
+    p.add_argument('--print-server',choices=['yes','no'],default='no')
+    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes',a.receiver=='yes',a.print_server=='yes')

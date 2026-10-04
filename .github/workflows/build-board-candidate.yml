@@ -1,5 +1,5 @@
 name: Build VyOS ARM64 board candidate
-run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }} kiosk-f=${{ inputs.kiosk_f }} receiver-g=${{ inputs.receiver_g }}"
+run-name: "${{ inputs.board || 'raspberry-pi-5' }} / ${{ inputs.rolling_reference || 'manual' }} / network=${{ inputs.extended_network }} tailscale=${{ inputs.tailscale_subnet_router }} kvm=${{ inputs.kvm_over_ip }} kiosk-f=${{ inputs.kiosk_f }} receiver-g=${{ inputs.receiver_g }} print-e=${{ inputs.print_server_e }}"
 
 on:
   # Creating a deliberately named test branch is the non-interactive CI entry
@@ -58,6 +58,11 @@ on:
         default: false
       receiver_g:
         description: "Include Miracast, AirPlay, Moonlight and Steam Link runtime"
+        type: boolean
+        default: false
+
+      print_server_e:
+        description: "Include independent CUPS/Gutenprint print server and shared USB service"
         type: boolean
         default: false
 
@@ -149,6 +154,7 @@ jobs:
       KVM_OVER_IP: ${{ inputs.kvm_over_ip || false }}
       KIOSK_F: ${{ inputs.kiosk_f && 'yes' || 'no' }}
       RECEIVER_G: ${{ inputs.receiver_g && 'yes' || 'no' }}
+      PRINT_SERVER_E: ${{ inputs.print_server_e && 'yes' || 'no' }}
       BOOT_BRANCH: ${{ inputs.boot_branch || 'auto' }}
       EXPECTED_UPDATE_PROVIDER: ${{ inputs.expected_update_provider || '' }}
       ROLLING_REFERENCE: ${{ inputs.rolling_reference || '' }}
@@ -167,7 +173,7 @@ jobs:
         run: |
           python3 tools/ci/multimedia-plan.py --board "$BOARD" \
             --network "$EXTENDED_NETWORK" --tailscale "$TAILSCALE_SUBNET_ROUTER" \
-            --kvm "$KVM_OVER_IP" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G"
+            --kvm "$KVM_OVER_IP" --kiosk "$KIOSK_F" --receiver "$RECEIVER_G" --print-server "$PRINT_SERVER_E"
           python3 tests/test-multimedia-selection.py
 
       - name: Test image version table formatting
@@ -434,6 +440,12 @@ jobs:
           if [[ -f /work/cached-launch ]]; then echo KVM_CACHED_COPY_BINARY=/work/cached-launch >> "$GITHUB_ENV"; fi
           echo VYOS_1X_BUILD_LOCAL_IMAGE=vyos-profile-build:arm64-22dfa15927f2 >> "$GITHUB_ENV"
 
+      - name: Build independent E CUPS runtime
+        if: inputs.print_server_e
+        run: |
+          bash experiments/profile-e/build-runtime.sh "$GITHUB_WORKSPACE/work/print-runtime"
+          echo "PRINT_SERVER_E_RUNTIME=$GITHUB_WORKSPACE/work/print-runtime" >> "$GITHUB_ENV"
+
       - name: Assemble VyOS board image
         env:
           GH_TOKEN: ${{ github.token }}
@@ -452,10 +464,10 @@ jobs:
           [[ -n "${RAW}" ]]
           test -s "${RAW}"
 
-          if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes ]]; then
+          if [[ "$KIOSK_F" == yes || "$RECEIVER_G" == yes || "$PRINT_SERVER_E" == yes ]]; then
             sudo bash tools/ci/expand-multimedia-base.sh "$RAW"
           fi
-          sudo --preserve-env=GH_TOKEN,KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
+          sudo --preserve-env=GH_TOKEN,PRINT_SERVER_E,PRINT_SERVER_E_RUNTIME,KIOSK_F,RECEIVER_G,KIOSK_F_GPU_FIRMWARE,KIOSK_F_RUNTIME,RECEIVER_G_RUNTIME,KVM_CACHED_COPY_BINARY,VYOS_1X_BUILD_LOCAL_IMAGE \
             env OUTPUT_EXTRA_SECTORS=32768 \
             ./tools/assemble-board-image.sh \
               "${BOARD}" \
@@ -469,8 +481,8 @@ jobs:
           df -h
 
       - name: Verify complete board SD/eMMC rootfs before ISO packaging
-        if: inputs.kiosk_f || inputs.receiver_g
-        run: sudo --preserve-env=BOARD,GITHUB_SHA,EXTENDED_NETWORK,TAILSCALE_SUBNET_ROUTER,KVM_OVER_IP,KIOSK_F,RECEIVER_G bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
+        if: inputs.kiosk_f || inputs.receiver_g || inputs.print_server_e
+        run: sudo --preserve-env=PRINT_SERVER_E,BOARD,GITHUB_SHA,EXTENDED_NETWORK,TAILSCALE_SUBNET_ROUTER,KVM_OVER_IP,KIOSK_F,RECEIVER_G bash tools/ci/verify-orangepi-adfg.sh "work/build/${BOARD}/vyos-${BOARD}-candidate.img"
 
       - name: Create VyOS system-image update ISO
         shell: bash
