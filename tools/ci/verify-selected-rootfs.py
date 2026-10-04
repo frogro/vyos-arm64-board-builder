@@ -27,7 +27,7 @@ def validate(read, present, env):
         routing=read('usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env')
         if env['BOARD']=='orangepi5-plus':assert 'fc000000.usb' in routing and 'fc400000' not in routing
         elif env['BOARD']=='raspberry-pi-5':assert '1000480000.usb' in routing and 'fc400000' not in routing
-        elif env['BOARD']=='rock-5b':assert 'fc400000.usb' in routing
+        elif env['BOARD']=='rock-5b':assert 'fc000000.usb' in routing and 'fc400000' not in routing
     print('PASS: selected payloads, excluded payloads, provenance and gadget routing')
 
 if __name__=='__main__':

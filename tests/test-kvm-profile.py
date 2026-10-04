@@ -185,8 +185,8 @@ class KvmProfileTests(unittest.TestCase):
         self.assertIn('virtual_media_read_only=', manager)
         self.assertIn("CD-ROM virtual media requires an .iso file", manager)
         self.assertNotIn("virtual-media disk", manager)
-        self.assertIn("KVM_GADGET_UDC_DEDICATED=fc400000.usb", provider)
-        self.assertIn('KVM_GADGET_DEFAULT_PORT=dedicated', provider)
+        self.assertIn("KVM_GADGET_UDC_USBC=fc000000.usb", provider)
+        self.assertIn('KVM_GADGET_DEFAULT_PORT=usbc', provider)
 
         self.assertIn('"$PAYLOAD/vyos-kvm-gadget"', finalizer)
         self.assertIn('kvm-gadget-provider.env', finalizer)

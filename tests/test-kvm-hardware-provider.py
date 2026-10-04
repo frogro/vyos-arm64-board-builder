@@ -36,7 +36,7 @@ class KvmHardwareProviderTests(unittest.TestCase):
         self.assertEqual("exact", result["selection"])
         self.assertEqual("yes", result["hid_gadget"])
         self.assertEqual(
-            "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts",
+            "",
             result["dt_overlay"],
         )
         self.assertEqual(
@@ -45,49 +45,18 @@ class KvmHardwareProviderTests(unittest.TestCase):
         )
         MODULE.validate_paths(ROOT, result)
 
-    def test_rock5b_overlay_contains_safe_fixed_peripheral_routing(self) -> None:
-        overlay = (
-            ROOT
-            / "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts"
-        ).read_text(encoding="utf-8")
-
-        for expected in (
-            'target-path = "/usb@fc400000";',
-            'dr_mode = "peripheral";',
-            "snps,dis_u2_susphy_quirk;",
-            'target-path = "/syscon@fd5d4000/usb2phy@4000/otg-port";',
-            "rockchip,vbus-always-on;",
-            'target-path = "/phy@fed90000";',
-            "rockchip,fixed-peripheral-bvalid;",
+    def test_rock5b_preserves_usb_a_host_routing(self) -> None:
+        result = MODULE.select(self.entries, "rock-5b", True)
+        self.assertEqual("", result["dt_overlay"])
+        for path in (
+            "profiles/kvm-hardware/dt-overlays/rock5b-fc400000-peripheral.dts",
+            "patches/kernel/0001-rockchip-usb2phy-vbus-always-on.patch",
+            "patches/kernel/0002-rockchip-usbdp-fixed-peripheral-bvalid.patch",
         ):
-            self.assertIn(expected, overlay)
-
-        self.assertNotIn('target-path = "/usb@fc000000";', overlay)
-        self.assertNotIn('target-path = "/regulator-vcc5v0-host";', overlay)
-        self.assertNotIn('gpio-hog;', overlay)
-        self.assertNotIn('target-path = "/syscon@fd5dc000/usb2phy@c000/host-port";', overlay)
-        self.assertIn('disconnects VBUS (5 V)', overlay)
-
-    def test_rock5b_vbus_patch_is_opt_in_and_prepared_by_builder(self) -> None:
-        patch = (
-            ROOT / "patches/kernel/0001-rockchip-usb2phy-vbus-always-on.patch"
-        ).read_text(encoding="utf-8")
-        usbdp_patch = (
-            ROOT / "patches/kernel/0002-rockchip-usbdp-fixed-peripheral-bvalid.patch"
-        ).read_text(encoding="utf-8")
-        source = (ROOT / "sources/vyos.sh").read_text(encoding="utf-8")
-
-        self.assertIn('"rockchip,vbus-always-on"', patch)
-        self.assertIn("rport->vbus_always_on", patch)
-        self.assertIn("USB_DR_MODE_PERIPHERAL", patch)
-        self.assertIn('"rockchip,fixed-peripheral-bvalid"', usbdp_patch)
-        self.assertIn("rk_udphy_usb_bvalid_enable(udphy, true)", usbdp_patch)
-        self.assertIn("orientation-switch", usbdp_patch)
-        self.assertIn("mode-switch", usbdp_patch)
-        self.assertIn("Applying board-builder kernel patches", source)
-        self.assertIn('local_patch_dir="${ROOT_DIR}/patches/kernel"', source)
-        self.assertIn("builder_commit=${builder_commit}", source)
-        self.assertIn("local_patch_hash=${local_patch_hash}", source)
+            self.assertFalse((ROOT / path).exists())
+        provider = (ROOT / "profiles/kvm-hardware/runtime/rk3588-synopsys-hdmirx.env").read_text()
+        self.assertIn("KVM_GADGET_UDC_USBC=fc000000.usb", provider)
+        self.assertNotIn("fc400000", provider)
 
     def test_kvm_profile_adds_gadget_diagnostics_and_virtual_media_only_when_enabled(self) -> None:
         required = (ROOT / "profiles/kvm-over-ip.config").read_text(encoding="utf-8")
@@ -180,8 +149,7 @@ class KvmHardwareProviderTests(unittest.TestCase):
                 env_text,
             )
             self.assertIn(
-                "KVM_HARDWARE_DT_OVERLAY=profiles/kvm-hardware/dt-overlays/"
-                "rock5b-fc400000-peripheral.dts",
+                "KVM_HARDWARE_DT_OVERLAY=''",
                 env_text,
             )
             self.assertIn('"selection": "exact"', report.read_text())

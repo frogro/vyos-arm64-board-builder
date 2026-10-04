@@ -21,8 +21,9 @@ Services still require explicit runtime configuration.
 
 F/G builds currently support ROCK 5B and Orange Pi 5 Plus. Other boards are
 rejected until their multimedia paths have been integrated and tested. Board
-routing remains separate: ROCK uses its supported USB-A gadget path
-`fc400000.usb`; Orange Pi uses its USB-C gadget path `fc000000.usb`.
+routing remains board-specific: ROCK and Orange Pi use their USB-C gadget
+path `fc000000.usb`. ROCK requires a separate PD power/data injector; its
+USB-A sockets retain host routing.
 
 F/G runtime builds retain the checksummed bootstrap inputs from
 `adf-compare-inputs-20260927`; the hashes are in

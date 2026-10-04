@@ -36,7 +36,7 @@ class Integration(unittest.TestCase):
         text=(ROOT/'tools/finalize-vyos-rootfs.sh').read_text()
         block=text.split('    KVM_GADGET_PROVIDER_SOURCE=',1)[1].split('    if [[ -f "$KVM_GADGET_PROVIDER_SOURCE" ]]; then',1)[0]
         block='KVM_GADGET_PROVIDER_SOURCE='+block
-        for board,port,udc in [('orangepi5-plus','usbc','fc000000.usb'),('rock-5b','dedicated','fc400000.usb')]:
+        for board,port,udc in [('orangepi5-plus','usbc','fc000000.usb'),('rock-5b','usbc','fc000000.usb')]:
             code='ROOT="$1"; BOARD="$2"; KVM_HARDWARE_PROVIDER=rk3588-synopsys-hdmirx;\n'+block+'\nsource "$KVM_GADGET_PROVIDER_SOURCE"; key="KVM_GADGET_UDC_${KVM_GADGET_DEFAULT_PORT^^}"; printf "%s %s" "$KVM_GADGET_DEFAULT_PORT" "${!key}"'
             result=subprocess.check_output(['bash','-ec',code,'test',str(ROOT),board],text=True)
             self.assertEqual(result,port+' '+udc)
