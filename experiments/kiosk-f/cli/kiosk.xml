@@ -84,6 +84,7 @@
 <valueHelp><format>disabled</format><description>Do not transmit audio to Moonlight</description></valueHelp>
 <valueHelp><format>enabled</format><description>Transmit available kiosk audio to Moonlight; local HDMI audio is separate</description></valueHelp>
 <constraint><regex>(disabled|enabled)</regex></constraint><constraintErrorMessage>Choose disabled or enabled</constraintErrorMessage></properties></leafNode>
+      <leafNode name="web-origin"><properties><help>Allowed HTTPS origin for Sunshine Web administration, including port</help><multi/><valueHelp><format>https://host:47990</format><description>Exact trusted administration origin; no path or wildcard</description></valueHelp></properties></leafNode>
     </children></node>
   </children>
 </node>

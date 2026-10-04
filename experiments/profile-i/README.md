@@ -51,7 +51,10 @@ required before claiming verified update persistence.
 
 Web Backup & Restore includes Anthias settings, users, database and media,
 plus a versioned `vyarm-display.json` manifest containing the effective VyOS
-output, rotation, mute and playback schedule (including its timezone).
+output, rotation, mute and playback schedule (including its timezone), plus
+remote access, input/audio permissions and allowed Sunshine Web origins.
+Sunshine passwords and paired-client certificates are not part of this media
+backup; they remain in the separately persistent kiosk state volume.
 The host collector reads effective configuration on demand, rather than cached
 container status. Restore validates the bounded manifest before extracting
 media, then applies only these fields through native commit/save to the selected
@@ -107,3 +110,14 @@ is exposed. Anthias-derived templates retain their GPLv2 license; see
   and cumulative C/D/E/F/G/I selection.
 - Remaining: image build, full boot and ISO-update validation, storage accounting
   above, and a longer unattended playback run.
+
+YouTube URLs (including embed/nocookie URLs) are always webpage assets through
+the HTML and API create paths. No yt-dlp job is dispatched. The player supplies
+its real local referrer when navigating. This does not bypass provider consent,
+login, regional or embedding restrictions. Local uploads remain supported.
+
+Settings embeds remote access/input/audio controls and explicit HTTPS Web origins.
+The initial suggestion uses the management browser hostname with Sunshine port
+47990, not a board IP baked into the image. Backups without remote settings do
+not modify existing remote access. Restored origins may require adjustment when
+moving to a different router address.

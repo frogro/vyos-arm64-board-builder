@@ -22,6 +22,12 @@ def read_request(path):
 def command(args):
  try:return json.loads(subprocess.check_output(args,text=True,timeout=8))
  except Exception as e:return {'unavailable':str(e)}
+def remote_settings(cfg):
+ r=cfg.get('remote',{})
+ origins=r.get('web_origin',[])
+ if isinstance(origins,str):origins=[origins]
+ return {'access':r.get('access','disabled'),'input':r.get('input','view-only'),'audio':r.get('audio','disabled'),'web_origin':origins}
+
 def apply_request():
  p=ROOT/'data/i-display-request.json'
  if not p.exists():return
@@ -37,7 +43,8 @@ def apply_request():
    if not cfg:raise ValueError('Configured kiosk not found')
    from backup_settings import validate
    settings=validate({'rotation':cfg.get('rotation','0'),'output':cfg.get('output','auto'),'muted':cfg.get('audio_muted','disabled')=='enabled','schedule':cfg.get('display_schedule') or None})
-   write_json(ROOT/'data/i-display-result.json',{'id':request.get('id'),'ok':True,'settings':settings})
+   settings['remote']=remote_settings(cfg)
+   write_json(ROOT/'data/i-display-result.json',{'id':request.get('id'),'ok':True,'settings':validate(settings)})
    p.unlink(missing_ok=True)
    return
   if request.get('operation','apply') != 'apply':raise ValueError('Unknown display operation')
@@ -55,6 +62,14 @@ def apply_request():
   if 'muted' in request:
    assert isinstance(request['muted'],bool)
    extra+='set container name signage-i kiosk audio-muted '+('enabled' if request['muted'] else 'disabled')+'\n'
+  if 'remote' in request:
+   from backup_settings import validate
+   remote=validate({k:request[k] for k in ('rotation','output','muted','schedule','remote')})['remote']
+   extra+='delete container name signage-i kiosk remote web-origin\n'
+   for key in ('access','input','audio'):
+    extra+='set container name signage-i kiosk remote '+key+' '+remote[key]+'\n'
+   for origin in remote['web_origin']:
+    extra+='set container name signage-i kiosk remote web-origin '+origin+'\n'
   script=script.replace('commit_output=',extra+'commit_output=',1)
   script=script.replace('container name signage-i ', 'container name '+kiosk+' ')
   with tempfile.NamedTemporaryFile(mode='w',suffix='.vbash',delete=False) as f:
@@ -80,6 +95,11 @@ while True:
  disk=shutil.disk_usage(ROOT/'data')
  data={'measured_at':time.time(),'host':{'model':Path('/proc/device-tree/model').read_text().strip('\0'),'load_average':os.getloadavg(),'data_filesystem':{'total_bytes':disk.total,'free_bytes':disk.free},'storage_health':'not assessed'},'kiosk':{}}
  data['kiosk']=snapshot()
+ try:
+  from vyos.config import Config
+  cfg=Config().get_config_dict(['container','name',os.environ.get('VYARM_I_KIOSK','signage-i'),'kiosk'],effective=True,key_mangling=('-', '_'),get_first_key=True)
+  data['kiosk']['remote']=remote_settings(cfg)
+ except Exception:pass
  try:data['kiosk']['last_configuration_change']=json.loads((ROOT/'data/i-display-result.json').read_text())
  except (OSError,ValueError):pass
  try:data['playback_sync']=json.loads((ROOT/'playback/sync.json').read_text())

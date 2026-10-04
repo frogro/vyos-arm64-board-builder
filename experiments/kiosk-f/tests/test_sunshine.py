@@ -172,3 +172,20 @@ class NativeWaylandTransitionTest(unittest.TestCase):
         self.assertTrue(remote.remote_only(b, c))
         c['kiosk']['remote']['input'] = 'view-only'
         self.assertFalse(remote.remote_only(b, c))
+
+class OriginPolicyTest(unittest.TestCase):
+    def test_roundtrip_and_removal(self):
+        cfg={'kiosk':{'remote':{'web_origin':['https://router.example:47990','https://192.168.1.2:47990']}}}
+        policy=remote.policy(cfg)
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'policy';path.write_text(json.dumps(policy))
+            with patch.object(runtime,'POLICY',path):
+                self.assertEqual(runtime.read_policy(),policy)
+        merged=runtime.merge_config('encoder = rkmpp\ncsrf_allowed_origins = https://old\n',runtime.owned(policy))
+        self.assertIn('https://router.example:47990',merged)
+        self.assertNotIn('https://old',merged)
+        self.assertIn('encoder = rkmpp',merged)
+        self.assertEqual(runtime.owned(remote.policy({'kiosk':{}}))['csrf_allowed_origins'],'')
+    def test_reject_unsafe_origins(self):
+        for origin in ['http://router:47990','https://*.example','https://router/path','https://user:pass@router','https://router:99999','https://router\nupnp = enabled']:
+            with self.assertRaises(ValueError):remote.policy({'kiosk':{'remote':{'web_origin':[origin]}}})

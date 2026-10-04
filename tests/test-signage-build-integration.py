@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import hashlib,importlib.util,json,tempfile,unittest
+import hashlib,importlib.util,json,tempfile,unittest,subprocess,itertools
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def load(name,path):
@@ -16,6 +16,14 @@ class SignageBuild(unittest.TestCase):
    result=planner.plan(board,signage=True)
    self.assertTrue(result['kiosk']);self.assertFalse(result['kvm']);self.assertFalse(result['receiver'])
   self.assertNotIn('signage_i',features.derive(True,False,False)['features'])
+ def test_finalizer_profile_names_match_shared_planner(self):
+  script=(ROOT/'tools/finalize-vyos-rootfs.sh').read_text()
+  block=script[script.index('case "${EXTENDED_NETWORK}:'):script.index('ROOT="$(cd')]
+  for network,tailscale,kvm,printing,receiver in itertools.product((False,True),repeat=5):
+   result=features.derive(network,tailscale,kvm,kiosk_f=True,receiver_g=receiver,print_server_e=printing,signage_i=True)
+   env=dict(EXTENDED_NETWORK='yes' if network else 'no',TAILSCALE_SUBNET_ROUTER='yes' if tailscale else 'no',KVM_OVER_IP='yes' if kvm else 'no',PRINT_SERVER_E='yes' if printing else 'no',KIOSK_F='yes',RECEIVER_G='yes' if receiver else 'no',SIGNAGE_I='yes',BUILD_PROFILE=result['profile'])
+   completed=subprocess.run(['bash','-c',block],env=env,capture_output=True,text=True)
+   self.assertEqual(completed.returncode,0,completed.stderr)
  def test_native_source_has_no_lab_paths_or_hotpatched_caches(self):
   prepare=load('i_source','experiments/profile-i/cli/prepare-source.py')
   with tempfile.TemporaryDirectory() as d:
