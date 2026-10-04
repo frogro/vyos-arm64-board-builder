@@ -66,22 +66,20 @@ exposed as a VyOS CLI setting.
 
 The manager owns ConfigFS/libcomposite setup and gadget composition. Board-
 specific UDC names remain in provider runtime metadata rather than in the
-generic manager. This keeps a later dedicated-port versus USB-C/PD-injector
-choice board-specific while preserving one common runtime interface.
+generic manager. This preserves one common runtime interface while keeping
+the physical connector and power requirements board-specific.
 
-The ROCK 5B dedicated gadget port is the lower blue USB-A socket. A connection
-to another USB host **requires a VBUS-blocking (power-off) adapter** which
-interrupts the 5 V conductor but preserves data and ground. A USB data blocker
-is not suitable. The board shares `USB_HOST_PWREN_H` between both USB-A
-connector pairs, so the gadget overlay preserves host power and the other
-host PHYs. Cutting their shared supply also disables external USB devices.
-This is a ROCK 5B wiring requirement, not a change to other board providers.
+The ROCK 5B gadget uses the USB-C power connector through a PD power/data
+injector: connect the power supply to the injector power input and the target
+computer to its USB data input. Keyboard press/release, relative pointer motion,
+left click and wheel reports were verified on 2026-10-04 at USB 2.0 high speed
+(480 Mbit/s). This does not establish USB 3 bandwidth or a power-load rating.
 
-On 2026-09-14, restoring host power and the host PHY and removing the GPIO-low
-hog restored enumeration of a Logitech Unifying receiver (`046d:c52b`), with
-keyboard and mouse input devices using the existing `hid-generic` driver.
-That test had the gadget cable disconnected; simultaneous physical input
-forwarding to the target remains a separate test.
+The former lower blue USB-A gadget overlay and its PHY patches have been
+removed. USB-A retains the board's normal host routing in new images. Existing
+images with that overlay need an updated DT/kernel and a reboot; changing the
+runtime gadget port alone does not restore their USB-A host mode. Do not reuse
+the former USB-A-to-host gadget connection once the port returns to host mode.
 
 Keyboard, absolute mouse and relative mouse are independent HID functions.
 The ROCK 5B hardware validation demonstrated all three simultaneously as a

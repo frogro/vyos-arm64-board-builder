@@ -26,8 +26,8 @@ capabilities; D still validates those capabilities and enables the application.
   Panthor firmware roots and peripheral patches apply with or without B.
   This includes USB-C/DP/audio, GPU/NPU/VPU/RGA, camera/ISP and gadget modules.
 - ROCK 5B: existing RK3588 capture/MPP/RGA and dual-role kernel requirements
-  formerly selected by D are now available in A. The D-only USB-A routing
-  overlay and runtime gadget activation remain D-only and ROCK-only.
+  formerly selected by D are now available in A. Runtime USB-C gadget activation
+  remains in D; the former USB-A peripheral overlay and PHY patches are removed.
 - Raspberry Pi 5: existing model requirements and native firmware boot handling
   remain in A. E52C retains its existing DT-derived board requirements in A.
   Neither receives RK3588 kernel patches from the exact-board registry.

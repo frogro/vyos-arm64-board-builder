@@ -43,7 +43,7 @@ class BaseHardware(unittest.TestCase):
         self.assertTrue(orange[4].endswith('/orangepi5-plus'))
         self.assertIn('panthor',(ROOT/orange[2]).read_text())
         registry=(ROOT/'profiles/kvm-hardware-providers.conf').read_text()
-        self.assertIn('rock5b-fc400000-peripheral.dts',registry)
+        self.assertNotIn('rock5b-fc400000-peripheral.dts',registry)
         for line in registry.splitlines():
             if line.startswith('orangepi5-plus|'):
                 self.assertNotIn('rock5b-fc400000', line)

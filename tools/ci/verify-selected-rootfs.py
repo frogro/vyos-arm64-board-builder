@@ -24,7 +24,7 @@ def validate(read, present, env):
     if features['kvm_over_ip']:
         routing=read('usr/share/vyos-arm64-board-builder/kvm-gadget-provider.env')
         if env['BOARD']=='orangepi5-plus':assert 'fc000000.usb' in routing and 'fc400000' not in routing
-        else:assert 'fc400000.usb' in routing
+        else:assert 'fc000000.usb' in routing and 'fc400000' not in routing
     print('PASS: selected payloads, excluded payloads, provenance and gadget routing')
 
 if __name__=='__main__':
