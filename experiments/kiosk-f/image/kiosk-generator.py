@@ -18,14 +18,14 @@ def generate(source, output):
         service = f'vyos-kiosk-inputs-{name}.service'
         (output / service).write_text(
             '[Unit]\nDescription=Reconcile kiosk USB input mappings\n'
-            f'After=vyos-container-{name}.service\n'
+            f'After=vyos-container-{name}.service\nBindsTo=vyos-container-{name}.service\nPartOf=vyos-container-{name}.service\n'
             '[Service]\nType=simple\n'
             f'ExecStart=/usr/local/libexec/vyos-kiosk-reconcile-inputs {name}\n'
             'Restart=on-failure\nRestartSec=5\n')
         remote_service = f'vyos-kiosk-sunshine-inputs-{name}.service'
         (output / remote_service).write_text(
             '[Unit]\nDescription=Forward owned Sunshine inputs\n'
-            f'After=vyos-container-{name}.service\n[Service]\n'
+            f'After=vyos-container-{name}.service\nBindsTo=vyos-container-{name}.service\nPartOf=vyos-container-{name}.service\n[Service]\n'
             f'ExecStart=/usr/local/libexec/vyos-kiosk-sunshine-inputs --target {name} --managed\n'
             'Restart=always\nRestartSec=5\nKillMode=mixed\nTimeoutStopSec=15\n')
         drop = output / f'vyos-container-{name}.service.d'
