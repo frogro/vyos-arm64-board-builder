@@ -14,4 +14,6 @@ dbus-uuidgen --ensure
 dbus-daemon --system --fork
 avahi-daemon --daemonize --no-chroot --no-drop-root --no-rlimits
 /usr/sbin/cupsd -t
+# Keep cupsd as PID 1; recovery waits for its socket and uses native IPP.
+python3 /usr/local/sbin/resume-usb-jobs.py &
 exec /usr/sbin/cupsd -f

@@ -44,6 +44,7 @@ def install(root=ROOT, run=subprocess.run):
 if __name__ == '__main__':
     if not Path('/usr/lib/live/mount/persistence').is_mount():
         raise SystemExit('Persistent container storage is not mounted')
-    if not Path('/etc/containers/storage.conf').exists():
-        os.environ['CONTAINERS_STORAGE_CONF'] = str(ROOT / 'storage.conf')
+    # E can run without any native container configuration; use the same
+    # persistent store for import, owner validation and the CUPS supervisor.
+    os.environ['CONTAINERS_STORAGE_CONF'] = str(ROOT / 'storage.conf')
     install()

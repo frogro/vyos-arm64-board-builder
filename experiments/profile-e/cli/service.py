@@ -3,6 +3,7 @@
 import importlib.util
 import ipaddress
 import json
+import os
 from pathlib import Path
 import re
 import secrets
@@ -18,8 +19,11 @@ RUNTIME = Path('/run/vyarm-print/config.json')
 VH_BINARY = ROOT/'virtualhere-bin/vhusbdarm64'
 BINDINGS = ROOT/'usb-bindings.json'
 META = Path('/usr/share/vyos-arm64-board-builder/print-runtime/runtime.json')
+STORAGE = META.with_name('storage.conf')
 
 def run(*args, **kw):
+    if args[0] == 'podman' and STORAGE.is_file():
+        kw['env'] = dict(os.environ, CONTAINERS_STORAGE_CONF=str(STORAGE))
     return subprocess.run(args, check=True, text=True, timeout=90, **kw)
 
 def values(c, key):
@@ -141,7 +145,7 @@ def apply(c):
         text = re.sub(r'^WebInterface .*$', 'WebInterface Yes', text, flags=re.M)
         acl='\n  Order allow,deny\n'+''.join('  Allow from '+str(ipaddress.ip_network(n))+'\n' for n in values(c,'allow_client'))
         text=re.sub(r'(<Location [^>]+>)',lambda m:m[1]+acl,text)
-        text += '\nDefaultEncryption Required\nPreserveJobFiles No\nMaxJobs 100\nMaxRequestSize 104857600\nMaxLogSize 1048576\nErrorPolicy retry-job\nJobRetryInterval 30\n'
+        text += '\nDefaultEncryption Required\nPreserveJobFiles No\nMaxJobs 100\nMaxRequestSize 104857600\nMaxLogSize 1048576\nErrorPolicy retry-job\nJobRetryInterval 30\nJobRetryLimit 0\n'
         (ROOT/'cups/cupsd.conf').write_text(text)
         spec = importlib.util.spec_from_file_location('cups_supervisor', SUPERVISOR)
         supervisor = importlib.util.module_from_spec(spec)
@@ -159,11 +163,13 @@ def apply(c):
         temporary.chmod(0o600)
         temporary.replace(RUNTIME)
         execstart = f'{SUPERVISOR} {RUNTIME}'
+    storage_env = f'Environment=CONTAINERS_STORAGE_CONF={STORAGE}' if ROLE == 'print-server' and STORAGE.is_file() else ''
     Path('/run/systemd/system/'+unit).write_text(f'''[Unit]
 Description=VyARM {ROLE}
 After=network-online.target
 [Service]
 Type=simple
+{storage_env}
 ExecStart={execstart}
 Restart=on-failure
 RestartSec=3
