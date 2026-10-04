@@ -2,12 +2,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
+LABEL io.vyarm.kiosk.display-controls="1"
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
 LABEL io.vyarm.kiosk.media-policy="2"
 LABEL io.vyarm.kiosk.wayland-drm="1"
 LABEL io.vyarm.kiosk.media-h264-reserve="1"
 LABEL io.vyarm.kiosk.media-av1-reserve="1"
 COPY helpers/ /usr/local/bin/
+RUN mkdir -p /etc/chromium/policies/managed && printf '%s\n' '{"AutoplayAllowlist":["http://127.0.0.1:8089/*"]}' > /etc/chromium/policies/managed/vyarm-signage.json
 COPY sunshine-rga /opt/vyarm/experimental/sunshine-rga
 COPY chromium/ /opt/vyarm/chromium/
 COPY media-capabilities.json /usr/share/vyarm/kiosk-media-capabilities.json

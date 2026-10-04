@@ -2,11 +2,13 @@ ARG BASE_IMAGE
 FROM localhost/vyarm-sunshine-build:direct-rga-20260927 AS sunshine
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
+LABEL io.vyarm.kiosk.display-controls="1"
 LABEL io.vyarm.kiosk.sunshine-wayland="1"
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
 COPY --from=sunshine /build/sunshine-build/sunshine /usr/bin/sunshine
 COPY --from=sunshine /opt/mpp/lib/ /opt/mpp/lib/
 COPY helpers/ /usr/local/bin/
+RUN mkdir -p /etc/chromium/policies/managed && printf '%s\n' '{"AutoplayAllowlist":["http://127.0.0.1:8089/*"]}' > /etc/chromium/policies/managed/vyarm-signage.json
 ENV MPP_DEVICE_TREE_COMPATIBLE=/run/mpp/compatible
 RUN printf '/opt/mpp/lib\n' > /etc/ld.so.conf.d/vyarm-mpp.conf && ldconfig \
  && setcap cap_sys_admin+p /usr/bin/sunshine \

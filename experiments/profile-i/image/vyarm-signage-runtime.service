@@ -1,0 +1,13 @@
+[Unit]
+Description=Import offline media administration images
+Wants=vyos-arm64-grow-persistence.service
+After=local-fs.target vyos-arm64-grow-persistence.service
+Before=vyos-router.service
+ConditionPathExists=/usr/share/vyos-arm64-board-builder/signage-runtime/runtime.json
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vyos/vyarm-signage-runtime-import
+TimeoutStartSec=600
+RemainAfterExit=yes
+[Install]
+WantedBy=vyos.target

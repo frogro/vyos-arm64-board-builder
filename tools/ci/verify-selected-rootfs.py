@@ -7,7 +7,7 @@ def validate(read, present, env):
     features={'extended_network':enabled('EXTENDED_NETWORK'),
               'tailscale_subnet_router':enabled('TAILSCALE_SUBNET_ROUTER'),
               'kvm_over_ip':enabled('KVM_OVER_IP'),
-              'kiosk_f':enabled('KIOSK_F'),'receiver_g':enabled('RECEIVER_G'),'print_server_e':enabled('PRINT_SERVER_E')}
+              'kiosk_f':enabled('KIOSK_F'),'receiver_g':enabled('RECEIVER_G'),'print_server_e':enabled('PRINT_SERVER_E'),'signage_i':enabled('SIGNAGE_I')}
     metadata=json.loads(read('usr/share/vyos-arm64-board-builder/profile.json'))
     assert metadata['board']==env['BOARD']
     for name,value in features.items():assert bool(metadata['features'].get(name,False))==value,(name,value)
@@ -17,10 +17,12 @@ def validate(read, present, env):
         ('kiosk_f','usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json'),
         ('receiver_g','usr/share/vyos-arm64-board-builder/receiver-runtime/runtime.json'),
         ('print_server_e','usr/share/vyos-arm64-board-builder/print-runtime/runtime.json'),
+        ('signage_i','usr/share/vyos-arm64-board-builder/signage-runtime/runtime.json'),
+        ('signage_i','usr/libexec/vyos/conf_mode/service_signage.py'),
         ('print_server_e','usr/libexec/vyos/conf_mode/service_print_server.py')]:
         assert present(path)==features[feature],(feature,path)
     assert present('usr/libexec/vyos/conf_mode/service_usb_server.py') == (features['receiver_g'] or features['print_server_e'])
-    for feature,folder,key in [('kiosk_f','kiosk-runtime','builder_commit'),('receiver_g','receiver-runtime','source_commit'),('print_server_e','print-runtime','source_commit')]:
+    for feature,folder,key in [('kiosk_f','kiosk-runtime','builder_commit'),('receiver_g','receiver-runtime','source_commit'),('print_server_e','print-runtime','source_commit'),('signage_i','signage-runtime','source_commit')]:
         if features[feature]:
             data=json.loads(read('usr/share/vyos-arm64-board-builder/'+folder+'/runtime.json'))
             assert data[key]==env['GITHUB_SHA'],folder

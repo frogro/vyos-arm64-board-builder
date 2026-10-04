@@ -25,7 +25,9 @@ def derive(
     kiosk_f: bool = False,
     receiver_g: bool = False,
     print_server_e: bool = False,
+    signage_i: bool = False,
 ) -> dict:
+    kiosk_f = kiosk_f or signage_i
     enabled = []
     profile_parts = []
     if extended_network:
@@ -50,6 +52,10 @@ def derive(
         enabled.append("receiver-g")
         profile_parts.append("receiver")
 
+    if signage_i:
+        enabled.append("signage-i")
+        profile_parts.append("signage")
+
     return {
         "schema": 1,
         "profile": "-".join(profile_parts) if profile_parts else "base",
@@ -59,6 +65,7 @@ def derive(
             "kvm_over_ip": kvm_over_ip,
             **({"kiosk_f": True} if kiosk_f else {}),
             **({"receiver_g": True} if receiver_g else {}),
+            **({"signage_i": True} if signage_i else {}),
             **({"print_server_e": True} if print_server_e else {}),
         },
         "enabled_features": enabled,
@@ -73,6 +80,7 @@ def main() -> None:
     parser.add_argument("--kiosk-f", default="no")
     parser.add_argument("--receiver-g", default="no")
     parser.add_argument("--print-server-e", default="no")
+    parser.add_argument("--signage-i", default="no")
     parser.add_argument("--output-env", type=Path, required=True)
     parser.add_argument("--output-json", type=Path, required=True)
     args = parser.parse_args()
@@ -85,6 +93,7 @@ def main() -> None:
             parse_bool(args.kiosk_f),
             parse_bool(args.receiver_g),
             parse_bool(args.print_server_e),
+            parse_bool(args.signage_i),
         )
     except ValueError as error:
         parser.error(str(error))
@@ -104,6 +113,7 @@ def main() -> None:
                 "KVM_OVER_IP=" + ("yes" if data["features"]["kvm_over_ip"] else "no"),
                 *(["KIOSK_F=yes"] if data["features"].get("kiosk_f") else []),
                 *(["RECEIVER_G=yes"] if data["features"].get("receiver_g") else []),
+                *(["SIGNAGE_I=yes"] if data["features"].get("signage_i") else []),
                 *(["PRINT_SERVER_E=yes"] if data["features"].get("print_server_e") else []),
                 "",
             ]

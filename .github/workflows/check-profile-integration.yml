@@ -2,7 +2,7 @@ name: Check optional profile integration
 on:
   push:
     branches: [main]
-    paths: ['tools/**', 'profiles/**', 'tests/**', 'experiments/kiosk-f/**', 'experiments/profile-g/**', 'experiments/profile-e/**', 'build.sh', '.github/workflows/check-profile-integration.yml']
+    paths: ['tools/**', 'profiles/**', 'tests/**', 'experiments/kiosk-f/**', 'experiments/profile-g/**', 'experiments/profile-e/**', 'experiments/profile-i/**', 'build.sh', '.github/workflows/check-profile-integration.yml']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -20,7 +20,7 @@ jobs:
       - name: Check isolation, update channels and common fixes
         run: |
           set -euo pipefail
-          for test in config-validation tailscale-ready print-retry-recovery print-native-source print-usb-supervisor virtualhere-installer print-build-integration alsa-restore base-hardware kvm-hardware-provider pi5-peripherals pi-native-boot native-boot system-image-dtb-update raw-kernel cli-source-resolution feature-profile multimedia-selection vyos-1x-profile board-update-channel pi-release-publication common-firstboot setup-helpers syslog-start hostname-resolution mpp-patch-compat decoder-patch-compat console-log-source kvm-profile kvm-cli kvm-capture kvm-input-config kvm-local-input tailscale-cli tailscale-bundle image-info orangepi-adfg; do
+          for test in config-validation tailscale-ready print-retry-recovery print-native-source print-usb-supervisor virtualhere-installer print-build-integration signage-build-integration alsa-restore base-hardware kvm-hardware-provider pi5-peripherals pi-native-boot native-boot system-image-dtb-update raw-kernel cli-source-resolution feature-profile multimedia-selection vyos-1x-profile board-update-channel pi-release-publication common-firstboot setup-helpers syslog-start hostname-resolution mpp-patch-compat decoder-patch-compat console-log-source kvm-profile kvm-cli kvm-capture kvm-input-config kvm-local-input tailscale-cli tailscale-bundle image-info orangepi-adfg; do
             if [[ -f tests/test-$test.py ]]; then python3 tests/test-$test.py; else bash tests/test-$test.sh; fi
           done
           sudo python3 tests/test-system-image-config-metadata.py
@@ -29,6 +29,7 @@ jobs:
         run: |
           python3 -m unittest discover -s experiments/kiosk-f/tests
           python3 -m unittest discover -s experiments/profile-g/tests
+          python3 -m unittest discover -s experiments/profile-i/tests
           python3 experiments/kiosk-f/ci/check-cli-recipe.py
       - name: Check CLI combinations against pinned upstream source
         run: python3 experiments/profile-g/ci/check-native-cli.py

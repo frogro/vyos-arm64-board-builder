@@ -17,6 +17,9 @@ media_spec.loader.exec_module(media)
 audio_spec = importlib.util.spec_from_file_location('audio', '/usr/local/bin/kiosk-audio.py')
 audio_module = importlib.util.module_from_spec(audio_spec)
 audio_spec.loader.exec_module(audio_module)
+schedule_spec = importlib.util.spec_from_file_location('schedule', '/usr/local/bin/kiosk-schedule.py')
+schedule_module = importlib.util.module_from_spec(schedule_spec)
+schedule_spec.loader.exec_module(schedule_module)
 children = []
 stopping = False
 
@@ -69,6 +72,7 @@ try:
         touch = None
         remote_retry = 0
         browser = None
+        scheduled_active = None
         retry = 0
         while not stopping:
             audio.tick()
@@ -78,6 +82,23 @@ try:
                 remote_retry = time.monotonic() + 5
             if sunshine is None and time.monotonic() >= remote_retry:
                 sunshine = launch(['python3', '/usr/local/bin/kiosk-sunshine.py', 'serve'], stdout=log, stderr=subprocess.STDOUT)
+            active_now = schedule_module.active(os.environ)
+            if scheduled_active is not None and active_now != scheduled_active and browser is not None:
+                try:os.killpg(browser.pid, signal.SIGTERM)
+                except ProcessLookupError:pass
+                try:browser.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    try:os.killpg(browser.pid, signal.SIGKILL)
+                    except ProcessLookupError:pass
+                    browser.wait(timeout=3)
+                children.remove(browser)
+                browser = None
+            if scheduled_active != active_now:
+                status_path = Path('/run/kiosk/schedule.json')
+                temporary = status_path.with_suffix('.tmp')
+                temporary.write_text(__import__('json').dumps({'active':active_now,'mode':'browser blanking; no CEC power control'}))
+                temporary.replace(status_path)
+            scheduled_active = active_now
             if browser is not None and browser.poll() is not None:
                 children.remove(browser)
                 browser = None
@@ -88,7 +109,7 @@ try:
                 browser = launch([media_status['executable'], '--kiosk', '--no-first-run',
                                   '--disable-session-crashed-bubble',
                                   '--disable-features=Translate,TranslateUI',
-                                  '--user-data-dir=/state/browser'] + media_args + [url])
+                                  '--user-data-dir=/state/browser'] + (['--remote-debugging-address=127.0.0.1', '--remote-debugging-port=9225'] if scheduled_active and url == 'http://127.0.0.1:8089/player' else []) + (['--mute-audio'] if os.environ.get('KIOSK_AUDIO_MUTED') == 'enabled' else []) + media_args + [url if scheduled_active else 'data:text/html,<html style="background:black"></html>'])
             time.sleep(.2)
 finally:
     bus_process = children.pop(0) if children and 'bus' in globals() and children[0] is bus else None

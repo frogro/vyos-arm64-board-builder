@@ -1,0 +1,66 @@
+<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VyARM Medienplayer</title>
+<style>html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font:24px sans-serif;overflow:hidden}#stage,video,img,iframe{width:100%;height:100%;border:0;object-fit:contain}#message{position:absolute;inset:0;display:grid;place-items:center;text-align:center}#message:empty{display:none}</style>
+<div id="stage"></div><div id="message">Playlist wird geladen …</div>
+<script>
+const stage=document.querySelector('#stage'), message=document.querySelector('#message');
+let assets=[],current=null,index=-1,timer=null,generation=0,pollTimer=null,shuffle=false,revision="",resume=new URLSearchParams(location.search).get("after");
+window.hPlayback={transitions:0,errors:[],polls:0};
+function remember(){try{sessionStorage.setItem('vyarm-playlist',JSON.stringify({revision,ids:assets.map(a=>a.id),shuffle}))}catch(e){}}
+function restoreOrder(rows,rev){
+ try{const saved=JSON.parse(sessionStorage.getItem('vyarm-playlist'));
+  if(saved && saved.revision===rev && saved.shuffle===shuffle && saved.ids.length===rows.length){
+   const byId=new Map(rows.map(a=>[a.id,a]));
+   if(new Set(saved.ids).size===rows.length && saved.ids.every(id=>byId.has(id)))return saved.ids.map(id=>byId.get(id));
+  }
+ }catch(e){}
+ return rows;
+}
+function fail(text){console.error(text);window.hPlayback.errors.push(text);message.textContent=text;clearTimeout(timer);timer=setTimeout(next,3000)}
+function next(){
+ clearTimeout(timer);const gen=++generation;stage.replaceChildren();
+ if(!assets.length){current=null;message.textContent='VyARM · Keine gültigen Inhalte verfügbar';return}
+ if(index+1>=assets.length && shuffle){
+  for(let n=assets.length-1;n>0;n--){const j=Math.floor(Math.random()*(n+1));[assets[n],assets[j]]=[assets[j],assets[n]]}
+ }
+ remember();
+ index=(index+1)%assets.length;current=assets[index];message.textContent='';
+ window.hPlayback.current=current;window.hPlayback.transitions++;
+ const a=current,t=a.type||'';let el;
+ if(t.startsWith('video')){
+  el=document.createElement('video');el.autoplay=true;el.playsInline=true;el.preload='auto';
+  el.onended=()=>{if(gen===generation)next()};
+  el.onplaying=()=>{if(gen===generation){clearTimeout(timer);timer=setTimeout(next,Math.max(1,Number(a.duration))*1000)}};
+  el.onerror=()=>{if(gen===generation)fail('Video kann nicht abgespielt werden: '+a.name)};
+  timer=setTimeout(()=>{if(gen===generation)fail('Video-Ladezeit überschritten: '+a.name)},20000);
+ }else if(t.startsWith('image')){
+  el=document.createElement('img');el.alt=a.name;
+  el.onload=()=>{if(gen===generation){clearTimeout(timer);timer=setTimeout(next,Math.max(1,Number(a.duration))*1000)}};
+  el.onerror=()=>{if(gen===generation)fail('Bild kann nicht geladen werden: '+a.name)};
+  timer=setTimeout(()=>{if(gen===generation)fail('Bild-Ladezeit überschritten: '+a.name)},20000);
+ }else{
+  message.textContent='Webseite wird geöffnet …';
+  fetch('/navigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:a.id})}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status)}).catch(e=>fail('Webseite nicht erreichbar: '+e.message));
+  timer=setTimeout(()=>fail('Webseitensteuerung antwortet nicht'),15000);return;
+ }
+ const url=new URL(a.url,location.href);
+ if(!['http:','https:'].includes(url.protocol)){fail('Nicht unterstützte Medienadresse');return}
+ el.src=url.href;stage.append(el);
+ if(el.tagName==='VIDEO')el.play().catch(e=>{if(gen===generation)fail('Videostart fehlgeschlagen: '+e.message)});
+}
+async function poll(){
+ let delay=2000;
+ try{
+  const r=await fetch('/playlist',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
+  const data=await r.json();window.hPlayback.polls++;const old=current;
+  const nextRevision=JSON.stringify(data.assets);
+  shuffle=!!data.shuffle;
+  if(revision!==nextRevision){assets=restoreOrder(data.assets,nextRevision);revision=nextRevision;remember()}
+  const found=old?assets.findIndex(a=>a.id===old.id):-1;
+  if(found<0){index=resume?assets.findIndex(a=>a.id===resume):-1;resume=null;next()}else{index=found;if(JSON.stringify(assets[found])!==JSON.stringify(old)){index=found-1;next()}}
+  if(data.deadline)delay=Math.min(delay,Math.max(200,new Date(data.deadline)-new Date(data.now)));
+ }catch(e){console.warn('Playlist nicht erreichbar',e);if(!current)message.textContent='Medienverwaltung nicht erreichbar. Neuer Versuch …'}
+ clearTimeout(pollTimer);pollTimer=setTimeout(poll,delay);
+}
+poll();
+</script></html>

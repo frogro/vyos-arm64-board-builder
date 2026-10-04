@@ -15,6 +15,8 @@ KVM_HID_GADGET="${9:-no}"
 KIOSK_F="${10:-no}"
 RECEIVER_G="${11:-no}"
 PRINT_SERVER_E="${12:-no}"
+SIGNAGE_I="${13:-no}"
+[[ "$SIGNAGE_I" == yes || "$SIGNAGE_I" == no ]] || exit 1
 [[ "$PRINT_SERVER_E" == yes || "$PRINT_SERVER_E" == no ]] || exit 1
 [[ "$RECEIVER_G" == yes || "$RECEIVER_G" == no ]] || exit 1
 [[ "$KIOSK_F" == yes || "$KIOSK_F" == no ]] || exit 1
@@ -109,12 +111,12 @@ PROFILE_DIR="$ROOTFS/usr/share/vyos-arm64-board-builder"
 install -d -m 0755 "$PROFILE_DIR"
 python3 - "$PROFILE_DIR/profile.json" "$BOARD" "$BUILD_PROFILE" \
     "$EXTENDED_NETWORK" "$TAILSCALE_SUBNET_ROUTER" "$KVM_OVER_IP" \
-    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E" <<'PY'
+    "$KVM_HARDWARE_PROVIDER" "$KVM_CAPTURE_BACKEND" "$KVM_HID_GADGET" "$KIOSK_F" "$RECEIVER_G" "$PRINT_SERVER_E" "$SIGNAGE_I" <<'PY'
 import json
 from pathlib import Path
 import sys
 
-output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk, receiver, print_server = sys.argv[1:]
+output, board, profile, network, tailscale, kvm, provider, capture, hid, kiosk, receiver, print_server, signage = sys.argv[1:]
 Path(output).write_text(json.dumps({
     "schema": 2,
     "architecture": "arm64",
@@ -124,6 +126,7 @@ Path(output).write_text(json.dumps({
         "extended_network": network == "yes",
         "tailscale_subnet_router": tailscale == "yes",
         "kvm_over_ip": kvm == "yes",
+        **({"signage_i": True} if signage == "yes" else {}),
         **({"print_server_e": True} if print_server == "yes" else {}),
         **({"kiosk_f": True} if kiosk == "yes" else {}),
         **({"receiver_g": True} if receiver == "yes" else {}),

@@ -74,7 +74,8 @@ def build_container(out):
     if arch!='arm64': raise ValueError('Refusing non-ARM64 build container: '+arch)
     return output('docker','image','inspect','--format={{.Id}}',image),provenance
 
-def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_server=False):
+def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_server=False,signage=False):
+    kiosk = kiosk or signage
     if not kvm and not tailscale and not kiosk and not receiver and not print_server:
         raise ValueError('Select at least one native CLI profile')
     host_arch=output('uname','-m')
@@ -92,7 +93,7 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_
         run('git','-C',source,'checkout','--detach','FETCH_HEAD')
         if output('git','-C',source,'rev-parse','HEAD')!=sha: raise ValueError('Checkout mismatch')
         run('git','-C',source,'submodule','update','--init','--recursive','--depth=1')
-        metadata=profile.prepare(source,version,kvm,tailscale,kiosk,receiver,print_server)
+        metadata=profile.prepare(source,version,kvm,tailscale,kiosk,receiver,print_server,signage)
         # Upstream lint uses git ls-files: include the added files in its scope.
         run('git','-C',source,'add','.')
         run('docker','run','--rm','--privileged','--network','host','--platform','linux/arm64',
@@ -132,6 +133,11 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_
         if receiver:
             required += ['usr/lib/python3/dist-packages/vyos/receiver.py',
                          'opt/vyatta/share/vyatta-cfg/templates/container/name/node.tag/receiver/method/node.def']
+        if signage:
+            required += ['usr/libexec/vyos/conf_mode/service_signage.py',
+                         'usr/libexec/vyos/vyarm-signage-supervisor.py',
+                         'opt/vyatta/share/vyatta-cfg/templates/service/signage/kiosk/node.def']
+            owners.append('service_signage.py')
         if print_server:
             required += ['usr/libexec/vyos/conf_mode/service_print_server.py',
                          'usr/libexec/vyos/vyarm-print-supervisor.py',
@@ -162,4 +168,5 @@ if __name__=='__main__':
     p.add_argument('--kiosk',choices=['yes','no'],default='no')
     p.add_argument('--receiver',choices=['yes','no'],default='no')
     p.add_argument('--print-server',choices=['yes','no'],default='no')
-    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes',a.receiver=='yes',a.print_server=='yes')
+    p.add_argument('--signage',choices=['yes','no'],default='no')
+    a=p.parse_args();build(version_from_root(a.rootfs.resolve()),a.artifacts.resolve(),a.kvm=='yes',a.tailscale=='yes',a.kiosk=='yes',a.receiver=='yes',a.print_server=='yes',a.signage=='yes')

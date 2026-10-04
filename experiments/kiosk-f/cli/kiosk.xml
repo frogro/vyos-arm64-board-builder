@@ -1,6 +1,14 @@
 <node name="kiosk">
   <properties><help>Web kiosk settings for a compatible kiosk container image</help></properties>
   <children>
+    <leafNode name="audio-muted"><properties><help>Mute browser audio (Wayland)</help><completionHelp><list>enabled disabled</list></completionHelp><constraint><regex>(enabled|disabled)</regex></constraint></properties></leafNode>
+    <node name="display-schedule"><properties><help>Browser playback hours; outside this window display a black page</help></properties><children>
+      <leafNode name="start"><properties><help>Playback start HH:MM</help></properties></leafNode>
+      <leafNode name="stop"><properties><help>Playback stop HH:MM</help></properties></leafNode>
+      <leafNode name="days"><properties><help>Comma-separated mon,tue,wed,thu,fri,sat,sun; default all days</help></properties></leafNode>
+      <leafNode name="timezone"><properties><help>IANA timezone; default UTC</help></properties></leafNode>
+    </children></node>
+
     <leafNode name="display-backend"><properties>
       <help>Display session: x11 (existing default) or wayland (DRM Weston runtime required)</help>
       <completionHelp><list>x11 wayland</list></completionHelp>
