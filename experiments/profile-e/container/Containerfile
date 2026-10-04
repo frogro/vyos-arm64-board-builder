@@ -1,0 +1,5 @@
+FROM docker.io/library/debian:bookworm-slim
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cups cups-client cups-ipp-utils dbus avahi-daemon printer-driver-gutenprint ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /opt/cups-defaults && cp -a /etc/cups/. /opt/cups-defaults/ && useradd --system --no-create-home --groups lpadmin --shell /usr/sbin/nologin printadmin
+COPY entrypoint /usr/local/sbin/print-entrypoint
+ENTRYPOINT ["/usr/local/sbin/print-entrypoint"]
