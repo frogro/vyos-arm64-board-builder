@@ -249,3 +249,21 @@ PATH="$LINK_TEST/bin:$PATH" bash "$LINK_TEST/setup-links.sh"
 test -f "$RACE_HOME/.bashrc"
 test -L "$RACE_HOME/set-locales.sh"
 echo "PASS: helper publication waits for useradd skeleton initialization"
+
+# Profile E must survive finalization both independently and alongside C/D/F/G.
+for selection in print network-tailscale-kvm-print-kiosk-receiver; do
+    E_ROOTFS="$WORK/e-$selection"
+    seed_timezone "$E_ROOTFS"
+    if [[ "$selection" == print ]]; then
+        bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$E_ROOTFS" no no print no disabled disabled no no no yes
+    else
+        bash "$ROOT/tools/finalize-vyos-rootfs.sh" test-board "$E_ROOTFS" yes yes "$selection" yes disabled disabled no yes yes yes
+    fi
+    python3 - "$E_ROOTFS/usr/share/vyos-arm64-board-builder/profile.json" "$selection" <<'PY_E'
+import json,sys
+p=json.load(open(sys.argv[1]))
+assert p['profile']==sys.argv[2]
+assert p['features']['print_server_e'] is True
+PY_E
+done
+echo 'PASS: print-only and combined print profile finalization'
