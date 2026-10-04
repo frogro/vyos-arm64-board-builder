@@ -1,5 +1,8 @@
 name: Publish completed ADFG artifacts
 on:
+  workflow_run:
+    workflows: [Build VyOS ARM64 board candidate]
+    types: [completed]
   workflow_dispatch:
     inputs:
       rock_run:
@@ -26,6 +29,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       contains(github.event.workflow_run.display_title, 'print-e=true') &&
+       contains(github.event.workflow_run.display_title, 'receiver-g=true') &&
+       (github.event.workflow_run.head_branch == 'main' ||
+        github.event.workflow_run.head_branch == 'test/pi5-e52c-profile-support-20261003'))
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
@@ -35,7 +46,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       BOARD: ${{ matrix.board }}
-      SOURCE_RUN: ${{ matrix.board == 'rock-5b' && inputs.rock_run || matrix.board == 'orangepi5-plus' && inputs.orangepi_run || matrix.board == 'raspberry-pi-5' && inputs.pi_run || matrix.board == 'radxa-e52c' && inputs.e52c_run || '' }}
+      SOURCE_RUN: ${{ (github.event_name == 'workflow_run' && startsWith(github.event.workflow_run.display_title, format('{0} /', matrix.board))) && github.event.workflow_run.id || matrix.board == 'rock-5b' && inputs.rock_run || matrix.board == 'orangepi5-plus' && inputs.orangepi_run || matrix.board == 'raspberry-pi-5' && inputs.pi_run || matrix.board == 'radxa-e52c' && inputs.e52c_run || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download and publish verified completed artifacts

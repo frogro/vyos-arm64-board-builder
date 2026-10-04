@@ -27,7 +27,7 @@ features=manifest['features']
 assert features['extended_network'] and features['tailscale_subnet_router']
 full=board!='radxa-e52c'
 assert all(bool(features.get(key,False))==full for key in ('kvm_over_ip','kiosk_f','receiver_g'))
-profiles='A–D/F/G' if full else 'A–C'
+profiles=('A–G' if full else 'A–C/E') if features.get('print_server_e') else ('A–D/F/G' if full else 'A–C')
 chunk=1500*1024*1024
 parts=[f'{img.name}.part{n:02d}' for n in range(1,(img.stat().st_size+chunk-1)//chunk+1)] if img.stat().st_size>=2147483648 else []
 assert iso.stat().st_size<2147483648, 'ISO exceeds GitHub limit; cannot publish a directly downloadable update ISO'
@@ -40,7 +40,7 @@ with tempfile.TemporaryDirectory(prefix='adfg-publish-') as work:
 - System-image update: `{iso.name}` and its SHA-256 checksum.
 - SD/eMMC installation: {installation}
 - Board-specific update provider: `{provider}`.
-- Includes extended networking and Tailscale.{" Also includes KVM, Chromium kiosk and receiver software." if full else " E52C excludes KVM, kiosk and receivers."}
+- Includes extended networking and Tailscale.{" Includes CUPS/Gutenprint and shared VirtualHere support." if features.get("print_server_e") else ""}{" Also includes KVM, Chromium kiosk and receiver software." if full else " E52C excludes KVM, kiosk and receivers."}
 {joining}
 [Source build](https://github.com/{repo}/actions/runs/{run}); builder commit `{sha}`.
 
