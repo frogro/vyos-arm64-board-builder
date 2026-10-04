@@ -11,7 +11,7 @@ from pathlib import Path
 MEMBER = 'vyarm-display.json'
 
 def validate(value):
-    if not isinstance(value, dict) or set(value) != {'rotation', 'output', 'muted', 'schedule'}:
+    if not isinstance(value, dict) or set(value)-{'rotation', 'output', 'muted', 'schedule', 'remote'} or not {'rotation','output','muted','schedule'} <= set(value):
         raise ValueError('Invalid display backup fields')
     if value['rotation'] not in ('0', '90', '180', '270'):
         raise ValueError('Invalid rotation')
@@ -25,6 +25,16 @@ def validate(value):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         value = dict(value, schedule=module.validate(value['schedule']))
+    if 'remote' in value:
+        r=value['remote']
+        if not isinstance(r,dict) or set(r)!={'access','input','audio','web_origin'}:raise ValueError('Invalid remote settings')
+        for key,allowed in {'access':('enabled','disabled'),'input':('view-only','control'),'audio':('enabled','disabled')}.items():
+            if r[key] not in allowed:raise ValueError('Invalid remote '+key)
+        if not isinstance(r['web_origin'],list) or len(r['web_origin'])>16:raise ValueError('Invalid Web origins')
+        for origin in r['web_origin']:
+            if not isinstance(origin,str) or not re.fullmatch(r'https://(?:[A-Za-z0-9][A-Za-z0-9.-]*|\[[0-9a-fA-F:]+\])(?::[0-9]{1,5})?',origin):raise ValueError('Invalid HTTPS origin')
+            from urllib.parse import urlsplit
+            if urlsplit(origin).port == 0:raise ValueError('Invalid Web port')
     return value
 
 def host_request(operation, settings=None):

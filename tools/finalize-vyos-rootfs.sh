@@ -87,6 +87,11 @@ if [[ "$RECEIVER_G" == yes ]]; then
     EXPECTED_PROFILE="${EXPECTED_PROFILE:+${EXPECTED_PROFILE}-}receiver"
 fi
 
+if [[ "$SIGNAGE_I" == yes ]]; then
+    [[ "$KIOSK_F" == yes ]] || { echo "ERROR: signage requires kiosk" >&2; exit 1; }
+    EXPECTED_PROFILE="${EXPECTED_PROFILE}-signage"
+fi
+
 [[ "$BUILD_PROFILE" == "$EXPECTED_PROFILE" ]] || {
     echo "ERROR: build profile '$BUILD_PROFILE' does not match selected features; expected '$EXPECTED_PROFILE'" >&2
     exit 1

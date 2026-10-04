@@ -68,7 +68,8 @@ def owned(policy):
     return {'stream_audio': 'enabled' if policy['audio'] == 'enabled' else 'disabled',
             'keyboard': str(control).lower(), 'mouse': str(control).lower(),
             'native_pen_touch': str(control).lower(), 'controller': 'disabled',
-            'lan_encryption_mode': '2', 'wan_encryption_mode': '2', 'upnp': 'disabled'}
+            'lan_encryption_mode': '2', 'wan_encryption_mode': '2', 'upnp': 'disabled',
+            'csrf_allowed_origins': ','.join(policy.get('web_origins', []))}
 
 
 def merge_config(text, settings):
@@ -86,12 +87,18 @@ def merge_config(text, settings):
 
 def read_policy():
     data = json.loads(POLICY.read_text())
-    if data.get('version') != 1 or set(data) != {'version', 'access', 'input', 'audio'}:
+    if data.get('version') != 1 or set(data) - {'version', 'access', 'input', 'audio', 'web_origins'} or not {'version','access','input','audio'} <= set(data):
         raise ValueError('Unsupported policy format')
     for key, allowed in {'access': ('enabled', 'disabled'), 'input': ('view-only', 'control'),
                          'audio': ('enabled', 'disabled')}.items():
         if data.get(key) not in allowed:
             raise ValueError('Invalid policy')
+    origins=data.get('web_origins',[])
+    if not isinstance(origins,list) or len(origins)>16:raise ValueError('Invalid Web origins')
+    for origin in origins:
+        if not isinstance(origin,str) or not re.fullmatch(r'https://(?:[A-Za-z0-9][A-Za-z0-9.-]*|\[[0-9a-fA-F:]+\])(?::[0-9]{1,5})?',origin):raise ValueError('Invalid Web origin')
+        from urllib.parse import urlsplit
+        if urlsplit(origin).port == 0:raise ValueError('Invalid Web port')
     return data
 
 

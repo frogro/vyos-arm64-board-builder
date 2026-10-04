@@ -49,7 +49,7 @@ def run():
    ws=websocket.create_connection(target['webSocketDebuggerUrl'],timeout=5,suppress_origin=True)
    state.update(active=True,target_id=target['id'],url=a['url'],started_at=time.time())
    report(state)  # Durable before leaving the player, for process-crash recovery.
-   result=call(ws,'Page.navigate',{'url':a['url']})
+   result=call(ws,'Page.navigate',{'url':a['url'],'referrer':PLAYER})
    if result.get('errorText'):raise RuntimeError(result['errorText'])
    deadline=time.monotonic()+min(3600,max(1,float(a['duration'])))
    while time.monotonic()<deadline:

@@ -95,3 +95,13 @@ values from backup; the old supervisor does not apply the new policy. Before
 downgrading past the earlier kiosk package, additionally convert kiosk values to
 legacy environment nodes as documented in README.md. Image update/reboot and
 actual downgrade have not been established by source tests or a package build.
+
+## Browser origin policy
+
+`set container name NAME kiosk remote web-origin https://router:47990` adds an
+explicit trusted HTTPS administration origin (repeat for LAN/VPN hostnames).
+No wildcard, path, credentials or HTTP origin is accepted. The container label
+`io.vyarm.kiosk.sunshine-origins=1` is required for this CLI field. The supervisor
+projects the list into Sunshine's `csrf_allowed_origins`, while retaining
+Sunshine's built-in localhost origins. Removing the field removes custom origins.
+The list grants CSRF origin trust, not network access or authentication bypass.

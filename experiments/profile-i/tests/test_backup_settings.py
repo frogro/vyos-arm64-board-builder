@@ -27,3 +27,12 @@ class SettingsBackup(unittest.TestCase):
   good=dict(rotation='0',output='auto',muted=False,schedule=None)
   for changes in ({'rotation':'45'},{'output':'auto; reboot'},{'muted':'false'},{'schedule':{'start':'wrong'}}):
    with self.assertRaises(ValueError):b.validate(dict(good,**changes))
+
+class RemoteBackup(unittest.TestCase):
+ def test_optional_remote_and_rejections(self):
+  old=dict(rotation='0',output='auto',muted=False,schedule=None)
+  self.assertNotIn('remote',b.validate(old))
+  remote=dict(access='enabled',input='control',audio='disabled',web_origin=['https://router:47990'])
+  self.assertEqual(b.validate(dict(old,remote=remote))['remote'],remote)
+  for bad in [dict(remote,input='shell'),dict(remote,web_origin=['https://router;reboot']),dict(remote,password='secret')]:
+   with self.assertRaises(ValueError):b.validate(dict(old,remote=bad))

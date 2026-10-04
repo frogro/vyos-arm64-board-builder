@@ -3,6 +3,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 ARG SOURCE_REVISION
 LABEL io.vyarm.kiosk.display-controls="1"
+LABEL io.vyarm.kiosk.sunshine-origins="1"
 LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
 LABEL io.vyarm.kiosk.media-policy="2"
 LABEL io.vyarm.kiosk.wayland-drm="1"

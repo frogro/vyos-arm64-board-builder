@@ -152,6 +152,12 @@ def apply_display(request):
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         try:job['schedule']=module.validate({key:request.POST.get('schedule_'+key,'') for key in ('start','stop','days','timezone')})
         except ValueError as e:return HttpResponse(str(e),status=400)
+    job.setdefault('schedule',None)
+    if 'remote_access' in request.POST:
+        job['remote']={'access':request.POST.get('remote_access'),'input':request.POST.get('remote_input'),'audio':request.POST.get('remote_audio'),'web_origin':[v.strip() for v in request.POST.get('remote_origins','').split(',') if v.strip()]}
+        from backup_settings import validate
+        try:validate({k:job[k] for k in ('rotation','output','muted','schedule','remote')})
+        except (ValueError,TypeError):return HttpResponse('Invalid remote settings',status=400)
     try:
         import os,uuid
         tmp=Path('/data/i-display-'+uuid.uuid4().hex+'.tmp')
@@ -164,3 +170,8 @@ def apply_display(request):
     if request.headers.get('X-Requested-With')=='XMLHttpRequest':return JsonResponse({'id':job['id']},status=202)
     return redirect('/settings/#display-form')
 urlpatterns=[path('i/display/apply/',apply_display)]+urlpatterns
+
+# Browser pages, never server-side YouTube downloads.
+from youtube_web import install as install_youtube_web, create as youtube_web_create
+install_youtube_web()
+urlpatterns=[path('assets/new/',authorized(youtube_web_create),name='assets_create')]+urlpatterns

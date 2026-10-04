@@ -12,7 +12,7 @@ DEST = '/run/vyos-kiosk-policy'
 
 def policy(config):
     remote = config.get('kiosk', {}).get('remote', {})
-    if not isinstance(remote, dict) or set(remote) - {'access', 'input', 'audio'}:
+    if not isinstance(remote, dict) or set(remote) - {'access', 'input', 'audio', 'web_origin'}:
         raise ValueError('Unknown kiosk remote setting')
     result = {'version': 1, 'access': remote.get('access', 'disabled'),
               'input': remote.get('input', 'view-only'), 'audio': remote.get('audio', 'disabled')}
@@ -20,6 +20,15 @@ def policy(config):
                          'audio': ('enabled', 'disabled')}.items():
         if result[key] not in choices:
             raise ValueError(f'Invalid remote {key}')
+    if 'web_origin' in remote:
+        origins=remote['web_origin']
+        if isinstance(origins,str):origins=[origins]
+        if not isinstance(origins,list) or len(origins)>16:raise ValueError('Invalid Web origins')
+        for origin in origins:
+            if not isinstance(origin,str) or not re.fullmatch(r'https://(?:[A-Za-z0-9][A-Za-z0-9.-]*|\[[0-9a-fA-F:]+\])(?::[0-9]{1,5})?',origin):raise ValueError('Use an HTTPS origin without path')
+            from urllib.parse import urlsplit
+            if urlsplit(origin).port == 0:raise ValueError('Invalid Web port')
+        result['web_origins']=sorted(set(origins))
     return result
 
 def remote_only(old, new):
@@ -89,6 +98,8 @@ def verify_image(config):
                                 capture_output=True, text=True, check=True, timeout=3)
         image = json.loads(result.stdout)[0]
         labels = image.get('Labels') or image.get('Config', {}).get('Labels') or {}
+        if 'web_origin' in settings.get('remote', {}) and labels.get('io.vyarm.kiosk.sunshine-origins') != '1':
+            raise ValueError('Kiosk image lacks Sunshine Web origin support')
         if wayland and settings.get('remote', {}).get('access') == 'enabled':
             if labels.get('io.vyarm.kiosk.sunshine-wayland') != '1':
                 raise ValueError('Kiosk image lacks integrated Wayland Sunshine support')
