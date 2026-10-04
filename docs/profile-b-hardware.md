@@ -79,9 +79,13 @@ fragment generation, and the generated kernel must select the MiB policy and
 provide at least 512 MiB. Explicit boot/DT overrides still require checking the
 actual `CmaTotal` on the running board.
 
-On the ROCK 5B live 6.18.54 image, 16 MiB CMA caused AV1 4K capture allocation
-failure and H.264 hardware fallback with a Chromium GPU-process crash. With a
+On the ROCK 5B live 6.18.54 image with 16 MiB CMA, AV1 4K capture allocation
+failed; H.264 fallback and a Chromium GPU-process crash were also observed. With a
 512 MiB boot override, both used V4L2 hardware decoding. This is evidence for
 the memory correction, not a guarantee of smooth playback for every 4K stream
 or a proof that every display/driver error is fixed. Orange Pi inherits the
 RK3588 hardware policy; it was not the board used for this live comparison.
+
+The AV1 allocation failure is directly evidenced in the Hantro log. The H.264
+and display failures stopped reproducing after the CMA change and reboot;
+this does not independently establish their precise root cause.
