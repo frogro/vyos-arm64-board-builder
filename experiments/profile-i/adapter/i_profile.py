@@ -10,8 +10,8 @@ def configure():
     processing._vyarm_original_pixel_cap = original
     def pixel_cap(width, height, device_key):
         if device_key == key:
-            if width and height and width * height > 1920 * 1080:
-                return 'Video uploads support resolutions up to 1920x1080. Please resize this video before uploading.'
+            if width and height and (max(width, height) > 3840 or min(width, height) > 2160):
+                return 'Video uploads support up to 3840x2160 (4K UHD), or 2160x3840 portrait. Please resize this video before uploading.'
             return None
         return original(width, height, device_key)
     processing._pixel_cap_rejection = pixel_cap

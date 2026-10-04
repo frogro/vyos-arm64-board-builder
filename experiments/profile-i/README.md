@@ -73,9 +73,13 @@ HTTP upload limit currently needs a different restore path; do not promise
 unrestricted web restore. Deleting the UI's Import content section does not
 remove the normal Add Asset upload facility.
 
-The pinned upload policy currently admits video through 1920×1080. Container
-format and codec must be supported by Chromium; no automatic transcoding is
-provided. Browser decode policy remains F's responsibility.
+The pinned upload policy admits video through 3840×2160 (4K UHD), including
+2160×3840 portrait. Both dimensions are bounded, so wider-than-UHD files are
+rejected even if their total pixel count fits. Container format and codec must
+be supported by Chromium; no automatic transcoding is provided. Upload
+acceptance does not guarantee real-time hardware decoding on every board.
+Browser decode policy remains F's responsibility. The 2 GiB per-file limit,
+media budget and free-space checks are unchanged.
 
 ## Recovery
 
