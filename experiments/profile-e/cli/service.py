@@ -2,6 +2,7 @@
 """Live prototype: service print-server and shared service usb-server.
 Not yet wired into release builds. CUPS administration remains in its web UI.
 """
+import importlib.util
 import ipaddress
 import json
 from pathlib import Path
@@ -13,6 +14,9 @@ from vyos import ConfigError
 
 ROLE = 'print-server' if 'print_server' in Path(__file__).name else 'usb-server'
 ROOT = Path('/config/profile-e')
+SUPERVISOR = Path('/usr/local/libexec/vyarm-print-supervisor.py')
+RUNTIME = Path('/run/vyarm-print/config.json')
+VH_BINARY = ROOT/'virtualhere-bin/vhusbdarm64'
 
 def run(*args, **kw):
     return subprocess.run(args, check=True, text=True, timeout=90, **kw)
@@ -21,7 +25,25 @@ def values(c, key):
     x = c.get(key, [])
     return [x] if isinstance(x, str) else x
 
-def verify(c, other):
+def get_config(config=None):
+    conf = config if config else Config()
+    def get(role):
+        base = ['service', role]
+        return conf.get_config_dict(base, key_mangling=('-', '_'), get_first_key=True,
+                                    no_tag_node_value_mangle=True) if conf.exists(base) else None
+    c = get(ROLE)
+    if c is not None:
+        c['_other'] = get('usb-server' if ROLE == 'print-server' else 'print-server')
+    return c
+
+
+def generate(c):
+    # Runtime generation is coupled to stopping the previous service in apply.
+    pass
+
+
+def verify(c):
+    other = (c or {}).get('_other')
     if c is None or 'disable' in c:
         return
     clients = values(c, 'allow_client')
@@ -37,18 +59,20 @@ def verify(c, other):
         if not re.fullmatch(r'localhost/[a-z0-9:._/-]+', image):
             raise ConfigError('Set the locally installed CUPS image')
         run('podman', 'image', 'exists', image)
+        if not SUPERVISOR.is_file():
+            raise ConfigError('CUPS USB supervisor is missing')
         if not (ROOT/'admin-password').is_file():
             raise ConfigError('Create /config/profile-e/admin-password (mode 600) first')
     else:
         ids = values(c, 'allow_usb_id')
         if not ids or any(not re.fullmatch(r'[0-9a-f]{4}:[0-9a-f]{4}', x) for x in ids):
             raise ConfigError('Explicit allow-usb-id vvvv:pppp required')
-        if not Path('/usr/local/libexec/virtualhere/vhusbdarm64').is_file():
+        if not VH_BINARY.is_file():
             raise ConfigError('Install official generic VirtualHere ARM64 server first')
     # A USB printer passed to CUPS must never also be allowed by VH.
     cups = c if ROLE == 'print-server' else (other or {})
     vh = (other or {}) if ROLE == 'print-server' else c
-    for port in values(cups, 'usb_port'):
+    for port in values(cups, 'usb_port') if 'disable' not in cups else []:
         if not re.fullmatch(r'[0-9]+-[0-9]+(?:\.[0-9]+)*', port):
             raise ConfigError('Invalid physical USB port')
         dev = Path('/sys/bus/usb/devices')/port
@@ -96,7 +120,7 @@ def apply(c):
                        AllowedDevices=','.join('/'.join(f'{int(n,16):x}' for n in x.split(':')) for x in values(c,'allow_usb_id')))
         cfg.write_text(''.join(k+'='+v+'\n' for k,v in entries.items()))
         cfg.chmod(0o600)
-        execstart = '/usr/local/libexec/virtualhere/vhusbdarm64 -c /config/profile-e/virtualhere.ini'
+        execstart = f'{VH_BINARY} -c {ROOT}/virtualhere.ini'
     else:
         for d in ('cups','spool','logs'):
             (ROOT/d).mkdir(exist_ok=True)
@@ -109,17 +133,18 @@ def apply(c):
         text=re.sub(r'(<Location [^>]+>)',lambda m:m[1]+acl,text)
         text += '\nDefaultEncryption Required\nPreserveJobFiles No\nMaxJobs 100\nMaxRequestSize 104857600\n'
         (ROOT/'cups/cupsd.conf').write_text(text)
-        devices=[]
-        for port in values(c,'usb_port'):
-            d=Path('/sys/bus/usb/devices')/port
-            node=f"/dev/bus/usb/{int((d/'busnum').read_text()):03}/{int((d/'devnum').read_text()):03}"
-            devices.extend(['--device',node])
-        cmd=['/usr/bin/podman','run','--rm','--replace','--name','vyarm-print','--network','host',
-             '--memory','512m','--pids-limit','256',
-             '-v',str(ROOT/'cups')+':/etc/cups', '-v',str(ROOT/'spool')+':/var/spool/cups',
-             '-v',str(ROOT/'logs')+':/var/log/cups',
-             '-v',str(ROOT/'admin-password')+':/run/secrets/printadmin:ro',*devices,c['image']]
-        execstart = ' '.join(cmd)
+        spec = importlib.util.spec_from_file_location('cups_supervisor', SUPERVISOR)
+        supervisor = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(supervisor)
+        bindings = [supervisor.identity(port) for port in values(c, 'usb_port')]
+        if any(binding is None for binding in bindings):
+            raise ConfigError('Selected USB printer disappeared; retry commit')
+        RUNTIME.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        temporary = RUNTIME.with_suffix('.tmp')
+        temporary.write_text(json.dumps(dict(image=c['image'], bindings=bindings))+'\n')
+        temporary.chmod(0o600)
+        temporary.replace(RUNTIME)
+        execstart = f'{SUPERVISOR} {RUNTIME}'
     Path('/run/systemd/system/'+unit).write_text(f'''[Unit]
 Description=VyARM {ROLE} live prototype
 After=network-online.target
@@ -128,19 +153,17 @@ Type=simple
 ExecStart={execstart}
 Restart=on-failure
 RestartSec=3
-TimeoutStopSec=30
+TimeoutStopSec=40
+KillMode=mixed
 ''')
     run('systemctl','daemon-reload')
     run('systemctl','start',unit)
 
 if __name__ == '__main__':
     try:
-        conf=Config()
-        def get(role):
-            base=['service',role]
-            return conf.get_config_dict(base,key_mangling=('-','_'),get_first_key=True,no_tag_node_value_mangle=True) if conf.exists(base) else None
-        c=get(ROLE)
-        verify(c,get('usb-server' if ROLE=='print-server' else 'print-server'))
+        c=get_config()
+        verify(c)
+        generate(c)
         apply(c)
     except (ValueError, OSError, subprocess.SubprocessError, ConfigError) as e:
         print(str(e));sys.exit(1)
