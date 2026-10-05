@@ -17,8 +17,15 @@ function restoreOrder(rows,rev){
  return rows;
 }
 function fail(text){console.error(text);window.hPlayback.errors.push(text);message.textContent=text;clearTimeout(timer);timer=setTimeout(next,3000)}
+function releaseMedia(){
+ for(const video of stage.querySelectorAll('video')){
+  video.onended=video.onplaying=video.onerror=null;
+  video.pause();video.removeAttribute('src');video.load();
+ }
+ stage.replaceChildren();
+}
 function next(){
- clearTimeout(timer);const gen=++generation;stage.replaceChildren();
+ clearTimeout(timer);const gen=++generation;releaseMedia();
  if(!assets.length){current=null;message.textContent='VyARM · Keine gültigen Inhalte verfügbar';return}
  if(index+1>=assets.length && shuffle){
   for(let n=assets.length-1;n>0;n--){const j=Math.floor(Math.random()*(n+1));[assets[n],assets[j]]=[assets[j],assets[n]]}

@@ -125,6 +125,17 @@ def control_enabled(name):
         return False
 
 
+def ensure_input_directory(root):
+    """A kiosk with no physical input mappings may have no private /dev/input."""
+    if root.is_symlink():
+        raise RuntimeError('Refusing symlink input directory')
+    try:
+        root.mkdir(mode=0o755, exist_ok=True)
+    except FileNotFoundError:
+        return False  # Container exited; never recreate its missing parent.
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--target', required=True)
@@ -202,6 +213,8 @@ def main():
                 # Refuse pre-existing nodes, including symlinks and physical devices.
                 if os.path.lexists(node):
                     continue
+                if not ensure_input_directory(root):
+                    break
                 os.mknod(node, stat.S_IFCHR | 0o600, dev)
                 tracked[name] = (node, dev, None)
                 run('udevadm', 'trigger', '--action=add', syspath)
