@@ -20,7 +20,7 @@ jobs:
       - name: Check isolation, update channels and common fixes
         run: |
           set -euo pipefail
-          for test in config-validation tailscale-ready print-retry-recovery print-native-source print-usb-supervisor virtualhere-installer print-build-integration signage-build-integration alsa-restore base-hardware kvm-hardware-provider pi5-peripherals pi-native-boot native-boot system-image-dtb-update raw-kernel cli-source-resolution feature-profile multimedia-selection vyos-1x-profile board-update-channel pi-release-publication common-firstboot setup-helpers syslog-start hostname-resolution mpp-patch-compat decoder-patch-compat console-log-source kvm-profile kvm-cli kvm-capture kvm-input-config kvm-local-input tailscale-cli tailscale-bundle image-info orangepi-adfg; do
+          for test in release-assets config-validation tailscale-ready print-retry-recovery print-native-source print-usb-supervisor virtualhere-installer print-build-integration signage-build-integration alsa-restore base-hardware kvm-hardware-provider pi5-peripherals pi-native-boot native-boot system-image-dtb-update raw-kernel cli-source-resolution feature-profile multimedia-selection vyos-1x-profile board-update-channel pi-release-publication common-firstboot setup-helpers syslog-start hostname-resolution mpp-patch-compat decoder-patch-compat console-log-source kvm-profile kvm-cli kvm-capture kvm-input-config kvm-local-input tailscale-cli tailscale-bundle image-info orangepi-adfg; do
             if [[ -f tests/test-$test.py ]]; then python3 tests/test-$test.py; else bash tests/test-$test.sh; fi
           done
           sudo python3 tests/test-system-image-config-metadata.py

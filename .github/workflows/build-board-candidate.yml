@@ -633,12 +633,6 @@ jobs:
           echo "Release tag: $RELEASE_TAG"
           echo "Release board: $BOARD_NAME"
 
-          if gh release view "$RELEASE_TAG" \
-              --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            echo "ERROR: release tag already exists: $RELEASE_TAG" >&2
-            exit 1
-          fi
-
           release_assets=(
             "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz"
             "work/build/${BOARD}/${RELEASE_BASENAME}.img.xz.sha256"
@@ -670,12 +664,12 @@ jobs:
             )
           fi
 
-          gh release create "$RELEASE_TAG" \
+          python3 tools/publish-release-assets.py \
+            --tag "${RELEASE_TAG}-run-${GITHUB_RUN_ID}" \
             --repo "${GITHUB_REPOSITORY}" \
-            --target "${GITHUB_SHA}" \
+            --sha "${GITHUB_SHA}" \
             --title "VyOS ${VYOS_VERSION} for ${BOARD_NAME}" \
-            --notes-file "work/build/${BOARD}/RELEASE_NOTES.md" \
-            --latest \
+            --notes "work/build/${BOARD}/RELEASE_NOTES.md" \
             "${release_assets[@]}"
 
       - name: Publish registered board update channel
