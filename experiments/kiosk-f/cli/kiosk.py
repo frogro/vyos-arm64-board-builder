@@ -3,6 +3,7 @@
 No service lifecycle, network changes, configuration writes or shell execution.
 """
 import re
+import json
 import os
 import stat
 import fcntl
@@ -11,6 +12,32 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 KEYS = {'audio_muted': 'KIOSK_AUDIO_MUTED', 'display_backend': 'KIOSK_DISPLAY_BACKEND', 'url': 'KIOSK_URL', 'output': 'KIOSK_OUTPUT', 'rotation': 'KIOSK_ROTATION', 'graphics': 'KIOSK_GRAPHICS', 'video_decode': 'KIOSK_VIDEO_DECODE', 'video_h264_buffers': 'KIOSK_VIDEO_H264_BUFFERS', 'video_av1_buffers': 'KIOSK_VIDEO_AV1_BUFFERS'}
+
+
+RUNTIME = Path('/usr/share/vyos-arm64-board-builder/kiosk-runtime/runtime.json')
+BUILDER_IMAGE = re.compile(r'localhost/vyarm-kiosk:github-[0-9]+')
+
+
+def runtime_images(containers, manifest=RUNTIME):
+    """Resolve builder-managed images against the booted ISO, without config writes.
+
+    Only generated github-run tags participate. Custom images remain pinned.
+    Both candidate and effective dictionaries must be resolved before comparison.
+    """
+    managed = [item for item in containers.get('name', {}).values()
+               if 'kiosk' in item and BUILDER_IMAGE.fullmatch(item.get('image', ''))]
+    if not managed:
+        return
+    try:
+        meta = json.loads(Path(manifest).read_text())
+        image = meta['image']
+        image_id = meta['image_id'].removeprefix('sha256:')
+        if not BUILDER_IMAGE.fullmatch(image) or not re.fullmatch(r'[0-9a-f]{64}', image_id):
+            raise ValueError('Invalid bundled kiosk runtime identity')
+    except (OSError, KeyError, TypeError, AttributeError, ValueError) as error:
+        raise ValueError(f'Cannot select the bundled kiosk runtime: {error}') from error
+    for item in managed:
+        item['image'] = image
 
 
 def environment(config):

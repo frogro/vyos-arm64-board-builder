@@ -160,3 +160,16 @@ reconciler removes absent mappings and restores them after reconnection, with
 its existing debounce/commit-lock protection. This never edits saved config or
 selects arbitrary new USB devices. Other missing device sources remain errors.
 Older Quadlets without metadata keep their original fail-closed behavior.
+
+## Bundled runtime selection on ISO update
+
+Containers with native `kiosk` settings and a builder-generated image reference
+(`localhost/vyarm-kiosk:github-<run-id>`) use the kiosk runtime bundled with the
+currently booted ISO. Resolution happens before native image verification and
+Quadlet generation, on boot and on configuration commits. The saved reference,
+media, state volumes and display/remote settings are not rewritten. Consequently,
+booting a previous ISO selects that ISO's own runtime again. Candidate and
+effective configuration are resolved equally so remote-only changes retain their
+existing no-restart behavior. Custom image tags remain explicitly pinned.
+A missing or invalid bundled manifest fails configuration validation instead of
+silently retaining an obsolete runtime.
