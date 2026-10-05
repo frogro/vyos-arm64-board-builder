@@ -92,6 +92,7 @@ try:
                 media_args = media.merge_arguments([], media_args, media_status)
                 browser = launch([media_status['executable'], '--kiosk', '--no-first-run',
                                   '--disable-session-crashed-bubble',
+                                  '--autoplay-policy=no-user-gesture-required',
                                   '--disable-features=Translate,TranslateUI',
                                   '--user-data-dir=/state/browser'] + media_args + [url])
             time.sleep(.2)
