@@ -74,7 +74,9 @@ def publish(repo, tag, sha, title, notes, assets):
                 if attempt == 3:
                     raise RuntimeError(f'Upload failed: {path.name}')
                 time.sleep(5*(attempt+1))
-        remote = json.loads(gh('api',f'repos/{repo}/releases/tags/{tag}'))
+        # Draft releases without a Git tag are absent from the tag endpoint.
+        pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repo}/releases?per_page=100'))
+        remote = next(r for page in pages for r in page if r['tag_name'] == tag)
         actual = {a['name']:a.get('digest') for a in remote['assets'] if a['state']=='uploaded'}
         if any(actual.get(name) != 'sha256:'+digest for name,digest in expected.items()):
             raise ValueError('Remote asset checksums do not match')

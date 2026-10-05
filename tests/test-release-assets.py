@@ -1,3 +1,4 @@
+import hashlib, json
 import importlib.util
 from pathlib import Path
 import tempfile
@@ -18,6 +19,20 @@ class ReleaseAssets(unittest.TestCase):
   with tempfile.TemporaryDirectory() as tmp:
    d=Path(tmp);p=d/'test.iso';p.write_bytes(b'1234')
    with self.assertRaises(ValueError):m.split_image(p,d,limit=4,chunk=2)
+ def test_draft_without_git_tag_is_verified_before_publication(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   d=Path(tmp);a=d/'image.iso';a.write_bytes(b'iso');n=d/'notes';n.write_text('notes')
+   def output(args, **kwargs):
+    if 'api' in args:
+     self.assertIn('--slurp',args)
+     self.assertNotIn('/tags/', ' '.join(args))
+     return json.dumps([[{'tag_name':'tag','assets':[{'name':a.name,'state':'uploaded','digest':'sha256:'+hashlib.sha256(b'iso').hexdigest()}]}]])
+    return ''
+   def run(args, **kwargs):
+    return SimpleNamespace(returncode=1 if 'view' in args else 0)
+   with patch.object(m.subprocess,'run',side_effect=run), patch.object(m.subprocess,'check_output',side_effect=output) as gh:
+    m.publish('owner/repo','tag','a'*40,'title',n,[a])
+    self.assertTrue(any('--draft=false' in c.args[0] for c in gh.call_args_list))
  def test_failed_upload_never_publishes_draft(self):
   with tempfile.TemporaryDirectory() as tmp:
    d=Path(tmp);a=d/'image.iso';a.write_bytes(b'iso');n=d/'notes';n.write_text('notes')
