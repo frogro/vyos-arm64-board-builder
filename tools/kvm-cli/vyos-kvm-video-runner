@@ -12,6 +12,11 @@ ENV_FILE="/run/vyos-kvm-over-ip/video.env"
 source "${ENV_FILE}"
 
 BACKEND="${KVM_VIDEO_BACKEND:?}"
+if [[ "$BACKEND" == gstreamer ]]; then
+    # MPP plugin features depend on the target hardware. A registry generated
+    # during image assembly or inherited from an older boot can omit encoders.
+    export GST_REGISTRY=/run/vyos-kvm-over-ip/gstreamer-registry.bin
+fi
 PROVIDER="${KVM_VIDEO_PROVIDER:-generic-v4l2}"
 DEVICE="${KVM_VIDEO_DEVICE:-}"
 RESOLUTION="${KVM_VIDEO_RESOLUTION:-}"

@@ -48,14 +48,27 @@ def verify(c):
 
 def generate(c):pass
 
-def apply(c):
-    run('systemctl','stop',UNIT)
-    exists=subprocess.run(['nft','list','table','inet','vyarm_signage'],capture_output=True).returncode==0
+def firewall_rules(c, exists=False):
     rules='delete table inet vyarm_signage\n' if exists else ''
     if c is not None and 'disable' not in c:
         nets=c['allow_client'];nets=[nets] if isinstance(nets,str) else nets
         clients=', '.join(str(ipaddress.ip_network(n)) for n in nets)
-        rules+='table inet vyarm_signage { chain input { type filter hook input priority -5; policy accept; iifname "lo" tcp dport 8088 accept; ip saddr { '+clients+' } tcp dport 8088 accept; tcp dport 8088 reject; } }\n'
+        rules+='''table inet vyarm_signage {
+ chain input {
+  type filter hook input priority -5; policy accept;
+  iifname "lo" tcp dport 8088 accept
+  ip saddr { '''+clients+''' } tcp dport 8088 accept
+  tcp dport 8088 reject
+ }
+}
+'''
+    return rules
+
+def apply(c):
+    exists=subprocess.run(['nft','list','table','inet','vyarm_signage'],capture_output=True).returncode==0
+    rules=firewall_rules(c,exists)
+    if rules:run('nft','--check','-f','-',input=rules)
+    run('systemctl','stop',UNIT)
     if rules:run('nft','-f','-',input=rules)
     if c is None or 'disable' in c:
         RUNTIME.unlink(missing_ok=True);return

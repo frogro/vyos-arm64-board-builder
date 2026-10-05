@@ -134,6 +134,21 @@ class KvmCliTests(unittest.TestCase):
         packages = (ROOT / 'profiles/kvm-over-ip-packages.txt').read_text()
         self.assertIn('gstreamer1.0-rtsp', packages)
 
+    def test_gstreamer_uses_boot_local_hardware_registry(self):
+        runner = (ROOT / 'tools/kvm-cli/vyos-kvm-video-runner').read_text()
+        # Evaluate the real preamble with a stale inherited registry. Each
+        # backend must keep its existing policy except the GStreamer service.
+        preamble = runner.split('PROVIDER=', 1)[0].split('BACKEND=', 1)[1]
+        for backend in ('gstreamer', 'ustreamer', 'ffmpeg'):
+            import os
+            env = dict(os.environ, KVM_VIDEO_BACKEND=backend,
+                       GST_REGISTRY='/tmp/inherited-stale-registry')
+            output = subprocess.check_output(
+                ['bash', '-c', 'BACKEND=' + preamble + '\nprintf "%s" "$GST_REGISTRY"'],
+                env=env, text=True)
+            self.assertEqual(output, '/run/vyos-kvm-over-ip/gstreamer-registry.bin'
+                             if backend == 'gstreamer' else '/tmp/inherited-stale-registry')
+
     def test_scripts_parse(self):
         subprocess.run(
             ['bash', '-n', str(ROOT / 'tools/install-kvm-cli.sh')],

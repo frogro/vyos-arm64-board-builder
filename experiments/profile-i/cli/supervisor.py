@@ -20,15 +20,17 @@ os.environ['VYARM_I_ROOT']=str(ROOT)
 os.environ['VYARM_I_KIOSK']=config['kiosk']
 ROOT.mkdir(mode=0o700,parents=True,exist_ok=True)
 for name in ('data','playback'):(ROOT/name).mkdir(mode=0o700,exist_ok=True)
-common=['podman','run','--rm','--replace','--network','host','--cap-drop=ALL','--security-opt','no-new-privileges','--pids-limit','256']
+# Pinned Anthias utilities and Channels also use redis:6379, independently of
+# Celery's URL. Bind only loopback and supply the alias inside these containers.
+common=['podman','run','--rm','--replace','--network','host','--add-host','redis:127.0.0.1','--cap-drop=ALL','--security-opt','no-new-privileges','--pids-limit','256']
 app=common+['--memory=768m','--cpus=2','-v',str(ROOT/'data')+':/data',
-    '-e','CELERY_BROKER_URL=redis://127.0.0.1:16379/0','-e','CELERY_RESULT_BACKEND=redis://127.0.0.1:16379/0',
+    '-e','CELERY_BROKER_URL=redis://127.0.0.1:6379/0','-e','CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/0',
     '-e','LISTEN=0.0.0.0','-e','PORT=8088','-e','TZ='+config.get('timezone','UTC')]
 commands={
     'playback':['python3',str(ADAPTER/'playback_server.py')],
     'status':['python3',str(ADAPTER/'status_collector.py')],
     'redis':common+['--name','vyarm-signage-redis','--memory=128m','--user','65534:65534','--entrypoint','redis-server',meta['redis_tag'],
-             '--bind','127.0.0.1','--port','16379','--save','','--appendonly','no'],
+             '--bind','127.0.0.1','--port','6379','--save','','--appendonly','no'],
     'server':app+['--name','vyarm-signage-server',meta['tag'],'server'],
     'worker':app+['--name','vyarm-signage-worker',meta['tag'],'worker'],
 }
@@ -45,12 +47,17 @@ try:
                 processes[name]=subprocess.Popen(cmd,start_new_session=True)
         time.sleep(.5)
 finally:
-    for proc in processes.values():
+    # Stop containers before signalling their attached podman process groups:
+    # fuse-overlayfs can share those groups and must outlive the application.
+    # Stop the worker before Redis so a graceful exit can finish its bookkeeping.
+    for name in ('worker','server','redis'):
+        subprocess.run(['podman','stop','--ignore','--time','15','vyarm-signage-'+name],timeout=25,check=False)
+    for name in ('playback','status'):
+        proc=processes.get(name)
+        if proc is None:continue
         if proc.poll() is None:
             try:os.killpg(proc.pid,signal.SIGTERM)
             except ProcessLookupError:pass
-    for name in ('worker','server','redis'):
-        subprocess.run(['podman','stop','--ignore','--time','10','vyarm-signage-'+name],timeout=20,check=False)
     for proc in processes.values():
         try:proc.wait(timeout=10)
         except subprocess.TimeoutExpired:

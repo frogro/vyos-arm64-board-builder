@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import struct
 import subprocess
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -17,6 +18,26 @@ remote = load('remote_bridge', BASE / 'cli/remote.py')
 kiosk = load('kiosk_bridge', BASE / 'cli/kiosk.py')
 
 class InputBridgeTests(unittest.TestCase):
+    def test_private_input_directory_without_physical_inputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'input'
+            self.assertTrue(bridge.ensure_input_directory(root))
+            self.assertTrue(root.is_dir())
+            self.assertTrue(bridge.ensure_input_directory(root))
+
+    def test_disappeared_container_parent_is_not_recreated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'gone'/'input'
+            self.assertFalse(bridge.ensure_input_directory(root))
+            self.assertFalse(root.parent.exists())
+
+    def test_input_directory_symlink_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'input'
+            root.symlink_to(Path(tmp),target_is_directory=True)
+            with self.assertRaisesRegex(RuntimeError,'symlink'):
+                bridge.ensure_input_directory(root)
+
     def test_container_lookup_does_not_resolve_same_named_network(self):
         with patch.object(bridge, 'run', return_value=b'[{"Id":"abc","State":{"Running":true,"Pid":42}}]') as run:
             self.assertEqual(bridge.container('kiosk'), ('abc', 42))
