@@ -31,7 +31,7 @@ def prepare(root):
         raise ValueError('Unexpected or already patched source tree')
     anchor = '          <leafNode name="allow-host-pid">'
     checks = [
-        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment, devices as kiosk_devices, optional_input as kiosk_optional_input\nfrom vyos import kiosk_remote\n'),
+        ('from vyos import ConfigError\n', 'from vyos import ConfigError\nfrom vyos.kiosk import environment as kiosk_environment, devices as kiosk_devices, optional_input as kiosk_optional_input, runtime_images as kiosk_runtime_images\nfrom vyos import kiosk_remote\n'),
         ('        for name, container_config in container[\'name\'].items():\n            # Container image',
          '        for name, container_config in container[\'name\'].items():\n'
          '            try:\n                kiosk_environment(container_config)\n                kiosk_devices(container_config)\n                kiosk_remote.policy(container_config)\n                kiosk_remote.verify_image(container_config)\n'
@@ -69,6 +69,11 @@ def prepare(root):
          "    previous = conf.get_config_dict(base, effective=True, key_mangling=('-', '_'),\n"
          "                                    no_tag_node_value_mangle=True, get_first_key=True,\n"
          "                                    with_recursive_defaults=True)\n"
+         "    try:\n"
+         "        kiosk_runtime_images(container)\n"
+         "        kiosk_runtime_images(previous)\n"
+         "    except ValueError as error:\n"
+         "        raise ConfigError(str(error)) from error\n"
          "    container['kiosk_remote_only'] = [name for name, item in container.get('name', {}).items()\n"
          "        if kiosk_remote.remote_only(previous.get('name', {}).get(name, {}), item)]\n\n"
          "    for name in container.get('name', []):\n"),
