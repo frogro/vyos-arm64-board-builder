@@ -128,3 +128,23 @@ The one-hour window ended at 10:47:26 Europe/Berlin. Final authenticated pages
 (management, settings, system information, status, playlist) returned HTTP 200.
 The final monitoring samples reported all three services active, NRestarts=0,
 and no failed units. The user's original playback schedule remains restored.
+
+## Follow-up: unattended kiosk autoplay (2026-10-05)
+
+The native Chromium 153 ROCK kiosk rejected an unmuted signage video with
+`play() failed because the user did not interact with the document first`.
+An explicit `--autoplay-policy=no-user-gesture-required` launch argument was
+validated using a fresh temporary browser profile and no synthetic user gesture:
+initial page load and reload both started successfully, without player errors,
+using V4L2VideoDecoder. Both X11 and Wayland launchers now include this argument,
+so playback does not depend on a previously used browser profile or policy-directory
+detection. Existing mute and display-schedule behavior is retained.
+
+This fixes startup only. AV1 frame loss remains unresolved: the two autoplay
+trials dropped 1/726 and 15/732 frames. Fullscreen, playlist timer changes and
+video-frame callbacks did not provide a reproducible remedy and are not included.
+The live test used 3840x2160/30-fps AV1 with 1920x1080/60-Hz output.
+
+Validation: 118 kiosk tests, 19 signage tests, four signage build-integration
+tests and the reviewed CLI recipe check pass on both branches. The RK3588 runtime
+rebuild and Pi runtime Containerfile copy the current shared launcher sources.

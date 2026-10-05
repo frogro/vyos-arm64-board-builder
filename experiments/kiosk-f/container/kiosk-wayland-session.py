@@ -108,6 +108,7 @@ try:
                 media_args = media.merge_arguments(['--ozone-platform=wayland'], media_args, media_status)
                 browser = launch([media_status['executable'], '--kiosk', '--no-first-run',
                                   '--disable-session-crashed-bubble',
+                                  '--autoplay-policy=no-user-gesture-required',
                                   '--disable-features=Translate,TranslateUI',
                                   '--user-data-dir=/state/browser'] + (['--remote-debugging-address=127.0.0.1', '--remote-debugging-port=9225'] if scheduled_active and url == 'http://127.0.0.1:8089/player' else []) + (['--mute-audio'] if os.environ.get('KIOSK_AUDIO_MUTED') == 'enabled' else []) + media_args + [url if scheduled_active else 'data:text/html,<html style="background:black"></html>'])
             time.sleep(.2)
