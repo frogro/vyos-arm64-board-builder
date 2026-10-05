@@ -31,7 +31,7 @@ jobs:
   publish:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.conclusion == 'failure' &&
        github.event.workflow_run.head_repository.full_name == github.repository &&
        contains(github.event.workflow_run.display_title, 'print-e=true') &&
        contains(github.event.workflow_run.display_title, 'receiver-g=true') &&
