@@ -3,6 +3,7 @@
 No service lifecycle, network changes, configuration writes or shell execution.
 """
 import re
+import errno
 import json
 import os
 import stat
@@ -185,7 +186,61 @@ def decoder_devices(sysroot=Path('/sys/class/video4linux'), devroot=Path('/dev')
     return [(p, p) for p in sorted(result)]
 
 
-def devices(config, resolve=resolve_input, discover=decoder_devices):
+def h264_limit(path):
+    """Query advertised H.264 slice dimensions without configuring the device."""
+    fd = os.open(path, os.O_RDWR | os.O_NONBLOCK | os.O_CLOEXEC)
+    try:
+        best = (0, 0)
+        for index in range(64):
+            size = bytearray(44)  # struct v4l2_frmsizeenum
+            struct.pack_into('I4s', size, 0, index, b'S264')
+            try:
+                fcntl.ioctl(fd, 0xc02c564a, size, True)  # VIDIOC_ENUM_FRAMESIZES
+            except OSError as error:
+                if error.errno == errno.EINVAL:  # EINVAL: no further sizes / unsupported format
+                    break
+                raise
+            kind = struct.unpack_from('I', size, 8)[0]
+            if kind == 1:  # discrete
+                width, height = struct.unpack_from('II', size, 12)
+            elif kind in (2, 3):  # continuous / stepwise
+                width = struct.unpack_from('I', size, 16)[0]
+                height = struct.unpack_from('I', size, 28)[0]
+            else:
+                continue
+            best = max(best, (width, height), key=lambda v: (v[0] * v[1], v))
+        return best
+    finally:
+        os.close(fd)
+
+
+def prioritize_h264(bindings, discovered, probe=h264_limit):
+    """Give Chromium the most capable H.264 node first, inside this container.
+
+    Chromium scans video numbers and picks the first codec match, without
+    considering stream size. Exchange only canonical decoder destinations;
+    keep all devices, media controllers, capture nodes and explicit aliases.
+    """
+    nodes = {src for src, dst in discovered
+             if src == dst and re.fullmatch(r'/dev/video[0-9]+', src)}
+    candidates = [(src, dst) for src, dst in bindings if src == dst and src in nodes]
+    if len(candidates) < 2:
+        return bindings
+    try:
+        limits = {src: probe(src) for src, _ in candidates}
+    except OSError:
+        return bindings  # Unknown capabilities: do not guess or remove grants.
+    nodes = [src for src, _ in candidates if all(limits[src])]
+    if len(nodes) < 2 or len({limits[src] for src in nodes}) == 1:
+        return bindings
+    destinations = sorted(nodes, key=lambda p: int(p.removeprefix('/dev/video')))
+    sources = sorted(nodes, key=lambda p: (-limits[p][0] * limits[p][1],
+                                         int(p.removeprefix('/dev/video'))))
+    mapping = dict(zip(sources, destinations))
+    return [(src, mapping.get(src, dst) if src == dst else dst) for src, dst in bindings]
+
+
+def devices(config, resolve=resolve_input, discover=decoder_devices, rank=prioritize_h264):
     """Resolve selected kiosk inputs at generation; never modify saved config."""
     result, destinations = [], set()
     for item in config.get('device', {}).values():
@@ -222,11 +277,13 @@ def devices(config, resolve=resolve_input, discover=decoder_devices):
                     raise ValueError(f'Conflicting remote device destination: {node}')
                 result.append((node, node)); destinations.add(node)
     if config.get('kiosk', {}).get('video_decode') == 'auto':
-        for source, destination in discover():
+        discovered = discover()
+        for source, destination in discovered:
             if (source, destination) in result:
                 continue
             if destination in destinations:
                 raise ValueError(f'Conflicting kiosk decoder destination: {destination}')
             result.append((source, destination))
             destinations.add(destination)
+        result = rank(result, discovered)
     return result

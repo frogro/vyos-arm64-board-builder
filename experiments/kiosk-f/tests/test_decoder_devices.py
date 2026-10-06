@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import struct
+import errno
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('kiosk', Path(__file__).resolve().parents[1] / 'cli/kiosk.py')
@@ -56,5 +57,47 @@ class DecoderDevices(unittest.TestCase):
     def test_non_kiosk_legacy_software_do_not_probe(self):
         for c in ({},{'kiosk':{}},{'kiosk':{'video_decode':'software'}}):
             self.assertEqual(kiosk.devices(c,discover=lambda:self.fail('Unexpected probe')),[])
+
+    def test_h264_size_ioctl_discrete_stepwise_and_unsupported(self):
+        for kind, expected in ((1, (1920, 1080)), (2, (3840, 2160)),
+                               (3, (3840, 2160)), (0, (0, 0))):
+            def ioctl(fd, request, data, mutate):
+                self.assertEqual(request, 0xc02c564a)
+                self.assertEqual(bytes(data[4:8]), b'S264')
+                if struct.unpack_from('I', data)[0] or not kind:
+                    raise OSError(errno.EINVAL, 'end')
+                struct.pack_into('I', data, 8, kind)
+                if kind == 1:
+                    struct.pack_into('II', data, 12, 1920, 1080)
+                else:
+                    struct.pack_into('IIIIII', data, 12, 48, 3840, 16, 48, 2160, 16)
+            with patch.object(kiosk.fcntl, 'ioctl', side_effect=ioctl):
+                self.assertEqual(kiosk.h264_limit('/dev/null'), expected)
+
+    def test_uhd_priority_preserves_codecs_capture_aliases_and_saved_config(self):
+        found = [(p,p) for p in ('/dev/video0','/dev/video12','/dev/video5','/dev/media0','/dev/media2')]
+        c={'kiosk':{'video_decode':'auto'}, 'device':{
+            'capture':{'source':'/dev/video3','destination':'/dev/video3'},
+            'alias':{'source':'/dev/video0','destination':'/dev/hantro'},
+            'explicit':{'source':'/dev/video12','destination':'/dev/video12'}}}
+        before=copy.deepcopy(c)
+        limits={'/dev/video0':(1920,1088),'/dev/video12':(3840,2160),'/dev/video5':(0,0)}
+        result=kiosk.devices(c,discover=lambda:found,
+                            rank=lambda b,d:kiosk.prioritize_h264(b,d,limits.__getitem__))
+        self.assertIn(('/dev/video12','/dev/video0'),result)
+        self.assertIn(('/dev/video0','/dev/video12'),result)
+        for pair in [('/dev/video5','/dev/video5'),('/dev/video3','/dev/video3'),
+                     ('/dev/video0','/dev/hantro'),('/dev/media0','/dev/media0')]:
+            self.assertIn(pair,result)
+        self.assertEqual(len(result),len({dst for _,dst in result}))
+        self.assertEqual(c,before)
+
+    def test_priority_is_stable_when_already_correct_or_capabilities_unknown(self):
+        bindings=[('/dev/video2','/dev/video2'),('/dev/video47','/dev/video47')]
+        for probe in (lambda p:(3840,2160) if p.endswith('2') else (1920,1088),
+                      lambda p:(0,0),lambda p:(1920,1088)):
+            self.assertEqual(kiosk.prioritize_h264(bindings,bindings,probe),bindings)
+        def fail(_):raise PermissionError()
+        self.assertEqual(kiosk.prioritize_h264(bindings,bindings,fail),bindings)
 
 if __name__=='__main__': unittest.main()

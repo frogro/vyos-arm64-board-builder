@@ -173,3 +173,29 @@ effective configuration are resolved equally so remote-only changes retain their
 existing no-restart behavior. Custom image tags remain explicitly pinned.
 A missing or invalid bundled manifest fails configuration validation instead of
 silently retaining an obsolete runtime.
+
+## H.264 decoder selection
+
+With automatic video decoding, native container generation queries advertised
+H.264 slice frame sizes and maps the most capable decoder to the lowest existing
+H.264 video number inside the kiosk container. Chromium otherwise chooses the
+first codec match without checking the stream dimensions. All decoder sources
+and media controllers remain available, including Hantro's other codecs. Host
+numbering, explicit aliases, capture devices and saved configuration are unchanged.
+Unknown capabilities leave the existing bindings unchanged. Software decoding
+does not use this ordering. No new CLI setting is required.
+
+On ROCK 5B, the original order selected the 1920x1088 Hantro H.264 decoder for
+4K and reproduced a GPU-process SIGSEGV in V4L2VideoDecoder::OutputFrame.
+Prioritizing rkvdec passed repeated 4K H.264 playback checks; retaining Hantro
+also retained hardware VP8 playback. This is a provisional decoder-selection
+workaround, not a correction to Chromium's unchecked null-frame handling.
+Orange Pi 5 Plus was updated to published ISO run 37350824062 on 2026-10-06.
+With 512 MiB CMA, its original device order reproduced GPU exit code 11 and
+software fallback for the same 3840x2160 H.264 clip. The native helper was then
+applied temporarily (including a configd restart to discard its cached module).
+It mapped rkvdec video4 to container video0, preserved Hantro video0 as video4
+and AV1 video2 unchanged. A 60-second replay used V4L2VideoDecoder, with zero
+dropped frames in every sample and no GPU exit. The original helper and saved
+configuration were restored afterwards. This is a short H.264 comparison, not
+a claim of exhaustive codec or long-duration validation. Push/builds remain held.
