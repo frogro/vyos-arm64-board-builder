@@ -25,6 +25,7 @@ PAYLOAD = {
 }
 
 TAILSCALE_PAYLOAD = {
+ 'profiles/tailscale-cli/dependencies.json': 'data/config-mode-dependencies/tailscale.json',
  'profiles/tailscale-cli/service_tailscale.xml': 'interface-definitions/service_tailscale.xml.in',
  'profiles/tailscale-cli/show_tailscale.xml': 'op-mode-definitions/show_tailscale.xml.in',
  'profiles/tailscale-cli/request_tailscale.xml': 'op-mode-definitions/request_tailscale.xml.in',
@@ -90,6 +91,26 @@ def remove_duplicate_console_log(source):
         raise ValueError('Console log source layout changed; review required')
     return path, re.sub(pattern, '', text, count=1)
 
+def tailscale_conntrack_source(source):
+    """Patch the native owner, so all conntrack regenerations see Tailscale."""
+    path = source/'src/conf_mode/system_conntrack.py'
+    text = path.read_text()
+    anchor = "    conntrack['ipv4_nat_action'] = 'accept' if conf.exists(['nat']) else 'return'\n"
+    if text.count(anchor) != 1:
+        raise ValueError('Upstream conntrack owner changed; review required')
+    text = text.replace(anchor,
+        "    # Tailscale owns its netfilter rules outside native NAT configuration.\n"
+        "    # Keep both directions tracked, including subnet SNAT return traffic.\n"
+        "    tailscale_tracking = (conf.exists(['service', 'tailscale']) and\n"
+        "                          not conf.exists(['service', 'tailscale', 'disable']))\n"
+        + anchor)
+    for family, node in [('ipv4', 'nat'), ('ipv6', 'nat66')]:
+        before = f"conntrack['{family}_nat_action'] = 'accept' if conf.exists(['{node}']) else 'return'"
+        if text.count(before) != 1:
+            raise ValueError('Upstream conntrack NAT action changed; review required')
+        text = text.replace(before, before.replace("if conf.exists", "if tailscale_tracking or conf.exists"))
+    return path, text
+
 def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False, print_server=False, signage=False):
     kiosk = kiosk or signage
     if not kvm and not tailscale and not kiosk and not receiver and not print_server:
@@ -112,6 +133,7 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False, 
         raise ValueError('Upstream package version rule changed; review required')
     runner_postinst, runner_postinst_text = restore_operator_runner_install(source)
     console_fix = remove_duplicate_console_log(source)
+    conntrack_fix = tailscale_conntrack_source(source) if tailscale else None
     if kiosk:
         profiles.append('kiosk-f')
     recipe_files = dict(payload)
@@ -175,6 +197,8 @@ def prepare(source, version, kvm, tailscale=False, kiosk=False, receiver=False, 
         helper = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helper)
         helper.prepare(source)
+    if conntrack_fix:
+        conntrack_fix[0].write_text(conntrack_fix[1])
     if console_fix:
         console_fix[0].write_text(console_fix[1])
     runner_postinst.write_text(runner_postinst_text)

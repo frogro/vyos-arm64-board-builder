@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 from vyos.config import Config
+from vyos.configdep import set_dependents, call_dependents
 from vyos import ConfigError, airbag
 
 airbag.enable()
@@ -20,6 +21,7 @@ BIN = Path('/usr/libexec/tailscale')
 
 def get_config(config=None):
     conf = config if config else Config()
+    set_dependents('conntrack', conf)
     if not conf.exists(BASE):
         return None
     return conf.get_config_dict(BASE, key_mangling=('-', '_'), get_first_key=True,
@@ -73,7 +75,9 @@ def generate(config):
 def apply(config):
     if config is None or 'disable' in config:
         subprocess.run(['systemctl', 'stop', SERVICE], check=True, timeout=45)
+        call_dependents()
         return
+    call_dependents()
     # ExecStartPost reapplies preferences on daemon recovery as well. An already
     # active daemon needs only a preference update, without disconnecting peers.
     subprocess.run(['systemctl', 'start', SERVICE], check=True, timeout=60)

@@ -195,3 +195,36 @@ See [the access-control review](access-control-review.md) for the native VyOS
 permission policy, observed listeners, Tailscale/firewall interaction and
 remaining acceptance tests. Network access is configured by the deploying
 administrator; this profile does not add a separate web role system.
+
+## Native connection tracking — 2026-10-06
+
+An enabled `service tailscale` now keeps IPv4 and IPv6 connection tracking active
+through the native `system_conntrack` owner. Without this integration, VyOS can
+mark traffic untracked when no native NAT or stateful firewall is configured;
+Tailscale's own subnet masquerade then cannot translate return traffic.
+Tailscale changes trigger the native dependency, including disable and deletion.
+NAT and firewall commits use the same patched owner, so their regeneration does
+not lose the integration. Explicit conntrack ignore rules still take precedence.
+
+No additional CLI option, fixed interface, route, or generated NAT rule is added.
+Existing `disable-snat`, `netfilter-mode off` and `nodivert` choices are retained:
+tracking does not itself install NAT rules or permit traffic through a firewall.
+When disabling Tailscale, tracking returns to the requirements of native NAT,
+firewall and other VyOS features. Previously configured NAT rules are not
+silently removed by an image update.
+
+The full image contains the patched source-built VyOS package and dependency
+metadata. The package recipe changes with these sources, preventing reuse of an
+older profile package. Image assembly verifies the installed conntrack integration.
+During ISO installation, retain the active configuration: both `config.boot` and
+`/config/tailscale/state/tailscaled.state` are migrated with their ownership and
+private file modes. Runtime configuration under `/run` is rebuilt at boot; no
+new login, state reset or automatic Tailscale software update is introduced.
+
+Live validation on Orange Pi 5 Plus: no native NAT configuration remains;
+tracking survives a firewall-group commit/removal, switches to `return` in both
+families on Tailscale disable/deletion, and returns to `accept` on re-enable.
+Daemon restart and configuration deletion/recreation retain the same node ID
+and both Tailscale addresses. The phone-to-ThinkPad test had succeeded with the
+old temporary NAT workaround; end-to-end confirmation after removing that
+workaround is tracked separately from these lifecycle checks.
