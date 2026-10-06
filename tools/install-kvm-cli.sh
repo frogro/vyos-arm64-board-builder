@@ -50,7 +50,12 @@ runner=root/'usr/bin/vyos-op-run'
 assert runner.stat().st_uid==0 and runner.stat().st_mode & 0o4000, 'Operator runner setuid installation missing'
 owners=[]
 if kvm=='yes': owners.append((['service','kvm-over-ip','local-input','keyboard'],'service_kvm_over_ip'))
-if tailscale=='yes': owners.append((['service','tailscale','advertise-route'],'service_tailscale'))
+if tailscale=='yes':
+    owners.append((['service','tailscale','advertise-route'],'service_tailscale'))
+    deps=json.loads((root/'usr/share/vyos/config-mode-dependencies/tailscale.json').read_text())
+    assert deps['service_tailscale']['conntrack']==['system_conntrack']
+    conntrack=(root/'usr/libexec/vyos/conf_mode/system_conntrack.py').read_text()
+    assert conntrack.count("if tailscale_tracking or conf.exists(")==2, 'Tailscale conntrack integration missing'
 if kiosk=='yes': owners.append((['container','name','test','kiosk','rotation'],'container'))
 if receiver=='yes': owners.append((['container','name','test','receiver','method'],'container'))
 if print_server=='yes': owners.append((['service','print-server','usb-port'],'service_print_server'))

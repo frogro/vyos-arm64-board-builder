@@ -16,6 +16,10 @@ config_module = types.ModuleType('vyos.config')
 config_module.Config = object
 sys.modules['vyos'] = vyos
 sys.modules['vyos.config'] = config_module
+dep_module = types.ModuleType('vyos.configdep')
+dep_module.set_dependents = lambda *args: None
+dep_module.call_dependents = lambda: None
+sys.modules['vyos.configdep'] = dep_module
 
 
 def load(name, path):
@@ -79,6 +83,26 @@ class Tests(unittest.TestCase):
             owner.apply({})
             self.assertEqual(run.call_args_list[0].args[0], ['systemctl', 'start', owner.SERVICE])
             self.assertEqual(run.call_args_list[1].args[0], [owner.HELPER])
+
+    def test_dependency_registered_even_on_deletion(self):
+        for enabled in (True,False):
+            conf=types.SimpleNamespace(exists=lambda path: enabled,
+                                      get_config_dict=lambda *args, **kwargs: {})
+            with patch.object(owner, 'set_dependents') as deps:
+                self.assertEqual(owner.get_config(conf), {} if enabled else None)
+                deps.assert_called_once_with('conntrack',conf)
+
+    def test_conntrack_order_on_enable_disable_and_delete(self):
+        for config in ({}, {'disable':''}, None):
+            events=[]
+            with patch.object(owner, 'call_dependents', side_effect=lambda: events.append('conntrack')), \
+                 patch.object(owner.subprocess, 'run', side_effect=lambda args, **kwargs: events.append(args)):
+                owner.apply(config)
+            if config == {}:
+                self.assertEqual(events[0],'conntrack')
+                self.assertEqual(events[1],['systemctl','start',owner.SERVICE])
+            else:
+                self.assertEqual(events,[['systemctl','stop',owner.SERVICE],'conntrack'])
 
     def test_daemon_recovery_requires_native_configuration(self):
         unit = (ROOT / 'tools/common-firstboot/vyos-arm64-tailscaled.service').read_text()

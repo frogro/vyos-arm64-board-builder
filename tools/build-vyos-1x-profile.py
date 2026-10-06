@@ -121,7 +121,8 @@ def build(version,out,kvm=True,tailscale=False,kiosk=False,receiver=False,print_
                          'usr/libexec/vyos/vyos-kvm-mediamtx-supervisor.py']
             owners.append('service_kvm_over_ip.py')
         if tailscale:
-            required += ['opt/vyatta/share/vyatta-cfg/templates/service/tailscale/advertise-route/node.def',
+            required += ['usr/share/vyos/config-mode-dependencies/tailscale.json',
+                         'opt/vyatta/share/vyatta-cfg/templates/service/tailscale/advertise-route/node.def',
                          'usr/libexec/vyos/conf_mode/service_tailscale.py',
                          'usr/libexec/vyos/vyos-tailscale-apply.py']
             owners.append('service_tailscale.py')

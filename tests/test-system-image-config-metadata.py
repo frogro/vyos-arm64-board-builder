@@ -46,6 +46,29 @@ class ConfigMetadataTest(unittest.TestCase):
             self.assertEqual((outside.stat().st_uid,outside.stat().st_gid,outside.stat().st_mode), (before.st_uid,before.st_gid,before.st_mode))
             self.assertEqual(outside.read_text(), 'untouched')
 
+    @unittest.skipUnless(os.geteuid() == 0, 'Run with sudo to verify real UID/GID preservation')
+    def test_tailscale_identity_and_configuration_survive_image_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp)/'config', Path(tmp)/'new-image/config'
+            state = src/'tailscale/state/tailscaled.state'
+            state.parent.mkdir(parents=True)
+            state.parent.chmod(0o2700)
+            os.chown(state.parent, 0, 1001)
+            state.parent.chmod(0o2700)
+            state.write_bytes(b'opaque-node-identity')
+            state.chmod(0o600)
+            os.chown(state, 0, 1001)
+            config = src/'config.boot'
+            config.write_text('service { tailscale { advertise-route 192.0.2.0/24 } }')
+            config.chmod(0o600)
+            shutil.copytree(src, dst, symlinks=True)
+            restore(src, dst)
+            for relative in ('tailscale/state', 'tailscale/state/tailscaled.state', 'config.boot'):
+                a,b = (src/relative).stat(), (dst/relative).stat()
+                self.assertEqual((a.st_uid,a.st_gid,a.st_mode), (b.st_uid,b.st_gid,b.st_mode))
+            self.assertEqual((dst/'tailscale/state/tailscaled.state').read_bytes(), state.read_bytes())
+            self.assertEqual((dst/'config.boot').read_bytes(), config.read_bytes())
+
     def test_reject_destination_symlink_instead_of_directory(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

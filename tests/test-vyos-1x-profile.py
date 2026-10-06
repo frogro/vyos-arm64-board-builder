@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import importlib.util
+import json
+import types
 from pathlib import Path
 import tempfile
 import unittest
@@ -14,6 +16,12 @@ class Tests(unittest.TestCase):
         (p/'src/ocaml').mkdir(parents=True)
         (p/'src/ocaml/vyos_op_run.ml').write_text('check_command_permissions permissions args;\n    Unix.setuid 0;')
         (p/'debian/vyos-1x.postinst').write_text('#!/bin/bash\n# existing upstream steps\n')
+        (p/'src/conf_mode').mkdir(parents=True)
+        (p/'src/conf_mode/system_conntrack.py').write_text(
+            "def get_config(conf):\n    conntrack = {}\n"
+            "    conntrack['ipv4_nat_action'] = 'accept' if conf.exists(['nat']) else 'return'\n"
+            "    conntrack['ipv6_nat_action'] = 'accept' if conf.exists(['nat66']) else 'return'\n"
+            "    return conntrack\n")
         return p
     def test_base_is_byte_for_byte_unchanged(self):
         with tempfile.TemporaryDirectory() as d:
@@ -41,6 +49,33 @@ class Tests(unittest.TestCase):
                 self.assertEqual((p/'src/systemd/vyos-arm64-tailscaled.service').exists(),tailscale)
                 self.assertEqual('tailscale-subnet-router' in meta['profiles'],tailscale)
                 self.assertEqual('kvm-over-ip' in meta['profiles'],kvm)
+    def test_tailscale_tracks_both_families_without_native_nat(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=self.source(d)
+            m.prepare(p,'999.0-14891-gd185906f3',False,True)
+            namespace={}
+            exec((p/'src/conf_mode/system_conntrack.py').read_text(),namespace)
+            cases=[
+                (set(),('return','return')),
+                ({('service','tailscale')},('accept','accept')),
+                ({('service','tailscale'),('service','tailscale','disable')},('return','return')),
+                ({('nat',)},('accept','return')),
+                ({('nat66',)},('return','accept')),
+                ({('nat',),('service','tailscale'),('service','tailscale','disable')},('accept','return')),
+            ]
+            for nodes, expected in cases:
+                conf=types.SimpleNamespace(exists=lambda path: tuple(path) in nodes)
+                result=namespace['get_config'](conf)
+                self.assertEqual((result['ipv4_nat_action'],result['ipv6_nat_action']),expected)
+            deps=json.loads((p/'data/config-mode-dependencies/tailscale.json').read_text())
+            self.assertEqual(deps['service_tailscale']['conntrack'],['system_conntrack'])
+    def test_conntrack_source_drift_is_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=self.source(d)
+            (p/'src/conf_mode/system_conntrack.py').write_text('different upstream owner')
+            with self.assertRaisesRegex(ValueError,'conntrack owner changed'):
+                m.prepare(p,'999.0-14891-gd185906f3',False,True)
+            self.assertFalse((p/'interface-definitions').exists())
     def test_operator_runner_install_is_restored_once(self):
         with tempfile.TemporaryDirectory() as d:
             p=self.source(d)
