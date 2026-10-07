@@ -353,6 +353,11 @@
           "reason": "Confirmed same existing HEVC header failure; replacement includes b476351 and reuses source-matching raw base"
         }
       ]
+    },
+    "2026.10.07-0712-rolling": {
+      "boards": {},
+      "vyos_commit": "f5a1e8334f772225d9e3ccdab45f6884cec28e59",
+      "kernel_version": "6.18.55"
     }
   }
 }
