@@ -798,7 +798,11 @@
           "retry_requested_for_attempt": 1
         },
         "rock-5b": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 40834498941,
+          "status": "completed",
+          "conclusion": "success",
+          "run_attempt": 1
         },
         "raspberry-pi-5": {
           "dispatched": true
