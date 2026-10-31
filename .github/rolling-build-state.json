@@ -919,7 +919,8 @@
           "run_id": 41185237657,
           "status": "completed",
           "conclusion": "failure",
-          "run_attempt": 1
+          "run_attempt": 1,
+          "retry_requested_for_attempt": 1
         },
         "orangepi5-plus": {
           "dispatched": true
