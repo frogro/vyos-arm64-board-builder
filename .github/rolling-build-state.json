@@ -1036,6 +1036,11 @@
       },
       "vyos_commit": "1e54719c0e155ca217f8b7a28adee00d113d5080",
       "kernel_version": "6.18.60"
+    },
+    "2026.11.04-0017-rolling": {
+      "boards": {},
+      "vyos_commit": "19e1edcbb8622b7722628be8ef11dc87e7e9a4fd",
+      "kernel_version": "6.18.60"
     }
   }
 }
