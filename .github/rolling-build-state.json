@@ -1217,6 +1217,11 @@
         }
       ],
       "kernel_refresh_at": "2026-11-09T17:43:03.759985+00:00"
+    },
+    "2026.11.10-0015-rolling": {
+      "boards": {},
+      "vyos_commit": "67f05fefc9085c39d9b0de5c2de1a0759aaf24c2",
+      "kernel_version": "6.18.62"
     }
   }
 }
