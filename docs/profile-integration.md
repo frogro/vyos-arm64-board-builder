@@ -68,14 +68,14 @@ installed image at boot.
 
 A reusable raw artifact must match the selected immutable VyOS source and the
 raw-build recipe. When a fresh base is needed, the builder first checks the
-signed ARM64 package index for the exact `kernel_version`/`kernel_flavor` from
-that source. It downloads and verifies an available package before live-build.
+signed ARM64 package index for the exact kernel release from that source: `kernel_version-kernel_revision-kernel_flavor`
+when `kernel_revision` exists, otherwise the older `kernel_version-kernel_flavor`. It downloads and verifies an available package before live-build.
 If the verified index no longer contains it, the official kernel package recipe
 from the same source runs on an ARM64 runner. Repository/signature failures do
 not trigger a silent fallback or a kernel version change.
 
 The resulting package is checked for package name, ARM64 architecture, kernel
-payload, source commit and SHA-256 before it enters `vyos-build/packages`.
+payload, module-directory ABI, source commit and SHA-256 before it enters `vyos-build/packages`.
 Board-specific kernels, drivers, modules, DTs and selected application profiles
 are still assembled separately; sharing a base does not share a board kernel.
 
@@ -94,3 +94,10 @@ not sufficient. Repository candidates and downloaded/built module packages
 are checked against the selected kernel release. The artifact records and
 verifies all six package checksums, and APT excludes other kernel images.
 This prevents a mixed-kernel root filesystem from reaching initramfs creation.
+
+The board build and Rolling watcher use the same release identity. A revision-only
+change (for example `6.18.62-1-vyos` to `6.18.62-2-vyos`) counts as a kernel update.
+Legacy watcher state is resolved through its pinned source commit, without guessing
+a revision. The fallback inspects the selected upstream recipe's `--help`: older
+recipes receive `--keep-kernel`; newer recipes retain build objects by default,
+so `--dont-keep-kernel` is deliberately omitted. An unknown interface fails closed.

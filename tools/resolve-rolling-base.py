@@ -10,12 +10,17 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+import sys
 from urllib.parse import quote
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from vyos_kernel import kernel_release
 
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE_FILES = ('.github/workflows/test-vyos-arm64-raw.yml',
                 'sources/vyos.sh', 'tools/patch-vyos-arm64-raw.py',
-                'profiles/vyos-flavors/arm64-raw.toml', 'tools/ensure-raw-kernel.py')
+                'profiles/vyos-flavors/arm64-raw.toml', 'tools/ensure-raw-kernel.py',
+                'tools/vyos_kernel.py', 'tools/build-raw-kernel.py')
 
 
 def recipe_hash():
@@ -98,14 +103,11 @@ def main():
     commit, run, recipe = resolve(args.repo, args.ref, args.run_id)
     item = json.loads(gh('api', f'repos/vyos/vyos-build/contents/data/defaults.toml?ref={commit}'))
     defaults = tomllib.loads(base64.b64decode(item['content']).decode())
-    version = defaults['kernel_version']
-    flavor = defaults['kernel_flavor']
-    if not re.fullmatch(r'\d+\.\d+\.\d+', version) or not re.fullmatch('[a-z0-9-]+', flavor):
-        raise ValueError('Invalid upstream kernel identity')
-    output = f'vyos_commit={commit}\nkernel_release={version}-{flavor}\nraw_run_id={run}\nrecipe_sha256={recipe}\n'
+    release = kernel_release(defaults)
+    output = f'vyos_commit={commit}\nkernel_release={release}\nraw_run_id={run}\nrecipe_sha256={recipe}\n'
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
-            stream.write(f'VyOS source: `{commit}`; kernel: `{version}-{flavor}`. '
+            stream.write(f'VyOS source: `{commit}`; kernel: `{release}`. '
                          f'Base: {run or "fresh build required"}. Board/profile patches are applied and compiled in the board job.\n')
     print(output, end='')
     if os.environ.get('GITHUB_OUTPUT'):

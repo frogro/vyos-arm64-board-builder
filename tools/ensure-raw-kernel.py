@@ -13,8 +13,12 @@ import re
 import shutil
 import subprocess
 import tempfile
+import sys
 import tomllib
 
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from vyos_kernel import kernel_release
 
 # These upstream packages carry out-of-tree modules and depend on an exact ABI.
 COMPANIONS = ('jool', 'nat-rtsp', 'vyos-drivers-realtek-r8126',
@@ -49,10 +53,7 @@ def run(*args, **kwargs):
 
 def expected(source):
     defaults = tomllib.loads((source/'data/defaults.toml').read_text())
-    version, flavor = defaults['kernel_version'], defaults['kernel_flavor']
-    if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version) or not re.fullmatch(r'[a-z0-9-]+', flavor):
-        raise ValueError('Unsupported kernel identity; review upstream defaults')
-    return defaults, f'{version}-{flavor}'
+    return defaults, kernel_release(defaults)
 
 
 def candidate(text):
@@ -70,6 +71,9 @@ def validate(deb, release):
     listing = subprocess.check_output(['dpkg-deb', '-c', str(deb)], text=True)
     if not any(line.split()[-1] == './boot/vmlinuz-'+release for line in listing.splitlines()):
         raise ValueError('Kernel payload lacks the expected vmlinuz')
+    module_releases = set(re.findall(r'\./(?:usr/)?lib/modules/([^/\s]+)(?:/|$)', listing, re.M))
+    if module_releases != {release}:
+        raise ValueError('Kernel module tree ABI mismatch: '+str(sorted(module_releases)))
     return data
 
 

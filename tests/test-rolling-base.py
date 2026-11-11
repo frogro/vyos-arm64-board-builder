@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import importlib.util
 import json
+import base64
+import io
+from contextlib import redirect_stdout
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -41,6 +44,15 @@ class Selection(unittest.TestCase):
     def resolve(self, requested=''):
         with patch.object(m, 'gh', self.gh):
             return m.resolve('owner/repo', 'rolling', requested)
+
+    def test_reported_kernel_includes_revision(self):
+        for revision, release in [('', '6.18.62-vyos'), ('kernel_revision="2"', '6.18.62-2-vyos')]:
+            defaults='kernel_version="6.18.62"\nkernel_flavor="vyos"\n'+revision+'\n'
+            response=json.dumps({'content':base64.b64encode(defaults.encode()).decode()})
+            out=io.StringIO()
+            with patch.object(m,'resolve',return_value=(SHA,'','recipe')),patch.object(m,'gh',return_value=response),patch.object(m.sys,'argv',['resolve']),patch.dict(m.os.environ,{},clear=True),redirect_stdout(out):
+                m.main()
+            self.assertIn('kernel_release='+release+'\n',out.getvalue())
 
     def test_reuses_matching_snapshot_and_recipe(self):
         self.assertEqual(self.resolve()[:2], (SHA, '42'))

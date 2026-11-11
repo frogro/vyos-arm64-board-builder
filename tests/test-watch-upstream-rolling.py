@@ -7,8 +7,8 @@ p=Path(__file__).resolve().parents[1]/'tools/watch-upstream-rolling.py'
 s=importlib.util.spec_from_file_location('watch',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
 class Tests(unittest.TestCase):
     def setUp(self):
-        a=patch.object(m,'current_source',return_value=('a'*40,'6.18.54'));a.start();self.addCleanup(a.stop)
-        b=patch.object(m,'kernel_at',return_value='6.18.54');b.start();self.addCleanup(b.stop)
+        a=patch.object(m,'current_source',return_value=('a'*40,'6.18.54-vyos'));a.start();self.addCleanup(a.stop)
+        b=patch.object(m,'kernel_at',return_value='6.18.54-vyos');b.start();self.addCleanup(b.stop)
     def test_selection(self):
         rows=[{'tag_name':t} for t in ['2026.09.17-0028-rolling','2026.09.19-0028-rolling','2026.09.18-0028-rolling','bad-tag']]
         rows += [{'tag_name':'2026.09.20-0028-rolling','draft':True},{'tag_name':'2026.09.21-0028-rolling','prerelease':True}]
@@ -101,10 +101,20 @@ class Tests(unittest.TestCase):
             if dry: self.assertEqual(writes,[])
 
     def test_kernel_advance_refreshes_once_and_waits_for_active_builds(self):
+        self.kernel_advance('6.18.50-vyos','6.18.54-vyos',legacy=True)
+
+    def test_revision_advance_refreshes_once(self):
+        self.kernel_advance('6.18.62-1-vyos','6.18.62-2-vyos')
+
+    def test_legacy_state_same_abi_does_not_rebuild(self):
+        self.kernel_advance('6.18.62-1-vyos','6.18.62-1-vyos',legacy=True)
+
+    def kernel_advance(self, previous, new, legacy=False):
         tag='2026.10.01-0035-rolling'
         for active in (False,True):
             state={'baseline':'2026.09.17-0028-rolling','releases':{tag:{'vyos_commit':'b'*40,
                 'kernel_version':'6.18.50','boards':{b:{'run_id':i,'conclusion':'success'} for i,b in enumerate(m.BOARDS,1)}}}}
+            if not legacy:state['releases'][tag]['kernel_release']=previous
             calls=[]
             def api(path):
                 if 'contents/' in path:return {'sha':'x','content':base64.b64encode(json.dumps(state).encode()).decode()}
@@ -118,11 +128,12 @@ class Tests(unittest.TestCase):
             def save(*args,**kwargs):
                 payload=json.loads(kwargs['input']);state.clear();state.update(json.loads(base64.b64decode(payload['content'])))
                 return json.dumps({'content':{'sha':'y'}})
-            with patch.object(m,'api',side_effect=api),patch.object(m,'gh',side_effect=gh),patch.object(m.subprocess,'check_output',side_effect=save),patch.dict(m.os.environ,{'DRY_RUN':'false'}):
+            with patch.object(m,'current_source',return_value=('a'*40,new)),patch.object(m,'kernel_at',return_value=previous),patch.object(m,'api',side_effect=api),patch.object(m,'gh',side_effect=gh),patch.object(m.subprocess,'check_output',side_effect=save),patch.dict(m.os.environ,{'DRY_RUN':'false'}):
                 m.main();m.main()
-            self.assertEqual(len(calls),0 if active else 4)
-            if not active:
-                self.assertEqual(state['releases'][tag]['kernel_version'],'6.18.54')
+            self.assertEqual(len(calls),0 if active or previous==new else 4)
+            if not active and previous!=new:
+                self.assertEqual(state['releases'][tag]['kernel_version'],new.split('-',1)[0])
+                self.assertEqual(state['releases'][tag]['kernel_release'],new)
                 self.assertEqual(len(state['releases'][tag]['history']),1)
                 self.assertTrue(all('vyos_ref='+('a'*40) in c for c in calls))
 

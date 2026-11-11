@@ -7,6 +7,11 @@ import re
 import subprocess
 from datetime import datetime, timezone
 import tomllib
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from vyos_kernel import kernel_release
 
 REPO = 'frogro/vyos-arm64-board-builder'
 STATE = '.github/rolling-build-state.json'
@@ -35,10 +40,7 @@ def title(board, tag):
 def kernel_at(commit):
     data = api(f'repos/vyos/vyos-build/contents/data/defaults.toml?ref={commit}')
     defaults = tomllib.loads(base64.b64decode(data['content']).decode())
-    version = defaults['kernel_version']
-    if not re.fullmatch(r'\d+\.\d+\.\d+', version):
-        raise ValueError('Unsupported upstream kernel version')
-    return version
+    return kernel_release(defaults)
 
 
 def current_source():
@@ -89,11 +91,12 @@ def main():
     problems=[]
     # One immutable snapshot for this poll; never choose a historical commit
     # merely by the timestamp embedded in a release tag.
-    source_commit, kernel_version = current_source()
+    source_commit, current_kernel = current_source()
+    kernel_version = current_kernel.split('-', 1)[0]
     coordinators=json.loads(gh('run','list','--repo',REPO,'--workflow','rebuild-community-ab.yml',
                               '--limit','10','--json','status'))
     active = any(r.get('status') in ('queued','in_progress','waiting','pending') for r in runs+coordinators)
-    print(f'Current VyOS source: {source_commit}; kernel: {kernel_version}',flush=True)
+    print(f'Current VyOS source: {source_commit}; kernel: {current_kernel}',flush=True)
     for release in selected:
         tag=release['tag_name']
         record=state.setdefault('releases',{}).setdefault(tag,{'boards':{}})
@@ -106,14 +109,16 @@ def main():
                     known.setdefault(normalized_title(run['displayTitle']),run['databaseId'])
         refreshed = False
         if tag == selected[-1]['tag_name'] and record.get('vyos_commit') and not active:
-            previous_kernel = record.get('kernel_version') or kernel_at(record['vyos_commit'])
+            # Legacy state recorded only the base version. Recover its complete
+            # ABI from the pinned source rather than inventing revision 1.
+            previous_kernel = record.get('kernel_release') or kernel_at(record['vyos_commit'])
             complete = all(b in record['boards'] and record['boards'][b].get('conclusion') == 'success'
                            for b in BOARDS if tag >= BOARD_FIRST_ROLLING.get(b,''))
-            if complete and previous_kernel != kernel_version:
-                print(f'{tag}: upstream kernel changed {previous_kernel} -> {kernel_version}; new build cycle',flush=True)
+            if complete and previous_kernel != current_kernel:
+                print(f'{tag}: upstream kernel changed {previous_kernel} -> {current_kernel}; new build cycle',flush=True)
                 if not dry:
                     record.setdefault('history',[]).append({k:v for k,v in record.items() if k != 'history'})
-                    record.update(boards={},vyos_commit=source_commit,kernel_version=kernel_version,
+                    record.update(boards={},vyos_commit=source_commit,kernel_version=kernel_version,kernel_release=current_kernel,
                                   kernel_refresh_at=datetime.now(timezone.utc).isoformat())
                     save()
                     refreshed = True
@@ -152,6 +157,7 @@ def main():
         if 'vyos_commit' not in record:
             record['vyos_commit']=source_commit
             record['kernel_version']=kernel_version
+            record['kernel_release']=current_kernel
             save()
         for board in missing:
             run_title=title(board,tag)

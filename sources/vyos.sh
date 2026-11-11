@@ -115,6 +115,11 @@ vyos_kernel_version() {
     grep -E 'kernel_version|linux_kernel_version' "${defaults}" | head -1
 }
 
+vyos_kernel_localversion() {
+    python3 "${ROOT_DIR}/tools/vyos_kernel.py" "$(vyos_source_dir)" \
+        --localversion --flavor "${KERNEL_FLAVOR:-}"
+}
+
 vyos_kernel_source_dir() {
     local version="$1"
     printf '%s\n' "${ROOT_DIR}/cache/linux-vyos/linux-${version}"

@@ -54,17 +54,8 @@ main() {
     local tailscale_subnet_router=""
     local kvm_over_ip=""
 
-    #
-    # Match the official VyOS kernel build. The VyOS defconfig keeps
-    # CONFIG_LOCALVERSION empty; the kernel flavor suffix is supplied
-    # to Kbuild through LOCALVERSION.
-    #
-    local kernel_flavor="${KERNEL_FLAVOR:-vyos}"
+    # Resolve the suffix only after fetching the selected upstream defaults.
     local kernel_localversion="${KERNEL_LOCALVERSION:-}"
-
-    if [[ -z "${kernel_localversion}" ]]; then
-        kernel_localversion="-${kernel_flavor}"
-    fi
 
     #
     # Requested boot-media capabilities are a build input, not
@@ -90,6 +81,9 @@ main() {
 
     armbian_fetch
     vyos_fetch
+    if [[ -z "${kernel_localversion}" ]]; then
+        kernel_localversion="$(vyos_kernel_localversion)"
+    fi
 
     if [[ -z "$board" ]]; then
         board="$(select_board)"
