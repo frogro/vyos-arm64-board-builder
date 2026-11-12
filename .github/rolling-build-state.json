@@ -1284,7 +1284,8 @@
           "run_id": 43155907891,
           "status": "completed",
           "conclusion": "failure",
-          "run_attempt": 1
+          "run_attempt": 1,
+          "retry_requested_for_attempt": 1
         }
       },
       "vyos_commit": "2265847708078f1dc632a7eae8988e71ac5d6f91",
