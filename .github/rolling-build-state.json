@@ -1260,6 +1260,9 @@
       "boards": {
         "radxa-e52c": {
           "dispatched": true
+        },
+        "rock-5b": {
+          "dispatched": true
         }
       },
       "vyos_commit": "2265847708078f1dc632a7eae8988e71ac5d6f91",
