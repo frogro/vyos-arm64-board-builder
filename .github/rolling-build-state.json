@@ -1442,7 +1442,11 @@
       "kernel_release": "6.18.62-1-vyos"
     },
     "2026.11.17-0016-rolling": {
-      "boards": {},
+      "boards": {
+        "radxa-e52c": {
+          "dispatched": true
+        }
+      },
       "vyos_commit": "56ecf2f87c7b09fa8b82c4d0c46b5122e1b14c7d",
       "kernel_version": "6.18.63",
       "kernel_release": "6.18.63-1-vyos"
