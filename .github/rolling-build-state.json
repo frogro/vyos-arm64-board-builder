@@ -1440,6 +1440,12 @@
       "vyos_commit": "df1c91d8b8855ed644e8cc7dc71158c885ef4a35",
       "kernel_version": "6.18.62",
       "kernel_release": "6.18.62-1-vyos"
+    },
+    "2026.11.17-0016-rolling": {
+      "boards": {},
+      "vyos_commit": "56ecf2f87c7b09fa8b82c4d0c46b5122e1b14c7d",
+      "kernel_version": "6.18.63",
+      "kernel_release": "6.18.63-1-vyos"
     }
   }
 }
