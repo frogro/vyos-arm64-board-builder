@@ -1535,7 +1535,11 @@
           "retry_requested_for_attempt": 1
         },
         "raspberry-pi-5": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 44704841709,
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
         },
         "orangepi5-plus": {
           "dispatched": true
