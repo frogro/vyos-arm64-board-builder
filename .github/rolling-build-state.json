@@ -1604,6 +1604,9 @@
         },
         "raspberry-pi-5": {
           "dispatched": true
+        },
+        "orangepi5-plus": {
+          "dispatched": true
         }
       },
       "vyos_commit": "91ccacad5e507a3aa70defe671bb633ceca54c4a",
