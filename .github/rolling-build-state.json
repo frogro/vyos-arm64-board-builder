@@ -1660,7 +1660,11 @@
           "retry_requested_for_attempt": 1
         },
         "orangepi5-plus": {
-          "dispatched": true
+          "dispatched": true,
+          "run_id": 45535901179,
+          "status": "completed",
+          "conclusion": "failure",
+          "run_attempt": 1
         }
       },
       "vyos_commit": "9d5cb26c68df2ab7b8e1a9b7ede3bf3d0113c7ad",
