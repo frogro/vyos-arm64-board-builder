@@ -1665,7 +1665,7 @@
           "status": "completed",
           "conclusion": "failure",
           "run_attempt": 2,
-          "retry_requested_for_attempt": 1
+          "retry_requested_for_attempt": 2
         }
       },
       "vyos_commit": "9d5cb26c68df2ab7b8e1a9b7ede3bf3d0113c7ad",
