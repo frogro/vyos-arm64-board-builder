@@ -1695,7 +1695,7 @@
           "run_id": 45752168878,
           "status": "completed",
           "conclusion": "failure",
-          "run_attempt": 1,
+          "run_attempt": 2,
           "retry_requested_for_attempt": 1
         },
         "orangepi5-plus": {
